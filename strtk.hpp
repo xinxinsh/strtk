@@ -734,7 +734,7 @@ namespace strtk
       template<typename OutputIterator>
       void split_and_compress_delimiters(OutputIterator out)
       {
-         Iterator it1  = begin_;
+         Iterator it1 = begin_;
          Iterator prev = begin_;
          while(it1 != end_)
          {
@@ -763,6 +763,54 @@ namespace strtk
       Iterator begin_;
       Iterator end_;
    };
+
+   template<typename Iterator, typename DelimiterPredicate>
+   std::size_t count_tokens(Iterator begin, Iterator end, const DelimiterPredicate& delimiter_)
+   {
+      std::size_t count = 0;
+      Iterator it1 = begin;
+      Iterator prev = begin;
+      while(it1 != end)
+      {
+        if(delimiter_(*it1))
+        {
+           ++count;
+           ++it1;
+           prev = it1;
+        }
+        else
+           ++it1;
+      }
+      if (prev != it1)
+      {
+         ++count;
+      }
+      return count;
+   }
+
+   template<typename Iterator, typename DelimiterPredicate>
+   std::size_t count_tokens_and_compress_delimiters(Iterator begin, Iterator end, const DelimiterPredicate& delimiter_)
+   {
+      std::size_t count = 0;
+      Iterator it1 = begin;
+      Iterator prev = begin;
+      while(it1 != end)
+      {
+         if(delimiter_(*it1))
+         {
+            if (std::distance(prev,it1) >= 1) ++count;
+            do { ++it1; } while((it1 != end) && delimiter_(*it1));
+            prev = it1;
+         }
+         else
+            ++it1;
+      }
+      if (prev != it1)
+      {
+         ++count;
+      }
+      return count;
+   }
 
 }
 
