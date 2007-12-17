@@ -23,6 +23,7 @@
 #include <fstream>
 #include <string>
 #include <iterator>
+#include <algorithm>
 
 #include <boost/lexical_cast.hpp>
 
@@ -608,6 +609,160 @@ namespace strtk
       return match(wild_card.c_str(),wild_card.c_str() + wild_card.size(),
                    str.c_str(),str.c_str() + str.size(),'*','?');
    }
+
+   template<typename T>
+   class range_adapter
+   {
+   public:
+
+      typedef T value_type;
+      typedef T* iterator;
+      typedef const iterator const_iterator;
+
+      range_adapter(T* const begin,T* const end)
+      : begin_(begin),
+        end_(end){}
+
+      range_adapter(T* const begin, const std::size_t length)
+      : begin_(begin),
+        end_(begin_ + length){}
+
+      const_iterator begin() const { return begin_; }
+      const_iterator end() const { return end_; }
+
+      iterator begin() { return begin_; }
+      iterator end() { return end_; }
+
+   private:
+
+      iterator begin_;
+      iterator end_;
+   };
+
+   template<typename T>
+   struct single_delimiter_predicate
+   {
+   public:
+      single_delimiter_predicate(const T& d) : delimiter_(d) {}
+      bool operator()(const T& d) { return d == delimiter_; }
+   private:
+      T delimiter_;
+   };
+
+   template<typename T>
+   struct multiple_delimiter_predicate
+   {
+   public:
+
+      multiple_delimiter_predicate(const T* d_begin,const T* d_end)
+      {
+         length_ = std::distance(d_begin,d_end);
+         delimiter_ = new T[length_];
+         delimiter_end_ = delimiter_ + length_;
+         std::copy(d_begin,d_end, delimiter_);
+      }
+
+      multiple_delimiter_predicate(const T d[], const std::size_t& length)
+      {
+         length_ = length;
+         delimiter_ = new T[length_];
+         delimiter_end_ = delimiter_ + length_;
+         std::copy(d,d + length, delimiter_);
+      }
+
+      template<typename Iterator>
+      multiple_delimiter_predicate(const Iterator begin,const Iterator end)
+      {
+         length_ = std::distance(begin,end);
+         delimiter_ = new T[length_];
+         delimiter_end_ = delimiter_ + length_;
+         std::copy(begin,end, delimiter_);
+      }
+
+     ~multiple_delimiter_predicate() { delete[] delimiter_; }
+
+      bool operator()(const T& d) const
+      {
+         return (std::find(delimiter_,delimiter_end_,d) != delimiter_end_);
+      }
+
+   private:
+      T* delimiter_;
+      T* delimiter_end_;
+      std::size_t length_;
+   };
+
+   template<typename T,
+            typename DelimiterPredicate,
+            typename Iterator = T*>
+   class splitter
+   {
+   public:
+
+      splitter(const DelimiterPredicate& delimiter) : delimiter_(delimiter){}
+
+      void assign(const Iterator begin, const Iterator end)
+      {
+         begin_ = begin;
+         end_   = end;
+      }
+
+      template<typename OutputIterator>
+      void split(OutputIterator out)
+      {
+         Iterator it1 = begin_;
+         Iterator prev = begin_;
+         while(it1 != end_)
+         {
+           if(delimiter_(*it1))
+           {
+              out = std::make_pair<Iterator,Iterator>(prev,it1);
+              ++out;
+              ++it1;
+              prev = it1;
+           }
+           else
+              ++it1;
+         }
+         if (prev != it1)
+         {
+            out = std::make_pair<Iterator,Iterator>(prev,it1);
+            ++out;
+         }
+      }
+
+      template<typename OutputIterator>
+      void split_and_compress_delimiters(OutputIterator out)
+      {
+         Iterator it1  = begin_;
+         Iterator prev = begin_;
+         while(it1 != end_)
+         {
+           if(delimiter_(*it1))
+           {
+              if (std::distance(prev,it1) >= 1)
+              {
+                 out = std::make_pair<Iterator,Iterator>(prev,it1);
+                 ++out;
+              }
+              do { ++it1; } while((it1 != end_) && delimiter_(*it1));
+              prev = it1;
+           }
+           else
+              ++it1;
+         }
+         if (prev != it1)
+         {
+            out = std::make_pair<Iterator,Iterator>(prev,it1);
+            ++out;
+         }
+      }
+
+   private:
+      const DelimiterPredicate& delimiter_;
+      Iterator begin_;
+      Iterator end_;
+   };
 
 }
 
