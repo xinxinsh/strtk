@@ -360,52 +360,52 @@ namespace strtk
                      const typename std::iterator_traits<Iterator>::value_type& zero_or_more,
                      const typename std::iterator_traits<Iterator>::value_type& zero_or_one)
    {
-         /*
-            Credits: Adapted entirely from code provided
-            by Jack Handy - 2001 on CodeProject (jakkhandy@hotmail.com)
-         */
-         if (0 == std::distance(data_begin,data_end)) return false;
+      /*
+         Credits: Adapted entirely from code provided
+         by Jack Handy - 2001 on CodeProject (jakkhandy@hotmail.com)
+      */
+      if (0 == std::distance(data_begin,data_end)) return false;
 
-         Iterator d_it = data_begin;
-         Iterator p_it = pattern_begin;
-         Iterator c_it = data_begin;
-         Iterator m_it = data_begin;
+      Iterator d_it = data_begin;
+      Iterator p_it = pattern_begin;
+      Iterator c_it = data_begin;
+      Iterator m_it = data_begin;
 
-         while ((d_it != data_end) && ((*p_it) != zero_or_more))
+      while ((d_it != data_end) && ((*p_it) != zero_or_more))
+      {
+         if (((*p_it)!= (*d_it)) && (zero_or_one != (*p_it)))
          {
-            if (((*p_it)!= (*d_it)) && (zero_or_one != (*p_it)))
+            return false;
+         }
+         p_it++;
+         d_it++;
+      }
+
+      while (d_it != data_end)
+      {
+         if (zero_or_more == (*p_it))
+         {
+            if (!*++p_it)
             {
-               return false;
+               return true;
             }
+            m_it = p_it;
+            c_it = d_it + 1;
+         }
+         else if (((*p_it) == (*d_it)) || (zero_or_one == (*p_it)))
+         {
             p_it++;
             d_it++;
          }
-
-         while (d_it != data_end)
+         else
          {
-            if (zero_or_more == (*p_it))
-            {
-               if (!*++p_it)
-               {
-                  return true;
-               }
-               m_it = p_it;
-               c_it = d_it + 1;
-            }
-            else if (((*p_it) == (*d_it)) || (zero_or_one == (*p_it)))
-            {
-               p_it++;
-               d_it++;
-            }
-            else
-            {
-               p_it = m_it;
-               d_it = c_it++;
-            }
+            p_it = m_it;
+            d_it = c_it++;
          }
-         while ((p_it != pattern_end) && (zero_or_more == (*p_it))) p_it++;
-         return (p_it == pattern_end);
       }
+      while ((p_it != pattern_end) && (zero_or_more == (*p_it))) p_it++;
+      return (p_it == pattern_end);
+   }
 
    inline bool match(const std::string& wild_card,
                      const std::string& str)
@@ -500,79 +500,86 @@ namespace strtk
       std::size_t length_;
    };
 
-   template<typename T,
-            typename DelimiterPredicate,
-            typename Iterator = T*>
-   class splitter
+   template<typename DelimiterPredicate,
+            typename Iterator,
+            typename OutputIterator>
+   void split(const Iterator begin,
+              const Iterator end,
+              const DelimiterPredicate& delimiter,
+              OutputIterator& out)
    {
-   public:
-
-      splitter(const DelimiterPredicate& delimiter) : delimiter_(delimiter){}
-
-      void assign(const Iterator begin, const Iterator end)
+      if (0 == std::distance(begin,end)) return;
+      Iterator it1 = begin;
+      Iterator prev = begin;
+      while(it1 != end)
       {
-         begin_ = begin;
-         end_   = end;
+        if(delimiter(*it1))
+        {
+           out = std::make_pair<Iterator,Iterator>(prev,it1);
+           ++out;
+           ++it1;
+           prev = it1;
+        }
+        else
+           ++it1;
       }
-
-      template<typename OutputIterator>
-      void split(OutputIterator out)
+      if (prev != it1)
       {
-         if (0 == std::distance(begin_,end_)) return;
-         Iterator it1 = begin_;
-         Iterator prev = begin_;
-         while(it1 != end_)
-         {
-           if(delimiter_(*it1))
+         out = std::make_pair<Iterator,Iterator>(prev,it1);
+         ++out;
+      }
+   }
+
+   template<typename DelimiterPredicate,
+            typename Iterator,
+            typename OutputIterator>
+   void split_with_compressed_delimiters(const Iterator begin,
+                                         const Iterator end,
+                                         const DelimiterPredicate& delimiter,
+                                         OutputIterator& out)
+   {
+      if (0 == std::distance(begin,end)) return;
+      Iterator it1 = begin;
+      Iterator prev = begin;
+      while(it1 != end)
+      {
+        if(delimiter(*it1))
+        {
+           if (std::distance(prev,it1) >= 1)
            {
               out = std::make_pair<Iterator,Iterator>(prev,it1);
               ++out;
-              ++it1;
-              prev = it1;
            }
-           else
-              ++it1;
-         }
-         if (prev != it1)
-         {
-            out = std::make_pair<Iterator,Iterator>(prev,it1);
-            ++out;
-         }
+           do { ++it1; } while((it1 != end) && delimiter(*it1));
+           prev = it1;
+        }
+        else
+           ++it1;
       }
-
-      template<typename OutputIterator>
-      void split_with_compressed_delimiters(OutputIterator out)
+      if (prev != it1)
       {
-         if (0 == std::distance(begin_,end_)) return;
-         Iterator it1 = begin_;
-         Iterator prev = begin_;
-         while(it1 != end_)
-         {
-           if(delimiter_(*it1))
-           {
-              if (std::distance(prev,it1) >= 1)
-              {
-                 out = std::make_pair<Iterator,Iterator>(prev,it1);
-                 ++out;
-              }
-              do { ++it1; } while((it1 != end_) && delimiter_(*it1));
-              prev = it1;
-           }
-           else
-              ++it1;
-         }
-         if (prev != it1)
-         {
-            out = std::make_pair<Iterator,Iterator>(prev,it1);
-            ++out;
-         }
+         out = std::make_pair<Iterator,Iterator>(prev,it1);
+         ++out;
       }
+   }
 
-   private:
-      const DelimiterPredicate& delimiter_;
-      Iterator begin_;
-      Iterator end_;
-   };
+   template<typename DelimiterPredicate,
+            typename OutputIterator>
+   void split(const std::string& str,
+              const DelimiterPredicate& delimiter,
+              OutputIterator& out)
+   {
+      split(str.begin(),str.end(),delimiter,out);
+   }
+
+   template<typename DelimiterPredicate,
+            typename OutputIterator>
+   void split_with_compressed_delimiters(const std::string& str,
+                                         const DelimiterPredicate& delimiter,
+                                         OutputIterator& out)
+   {
+      split_with_compressed_delimiters(str.begin(),str.end(),delimiter,out);
+   }
 
    template<typename Iterator, typename DelimiterPredicate>
    std::size_t count_tokens(Iterator begin, Iterator end, const DelimiterPredicate& delimiter_)
