@@ -1009,6 +1009,157 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t2);
    }
 
+   void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   {
+      const std::size_t symbol_count = 16;
+      const unsigned char hex_symbol[symbol_count] = {
+                                                      '0','1','2','3','4','5','6','7',
+                                                      '8','9','A','B','C','D','E','F'
+                                                     };
+
+      for(const unsigned char* it = begin; it != end; ++it)
+      {
+         *out = hex_symbol[((*it) >> 0x04) & 0x0F]; ++out;
+         *out = hex_symbol[ (*it)          & 0x0F]; ++out;
+      }
+   }
+
+   void convert_bin_to_hex(const char* begin, const char* end, char* out)
+   {
+      convert_bin_to_hex(reinterpret_cast<const unsigned char*>(begin),
+                         reinterpret_cast<const unsigned char*>(end),
+                         reinterpret_cast<unsigned char*>(out));
+   }
+
+   void convert_bin_to_hex(const std::string& binary_data, std::string& output)
+   {
+      output.resize(binary_data.size() * 2);
+      convert_bin_to_hex(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+   }
+
+   void convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   {
+      const std::size_t symbol_count = 256;
+      const unsigned char hex_to_bin[symbol_count] = {
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                                      0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+                                                     };
+
+
+      for(const unsigned char* it = begin; it != end;)
+      {
+         (*out)  = hex_to_bin[(*it)] << 4; ++it;
+         (*out) |= hex_to_bin[(*it)]     ; ++it;
+         ++out;
+      }
+   }
+
+   void convert_hex_to_bin(const char* begin, const char* end, char* out)
+   {
+      convert_hex_to_bin(reinterpret_cast<const unsigned char*>(begin),
+                         reinterpret_cast<const unsigned char*>(end),
+                         reinterpret_cast<unsigned char*>(out));
+   }
+
+   void convert_hex_to_bin(const std::string& binary_data, std::string& output)
+   {
+      output.resize(binary_data.size() >> 1);
+      convert_hex_to_bin(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+   }
+
+   void convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   {
+      const std::size_t symbol_count = 64;
+      const unsigned char bin_to_base64 [symbol_count]
+             = {
+                'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+                'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+                '0','1','2','3','4','5','6','7','8','9','+','/'
+               };
+
+      std::size_t rounds = std::distance(begin,end) / 3;
+      const unsigned char* it = begin;
+      for(std::size_t i = 0; i < rounds; ++i)
+      {
+         unsigned int block  = *it << 16; ++it;
+                      block |= *it <<  8; ++it;
+                      block |= *it      ; ++it;
+
+         *out = bin_to_base64[( block >> 18 ) & 0x3F]; ++out;
+         *out = bin_to_base64[( block >> 12 ) & 0x3F]; ++out;
+         *out = bin_to_base64[( block >>  6 ) & 0x3F]; ++out;
+         *out = bin_to_base64[( block       ) & 0x3F]; ++out;
+      }
+
+      if ((rounds = (std::distance(begin,end) % 3)) > 0)
+      {
+         switch(rounds)
+         {
+            case 1 : {
+                       unsigned int block  = (unsigned char) (*it) << 16;
+                       *out = bin_to_base64[( block >> 18 ) & 0x3F]; ++out;
+                       *out = bin_to_base64[( block >> 12 ) & 0x3F]; ++out;
+                       *out = '='; ++out;
+                       *out = '='; ++out;
+                     }
+                     break;
+
+            case 2 : {
+                        unsigned int block  = *it << 16; ++it;
+                                     block |= *it <<  8; ++it;
+                        *out = bin_to_base64[( block >> 18 ) & 0x3F]; ++out;
+                        *out = bin_to_base64[( block >> 12 ) & 0x3F]; ++out;
+                        *out = bin_to_base64[( block >>  6 ) & 0x3F]; ++out;
+                        *out = '='; ++out;
+                     }
+                     break;
+         }
+      }
+   }
+
+   void convert_bin_to_base64(const char* begin, const char* end, char* out)
+   {
+      convert_bin_to_base64(reinterpret_cast<const unsigned char*>(begin),
+                            reinterpret_cast<const unsigned char*>(end),
+                            reinterpret_cast<unsigned char*>(out));
+   }
+
+   void convert_bin_to_base64(const std::string& binary_data, std::string& output)
+   {
+      output.resize(binary_data.size() << 1);
+      convert_bin_to_base64(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+   }
+
 }
 
 #endif
