@@ -31,10 +31,22 @@
 namespace strtk
 {
 
+   template<typename Sequence>
+   struct add_to_sequence
+   {
+   public:
+      add_to_sequence(Sequence& sequence) : sequence_(sequence){}
+
+      template<typename T>
+      void operator()(const T& t) { sequence_.push_back(t); }
+   private:
+      Sequence sequence_;
+   };
+
    template<typename Tokenizer, typename Handler>
    unsigned int for_each_token(const std::string& buffer,
                                Tokenizer& tokenizer,
-                               const Handler& handler)
+                               Handler& handler)
    {
       unsigned int result = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
@@ -48,7 +60,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line(std::ifstream& stream, const Handler& handler)
+   unsigned int for_each_line(std::ifstream& stream, Handler& handler)
    {
       std::string buffer(1024,0x0);
       unsigned int result = 0;
@@ -61,7 +73,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line(const std::string& file_name, const Handler& handler)
+   unsigned int for_each_line(const std::string& file_name, Handler& handler)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
@@ -71,7 +83,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line_conditional(std::ifstream& stream, const Handler& handler)
+   unsigned int for_each_line_conditional(std::ifstream& stream, Handler& handler)
    {
       std::string buffer(1024,0x0);
       unsigned int result = 0;
@@ -87,7 +99,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line_conditional(const std::string& file_name, const Handler& handler)
+   unsigned int for_each_line_conditional(const std::string& file_name, Handler& handler)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
@@ -452,7 +464,7 @@ namespace strtk
    {
    public:
       single_delimiter_predicate(const T& d) : delimiter_(d) {}
-      bool operator()(const T& d) { return d == delimiter_; }
+      bool operator()(const T& d) const { return d == delimiter_; }
    private:
       T delimiter_;
    };
