@@ -60,7 +60,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line(std::ifstream& stream, Handler& handler)
+   inline unsigned int for_each_line(std::ifstream& stream, Handler& handler)
    {
       std::string buffer(1024,0x0);
       unsigned int result = 0;
@@ -73,7 +73,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line(const std::string& file_name, Handler& handler)
+   inline unsigned int for_each_line(const std::string& file_name, Handler& handler)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
@@ -83,7 +83,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line_conditional(std::ifstream& stream, Handler& handler)
+   inline unsigned int for_each_line_conditional(std::ifstream& stream, Handler& handler)
    {
       std::string buffer(1024,0x0);
       unsigned int result = 0;
@@ -99,7 +99,7 @@ namespace strtk
    }
 
    template<typename Handler>
-   unsigned int for_each_line_conditional(const std::string& file_name, Handler& handler)
+   inline unsigned int for_each_line_conditional(const std::string& file_name, Handler& handler)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
@@ -515,10 +515,10 @@ namespace strtk
    template<typename DelimiterPredicate,
             typename Iterator,
             typename OutputIterator>
-   void split(const Iterator begin,
-              const Iterator end,
-              const DelimiterPredicate& delimiter,
-              OutputIterator& out)
+   inline void split(const Iterator begin,
+                     const Iterator end,
+                     const DelimiterPredicate& delimiter,
+                     OutputIterator& out)
    {
       if (0 == std::distance(begin,end)) return;
       Iterator it1 = begin;
@@ -545,10 +545,10 @@ namespace strtk
    template<typename DelimiterPredicate,
             typename Iterator,
             typename OutputIterator>
-   void split_with_compressed_delimiters(const Iterator begin,
-                                         const Iterator end,
-                                         const DelimiterPredicate& delimiter,
-                                         OutputIterator& out)
+   inline void split_with_compressed_delimiters(const Iterator begin,
+                                                const Iterator end,
+                                                const DelimiterPredicate& delimiter,
+                                                OutputIterator& out)
    {
       if (0 == std::distance(begin,end)) return;
       Iterator it1 = begin;
@@ -577,24 +577,41 @@ namespace strtk
 
    template<typename DelimiterPredicate,
             typename OutputIterator>
-   void split(const std::string& str,
-              const DelimiterPredicate& delimiter,
-              OutputIterator& out)
+   inline void split(const std::string& str,
+                     const DelimiterPredicate& delimiter,
+                     OutputIterator& out)
    {
       split(str.begin(),str.end(),delimiter,out);
    }
 
+   template<typename OutputIterator>
+   inline void split(const std::string& str,
+                     const std::string::value_type delimiter,
+                     OutputIterator& out)
+   {
+      split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out);
+   }
+
+
    template<typename DelimiterPredicate,
             typename OutputIterator>
-   void split_with_compressed_delimiters(const std::string& str,
-                                         const DelimiterPredicate& delimiter,
-                                         OutputIterator& out)
+   inline void split_with_compressed_delimiters(const std::string& str,
+                                                const DelimiterPredicate& delimiter,
+                                                OutputIterator& out)
    {
       split_with_compressed_delimiters(str.begin(),str.end(),delimiter,out);
    }
 
+   template<typename OutputIterator>
+   inline void split_with_compressed_delimiters(const std::string& str,
+                                                const std::string::value_type delimiter,
+                                                OutputIterator& out)
+   {
+      split_with_compressed_delimiters(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out);
+   }
+
    template<typename Iterator, typename DelimiterPredicate>
-   std::size_t count_tokens(Iterator begin, Iterator end, const DelimiterPredicate& delimiter_)
+   inline std::size_t count_tokens(Iterator begin, Iterator end, const DelimiterPredicate& delimiter_)
    {
       if (0 == std::distance(begin,end)) return 0;
       std::size_t count = 0;
@@ -619,7 +636,9 @@ namespace strtk
    }
 
    template<typename Iterator, typename DelimiterPredicate>
-   std::size_t count_tokens_with_compressed_delimiters(Iterator begin, Iterator end, const DelimiterPredicate& delimiter_)
+   inline std::size_t count_tokens_with_compressed_delimiters(Iterator begin,
+                                                              Iterator end,
+                                                              const DelimiterPredicate& delimiter)
    {
       if (0 == std::distance(begin,end)) return 0;
       std::size_t count = 0;
@@ -627,10 +646,10 @@ namespace strtk
       Iterator prev = begin;
       while(it1 != end)
       {
-         if(delimiter_(*it1))
+         if(delimiter(*it1))
          {
             if (std::distance(prev,it1) >= 1) ++count;
-            do { ++it1; } while((it1 != end) && delimiter_(*it1));
+            do { ++it1; } while((it1 != end) && delimiter(*it1));
             prev = it1;
          }
          else
@@ -1009,7 +1028,7 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t2);
    }
 
-   void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       const std::size_t symbol_count = 16;
       const unsigned char hex_symbol[symbol_count] = {
@@ -1024,20 +1043,20 @@ namespace strtk
       }
    }
 
-   void convert_bin_to_hex(const char* begin, const char* end, char* out)
+   inline void convert_bin_to_hex(const char* begin, const char* end, char* out)
    {
       convert_bin_to_hex(reinterpret_cast<const unsigned char*>(begin),
                          reinterpret_cast<const unsigned char*>(end),
                          reinterpret_cast<unsigned char*>(out));
    }
 
-   void convert_bin_to_hex(const std::string& binary_data, std::string& output)
+   inline void convert_bin_to_hex(const std::string& binary_data, std::string& output)
    {
       output.resize(binary_data.size() * 2);
       convert_bin_to_hex(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
    }
 
-   void convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   inline void convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       const std::size_t symbol_count = 256;
       const unsigned char hex_to_bin[symbol_count] = {
@@ -1084,20 +1103,20 @@ namespace strtk
       }
    }
 
-   void convert_hex_to_bin(const char* begin, const char* end, char* out)
+   inline void convert_hex_to_bin(const char* begin, const char* end, char* out)
    {
       convert_hex_to_bin(reinterpret_cast<const unsigned char*>(begin),
                          reinterpret_cast<const unsigned char*>(end),
                          reinterpret_cast<unsigned char*>(out));
    }
 
-   void convert_hex_to_bin(const std::string& binary_data, std::string& output)
+   inline void convert_hex_to_bin(const std::string& binary_data, std::string& output)
    {
       output.resize(binary_data.size() >> 1);
       convert_hex_to_bin(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
    }
 
-   void convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   inline unsigned int convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       const std::size_t symbol_count = 64;
       const unsigned char bin_to_base64 [symbol_count]
@@ -1107,7 +1126,8 @@ namespace strtk
                 '0','1','2','3','4','5','6','7','8','9','+','/'
                };
 
-      std::size_t rounds = std::distance(begin,end) / 3;
+      std::size_t length = std::distance(begin,end);
+      std::size_t rounds = length / 3;
       const unsigned char* it = begin;
       for(std::size_t i = 0; i < rounds; ++i)
       {
@@ -1145,19 +1165,115 @@ namespace strtk
                      break;
          }
       }
+      return static_cast<unsigned int>((length / 3) * 4) + ((length % 3) > 0 ? 4 : 0);
    }
 
-   void convert_bin_to_base64(const char* begin, const char* end, char* out)
+   unsigned int convert_bin_to_base64(const char* begin, const char* end, char* out)
    {
-      convert_bin_to_base64(reinterpret_cast<const unsigned char*>(begin),
-                            reinterpret_cast<const unsigned char*>(end),
-                            reinterpret_cast<unsigned char*>(out));
+      return convert_bin_to_base64(reinterpret_cast<const unsigned char*>(begin),
+                                   reinterpret_cast<const unsigned char*>(end),
+                                   reinterpret_cast<unsigned char*>(out));
    }
 
-   void convert_bin_to_base64(const std::string& binary_data, std::string& output)
+   inline void convert_bin_to_base64(const std::string& binary_data, std::string& output)
    {
       output.resize(binary_data.size() << 1);
-      convert_bin_to_base64(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+      std::size_t resize = convert_bin_to_base64(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+      output.resize(resize);
+   }
+
+   inline unsigned int convert_base64_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   {
+      const std::size_t symbol_count = 256;
+      const unsigned char base64_to_bin[symbol_count] = {
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0x3E, 0xFF, 0xFF, 0xFF, 0x3F,
+                                                 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B,
+                                                 0x3C, 0x3D, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+                                                 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+                                                 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
+                                                 0x17, 0x18, 0x19, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
+                                                 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+                                                 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
+                                                 0x31, 0x32, 0x33, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+                                               };
+
+
+      std::size_t length = std::distance(begin,end);
+      std::size_t rounds = length / 4;
+      const unsigned char* it = begin;
+      for(std::size_t i = 0; i < rounds; ++i)
+      {
+         unsigned int block  = base64_to_bin[*it] << 18; ++it;
+                      block |= base64_to_bin[*it] << 12; ++it;
+                      block |= base64_to_bin[*it] <<  6; ++it;
+                      block |= base64_to_bin[*it];       ++it;
+
+         *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF); ++out;
+         *out = static_cast<unsigned char>(( block >>  8 ) & 0xFF); ++out;
+         *out = static_cast<unsigned char>(( block       ) & 0xFF); ++out;
+      }
+
+      if ((rounds = (length % 4)) > 0)
+      {
+         switch(rounds)
+         {
+            case 2 : {
+                        unsigned int block  = base64_to_bin[*it] << 18; ++it;
+                                     block |= base64_to_bin[*it] << 12; ++it;
+                        *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF); ++out;
+                        return static_cast<unsigned int>((3 * length) / 4 + 1);
+                     }
+                     break;
+
+            case 3 : {
+                        unsigned int block  = base64_to_bin[*it] << 18; ++it;
+                                     block |= base64_to_bin[*it] << 12; ++it;
+                                     block |= base64_to_bin[*it] <<  6; ++it;
+                        *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF); ++out;
+                        *out = static_cast<unsigned char>(( block >>  8 ) & 0xFF); ++out;
+                        return static_cast<unsigned int>((3 * length) / 4 + 2);
+                     }
+                     break;
+         }
+      }
+      return static_cast<unsigned int>((3 * length) / 4);
+   }
+
+   inline unsigned int convert_base64_to_bin(const char* begin, const char* end, char* out)
+   {
+      return convert_base64_to_bin(reinterpret_cast<const unsigned char*>(begin),
+                                   reinterpret_cast<const unsigned char*>(end),
+                                   reinterpret_cast<unsigned char*>(out));
+   }
+
+   inline void convert_base64_to_bin(const std::string& binary_data, std::string& output)
+   {
+      output.resize(binary_data.size());
+      std::size_t resize = convert_base64_to_bin(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+      output.resize(resize);
    }
 
 }
