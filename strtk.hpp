@@ -120,13 +120,13 @@ namespace strtk
       return false;
    }
 
-   template<typename ForwardIterator>
-   inline unsigned int remove_inplace(const typename std::iterator_traits<ForwardIterator>::value_type& c,
-                                      ForwardIterator begin,
-                                      ForwardIterator end)
+   template<typename Iterator>
+   inline unsigned int remove_inplace(const typename std::iterator_traits<Iterator>::value_type& c,
+                                      Iterator begin,
+                                      Iterator end)
    {
-      ForwardIterator it1 = begin;
-      ForwardIterator it2 = begin;
+      Iterator it1 = begin;
+      Iterator it2 = begin;
       unsigned int removal_count = 0;
       while(it1 != end)
       {
@@ -148,14 +148,14 @@ namespace strtk
       return removal_count;
    }
 
-   template<typename ForwardIterator>
-   inline unsigned int remove_inplace(const typename std::iterator_traits<ForwardIterator>::value_type c[],
+   template<typename Iterator>
+   inline unsigned int remove_inplace(const typename std::iterator_traits<Iterator>::value_type c[],
                                       const unsigned int c_length,
-                                      ForwardIterator begin,
-                                      ForwardIterator end)
+                                      Iterator begin,
+                                      Iterator end)
    {
-      ForwardIterator it1 = begin;
-      ForwardIterator it2 = begin;
+      Iterator it1 = begin;
+      Iterator it2 = begin;
       unsigned int removal_count = 0;
       while(it1 != end)
       {
@@ -197,15 +197,15 @@ namespace strtk
       }
    }
 
-   template<typename ForwardIterator>
-   inline unsigned int remove_consecutives_inplace(const typename std::iterator_traits<ForwardIterator>::value_type& c,
-                                                   ForwardIterator begin,
-                                                   ForwardIterator end)
+   template<typename Iterator>
+   inline unsigned int remove_consecutives_inplace(const typename std::iterator_traits<Iterator>::value_type& c,
+                                                   Iterator begin,
+                                                   Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      ForwardIterator it1 = begin;
-      ForwardIterator it2 = begin;
-      typename std::iterator_traits<ForwardIterator>::value_type prev = *it1;
+      Iterator it1 = begin;
+      Iterator it2 = begin;
+      typename std::iterator_traits<Iterator>::value_type prev = *it1;
       unsigned int removal_count = 0;
       while(it1 != end)
       {
@@ -228,16 +228,16 @@ namespace strtk
       return removal_count;
    }
 
-   template<typename ForwardIterator>
-   inline unsigned int remove_consecutives_inplace(const typename std::iterator_traits<ForwardIterator>::value_type c[],
+   template<typename Iterator>
+   inline unsigned int remove_consecutives_inplace(const typename std::iterator_traits<Iterator>::value_type c[],
                                                    const unsigned int c_length,
-                                                   ForwardIterator begin,
-                                                   ForwardIterator end)
+                                                   Iterator begin,
+                                                   Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      ForwardIterator it1 = begin;
-      ForwardIterator it2 = begin;
-      typename std::iterator_traits<ForwardIterator>::value_type prev = *it1;
+      Iterator it1 = begin;
+      Iterator it2 = begin;
+      typename std::iterator_traits<Iterator>::value_type prev = *it1;
       unsigned int removal_count = 0;
       while(it1 != end)
       {
@@ -282,13 +282,13 @@ namespace strtk
       }
    }
 
-   template<typename ForwardIterator>
-   inline unsigned int remove_consecutives_inplace(ForwardIterator begin, ForwardIterator end)
+   template<typename Iterator>
+   inline unsigned int remove_consecutives_inplace(Iterator begin, Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      ForwardIterator it1 = (begin + 1);
-      ForwardIterator it2 = (begin + 1);
-      typename std::iterator_traits<ForwardIterator>::value_type prev = *begin;
+      Iterator it1 = (begin + 1);
+      Iterator it2 = (begin + 1);
+      typename std::iterator_traits<Iterator>::value_type prev = *begin;
       unsigned int removal_count = 0;
       while(it1 != end)
       {
@@ -1366,9 +1366,9 @@ namespace strtk
 
       switch(operation)
       {
-         case eAND : while(it1 != end1) { *out++ = *(it1++) & *(it2++); } return;
-         case eOR  : while(it1 != end1) { *out++ = *(it1++) | *(it2++); } return;
-         case eXOR : while(it1 != end1) { *out++ = *(it1++) ^ *(it2++); } return;
+         case eAND : while(it1 != end1) { *(out++) = *(it1++) & *(it2++); } return;
+         case eOR  : while(it1 != end1) { *(out++) = *(it1++) | *(it2++); } return;
+         case eXOR : while(it1 != end1) { *(out++) = *(it1++) ^ *(it2++); } return;
       }
    }
 
