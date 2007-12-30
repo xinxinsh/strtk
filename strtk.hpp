@@ -23,6 +23,7 @@
 #include <fstream>
 #include <string>
 #include <iterator>
+#include <limit>
 #include <algorithm>
 
 #include <boost/lexical_cast.hpp>
@@ -1397,6 +1398,57 @@ namespace strtk
                                str2.c_str(),str2.c_str() + str2.size(),
                                const_cast<char*>(out.c_str()));
    }
+
+   inline std::size_t hamming_distance(const unsigned char* begin1, const unsigned char* end1,
+                                       const unsigned char* begin2, const unsigned char* end2)
+   {
+      if (std::distance(begin1,end1) != std::distance(begin2,end2))
+      {
+         return std::numeric_limits<std::size_t>::max();
+      }
+      const std::size_t high_bits_in_char[256] = {
+                                                   0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
+                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                   4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8
+                                                 };
+      std::size_t distance = 0;
+      const unsigned char* it1 = begin1;
+      const unsigned char* it2 = begin2;
+      while(it1 != end1)
+      {
+         distance += high_bits_in_char[((*it1++) ^ (*it2++)) & 0xFF];
+      }
+      return distance;
+   }
+
+   inline std::size_t hamming_distance(const char* begin1, const char* end1,
+                                       const char* begin2, const char* end2)
+   {
+      return hamming_distance(reinterpret_cast<const unsigned char*>(begin1),
+                              reinterpret_cast<const unsigned char*>(end1),
+                              reinterpret_cast<const unsigned char*>(begin2),
+                              reinterpret_cast<const unsigned char*>(end2));
+   }
+
+   inline std::size_t hamming_distance(const std::string& str1,const std::string& str2)
+   {
+      return hamming_distance(str1.c_str(),str1.c_str() + str1.size(),
+                              str2.c_str(),str2.c_str() + str2.size());
+   }
+
 
 }
 
