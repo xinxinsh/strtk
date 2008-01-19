@@ -748,58 +748,30 @@ namespace strtk
    inline void split(const Iterator begin,
                      const Iterator end,
                      const DelimiterPredicate& delimiter,
-                     OutputIterator& out)
+                     OutputIterator& out,
+                     const bool compress_delimiters = false)
    {
       if (0 == std::distance(begin,end)) return;
-      Iterator it1 = begin;
-      Iterator prev = it1;
-      while(it1 != end)
+      Iterator it = begin;
+      Iterator prev = it;
+      while(it != end)
       {
-        if(delimiter(*it1))
+        if(delimiter(*it))
         {
-           out = std::make_pair<Iterator,Iterator>(prev,it1);
+           out = std::make_pair<Iterator,Iterator>(prev,it);
            ++out;
-           ++it1;
-           prev = it1;
+           if (!compress_delimiters)
+              ++it;
+           else
+              while(((++it) != end) && delimiter(*it));
+           prev = it;
         }
         else
-        {
-           ++it1;
-        }
+           ++it;
       }
-      if ((prev != it1) || delimiter(*(it1 - 1)))
+      if ((prev != it) || delimiter(*(it - 1)))
       {
-         out = std::make_pair<Iterator,Iterator>(prev,it1);
-         ++out;
-      }
-   }
-
-   template<typename DelimiterPredicate,
-            typename Iterator,
-            typename OutputIterator>
-   inline void split_with_compressed_delimiters(const Iterator begin,
-                                                const Iterator end,
-                                                const DelimiterPredicate& delimiter,
-                                                OutputIterator out)
-   {
-      if (0 == std::distance(begin,end)) return;
-      Iterator it1 = begin;
-      Iterator prev = it1;
-      while(it1 != end)
-      {
-        if(delimiter(*it1))
-        {
-           out = std::make_pair<Iterator,Iterator>(prev,it1);
-           ++out;
-           while(((++it1) != end) && delimiter(*it1));
-           prev = it1;
-        }
-        else
-           ++it1;
-      }
-      if ((prev != it1) || delimiter(*(it1 - 1)))
-      {
-         out = std::make_pair<Iterator,Iterator>(prev,it1);
+         out = std::make_pair<Iterator,Iterator>(prev,it);
          ++out;
       }
    }
@@ -808,83 +780,47 @@ namespace strtk
             typename OutputIterator>
    inline void split(const std::string& str,
                      const DelimiterPredicate& delimiter,
-                     OutputIterator out)
+                     OutputIterator out,
+                     const bool compress_delimiters = false)
    {
-      split(str.begin(),str.end(),delimiter,out);
+      split(str.begin(),str.end(),delimiter,out,compress_delimiters);
    }
 
    template<typename OutputIterator>
    inline void split(const std::string& str,
                      const std::string::value_type delimiter,
-                     OutputIterator out)
+                     OutputIterator out,
+                     const bool compress_delimiters = false)
    {
-      split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out);
+      split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out,compress_delimiters);
    }
 
-
-   template<typename DelimiterPredicate,
-            typename OutputIterator>
-   inline void split_with_compressed_delimiters(const std::string& str,
-                                                const DelimiterPredicate& delimiter,
-                                                OutputIterator out)
-   {
-      split_with_compressed_delimiters(str.begin(),str.end(),delimiter,out);
-   }
-
-   template<typename OutputIterator>
-   inline void split_with_compressed_delimiters(const std::string& str,
-                                                const std::string::value_type delimiter,
-                                                OutputIterator out)
-   {
-      split_with_compressed_delimiters(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out);
-   }
 
    template<typename Iterator, typename DelimiterPredicate>
-   inline std::size_t count_tokens(Iterator begin, Iterator end, const DelimiterPredicate& delimiter_)
+   inline std::size_t count_tokens(Iterator begin,
+                                   Iterator end,
+                                   const DelimiterPredicate& delimiter,
+                                   const bool compress_delimiters = false)
    {
       if (0 == std::distance(begin,end)) return 0;
       std::size_t count = 0;
-      Iterator it1 = begin;
+      Iterator it = begin;
       Iterator prev = begin;
-      while(it1 != end)
+      while(it != end)
       {
-        if(delimiter_(*it1))
+        if(delimiter(*it))
         {
            ++count;
-           ++it1;
-           prev = it1;
+           if (!compress_delimiters)
+              ++it;
+           else
+              while(((++it) != end) && delimiter(*it));
+           prev = it;
         }
         else
            ++it1;
       }
-      if (prev != it1)
-      {
-         ++count;
-      }
-      return count;
-   }
-
-   template<typename Iterator, typename DelimiterPredicate>
-   inline std::size_t count_tokens_with_compressed_delimiters(Iterator begin,
-                                                              Iterator end,
-                                                              const DelimiterPredicate& delimiter)
-   {
-      if (0 == std::distance(begin,end)) return 0;
-      std::size_t count = 0;
-      Iterator it1 = begin;
-      Iterator prev = begin;
-      while(it1 != end)
-      {
-         if(delimiter(*it1))
-         {
-            if (std::distance(prev,it1) >= 1) ++count;
-            while((++it1 != end) && delimiter(*it1));
-            prev = it1;
-         }
-         else
-            ++it1;
-      }
-      if (prev != it1)
+      if (prev != it)
       {
          ++count;
       }
