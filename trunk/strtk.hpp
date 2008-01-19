@@ -1,6 +1,5 @@
 /*
  *******************************************************************
- *                                                                 *
  *                       String Tool Kit Library                   *
  *                                                                 *
  * Author: Arash Partow - 2002                                     *
@@ -19,11 +18,12 @@
 #ifndef INCLUDE_STRTK_HPP
 #define INCLUDE_STRTK_HPP
 
+#include <cstddef>
+#include <iterator>
+#include <limits>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <iterator>
-#include <limit>
 #include <algorithm>
 
 #include <boost/lexical_cast.hpp>
@@ -39,15 +39,26 @@ namespace strtk
       add_to_sequence(Sequence& sequence) : sequence_(sequence){}
 
       template<typename T>
-      void operator()(const T& t) { sequence_.push_back(t); }
+      void operator()(const T& t) const { sequence_.push_back(t); }
+      add_to_sequence(const add_to_sequence<Sequence>& ats) : sequence_(ats.sequence_){}
+      add_to_sequence<Sequence>& operator=(const add_to_sequence<Sequence>& ats)
+      {
+         if (this != &ats)
+         {
+            this->sequence_ = ats.sequence_;
+         }
+         return *this;
+      }
+
    private:
-      Sequence sequence_;
+
+      Sequence& sequence_;
    };
 
    template<typename Tokenizer, typename Handler>
    unsigned int for_each_token(const std::string& buffer,
                                Tokenizer& tokenizer,
-                               Handler& handler)
+                               const Handler& handler)
    {
       unsigned int result = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
@@ -325,8 +336,8 @@ namespace strtk
    template<typename Iterator>
    inline void replace(const typename std::iterator_traits<Iterator>::value_type& c1,
                        const typename std::iterator_traits<Iterator>::value_type& c2,
-                       const Iterator data_begin,
-                       const Iterator data_end)
+                       const Iterator begin,
+                       const Iterator end)
    {
       for(Iterator it = begin; it != end; ++it)
       {
@@ -344,7 +355,7 @@ namespace strtk
    {
       /*
          Credits: Adapted entirely from code provided
-         by Jack Handy - 2001 on CodeProject (jakkhandy@hotmail.com)
+         by Jack Handy - 2001 CodeProject (jakkhandy@hotmail.com)
       */
       if (0 == std::distance(data_begin,data_end)) return false;
 
@@ -433,6 +444,7 @@ namespace strtk
    struct single_delimiter_predicate
    {
    public:
+      typedef T value_type;
       single_delimiter_predicate(const T& d) : delimiter_(d) {}
       bool operator()(const T& d) const { return d == delimiter_; }
    private:
@@ -443,6 +455,8 @@ namespace strtk
    struct multiple_delimiter_predicate
    {
    public:
+
+      typedef T value_type;
 
       multiple_delimiter_predicate(const T* d_begin,const T* d_end)
       {
@@ -482,6 +496,252 @@ namespace strtk
       std::size_t length_;
    };
 
+   struct multiple_char_delimiter_predicate
+   {
+   public:
+
+      typedef unsigned char value_type;
+
+      template<typename Iterator>
+      multiple_char_delimiter_predicate(const Iterator begin,const Iterator end)
+      {
+         setup_delimiter_table(begin,end);
+      }
+
+      multiple_char_delimiter_predicate(const std::string& s)
+      {
+         setup_delimiter_table(s.begin(),s.end());
+      }
+
+      bool operator()(const unsigned char& c) const
+      {
+         return (1 == delimiter_table_[c]);
+      }
+
+      bool operator()(const char& c) const
+      {
+         return operator()(static_cast<unsigned char>(c));
+      }
+
+   private:
+
+      template<typename Iterator>
+      void setup_delimiter_table(const Iterator begin,const Iterator end)
+      {
+         for(unsigned int i = 0; i < 0xFF; ++i) delimiter_table_[i] = 0;
+         for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
+      }
+
+      value_type delimiter_table_[0xFF];
+   };
+
+   template<typename Iterator, typename DelimiterPredicate, bool compress_delimiters = false>
+   class tokenizer
+   {
+   private:
+
+      template<typename Iterartor, typename Predicate>
+      class tokenizer_iterator
+      {
+      protected:
+         typedef typename std::iterator_traits<Iterator>::value_type value_type;
+         typedef Iterator iterator;
+         typedef const iterator const_iterator;
+
+      public:
+         tokenizer_iterator(const iterator begin,
+                            const iterator end,
+                            const Predicate& predicate,
+                            const bool compress_delimiters = false)
+         : it_(begin),
+           end_(end),
+           prev_(begin),
+           curr_tok_begin_(end_),
+           curr_tok_end_(end_),
+           predicate_(predicate),
+           last_token_(false),
+           compress_delimiters_(compress_delimiters)
+         {
+            this->operator++();
+         };
+
+         tokenizer_iterator& operator++()
+         {
+            if (it_ != end_)
+            {
+               prev_ = it_;
+            }
+
+            while (it_ != end_)
+            {
+               if(predicate_(*it_))
+               {
+                  curr_tok_begin_ = prev_;
+                  curr_tok_end_ = it_;
+                  if (compress_delimiters_)
+                     while((++it_ != end_) && predicate_(*it_));
+                  else
+                     ++it_;
+                  return *this;
+               }
+               else
+                 ++it_;
+            }
+
+            if (prev_ != it_)
+            {
+               curr_tok_end_ = it_;
+               if (!last_token_)
+               {
+                  if (predicate_(*(it_ - 1)))
+                     curr_tok_begin_ = it_;
+                  else
+                     curr_tok_begin_ = prev_;
+                  last_token_ = true;
+               }
+               else
+                  prev_ = it_;
+            }
+
+            return *this;
+         }
+
+         tokenizer_iterator operator++(const int)
+         {
+            return this->operator++();
+         }
+
+         tokenizer_iterator& operator+=(const int inc)
+         {
+            for(int i = 0; i < inc; ++i) ++(*this);
+            return *this;
+         }
+
+         std::pair<iterator,iterator> operator*()
+         {
+            return std::make_pair<iterator,iterator>(curr_tok_begin_,curr_tok_end_);
+         }
+
+         bool operator==(const tokenizer_iterator& it)
+         {
+            return (it_   == it.it_  ) &&
+                   (prev_ == it.prev_) &&
+                   (end_  == it.end_ );
+         }
+
+         bool operator!=(const tokenizer_iterator& it)
+         {
+            return !this->operator==(it);
+         }
+
+         tokenizer_iterator& operator=(const tokenizer_iterator& it)
+         {
+            if (this != &it)
+            {
+               it_             = it.it_;
+               end_            = it.end_;
+               prev_           = it.prev_;
+               curr_tok_begin_ = it.curr_tok_begin_;
+               curr_tok_end_   = it.curr_tok_end_;
+               last_token_     = it.last_token_;
+            }
+            return *this;
+         }
+
+
+      protected:
+         iterator it_;
+         iterator end_;
+         iterator prev_;
+         iterator curr_tok_begin_;
+         iterator curr_tok_end_;
+         const Predicate& predicate_;
+         bool last_token_;
+         bool compress_delimiters_;
+      };
+
+   public:
+
+      typedef std::iterator_traits<Iterator> value_type;
+      typedef DelimiterPredicate predicate;
+      typedef tokenizer_iterator<Iterator,DelimiterPredicate> iterator;
+      typedef const iterator const_iterator;
+      typedef iterator& iterator_ref;
+      typedef const_iterator& const_iterator_ref;
+
+      tokenizer(const Iterator begin,
+                const Iterator end,
+                const DelimiterPredicate& predicate,
+                const bool compress_delimiters = false)
+      : predicate_(predicate),
+        begin_(begin),
+        end_(end),
+        end_itr_(end_,end_,predicate_,compress_delimiters),
+        compress_delimiters_(compress_delimiters)
+      {}
+
+      tokenizer(const std::string& s,
+                const DelimiterPredicate& predicate,
+                const bool compress_delimiters = false)
+      : begin_(s.begin()),
+        end_(s.end()),
+        end_itr_(end_,end_,predicate_,compress_delimiters),
+        predicate_(predicate),
+        compress_delimiters_(compress_delimiters)
+      {}
+
+      void assign(const std::string& s)
+      {
+         assign(s.begin(),s.end());
+      }
+
+      void assign(Iterator begin,Iterator end)
+      {
+        begin_ = begin;
+        end_ = end;
+        end_itr_ = iterator(end_,end_,predicate_,compress_delimiters_);
+      }
+
+      iterator begin()
+      {
+         return iterator(begin_,end_,predicate_,compress_delimiters_);
+      }
+
+      const_iterator end()
+      {
+         return end_itr_;
+      }
+
+   private:
+
+      tokenizer(const tokenizer&);
+      tokenizer& operator=(const tokenizer&);
+
+      Iterator begin_;
+      Iterator end_;
+      iterator end_itr_;
+      const DelimiterPredicate& predicate_;
+      bool compress_delimiters_;
+   };
+
+   template<typename DelimiterPredicate>
+   struct std_string_tokenizer { typedef tokenizer< std::string::const_iterator,DelimiterPredicate > type; };
+
+   template<typename MatchPredicate,
+            typename Iterator>
+   inline void skip_while_matching(Iterator& it,
+                                   const Iterator& end,
+                                   const MatchPredicate& predicate)
+   {
+      while (it != end)
+      {
+         if(predicate(*it))
+            it++;
+         else
+            break;
+      }
+   }
+
    template<typename DelimiterPredicate,
             typename Iterator,
             typename OutputIterator>
@@ -492,7 +752,7 @@ namespace strtk
    {
       if (0 == std::distance(begin,end)) return;
       Iterator it1 = begin;
-      Iterator prev = begin;
+      Iterator prev = it1;
       while(it1 != end)
       {
         if(delimiter(*it1))
@@ -503,9 +763,11 @@ namespace strtk
            prev = it1;
         }
         else
+        {
            ++it1;
+        }
       }
-      if (prev != it1)
+      if ((prev != it1) || delimiter(*(it1 - 1)))
       {
          out = std::make_pair<Iterator,Iterator>(prev,it1);
          ++out;
@@ -518,27 +780,24 @@ namespace strtk
    inline void split_with_compressed_delimiters(const Iterator begin,
                                                 const Iterator end,
                                                 const DelimiterPredicate& delimiter,
-                                                OutputIterator& out)
+                                                OutputIterator out)
    {
       if (0 == std::distance(begin,end)) return;
       Iterator it1 = begin;
-      Iterator prev = begin;
+      Iterator prev = it1;
       while(it1 != end)
       {
         if(delimiter(*it1))
         {
-           if (std::distance(prev,it1) >= 1)
-           {
-              out = std::make_pair<Iterator,Iterator>(prev,it1);
-              ++out;
-           }
-           do { ++it1; } while((it1 != end) && delimiter(*it1));
+           out = std::make_pair<Iterator,Iterator>(prev,it1);
+           ++out;
+           while(((++it1) != end) && delimiter(*it1));
            prev = it1;
         }
         else
            ++it1;
       }
-      if (prev != it1)
+      if ((prev != it1) || delimiter(*(it1 - 1)))
       {
          out = std::make_pair<Iterator,Iterator>(prev,it1);
          ++out;
@@ -549,7 +808,7 @@ namespace strtk
             typename OutputIterator>
    inline void split(const std::string& str,
                      const DelimiterPredicate& delimiter,
-                     OutputIterator& out)
+                     OutputIterator out)
    {
       split(str.begin(),str.end(),delimiter,out);
    }
@@ -557,7 +816,7 @@ namespace strtk
    template<typename OutputIterator>
    inline void split(const std::string& str,
                      const std::string::value_type delimiter,
-                     OutputIterator& out)
+                     OutputIterator out)
    {
       split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out);
    }
@@ -567,7 +826,7 @@ namespace strtk
             typename OutputIterator>
    inline void split_with_compressed_delimiters(const std::string& str,
                                                 const DelimiterPredicate& delimiter,
-                                                OutputIterator& out)
+                                                OutputIterator out)
    {
       split_with_compressed_delimiters(str.begin(),str.end(),delimiter,out);
    }
@@ -575,7 +834,7 @@ namespace strtk
    template<typename OutputIterator>
    inline void split_with_compressed_delimiters(const std::string& str,
                                                 const std::string::value_type delimiter,
-                                                OutputIterator& out)
+                                                OutputIterator out)
    {
       split_with_compressed_delimiters(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out);
    }
@@ -619,7 +878,7 @@ namespace strtk
          if(delimiter(*it1))
          {
             if (std::distance(prev,it1) >= 1) ++count;
-            do { ++it1; } while((it1 != end) && delimiter(*it1));
+            while((++it1 != end) && delimiter(*it1));
             prev = it1;
          }
          else
@@ -642,20 +901,20 @@ namespace strtk
                              T5& t5, T6& t6, T7& t7, T8& t8,
                              T9& t9, T10& t10)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-       t1 = boost::lexical_cast< T1>(*it); ++it; ++result;
-       t2 = boost::lexical_cast< T2>(*it); ++it; ++result;
-       t3 = boost::lexical_cast< T3>(*it); ++it; ++result;
-       t4 = boost::lexical_cast< T4>(*it); ++it; ++result;
-       t5 = boost::lexical_cast< T5>(*it); ++it; ++result;
-       t6 = boost::lexical_cast< T6>(*it); ++it; ++result;
-       t7 = boost::lexical_cast< T7>(*it); ++it; ++result;
-       t8 = boost::lexical_cast< T8>(*it); ++it; ++result;
-       t9 = boost::lexical_cast< T9>(*it); ++it; ++result;
-      t10 = boost::lexical_cast<T10>(*it); ++it; ++result;
-      return result;
+       t1 = boost::lexical_cast< T1>(*it); ++it; ++token_count;
+       t2 = boost::lexical_cast< T2>(*it); ++it; ++token_count;
+       t3 = boost::lexical_cast< T3>(*it); ++it; ++token_count;
+       t4 = boost::lexical_cast< T4>(*it); ++it; ++token_count;
+       t5 = boost::lexical_cast< T5>(*it); ++it; ++token_count;
+       t6 = boost::lexical_cast< T6>(*it); ++it; ++token_count;
+       t7 = boost::lexical_cast< T7>(*it); ++it; ++token_count;
+       t8 = boost::lexical_cast< T8>(*it); ++it; ++token_count;
+       t9 = boost::lexical_cast< T9>(*it); ++it; ++token_count;
+      t10 = boost::lexical_cast<T10>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
@@ -668,19 +927,19 @@ namespace strtk
                              T5& t5, T6& t6, T7& t7, T8& t8,
                              T9& t9)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it); ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      t3 = boost::lexical_cast<T3>(*it); ++it; ++result;
-      t4 = boost::lexical_cast<T4>(*it); ++it; ++result;
-      t5 = boost::lexical_cast<T5>(*it); ++it; ++result;
-      t6 = boost::lexical_cast<T6>(*it); ++it; ++result;
-      t7 = boost::lexical_cast<T7>(*it); ++it; ++result;
-      t8 = boost::lexical_cast<T8>(*it); ++it; ++result;
-      t9 = boost::lexical_cast<T9>(*it); ++it; ++result;
-      return result;
+      t1 = boost::lexical_cast<T1>(*it); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(*it); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(*it); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(*it); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(*it); ++it; ++token_count;
+      t7 = boost::lexical_cast<T7>(*it); ++it; ++token_count;
+      t8 = boost::lexical_cast<T8>(*it); ++it; ++token_count;
+      t9 = boost::lexical_cast<T9>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
@@ -691,19 +950,19 @@ namespace strtk
                              T1& t1, T2& t2, T3& t3, T4& t4,
                              T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(*it);
-      ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      t3 = boost::lexical_cast<T3>(*it); ++it; ++result;
-      t4 = boost::lexical_cast<T4>(*it); ++it; ++result;
-      t5 = boost::lexical_cast<T5>(*it); ++it; ++result;
-      t6 = boost::lexical_cast<T6>(*it); ++it; ++result;
-      t7 = boost::lexical_cast<T7>(*it); ++it; ++result;
-      t8 = boost::lexical_cast<T8>(*it); ++it; ++result;
-      return result;
+      ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(*it); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(*it); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(*it); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(*it); ++it; ++token_count;
+      t7 = boost::lexical_cast<T7>(*it); ++it; ++token_count;
+      t8 = boost::lexical_cast<T8>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
@@ -713,17 +972,17 @@ namespace strtk
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it); ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      t3 = boost::lexical_cast<T3>(*it); ++it; ++result;
-      t4 = boost::lexical_cast<T4>(*it); ++it; ++result;
-      t5 = boost::lexical_cast<T5>(*it); ++it; ++result;
-      t6 = boost::lexical_cast<T6>(*it); ++it; ++result;
-      t7 = boost::lexical_cast<T7>(*it); ++it; ++result;
-      return result;
+      t1 = boost::lexical_cast<T1>(*it); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(*it); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(*it); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(*it); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(*it); ++it; ++token_count;
+      t7 = boost::lexical_cast<T7>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
@@ -733,16 +992,16 @@ namespace strtk
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it); ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      t3 = boost::lexical_cast<T3>(*it); ++it; ++result;
-      t4 = boost::lexical_cast<T4>(*it); ++it; ++result;
-      t5 = boost::lexical_cast<T5>(*it); ++it; ++result;
-      t6 = boost::lexical_cast<T6>(*it); ++it; ++result;
-      return result;
+      t1 = boost::lexical_cast<T1>(*it); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(*it); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(*it); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(*it); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
@@ -752,15 +1011,15 @@ namespace strtk
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it); ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      t3 = boost::lexical_cast<T3>(*it); ++it; ++result;
-      t4 = boost::lexical_cast<T4>(*it); ++it; ++result;
-      t5 = boost::lexical_cast<T5>(*it); ++it; ++result;
-      return result;
+      t1 = boost::lexical_cast<T1>(*it); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(*it); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(*it); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
@@ -769,14 +1028,14 @@ namespace strtk
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it); ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      t3 = boost::lexical_cast<T3>(*it); ++it; ++result;
-      t4 = boost::lexical_cast<T4>(*it); ++it; ++result;
-      return result;
+      t1 = boost::lexical_cast<T1>(*it); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(*it); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
@@ -785,13 +1044,13 @@ namespace strtk
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it); ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      t3 = boost::lexical_cast<T3>(*it); ++it; ++result;
-      return result;
+      t1 = boost::lexical_cast<T1>(*it); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template<typename Tokenzier, typename T1, typename T2>
@@ -799,12 +1058,12 @@ namespace strtk
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it); ++it; ++result;
-      t2 = boost::lexical_cast<T2>(*it); ++it; ++result;
-      return result;
+      t1 = boost::lexical_cast<T1>(*it); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template<typename Tokenzier, typename T>
@@ -812,17 +1071,17 @@ namespace strtk
                              Tokenzier& tokenizer,
                              T& t)
    {
-      unsigned int result = 0;
+      unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t = boost::lexical_cast<T>(*it); ++it; ++result;
-      return result;
+      t = boost::lexical_cast<T>(*it); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9, typename T10 >
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8,
@@ -852,7 +1111,7 @@ namespace strtk
    template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9 >
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8,
@@ -879,7 +1138,7 @@ namespace strtk
 
    template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8>
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8)
@@ -903,7 +1162,7 @@ namespace strtk
 
    template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7 >
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7)
@@ -926,7 +1185,7 @@ namespace strtk
 
    template< typename T1, typename T2, typename T3, typename T4,
              typename T5,typename T6>
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6)
@@ -946,7 +1205,7 @@ namespace strtk
 
    template< typename T1, typename T2, typename T3, typename T4,
              typename T5 >
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5)
@@ -963,7 +1222,7 @@ namespace strtk
    }
 
    template< typename T1, typename T2, typename T3, typename T4 >
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4)
    {
@@ -977,7 +1236,7 @@ namespace strtk
    }
 
    template< typename T1, typename T2, typename T3 >
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3)
    {
@@ -989,7 +1248,7 @@ namespace strtk
    }
 
    template< typename T1, typename T2 >
-   inline void construct(const std::string& output,
+   inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2)
    {
@@ -1448,7 +1707,6 @@ namespace strtk
       return hamming_distance(str1.c_str(),str1.c_str() + str1.size(),
                               str2.c_str(),str2.c_str() + str2.size());
    }
-
 
 }
 
