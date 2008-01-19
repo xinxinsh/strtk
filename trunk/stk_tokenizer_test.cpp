@@ -65,7 +65,7 @@ bool test_tokenizer_itr(const Predicate& p,
 {
    std::string result = "";
    Tokenizer stk(s,p,compressed_delimiters);
-   Tokenizer::iterator it = stk.begin();
+   typename Tokenizer::iterator it = stk.begin();
    while (it != stk.end())
    {
       if ((*it).first == (*it).second)

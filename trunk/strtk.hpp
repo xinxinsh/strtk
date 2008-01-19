@@ -535,7 +535,7 @@ namespace strtk
       value_type delimiter_table_[0xFF];
    };
 
-   template<typename Iterator, typename DelimiterPredicate, bool compress_delimiters = false>
+   template<typename Iterator, typename DelimiterPredicate>
    class tokenizer
    {
    private:
@@ -725,7 +725,7 @@ namespace strtk
    };
 
    template<typename DelimiterPredicate>
-   struct std_string_tokenizer { typedef tokenizer< std::string::const_iterator,DelimiterPredicate > type; };
+   struct std_string_tokenizer { typedef tokenizer<std::string::const_iterator,DelimiterPredicate> type; };
 
    template<typename MatchPredicate,
             typename Iterator>
@@ -818,7 +818,7 @@ namespace strtk
            prev = it;
         }
         else
-           ++it1;
+           ++it;
       }
       if (prev != it)
       {
@@ -1410,7 +1410,6 @@ namespace strtk
                         *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF); ++out;
                         return static_cast<unsigned int>((3 * length) / 4 + 1);
                      }
-                     break;
 
             case 3 : {
                         unsigned int block  = base64_to_bin[*it] << 18; ++it;
@@ -1420,7 +1419,6 @@ namespace strtk
                         *out = static_cast<unsigned char>(( block >>  8 ) & 0xFF); ++out;
                         return static_cast<unsigned int>((3 * length) / 4 + 2);
                      }
-                     break;
          }
       }
       return static_cast<unsigned int>((3 * length) / 4);
@@ -1535,7 +1533,7 @@ namespace strtk
    inline void create_nway_interleave_table(typename interleave_ary<n>::type table[256])
    {
       typedef typename interleave_ary<n>::type type;
-      const type diff = static_cast<const type>(n - 1);
+      const type diff = static_cast<type>(n - 1);
       for(type i = static_cast<type>(0); i < static_cast<type>(256); ++i)
       {
          table[i] = 0x00;
