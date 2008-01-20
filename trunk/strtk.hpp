@@ -192,9 +192,9 @@ namespace strtk
                                                    Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it1 = begin;
-      Iterator it2 = begin;
-      typename std::iterator_traits<Iterator>::value_type prev = *it1;
+      Iterator it1 = (begin + 1);
+      Iterator it2 = (begin + 1);
+      typename std::iterator_traits<Iterator>::value_type prev = *begin;
       unsigned int removal_count = 0;
       while(it1 != end)
       {
@@ -224,9 +224,9 @@ namespace strtk
                                                    Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it1 = begin;
-      Iterator it2 = begin;
-      typename std::iterator_traits<Iterator>::value_type prev = *it1;
+      Iterator it1 = (begin + 1);
+      Iterator it2 = (begin + 1);
+      typename std::iterator_traits<Iterator>::value_type prev = *begin;
       unsigned int removal_count = 0;
       while(it1 != end)
       {
@@ -373,7 +373,7 @@ namespace strtk
             d_it = c_it++;
          }
       }
-      while ((p_it != pattern_end) && (zero_or_more == (*p_it))) p_it++;
+      while ((p_it != pattern_end) && (zero_or_more == (*p_it))) ++p_it;
       return (p_it == pattern_end);
    }
 
@@ -676,6 +676,7 @@ namespace strtk
       {
         begin_ = begin;
         end_ = end;
+        begin_itr_ = iterator(begin_,end_,predicate_,compress_delimiters_);
         end_itr_ = iterator(end_,end_,predicate_,compress_delimiters_);
       }
 
@@ -1303,7 +1304,7 @@ namespace strtk
    }
 
    template<typename Iterator, std::size_t block_size>
-   void compute_block(Iterator buffer_it, std::size_t& length, unsigned int& hash)
+   inline void compute_block(Iterator buffer_it, std::size_t& length, unsigned int& hash)
    {
      while(length >= block_size)
      {
@@ -1316,9 +1317,9 @@ namespace strtk
    }
 
    template<typename Iterator>
-   void hash(const Iterator buffer_it,
-             std::size_t length,
-             unsigned int& hash_value)
+   inline void hash(const Iterator buffer_it,
+                    std::size_t length,
+                    unsigned int& hash_value)
    {
       hash_value = 0xAAAAAAAA;
       compute_block<Iterator,32>(buffer_it,length,hash_value);
@@ -1333,7 +1334,7 @@ namespace strtk
       }
    }
 
-   unsigned int hash(const std::string& s)
+   inline unsigned int hash(const std::string& s)
    {
       unsigned int hash_value;
       hash(s.begin(),s.size(),hash_value);
@@ -1363,7 +1364,7 @@ namespace strtk
    };
 
    template<typename T>
-   bool convert_str_range(const std::pair<std::string::const_iterator,std::string::const_iterator> range, T& t)
+   inline bool convert_str_range(const std::pair<std::string::const_iterator,std::string::const_iterator> range, T& t)
    {
       if (range.first == range.second) return false;
       t = boost::lexical_cast<T>(std::string(range.first,range.second));
@@ -1401,7 +1402,7 @@ namespace strtk
       while (it != end)
       {
          if(predicate(*it))
-            it++;
+            ++it;
          else
             break;
       }
