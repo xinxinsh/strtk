@@ -137,9 +137,8 @@ namespace strtk
       return removal_count;
    }
 
-   template<typename Iterator>
-   inline unsigned int remove_inplace(const typename std::iterator_traits<Iterator>::value_type c[],
-                                      const unsigned int c_length,
+   template<typename Iterator, typename Predicate>
+   inline unsigned int remove_inplace(const Predicate& predicate,
                                       Iterator begin,
                                       Iterator end)
    {
@@ -148,7 +147,7 @@ namespace strtk
       unsigned int removal_count = 0;
       while(it1 != end)
       {
-         while((it1 != end) && !exist_in_list((*it1),c,c_length))
+         while((it1 != end) && !predicate(*it1))
          {
             if (it1 != it2)
             {
@@ -157,7 +156,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((it1 != end) && exist_in_list((*it1),c,c_length))
+         while((it1 != end) && predicate(*it1))
          {
             ++it1;
             ++removal_count;
@@ -175,11 +174,11 @@ namespace strtk
       }
    }
 
-   inline void remove_inplace(const std::string::value_type c[],
-                              const unsigned int& c_length,
+   template<typename Predicate>
+   inline void remove_inplace(const Predicate& predicate,
                               std::string& s)
    {
-      unsigned int removal_count = remove_inplace(c,c_length,s.begin(),s.end());
+      unsigned int removal_count = remove_inplace(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -217,9 +216,8 @@ namespace strtk
       return removal_count;
    }
 
-   template<typename Iterator>
-   inline unsigned int remove_consecutives_inplace(const typename std::iterator_traits<Iterator>::value_type c[],
-                                                   const unsigned int c_length,
+   template<typename Iterator, typename Predicate>
+   inline unsigned int remove_consecutives_inplace(const Predicate& predicate,
                                                    Iterator begin,
                                                    Iterator end)
    {
@@ -230,7 +228,7 @@ namespace strtk
       unsigned int removal_count = 0;
       while(it1 != end)
       {
-         while((it1 != end) && (!exist_in_list((*it1),c,c_length) || !exist_in_list(prev,c,c_length)))
+         while((it1 != end) && (!predicate(*it1) || !predicate(prev)))
          {
             if (it1 != it2)
             {
@@ -240,7 +238,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((it1 != end) && exist_in_list((*it1),c,c_length))
+         while((it1 != end) && predicate(*it1))
          {
             ++it1;
             ++removal_count;
@@ -259,12 +257,12 @@ namespace strtk
       }
    }
 
-   inline void remove_consecutives_inplace(const std::string::value_type c[],
-                                           const unsigned int& c_length,
+   template<typename Predicate>
+   inline void remove_consecutives_inplace(const Predicate& predicate,
                                            std::string& s)
    {
       if (s.empty()) return;
-      unsigned int removal_count = remove_consecutives_inplace(c,c_length,s.begin(),s.end());
+      unsigned int removal_count = remove_consecutives_inplace(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1379,7 +1377,7 @@ namespace strtk
       : predicate_(predicate){}
 
       template<typename Iterator>
-      inline void operator() (const std::pair<Iterator,Iterator> range) const
+      inline void operator() (const std::pair<Iterator,Iterator>& range) const
       {
          if (range.first != range.second)
          {
@@ -1390,6 +1388,30 @@ namespace strtk
    private:
       filter_empty_range(const filter_empty_range& fer);
       filter_empty_range operator=(const filter_empty_range& fer);
+      const OutputPredicate& predicate_;
+   };
+
+   template<typename OutputPredicate>
+   struct filter_on_match
+   {
+   public:
+      filter_on_match(const std::string& match_pattern)
+      : match_pattern_(match_pattern){}
+
+      template<typename Iterator>
+      inline void operator() (const std::pair<Iterator,Iterator>& range) const
+      {
+         if (match(match_pattern_.begin(),match_pattern_.end(),range.first,range.second,'*','?'))
+         {
+            predicate_(range);
+         }
+      }
+
+   private:
+      filter_on_match(const filter_on_match& fom);
+      filter_on_match operator=(const filter_on_match& fom);
+
+      std::string match_pattern_;
       const OutputPredicate& predicate_;
    };
 

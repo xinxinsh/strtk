@@ -269,6 +269,15 @@ void remove_consecutives_example02()
    std::cout << s << std::endl;
 }
 
+void remove_consecutives_example03()
+{
+   std::string s = "aaabbcaaaddeeafg";
+   std::cout << s << " -> ";
+   strtk::remove_consecutives_inplace(strtk::multiple_char_delimiter_predicate("abcdefg"),s);
+   std::cout << s << std::endl;
+}
+
+
 int main(void)
 {
    tokenizer_example01();
@@ -288,5 +297,6 @@ int main(void)
    remove_inplace_example01();
    remove_consecutives_example01();
    remove_consecutives_example02();
+   remove_consecutives_example03();
    return 0;
 }
