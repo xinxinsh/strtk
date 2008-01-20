@@ -15,7 +15,6 @@
  *******************************************************************
 */
 
-
 #include <iostream>
 #include <iterator>
 #include <algorithm>
@@ -23,10 +22,7 @@
 #include <vector>
 #include <list>
 
-#include <boost/tokenizer.hpp>
-
 #include "strtk.hpp"
-
 
 template<typename Predicate>
 bool test_tokenizer_split(const Predicate& p,
@@ -82,8 +78,7 @@ bool test_tokenizer_itr(const Predicate& p,
    return result == expected_result;
 }
 
-
-int main(void)
+void test_split_and_tokenizer()
 {
    struct test_pairs
    {
@@ -98,181 +93,180 @@ int main(void)
 
    const std::size_t test_count = 40;
    const test_pairs test_input_output1[test_count]
-              = {
-                  {"d",                                             "d"},
-                  {"d|x",                                         "d,x"},
-                  {"d||x",                                     "d,<>,x"},
-                  {"|d||x",                                 "<>,d,<>,x"},
-                  {"d||x|",                                 "d,<>,x,<>"},
-                  {"|d||x|",                             "<>,d,<>,x,<>"},
-                  {"||d||x||",                     "<>,<>,d,<>,x,<>,<>"},
-                  {"||",                                     "<>,<>,<>"},
-                  {"|",                                         "<>,<>"},
-                  {"|||",                                 "<>,<>,<>,<>"},
-                  {"",                                               ""},
-                  {"dxd",                                         "dxd"},
-                  {"dx|xd",                                     "dx,xd"},
-                  {"dxd||xdx",                             "dxd,<>,xdx"},
-                  {"|dx||x",                               "<>,dx,<>,x"},
-                  {"d||xd|",                               "d,<>,xd,<>"},
-                  {"|xd||dx|",                         "<>,xd,<>,dx,<>"},
-                  {"||dd||xx||",                 "<>,<>,dd,<>,xx,<>,<>"},
-                  {"abc",                                         "abc"},
-                  {"abc|xyz",                                 "abc,xyz"},
-                  {"abc||xyz",                             "abc,<>,xyz"},
-                  {"|abc||xyz",                         "<>,abc,<>,xyz"},
-                  {"abc||xyz|",                         "abc,<>,xyz,<>"},
-                  {"|abc||xyz|",                     "<>,abc,<>,xyz,<>"},
-                  {"||abc||xyz||",             "<>,<>,abc,<>,xyz,<>,<>"},
-                  {"||",                                     "<>,<>,<>"},
-                  {"|",                                         "<>,<>"},
-                  {"|||",                                 "<>,<>,<>,<>"},
-                  {"",                                               ""},
-                  {"abcxyzabc",                             "abcxyzabc"},
-                  {"abcxyz|xyzabc",                     "abcxyz,xyzabc"},
-                  {"abcxyzabc||xyzabcxyz",     "abcxyzabc,<>,xyzabcxyz"},
-                  {"|abcxyz||xyz",                   "<>,abcxyz,<>,xyz"},
-                  {"abc||xyzabc|",                   "abc,<>,xyzabc,<>"},
-                  {"|xyzabc||abcxyz|",         "<>,xyzabc,<>,abcxyz,<>"},
-                  {"||abcabc||xyzxyz||", "<>,<>,abcabc,<>,xyzxyz,<>,<>"},
-                  {"a|ij|xyz",                               "a,ij,xyz"},
-                  {"a||ij||xyz",                       "a,<>,ij,<>,xyz"},
-                  {"|a||ij|||xyz",               "<>,a,<>,ij,<>,<>,xyz"},
-                  {"|a||ij|||xyz|",           "<>,a,<>,ij,<>,<>,xyz,<>"}
-               };
+     = {
+         {"d",                                             "d"},
+         {"d|x",                                         "d,x"},
+         {"d||x",                                     "d,<>,x"},
+         {"|d||x",                                 "<>,d,<>,x"},
+         {"d||x|",                                 "d,<>,x,<>"},
+         {"|d||x|",                             "<>,d,<>,x,<>"},
+         {"||d||x||",                     "<>,<>,d,<>,x,<>,<>"},
+         {"||",                                     "<>,<>,<>"},
+         {"|",                                         "<>,<>"},
+         {"|||",                                 "<>,<>,<>,<>"},
+         {"",                                               ""},
+         {"dxd",                                         "dxd"},
+         {"dx|xd",                                     "dx,xd"},
+         {"dxd||xdx",                             "dxd,<>,xdx"},
+         {"|dx||x",                               "<>,dx,<>,x"},
+         {"d||xd|",                               "d,<>,xd,<>"},
+         {"|xd||dx|",                         "<>,xd,<>,dx,<>"},
+         {"||dd||xx||",                 "<>,<>,dd,<>,xx,<>,<>"},
+         {"abc",                                         "abc"},
+         {"abc|xyz",                                 "abc,xyz"},
+         {"abc||xyz",                             "abc,<>,xyz"},
+         {"|abc||xyz",                         "<>,abc,<>,xyz"},
+         {"abc||xyz|",                         "abc,<>,xyz,<>"},
+         {"|abc||xyz|",                     "<>,abc,<>,xyz,<>"},
+         {"||abc||xyz||",             "<>,<>,abc,<>,xyz,<>,<>"},
+         {"||",                                     "<>,<>,<>"},
+         {"|",                                         "<>,<>"},
+         {"|||",                                 "<>,<>,<>,<>"},
+         {"",                                               ""},
+         {"abcxyzabc",                             "abcxyzabc"},
+         {"abcxyz|xyzabc",                     "abcxyz,xyzabc"},
+         {"abcxyzabc||xyzabcxyz",     "abcxyzabc,<>,xyzabcxyz"},
+         {"|abcxyz||xyz",                   "<>,abcxyz,<>,xyz"},
+         {"abc||xyzabc|",                   "abc,<>,xyzabc,<>"},
+         {"|xyzabc||abcxyz|",         "<>,xyzabc,<>,abcxyz,<>"},
+         {"||abcabc||xyzxyz||", "<>,<>,abcabc,<>,xyzxyz,<>,<>"},
+         {"a|ij|xyz",                               "a,ij,xyz"},
+         {"a||ij||xyz",                       "a,<>,ij,<>,xyz"},
+         {"|a||ij|||xyz",               "<>,a,<>,ij,<>,<>,xyz"},
+         {"|a||ij|||xyz|",           "<>,a,<>,ij,<>,<>,xyz,<>"}
+      };
 
    const test_pairs test_input_output2[test_count]
-              = {
-                  {"d",                                             "d"},
-                  {"d|x",                                         "d,x"},
-                  {"d?|x",                                     "d,<>,x"},
-                  {",d?-x",                                 "<>,d,<>,x"},
-                  {"d;?x|",                                 "d,<>,x,<>"},
-                  {"|d;;x-",                             "<>,d,<>,x,<>"},
-                  {"_|d?|x;-",                     "<>,<>,d,<>,x,<>,<>"},
-                  {"|_",                                     "<>,<>,<>"},
-                  {";",                                         "<>,<>"},
-                  {"?_,",                                 "<>,<>,<>,<>"},
-                  {"",                                               ""},
-                  {"dxd",                                         "dxd"},
-                  {"dx,xd",                                     "dx,xd"},
-                  {"dxd|,xdx",                             "dxd,<>,xdx"},
-                  {";dx||x",                               "<>,dx,<>,x"},
-                  {"d|;xd?",                               "d,<>,xd,<>"},
-                  {"_xd,,dx;",                         "<>,xd,<>,dx,<>"},
-                  {"__dd|_xx,;",                 "<>,<>,dd,<>,xx,<>,<>"},
-                  {"abc",                                         "abc"},
-                  {"abc|xyz",                                 "abc,xyz"},
-                  {"abc?|xyz",                             "abc,<>,xyz"},
-                  {",abc?-xyz",                         "<>,abc,<>,xyz"},
-                  {"abc;?xyz|",                         "abc,<>,xyz,<>"},
-                  {"|abc;;xyz-",                     "<>,abc,<>,xyz,<>"},
-                  {"_|abc?|xyz;-",             "<>,<>,abc,<>,xyz,<>,<>"},
-                  {"|_",                                     "<>,<>,<>"},
-                  {";",                                         "<>,<>"},
-                  {"?_,",                                 "<>,<>,<>,<>"},
-                  {"",                                               ""},
-                  {"abcxyzabc",                             "abcxyzabc"},
-                  {"abcxyz,xyzabc",                     "abcxyz,xyzabc"},
-                  {"abcxyzabc|,xyzabcxyz",     "abcxyzabc,<>,xyzabcxyz"},
-                  {";abcxyz||xyz",                   "<>,abcxyz,<>,xyz"},
-                  {"abc|;xyzabc?",                   "abc,<>,xyzabc,<>"},
-                  {"_xyzabc,,abcxyz;",         "<>,xyzabc,<>,abcxyz,<>"},
-                  {"__abcabc|_xyzxyz,;", "<>,<>,abcabc,<>,xyzxyz,<>,<>"},
-                  {"a|ij?xyz",                               "a,ij,xyz"},
-                  {"a|_ij,;xyz",                       "a,<>,ij,<>,xyz"},
-                  {"_a??ij;,|xyz",               "<>,a,<>,ij,<>,<>,xyz"},
-                  {"_a||ij,,?xyz_",           "<>,a,<>,ij,<>,<>,xyz,<>"}
-               };
+     = {
+         {"d",                                             "d"},
+         {"d|x",                                         "d,x"},
+         {"d?|x",                                     "d,<>,x"},
+         {",d?-x",                                 "<>,d,<>,x"},
+         {"d;?x|",                                 "d,<>,x,<>"},
+         {"|d;;x-",                             "<>,d,<>,x,<>"},
+         {"_|d?|x;-",                     "<>,<>,d,<>,x,<>,<>"},
+         {"|_",                                     "<>,<>,<>"},
+         {";",                                         "<>,<>"},
+         {"?_,",                                 "<>,<>,<>,<>"},
+         {"",                                               ""},
+         {"dxd",                                         "dxd"},
+         {"dx,xd",                                     "dx,xd"},
+         {"dxd|,xdx",                             "dxd,<>,xdx"},
+         {";dx||x",                               "<>,dx,<>,x"},
+         {"d|;xd?",                               "d,<>,xd,<>"},
+         {"_xd,,dx;",                         "<>,xd,<>,dx,<>"},
+         {"__dd|_xx,;",                 "<>,<>,dd,<>,xx,<>,<>"},
+         {"abc",                                         "abc"},
+         {"abc|xyz",                                 "abc,xyz"},
+         {"abc?|xyz",                             "abc,<>,xyz"},
+         {",abc?-xyz",                         "<>,abc,<>,xyz"},
+         {"abc;?xyz|",                         "abc,<>,xyz,<>"},
+         {"|abc;;xyz-",                     "<>,abc,<>,xyz,<>"},
+         {"_|abc?|xyz;-",             "<>,<>,abc,<>,xyz,<>,<>"},
+         {"|_",                                     "<>,<>,<>"},
+         {";",                                         "<>,<>"},
+         {"?_,",                                 "<>,<>,<>,<>"},
+         {"",                                               ""},
+         {"abcxyzabc",                             "abcxyzabc"},
+         {"abcxyz,xyzabc",                     "abcxyz,xyzabc"},
+         {"abcxyzabc|,xyzabcxyz",     "abcxyzabc,<>,xyzabcxyz"},
+         {";abcxyz||xyz",                   "<>,abcxyz,<>,xyz"},
+         {"abc|;xyzabc?",                   "abc,<>,xyzabc,<>"},
+         {"_xyzabc,,abcxyz;",         "<>,xyzabc,<>,abcxyz,<>"},
+         {"__abcabc|_xyzxyz,;", "<>,<>,abcabc,<>,xyzxyz,<>,<>"},
+         {"a|ij?xyz",                               "a,ij,xyz"},
+         {"a|_ij,;xyz",                       "a,<>,ij,<>,xyz"},
+         {"_a??ij;,|xyz",               "<>,a,<>,ij,<>,<>,xyz"},
+         {"_a||ij,,?xyz_",           "<>,a,<>,ij,<>,<>,xyz,<>"}
+      };
 
-   test_pairs test_input_output3[test_count]
-              = {
-                  {"d",                                      "d"},
-                  {"d|x",                                  "d,x"},
-                  {"d||x",                                 "d,x"},
-                  {"|d||x",                             "<>,d,x"},
-                  {"d||x|",                             "d,x,<>"},
-                  {"|d||x|",                         "<>,d,x,<>"},
-                  {"||d||x||",                       "<>,d,x,<>"},
-                  {"||",                                 "<>,<>"},
-                  {"|",                                  "<>,<>"},
-                  {"|||",                                "<>,<>"},
-                  {"",                                        ""},
-                  {"dxd",                                  "dxd"},
-                  {"dx|xd",                              "dx,xd"},
-                  {"dxd||xdx",                         "dxd,xdx"},
-                  {"|dx||x",                           "<>,dx,x"},
-                  {"d||xd|",                           "d,xd,<>"},
-                  {"|xd||dx|",                     "<>,xd,dx,<>"},
-                  {"||dd||xx||",                   "<>,dd,xx,<>"},
-                  {"abc",                                  "abc"},
-                  {"abc|xyz",                          "abc,xyz"},
-                  {"abc||xyz",                         "abc,xyz"},
-                  {"|abc||xyz",                     "<>,abc,xyz"},
-                  {"abc||xyz|",                     "abc,xyz,<>"},
-                  {"|abc||xyz|",                 "<>,abc,xyz,<>"},
-                  {"||abc||xyz||",               "<>,abc,xyz,<>"},
-                  {"||",                                 "<>,<>"},
-                  {"|",                                  "<>,<>"},
-                  {"|||",                                "<>,<>"},
-                  {"",                                        ""},
-                  {"abcxyzabc",                      "abcxyzabc"},
-                  {"abcxyz|xyzabc",              "abcxyz,xyzabc"},
-                  {"abcxyzabc||xyzabcxyz", "abcxyzabc,xyzabcxyz"},
-                  {"|abcxyz||xyz",               "<>,abcxyz,xyz"},
-                  {"abc||xyzabc|",               "abc,xyzabc,<>"},
-                  {"|xyzabc||abcxyz|",     "<>,xyzabc,abcxyz,<>"},
-                  {"||abcabc||xyzxyz||",   "<>,abcabc,xyzxyz,<>"},
-                  {"a|ij|xyz",                        "a,ij,xyz"},
-                  {"a||ij||xyz",                      "a,ij,xyz"},
-                  {"|a||ij|||xyz",                 "<>,a,ij,xyz"},
-                  {"|a||ij|||xyz|",             "<>,a,ij,xyz,<>"}
-               };
+   const test_pairs test_input_output3[test_count]
+     = {
+         {"d",                                      "d"},
+         {"d|x",                                  "d,x"},
+         {"d||x",                                 "d,x"},
+         {"|d||x",                             "<>,d,x"},
+         {"d||x|",                             "d,x,<>"},
+         {"|d||x|",                         "<>,d,x,<>"},
+         {"||d||x||",                       "<>,d,x,<>"},
+         {"||",                                 "<>,<>"},
+         {"|",                                  "<>,<>"},
+         {"|||",                                "<>,<>"},
+         {"",                                        ""},
+         {"dxd",                                  "dxd"},
+         {"dx|xd",                              "dx,xd"},
+         {"dxd||xdx",                         "dxd,xdx"},
+         {"|dx||x",                           "<>,dx,x"},
+         {"d||xd|",                           "d,xd,<>"},
+         {"|xd||dx|",                     "<>,xd,dx,<>"},
+         {"||dd||xx||",                   "<>,dd,xx,<>"},
+         {"abc",                                  "abc"},
+         {"abc|xyz",                          "abc,xyz"},
+         {"abc||xyz",                         "abc,xyz"},
+         {"|abc||xyz",                     "<>,abc,xyz"},
+         {"abc||xyz|",                     "abc,xyz,<>"},
+         {"|abc||xyz|",                 "<>,abc,xyz,<>"},
+         {"||abc||xyz||",               "<>,abc,xyz,<>"},
+         {"||",                                 "<>,<>"},
+         {"|",                                  "<>,<>"},
+         {"|||",                                "<>,<>"},
+         {"",                                        ""},
+         {"abcxyzabc",                      "abcxyzabc"},
+         {"abcxyz|xyzabc",              "abcxyz,xyzabc"},
+         {"abcxyzabc||xyzabcxyz", "abcxyzabc,xyzabcxyz"},
+         {"|abcxyz||xyz",               "<>,abcxyz,xyz"},
+         {"abc||xyzabc|",               "abc,xyzabc,<>"},
+         {"|xyzabc||abcxyz|",     "<>,xyzabc,abcxyz,<>"},
+         {"||abcabc||xyzxyz||",   "<>,abcabc,xyzxyz,<>"},
+         {"a|ij|xyz",                        "a,ij,xyz"},
+         {"a||ij||xyz",                      "a,ij,xyz"},
+         {"|a||ij|||xyz",                 "<>,a,ij,xyz"},
+         {"|a||ij|||xyz|",             "<>,a,ij,xyz,<>"}
+      };
 
-   test_pairs test_input_output4[test_count]
-              = {
-                  {"d",                                      "d"},
-                  {"d;x",                                  "d,x"},
-                  {"d|?x",                                 "d,x"},
-                  {",d_|x",                             "<>,d,x"},
-                  {"d|;x|",                             "d,x,<>"},
-                  {";d||x|",                         "<>,d,x,<>"},
-                  {"|,d?|x;;",                       "<>,d,x,<>"},
-                  {"|?",                                 "<>,<>"},
-                  {"|",                                  "<>,<>"},
-                  {"?,|",                                "<>,<>"},
-                  {"",                                        ""},
-                  {"dxd",                                  "dxd"},
-                  {"dx,xd",                              "dx,xd"},
-                  {"dxd?,xdx",                         "dxd,xdx"},
-                  {"|dx;|x",                           "<>,dx,x"},
-                  {"d|,xd_",                           "d,xd,<>"},
-                  {";xd||dx|",                     "<>,xd,dx,<>"},
-                  {"|?dd|,xx?_",                   "<>,dd,xx,<>"},
-                  {"abc",                                  "abc"},
-                  {"abc;xyz",                          "abc,xyz"},
-                  {"abc,,xyz",                         "abc,xyz"},
-                  {"|abc;|xyz",                     "<>,abc,xyz"},
-                  {"abc?|xyz,",                     "abc,xyz,<>"},
-                  {"|abc||xyz|",                 "<>,abc,xyz,<>"},
-                  {"||abc?|xyz_|",               "<>,abc,xyz,<>"},
-                  {"|,",                                 "<>,<>"},
-                  {"|",                                  "<>,<>"},
-                  {";,|",                                "<>,<>"},
-                  {"",                                        ""},
-                  {"abcxyzabc",                      "abcxyzabc"},
-                  {"abcxyz;xyzabc",              "abcxyz,xyzabc"},
-                  {"abcxyzabc|,xyzabcxyz", "abcxyzabc,xyzabcxyz"},
-                  {"_abcxyz;?xyz",               "<>,abcxyz,xyz"},
-                  {"abc,|xyzabc|",               "abc,xyzabc,<>"},
-                  {"|xyzabc|?abcxyz,",     "<>,xyzabc,abcxyz,<>"},
-                  {"?|abcabc_|xyzxyz|_",   "<>,abcabc,xyzxyz,<>"},
-                  {"a,ij|xyz",                        "a,ij,xyz"},
-                  {"a?|ij|,xyz",                      "a,ij,xyz"},
-                  {"|a||ij|,?xyz",                 "<>,a,ij,xyz"},
-                  {"?a|,ij|;_xyz|",             "<>,a,ij,xyz,<>"}
-               };
-
+   const test_pairs test_input_output4[test_count]
+     = {
+         {"d",                                      "d"},
+         {"d;x",                                  "d,x"},
+         {"d|?x",                                 "d,x"},
+         {",d_|x",                             "<>,d,x"},
+         {"d|;x|",                             "d,x,<>"},
+         {";d||x|",                         "<>,d,x,<>"},
+         {"|,d?|x;;",                       "<>,d,x,<>"},
+         {"|?",                                 "<>,<>"},
+         {"|",                                  "<>,<>"},
+         {"?,|",                                "<>,<>"},
+         {"",                                        ""},
+         {"dxd",                                  "dxd"},
+         {"dx,xd",                              "dx,xd"},
+         {"dxd?,xdx",                         "dxd,xdx"},
+         {"|dx;|x",                           "<>,dx,x"},
+         {"d|,xd_",                           "d,xd,<>"},
+         {";xd||dx|",                     "<>,xd,dx,<>"},
+         {"|?dd|,xx?_",                   "<>,dd,xx,<>"},
+         {"abc",                                  "abc"},
+         {"abc;xyz",                          "abc,xyz"},
+         {"abc,,xyz",                         "abc,xyz"},
+         {"|abc;|xyz",                     "<>,abc,xyz"},
+         {"abc?|xyz,",                     "abc,xyz,<>"},
+         {"|abc||xyz|",                 "<>,abc,xyz,<>"},
+         {"||abc?|xyz_|",               "<>,abc,xyz,<>"},
+         {"|,",                                 "<>,<>"},
+         {"|",                                  "<>,<>"},
+         {";,|",                                "<>,<>"},
+         {"",                                        ""},
+         {"abcxyzabc",                      "abcxyzabc"},
+         {"abcxyz;xyzabc",              "abcxyz,xyzabc"},
+         {"abcxyzabc|,xyzabcxyz", "abcxyzabc,xyzabcxyz"},
+         {"_abcxyz;?xyz",               "<>,abcxyz,xyz"},
+         {"abc,|xyzabc|",               "abc,xyzabc,<>"},
+         {"|xyzabc|?abcxyz,",     "<>,xyzabc,abcxyz,<>"},
+         {"?|abcabc_|xyzxyz|_",   "<>,abcabc,xyzxyz,<>"},
+         {"a,ij|xyz",                        "a,ij,xyz"},
+         {"a?|ij|,xyz",                      "a,ij,xyz"},
+         {"|a||ij|,?xyz",                 "<>,a,ij,xyz"},
+         {"?a|,ij|;_xyz|",             "<>,a,ij,xyz,<>"}
+      };
 
    typedef strtk::single_delimiter_predicate<std::string::value_type> single_predicate_type;
    typedef strtk::multiple_char_delimiter_predicate multiple_predicate_type;
@@ -307,8 +301,59 @@ int main(void)
 
       if (!test_tokenizer_split(multi_predicate,in,out,true)) std::cout << "Failed Compressed Delimiter Split Test02 " << i << std::endl;
       if (!test_tokenizer_itr<tokenizer_type2>(multi_predicate,in,out,true)) std::cout << "Failed Compressed Delimiter Iterator Test02 " << i << std::endl;
-
    }
+}
 
+bool test_empty_filter_itr()
+{
+   std::string s = "a||c";
+   typedef std::vector<std::pair<std::string::const_iterator,std::string::const_iterator>> str_list;
+   str_list sl;
+   strtk::single_delimiter_predicate<std::string::value_type> p('|');
+   strtk::std_string_tokenizer<strtk::single_delimiter_predicate<std::string::value_type>>::type tok(s,p);
+   return (2 == for_each_token(s,tok,strtk::filter_empty_range<strtk::add_to_sequence<str_list>>(strtk::add_to_sequence<str_list>(sl))));
+}
+
+bool test_construct_and_parse()
+{
+   std::string  i1 = "abcd";
+   char         i2 = 'x';
+   int          i3 = -1234;
+   unsigned int i4 = 78901;
+   double       i5 = 4567.8901;
+
+   std::string output = "";
+   strtk::construct(output,"|",i1,i2,i3,i4,i5);
+
+   std::string  o1 = "";
+   char         o2 = 0x00;
+   int          o3 = 0;
+   unsigned int o4 = 0;
+   double       o5 = 0;
+
+   typedef strtk::single_delimiter_predicate<std::string::value_type> single_predicate_type;
+   typedef strtk::std_string_tokenizer<single_predicate_type>::type tokenizer_type;
+
+   single_predicate_type single_predicate('|');
+   tokenizer_type stk(output,single_predicate);
+   strtk::parse(output,stk,o1,o2,o3,o4,o5);
+
+   if (!((i1 == o1) &&
+         (i2 == o2) &&
+         (i3 == o3) &&
+         (i4 == o4) &&
+         (i5 == o5)))
+   {
+      std::cout << "Construct and Parse Test FAILED!" << std::endl;
+      return false;
+   }
+   return true;
+}
+
+int main(void)
+{
+   test_split_and_tokenizer();
+   test_empty_filter_itr();
+   test_construct_and_parse();
    return 0;
 }
