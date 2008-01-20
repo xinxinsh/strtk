@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <string>
+#include <iterator>
 #include <list>
 #include "strtk.hpp"
 
@@ -73,6 +74,76 @@ void tokenizer_example04()
    while (it != tokenizer.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void tokenizer_example05()
+{
+   const unsigned int data_size = 12;
+   unsigned int data[data_size] = {1,2,3,0,4,5,6,0,7,8,0,9};
+   strtk::single_delimiter_predicate<unsigned int> predicate(0);
+   strtk::tokenizer< unsigned int*,strtk::single_delimiter_predicate<unsigned int> > tokenizer(data,data + data_size,predicate);
+   strtk::tokenizer< unsigned int*,strtk::single_delimiter_predicate<unsigned int> >::iterator it = tokenizer.begin();
+   while (it != tokenizer.end())
+   {
+      std::cout << "[";
+      std::copy((*it).first,(*it).second,std::ostream_iterator<unsigned int>(std::cout," "));
+      std::cout << "]";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void tokenizer_example06()
+{
+   const unsigned int data_size = 12;
+   unsigned int data[data_size] = {1,2,3,0,4,5,6,10,7,8,0,9};
+   unsigned int delimiters[2] = {0,10};
+   strtk::multiple_delimiter_predicate<unsigned int> predicate(delimiters,delimiters + 2);
+   strtk::tokenizer< unsigned int*,strtk::multiple_delimiter_predicate<unsigned int> > tokenizer(data,data + data_size,predicate);
+   strtk::tokenizer< unsigned int*,strtk::multiple_delimiter_predicate<unsigned int> >::iterator it = tokenizer.begin();
+   while (it != tokenizer.end())
+   {
+      std::cout << "[";
+      std::copy((*it).first,(*it).second,std::ostream_iterator<unsigned int>(std::cout," "));
+      std::cout << "]";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void tokenizer_example07()
+{
+   const unsigned int data_size = 12;
+   double data[data_size] = {1.1,2.2,3.3,0.0,4.4,5.5,6.6,0,7.7,8.8,0,9.9};
+   strtk::single_delimiter_predicate<double> predicate(0);
+   strtk::tokenizer< double*,strtk::single_delimiter_predicate<double> > tokenizer(data,data + data_size,predicate);
+   strtk::tokenizer< double*,strtk::single_delimiter_predicate<double> >::iterator it = tokenizer.begin();
+   while (it != tokenizer.end())
+   {
+      std::cout << "[";
+      std::copy((*it).first,(*it).second,std::ostream_iterator<double>(std::cout," "));
+      std::cout << "]";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void tokenizer_example08()
+{
+   const unsigned int data_size = 12;
+   double data[data_size] = {1.1,2.2,3.3,0.0,4.4,5.5,6.6,10.0,7.7,8.8,10.0,9.9};
+   double delimiters[2] = {0.0,10.0};
+   strtk::multiple_delimiter_predicate<double> predicate(delimiters,delimiters + 2);
+   strtk::tokenizer< double*,strtk::multiple_delimiter_predicate<double> > tokenizer(data,data + data_size,predicate);
+   strtk::tokenizer< double*,strtk::multiple_delimiter_predicate<double> >::iterator it = tokenizer.begin();
+   while (it != tokenizer.end())
+   {
+      std::cout << "[";
+      std::copy((*it).first,(*it).second,std::ostream_iterator<double>(std::cout," "));
+      std::cout << "]";
       ++it;
    }
    std::cout << std::endl;
@@ -174,17 +245,48 @@ void parse_example()
              << o5 << std::endl;
 }
 
+void remove_inplace_example01()
+{
+   std::string s = "aa abb cdd  ee fg";
+   std::cout << s << " -> ";
+   strtk::remove_inplace(' ',s);
+   std::cout << s << std::endl;
+}
+
+void remove_consecutives_example01()
+{
+   std::string s = "aaabbcddeefg";
+   std::cout << s << " -> ";
+   strtk::remove_consecutives_inplace(s);
+   std::cout << s << std::endl;
+}
+
+void remove_consecutives_example02()
+{
+   std::string s = "aaabbcaaaddeeafg";
+   std::cout << s << " -> ";
+   strtk::remove_consecutives_inplace('a',s);
+   std::cout << s << std::endl;
+}
+
 int main(void)
 {
    tokenizer_example01();
    tokenizer_example02();
    tokenizer_example03();
    tokenizer_example04();
+   tokenizer_example05();
+   tokenizer_example06();
+   tokenizer_example07();
+   tokenizer_example08();
    split_example01();
    split_example02();
    split_example03();
    split_example04();
    construct_example();
    parse_example();
+   remove_inplace_example01();
+   remove_consecutives_example01();
+   remove_consecutives_example02();
    return 0;
 }
