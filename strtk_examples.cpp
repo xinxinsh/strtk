@@ -22,7 +22,6 @@
 #include <list>
 #include "strtk.hpp"
 
-
 void tokenizer_example01()
 {
    std::string s = "abc|123|xyz|789";
@@ -149,6 +148,15 @@ void tokenizer_example08()
    std::cout << std::endl;
 }
 
+void tokenizer_example09()
+{
+   std::string s = "abc|123|xyz|789";
+   strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
+   strtk::std_string_tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate);
+   std::list<strtk::std_string_tokenizer<std::string::value_type>::iterator_type> token_list;
+   std::copy(tokenizer.begin(),tokenizer.end(),std::back_inserter(token_list));
+}
+
 void split_example01()
 {
    std::string s = "abc|123|xyz|789";
@@ -218,7 +226,7 @@ void construct_example()
    double       i5 = 4567.8901;
    std::string output = "";
    strtk::construct(output,"|",i1,i2,i3,i4,i5);
-   std::cout << "construct_example() - " << output << std::endl;
+   std::cout << output << std::endl;
 }
 
 void parse_example()
@@ -277,7 +285,6 @@ void remove_consecutives_example03()
    std::cout << s << std::endl;
 }
 
-
 int main(void)
 {
    tokenizer_example01();
@@ -288,6 +295,7 @@ int main(void)
    tokenizer_example06();
    tokenizer_example07();
    tokenizer_example08();
+   tokenizer_example09();
    split_example01();
    split_example02();
    split_example03();
