@@ -98,44 +98,99 @@ namespace strtk
    }
 
    template<typename T>
-   inline bool exist_in_list(const T c,
-                             const T list[],
-                             const unsigned int& length)
+   struct single_delimiter_predicate
    {
-      for(unsigned int i = 0; i < length; ++i)
-      {
-         if (list[i] == c) return true;
-      }
-      return false;
-   }
+   public:
+      typedef T value_type;
+      single_delimiter_predicate(const T& d) : delimiter_(d) {}
+      bool operator()(const T& d) const { return d == delimiter_; }
+   private:
+      T delimiter_;
+   };
 
-   template<typename Iterator>
-   inline unsigned int remove_inplace(const typename std::iterator_traits<Iterator>::value_type& c,
-                                      Iterator begin,
-                                      Iterator end)
+   template<typename T>
+   struct multiple_delimiter_predicate
    {
-      Iterator it1 = begin;
-      Iterator it2 = begin;
-      unsigned int removal_count = 0;
-      while(it1 != end)
+   public:
+
+      typedef T value_type;
+
+      multiple_delimiter_predicate(const T* d_begin,const T* d_end)
       {
-         while((it1 != end) && (c != (*it1)))
-         {
-            if (it1 != it2)
-            {
-               *it2 = *it1;
-            }
-            ++it1;
-            ++it2;
-         }
-         while((it1 != end) && (c == (*it1)))
-         {
-            ++it1;
-            ++removal_count;
-         }
+         length_ = std::distance(d_begin,d_end);
+         delimiter_ = new T[length_];
+         delimiter_end_ = delimiter_ + length_;
+         std::copy(d_begin,d_end, delimiter_);
       }
-      return removal_count;
-   }
+
+      multiple_delimiter_predicate(const T d[], const std::size_t& length)
+      {
+         length_ = length;
+         delimiter_ = new T[length_];
+         delimiter_end_ = delimiter_ + length_;
+         std::copy(d,d + length, delimiter_);
+      }
+
+      template<typename Iterator>
+      multiple_delimiter_predicate(const Iterator begin,const Iterator end)
+      {
+         length_ = std::distance(begin,end);
+         delimiter_ = new T[length_];
+         delimiter_end_ = delimiter_ + length_;
+         std::copy(begin,end, delimiter_);
+      }
+
+     ~multiple_delimiter_predicate() { delete[] delimiter_; }
+
+      bool operator()(const T& d) const
+      {
+         return (std::find(delimiter_,delimiter_end_,d) != delimiter_end_);
+      }
+
+   private:
+      T* delimiter_;
+      T* delimiter_end_;
+      std::size_t length_;
+   };
+
+   struct multiple_char_delimiter_predicate
+   {
+   public:
+
+      typedef unsigned char value_type;
+
+      template<typename Iterator>
+      multiple_char_delimiter_predicate(const Iterator begin,const Iterator end)
+      {
+         setup_delimiter_table(begin,end);
+      }
+
+      multiple_char_delimiter_predicate(const std::string& s)
+      {
+         setup_delimiter_table(s.begin(),s.end());
+      }
+
+      bool operator()(const unsigned char& c) const
+      {
+         return (1 == delimiter_table_[c]);
+      }
+
+      bool operator()(const char& c) const
+      {
+         return operator()(static_cast<unsigned char>(c));
+      }
+
+   private:
+
+      template<typename Iterator>
+      void setup_delimiter_table(const Iterator begin,const Iterator end)
+      {
+         for(unsigned int i = 0; i < 0xFF; ++i) delimiter_table_[i] = 0;
+         for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
+      }
+
+      value_type delimiter_table_[0xFF];
+   };
 
    template<typename Iterator, typename Predicate>
    inline unsigned int remove_inplace(const Predicate& predicate,
@@ -167,7 +222,7 @@ namespace strtk
 
    inline void remove_inplace(const std::string::value_type c, std::string& s)
    {
-      unsigned int removal_count = remove_inplace(c,s.begin(),s.end());
+      unsigned int removal_count = remove_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -183,37 +238,6 @@ namespace strtk
       {
          s.resize(s.size() - removal_count);
       }
-   }
-
-   template<typename Iterator>
-   inline unsigned int remove_consecutives_inplace(const typename std::iterator_traits<Iterator>::value_type& c,
-                                                   Iterator begin,
-                                                   Iterator end)
-   {
-      if (0 == std::distance(begin,end)) return 0;
-      Iterator it1 = (begin + 1);
-      Iterator it2 = (begin + 1);
-      typename std::iterator_traits<Iterator>::value_type prev = *begin;
-      unsigned int removal_count = 0;
-      while(it1 != end)
-      {
-         while((it1 != end) && ((c != (*it1)) || (prev != c)))
-         {
-            if (it1 != it2)
-            {
-               *it2 = *it1;
-            }
-            prev = *it1;
-            ++it1;
-            ++it2;
-         }
-         while((it1 != end) && (c == (*it1)))
-         {
-            ++it1;
-            ++removal_count;
-         }
-      }
-      return removal_count;
    }
 
    template<typename Iterator, typename Predicate>
@@ -250,7 +274,7 @@ namespace strtk
    inline void remove_consecutives_inplace(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
-      unsigned int removal_count = remove_consecutives_inplace(c,s.begin(),s.end());
+      unsigned int removal_count = remove_consecutives_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -403,9 +427,6 @@ namespace strtk
       : begin_(begin),
         end_(begin_ + length){}
 
-      const_iterator begin() const { return begin_; }
-      const_iterator end() const { return end_; }
-
       iterator begin() { return begin_; }
       iterator end() { return end_; }
 
@@ -414,115 +435,21 @@ namespace strtk
       iterator end_;
    };
 
-   template<typename T>
-   struct single_delimiter_predicate
-   {
-   public:
-      typedef T value_type;
-      single_delimiter_predicate(const T& d) : delimiter_(d) {}
-      bool operator()(const T& d) const { return d == delimiter_; }
-   private:
-      T delimiter_;
-   };
-
-   template<typename T>
-   struct multiple_delimiter_predicate
-   {
-   public:
-
-      typedef T value_type;
-
-      multiple_delimiter_predicate(const T* d_begin,const T* d_end)
-      {
-         length_ = std::distance(d_begin,d_end);
-         delimiter_ = new T[length_];
-         delimiter_end_ = delimiter_ + length_;
-         std::copy(d_begin,d_end, delimiter_);
-      }
-
-      multiple_delimiter_predicate(const T d[], const std::size_t& length)
-      {
-         length_ = length;
-         delimiter_ = new T[length_];
-         delimiter_end_ = delimiter_ + length_;
-         std::copy(d,d + length, delimiter_);
-      }
-
-      template<typename Iterator>
-      multiple_delimiter_predicate(const Iterator begin,const Iterator end)
-      {
-         length_ = std::distance(begin,end);
-         delimiter_ = new T[length_];
-         delimiter_end_ = delimiter_ + length_;
-         std::copy(begin,end, delimiter_);
-      }
-
-     ~multiple_delimiter_predicate() { delete[] delimiter_; }
-
-      bool operator()(const T& d) const
-      {
-         return (std::find(delimiter_,delimiter_end_,d) != delimiter_end_);
-      }
-
-   private:
-      T* delimiter_;
-      T* delimiter_end_;
-      std::size_t length_;
-   };
-
-   struct multiple_char_delimiter_predicate
-   {
-   public:
-
-      typedef unsigned char value_type;
-
-      template<typename Iterator>
-      multiple_char_delimiter_predicate(const Iterator begin,const Iterator end)
-      {
-         setup_delimiter_table(begin,end);
-      }
-
-      multiple_char_delimiter_predicate(const std::string& s)
-      {
-         setup_delimiter_table(s.begin(),s.end());
-      }
-
-      bool operator()(const unsigned char& c) const
-      {
-         return (1 == delimiter_table_[c]);
-      }
-
-      bool operator()(const char& c) const
-      {
-         return operator()(static_cast<unsigned char>(c));
-      }
-
-   private:
-
-      template<typename Iterator>
-      void setup_delimiter_table(const Iterator begin,const Iterator end)
-      {
-         for(unsigned int i = 0; i < 0xFF; ++i) delimiter_table_[i] = 0;
-         for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
-      }
-
-      value_type delimiter_table_[0xFF];
-   };
-
    template<typename Iterator, typename DelimiterPredicate>
    class tokenizer
    {
    private:
 
-      template<typename Iterartor, typename Predicate>
-      class tokenizer_iterator
+      template<typename Iterartor, typename Predicate, typename T = std::pair<Iterator,Iterator> >
+      class tokenizer_iterator : public std::iterator<std::forward_iterator_tag, T>
       {
       protected:
-         typedef typename std::iterator_traits<Iterator>::value_type value_type;
          typedef Iterator iterator;
          typedef const iterator const_iterator;
 
       public:
+         typedef typename std::iterator_traits<Iterator>::value_type value_type;
+
          tokenizer_iterator(const iterator begin,
                             const iterator end,
                             const Predicate& predicate,
@@ -591,7 +518,7 @@ namespace strtk
             return *this;
          }
 
-         std::pair<iterator,iterator> operator*()
+         T operator*()
          {
             return std::make_pair<iterator,iterator>(curr_tok_begin_,curr_tok_end_);
          }
@@ -702,7 +629,11 @@ namespace strtk
    };
 
    template<typename DelimiterPredicate>
-   struct std_string_tokenizer { typedef tokenizer<std::string::const_iterator,DelimiterPredicate> type; };
+   struct std_string_tokenizer
+   {
+      typedef tokenizer<std::string::const_iterator,DelimiterPredicate> type;
+      typedef std::pair< std::string::const_iterator , std::string::const_iterator> iterator_type;
+   };
 
    template<typename DelimiterPredicate,
             typename Iterator,
