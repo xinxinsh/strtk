@@ -307,11 +307,11 @@ void test_split_and_tokenizer()
 bool test_empty_filter_itr()
 {
    std::string s = "a||c";
-   typedef std::vector<std::pair<std::string::const_iterator,std::string::const_iterator>> str_list;
+   typedef std::vector< std::pair<std::string::const_iterator,std::string::const_iterator> > str_list;
    str_list sl;
    strtk::single_delimiter_predicate<std::string::value_type> p('|');
-   strtk::std_string_tokenizer<strtk::single_delimiter_predicate<std::string::value_type>>::type tok(s,p);
-   return (2 == for_each_token(s,tok,strtk::filter_empty_range<strtk::add_to_sequence<str_list>>(strtk::add_to_sequence<str_list>(sl))));
+   strtk::std_string_tokenizer< strtk::single_delimiter_predicate<std::string::value_type> >::type tok(s,p);
+   return (2 == for_each_token(s,tok,strtk::filter_empty_range< strtk::add_to_sequence<str_list> >(strtk::add_to_sequence<str_list>(sl))));
 }
 
 bool test_construct_and_parse()
