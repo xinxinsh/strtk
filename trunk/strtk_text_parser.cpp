@@ -1,21 +1,3 @@
-/*
- *******************************************************************
- *                       String Tool Kit Library                   *
- *                                                                 *
- * Text File Parser Example                                        *
- * Author: Arash Partow - 2003                                     *
- * URL: http://www.partow.net                                      *
- *                                                                 *
- * Copyright notice:                                               *
- * Free use of the String Tool Kit Library is permitted under the  *
- * guidelines and in accordance with the most current version of   *
- * the Common Public License.                                      *
- * http://www.opensource.org/licenses/cpl.php                      *
- *                                                                 *
- *******************************************************************
-*/
-
-
 #include <iostream>
 #include <iterator>
 #include <utility>
@@ -67,6 +49,6 @@ int main(void)
    std::string text_file_name = "text.txt";
    std::deque< std::string > word_list;
    parse_text(text_file_name,word_list);
-   std::cout << "Token Count: " << word_list.size() << std::endl;
+   std::cout << "Token Count: " << word_list.size() << "\tTotal Time: " << t.time() << "\tRate:" << word_list.size() / t.time() << std::endl;
    return 0;
 }
