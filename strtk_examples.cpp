@@ -157,6 +157,27 @@ void tokenizer_example09()
    std::copy(tokenizer.begin(),tokenizer.end(),std::back_inserter(token_list));
 }
 
+void tokenizer_example10()
+{
+   const unsigned int str_list_size = 10;
+   std::string str_list[str_list_size] = { "abc" , "delimiter" , "ijk" , "delimiter" , 
+                                           "mno" , "delimiter" , "rst" , "uvw" , 
+                                           "delimiter" , "xyz" };
+
+   strtk::range_adapter<std::string> range(str_list,str_list_size);
+   strtk::single_delimiter_predicate<std::string> predicate("delimiter");
+   strtk::tokenizer< std::string*,strtk::single_delimiter_predicate<std::string> > tokenizer(range.begin(),range.end(),predicate);
+   strtk::tokenizer< std::string*,strtk::single_delimiter_predicate<std::string> >::iterator it = tokenizer.begin();
+   while(it != tokenizer.end())
+   {
+      std::cout << "[";
+      std::copy((*it).first,(*it).second,std::ostream_iterator<std::string>(std::cout," "));
+      std::cout << "]";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
 void split_example01()
 {
    std::string s = "abc|123|xyz|789";
@@ -296,6 +317,7 @@ int main(void)
    tokenizer_example07();
    tokenizer_example08();
    tokenizer_example09();
+   tokenizer_example10();
    split_example01();
    split_example02();
    split_example03();

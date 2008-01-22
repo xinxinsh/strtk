@@ -106,8 +106,7 @@ void boost_tokenizer_timed_test()
    so.reserve(base.size() * replicate_count);
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
    typedef boost::tokenizer<boost::char_separator<char> > tokenizer_type;
-   boost::char_separator<char> sep(delimiters.c_str());
-   tokenizer_type tokenizer(s,sep);
+   tokenizer_type tokenizer(s,boost::char_separator<char>(delimiters));
    tokenizer_type::iterator it = tokenizer.begin();
    unsigned int token_count = 0;
    timer t;
