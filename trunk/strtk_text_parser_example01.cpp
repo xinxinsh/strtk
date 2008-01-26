@@ -58,7 +58,7 @@ void parse_text(const std::string& file_name, Container& c)
 {
    std::string delimiters = " ,.;:<>'[]{}()_?/'`~!@#$%^&*|-_\"=+";
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
-   unsigned int line_count = for_each_line(file_name,parse_line<Container,strtk::multiple_char_delimiter_predicate>(c,predicate));
+   unsigned int line_count = strtk::for_each_line(file_name,parse_line<Container,strtk::multiple_char_delimiter_predicate>(c,predicate));
 }
 
 int main(void)
@@ -66,6 +66,6 @@ int main(void)
    std::string text_file_name = "text.txt";
    std::deque< std::string > word_list;
    parse_text(text_file_name,word_list);
-   std::cout << "Token Count: " << word_list.size() << "\tTotal Time: " << t.time() << "\tRate:" << word_list.size() / t.time() << std::endl;
+   std::cout << "Token Count: " << word_list.size() << std::endl;
    return 0;
 }

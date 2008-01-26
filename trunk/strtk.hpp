@@ -45,7 +45,7 @@ namespace strtk
       while(it != tokenizer.end())
       {
          handler(*it);
-         ++it; 
+         ++it;
          ++token_count;
       }
       return token_count;
@@ -424,7 +424,7 @@ namespace strtk
       std::string::const_iterator it2 = begin2;
       while(it1 != end1)
       {
-         if (std::toupper(*it1) != std::toupper(*it2)) 
+         if (std::toupper(*it1) != std::toupper(*it2))
          {
             return false;
          }
@@ -684,6 +684,21 @@ namespace strtk
 
       explicit range_to_string_back_inserter_iterator(Sequence& sequence)
       : sequence_(sequence) {}
+
+      range_to_string_back_inserter_iterator(const range_to_string_back_inserter_iterator& it)
+      {
+         this->sequence_ = it.sequence_;
+         return *this;
+      }
+
+      range_to_string_back_inserter_iterator& operator=(const range_to_string_back_inserter_iterator& it)
+      {
+         if (this != &it)
+         {
+            this->sequence_ = it.sequence_;
+         }
+         return *this;
+      }
 
       range_to_string_back_inserter_iterator& operator=(const std_string_tokenizer<std::string::value_type>::iterator_type& r)
       {
@@ -1458,18 +1473,18 @@ namespace strtk
       {
          for(unsigned int i = 0; i < str_list_length; ++i)
          {
-            if ((case_insensitive_ && 
+            if ((case_insensitive_ &&
                (case_insensitive_match(string_list_[i].begin(),string_list_[i].end(),range.first,range.second))) ||
                (!case_insensitive_ && std::equal(string_list_[i].begin(),string_list_[i].end(),range.first)))
             {
-               if (allow_through_on_match_) 
+               if (allow_through_on_match_)
                {
                   predicate_(range);
                }
                return;
             }
          }
-         if (!allow_through_on_match_) 
+         if (!allow_through_on_match_)
          {
             std::cout << "s: [" << std::string(range.first,range.second) << "] size: " <<std::string(range.first,range.second).size() << std::endl;
             predicate_(range);
@@ -1481,18 +1496,18 @@ namespace strtk
       {
          for(unsigned int i = 0; i < str_list_length; ++i)
          {
-            if ((case_insensitive && 
+            if ((case_insensitive &&
                (case_insensitive_match(string_list_[i].begin(),string_list_[i].end(),s.begin(),s.end()))) ||
                (!case_insensitive && std::equal(string_list_.begin(),string_list_.end(),s.first)))
             {
-               if (allow_through_on_match) 
+               if (allow_through_on_match)
                {
                   predicate_(s);
                   return;
                }
             }
          }
-         if (!allow_through_on_match) 
+         if (!allow_through_on_match)
          {
             predicate_(s);
             return;
