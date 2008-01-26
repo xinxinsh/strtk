@@ -19,12 +19,14 @@
 #define INCLUDE_STRTK_HPP
 
 #include <cstddef>
+#include <cctype>
 #include <iterator>
 #include <limits>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <algorithm>
+
 
 #include <boost/lexical_cast.hpp>
 
@@ -39,11 +41,12 @@ namespace strtk
    {
       unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
-      for(typename Tokenizer::iterator it = tokenizer.begin();
-          it != tokenizer.end();
-          ++it, ++token_count)
+      typename Tokenizer::iterator it = tokenizer.begin();
+      while(it != tokenizer.end())
       {
          handler(*it);
+         ++it; 
+         ++token_count;
       }
       return token_count;
    }
@@ -410,30 +413,44 @@ namespace strtk
                    str.c_str(),str.c_str() + str.size(),'*','?');
    }
 
-   template<typename T>
-   class range_adapter
+   inline bool case_insensitive_match(const std::string::const_iterator begin1, const std::string::const_iterator end1,
+                                      const std::string::const_iterator begin2, const std::string::const_iterator end2)
    {
-   public:
+      if (std::distance(begin1,end1) != std::distance(begin2,end2))
+      {
+         return false;
+      }
+      std::string::const_iterator it1 = begin1;
+      std::string::const_iterator it2 = begin2;
+      while(it1 != end1)
+      {
+         if (std::toupper(*it1) != std::toupper(*it2)) 
+         {
+            return false;
+         }
+         ++it1;
+         ++it2;
+      }
+      return true;
+   }
 
-      typedef T value_type;
-      typedef T* iterator;
-      typedef const iterator const_iterator;
+   inline bool case_insensitive_match(const std::string& s1, const std::string s2)
+   {
+      return case_insensitive_match(s1.begin(),s1.end(),s2.begin(),s2.end());
+   }
 
-      range_adapter(T* const begin,T* const end)
-      : begin_(begin),
-        end_(end){}
-
-      range_adapter(T* const begin, const std::size_t length)
-      : begin_(begin),
-        end_(begin_ + length){}
-
-      iterator begin() { return begin_; }
-      iterator end() { return end_; }
-
-   private:
-      iterator begin_;
-      iterator end_;
-   };
+   template<typename Iterator>
+   inline bool case_insensitive_match(const std::string& s, const Iterator begin, const Iterator end)
+   {
+      for(const std::string* it = begin; it != end; ++it)
+      {
+         if (case_insensitive_match(s,*it))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
 
    template<typename Iterator, typename DelimiterPredicate>
    class tokenizer
@@ -592,7 +609,7 @@ namespace strtk
         compress_delimiters_(compress_delimiters)
       {}
 
-      void assign(const std::string& s)
+      void assign(const std::string& s) const
       {
          assign(s.begin(),s.end());
       }
@@ -605,12 +622,12 @@ namespace strtk
         end_itr_ = iterator(end_,end_,predicate_,compress_delimiters_);
       }
 
-      const_iterator_ref begin()
+      const_iterator_ref begin() const
       {
          return begin_itr_;
       }
 
-      const_iterator_ref end()
+      const_iterator_ref end() const
       {
          return end_itr_;
       }
@@ -634,6 +651,65 @@ namespace strtk
       typedef tokenizer<std::string::const_iterator,DelimiterPredicate> type;
       typedef std::pair< std::string::const_iterator , std::string::const_iterator> iterator_type;
    };
+
+   template<typename T>
+   class range_adapter
+   {
+   public:
+
+      typedef T value_type;
+      typedef T* iterator;
+      typedef const iterator const_iterator;
+
+      range_adapter(T* const begin,T* const end)
+      : begin_(begin),
+        end_(end){}
+
+      range_adapter(T* const begin, const std::size_t length)
+      : begin_(begin),
+        end_(begin_ + length){}
+
+      iterator begin() { return begin_; }
+      iterator end() { return end_; }
+
+   private:
+      iterator begin_;
+      iterator end_;
+   };
+
+   template<class Sequence>
+   class range_to_string_back_inserter_iterator : public std::iterator<std::output_iterator_tag, void, void,void, void>
+   {
+   public:
+
+      explicit range_to_string_back_inserter_iterator(Sequence& sequence)
+      : sequence_(sequence) {}
+
+      range_to_string_back_inserter_iterator& operator=(const std_string_tokenizer<std::string::value_type>::iterator_type& r)
+      {
+         sequence_.push_back(std::string(r.first,r.second));
+         return (*this);
+      }
+
+      void operator()(const std_string_tokenizer<std::string::value_type>::iterator_type& r)
+      {
+         sequence_.push_back(std::string(r.first,r.second));
+      }
+
+      range_to_string_back_inserter_iterator& operator*()    { return (*this); }
+      range_to_string_back_inserter_iterator& operator++()   { return (*this); }
+      range_to_string_back_inserter_iterator operator++(int) { return (*this); }
+
+   private:
+      Sequence& sequence_;
+   };
+
+   template<class Sequence>
+   inline range_to_string_back_inserter_iterator<Sequence> range_to_string_back_inserter(Sequence& sequence_)
+   {
+      return (range_to_string_back_inserter_iterator<Sequence>(sequence_));
+   }
+
 
    template<typename DelimiterPredicate,
             typename Iterator,
@@ -1323,18 +1399,103 @@ namespace strtk
    };
 
    template<typename OutputPredicate>
-   struct filter_on_match
+   struct filter_on_wildcard_match
    {
    public:
-      filter_on_match(const std::string& match_pattern)
-      : match_pattern_(match_pattern){}
+      filter_on_wildcard_match(const std::string& match_pattern,OutputPredicate& predicate, bool allow_through_on_match = true)
+      : allow_through_on_match_(allow_through_on_match),
+        match_pattern_(match_pattern),
+        predicate_(predicate){}
 
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
       {
-         if (match(match_pattern_.begin(),match_pattern_.end(),range.first,range.second,'*','?'))
+         if (match(match_pattern_.begin(),match_pattern_.end(),range.first,range.second,'*','?') ^ allow_through_on_match_)
          {
             predicate_(range);
+         }
+      }
+
+      inline void operator() (const std::string& s) const
+      {
+         if (match(match_pattern_,s) ^ allow_through_on_match_)
+         {
+            predicate_(range);
+         }
+      }
+
+   private:
+      filter_on_wildcard_match(const filter_on_wildcard_match& fom);
+      filter_on_wildcard_match operator=(const filter_on_wildcard_match& fom);
+
+      bool allow_through_on_match_;
+      std::string match_pattern_;
+      OutputPredicate& predicate_;
+   };
+
+   template<typename OutputPredicate>
+   struct filter_on_match
+   {
+   public:
+      template<typename Iterator>
+      filter_on_match(const Iterator begin, Iterator end,
+                            OutputPredicate& predicate,
+                            bool case_insensitive,
+                            bool allow_through_on_match = true)
+      :case_insensitive_(case_insensitive),
+       allow_through_on_match_(allow_through_on_match),
+       predicate_(predicate)
+      {
+         str_list_length = std::distance(begin,end);
+         string_list_ = new std::string[str_list_length];
+         std::copy(begin,end,string_list_);
+      }
+
+     ~filter_on_match() { delete[] string_list_; }
+
+      template<typename Iterator>
+      inline void operator() (const std::pair<Iterator,Iterator>& range) const
+      {
+         for(unsigned int i = 0; i < str_list_length; ++i)
+         {
+            if ((case_insensitive_ && 
+               (case_insensitive_match(string_list_[i].begin(),string_list_[i].end(),range.first,range.second))) ||
+               (!case_insensitive_ && std::equal(string_list_[i].begin(),string_list_[i].end(),range.first)))
+            {
+               if (allow_through_on_match_) 
+               {
+                  predicate_(range);
+               }
+               return;
+            }
+         }
+         if (!allow_through_on_match_) 
+         {
+            std::cout << "s: [" << std::string(range.first,range.second) << "] size: " <<std::string(range.first,range.second).size() << std::endl;
+            predicate_(range);
+            return;
+         }
+      }
+
+      inline void operator() (const std::string& s) const
+      {
+         for(unsigned int i = 0; i < str_list_length; ++i)
+         {
+            if ((case_insensitive && 
+               (case_insensitive_match(string_list_[i].begin(),string_list_[i].end(),s.begin(),s.end()))) ||
+               (!case_insensitive && std::equal(string_list_.begin(),string_list_.end(),s.first)))
+            {
+               if (allow_through_on_match) 
+               {
+                  predicate_(s);
+                  return;
+               }
+            }
+         }
+         if (!allow_through_on_match) 
+         {
+            predicate_(s);
+            return;
          }
       }
 
@@ -1342,8 +1503,11 @@ namespace strtk
       filter_on_match(const filter_on_match& fom);
       filter_on_match operator=(const filter_on_match& fom);
 
-      std::string match_pattern_;
-      const OutputPredicate& predicate_;
+      bool allow_through_on_match_;
+      bool case_insensitive_;
+      std::size_t str_list_length;
+      std::string* string_list_;
+      OutputPredicate& predicate_;
    };
 
    template<typename MatchPredicate,
