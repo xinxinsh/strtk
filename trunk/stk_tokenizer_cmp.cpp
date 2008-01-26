@@ -4,7 +4,7 @@
  *                                                                 *
  * STRTK Tokenizer v BOOST Tokenizer                               *
  * Author: Arash Partow - 2003                                     *
- * URL: http://www.partow.net                                      *
+ * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *
  * Free use of the String Tool Kit Library is permitted under the  *
