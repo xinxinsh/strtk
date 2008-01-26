@@ -686,10 +686,8 @@ namespace strtk
       : sequence_(sequence) {}
 
       range_to_string_back_inserter_iterator(const range_to_string_back_inserter_iterator& it)
-      {
-         this->sequence_ = it.sequence_;
-         return *this;
-      }
+      : sequence_(it.sequence_)
+      {}
 
       range_to_string_back_inserter_iterator& operator=(const range_to_string_back_inserter_iterator& it)
       {
