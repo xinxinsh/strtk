@@ -4,7 +4,7 @@
  *                                                                 *
  * Text Parser Example 01                                          *
  * Author: Arash Partow - 2002                                     *
- * URL: http://www.partow.net                                      *
+ * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *
  * Free use of the String Tool Kit Library is permitted under the  *
