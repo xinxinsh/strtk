@@ -40,7 +40,7 @@ void tokenizer_example02()
 {
    std::string s = "abc.123 xyz?789";
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
-   strtk::std_string_tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate);
+   strtk::std_string_tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate,true);
    strtk::std_string_tokenizer<strtk::multiple_char_delimiter_predicate >::type::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
@@ -160,8 +160,8 @@ void tokenizer_example09()
 void tokenizer_example10()
 {
    const unsigned int str_list_size = 10;
-   std::string str_list[str_list_size] = { "abc" , "delimiter" , "ijk" , "delimiter" , 
-                                           "mno" , "delimiter" , "rst" , "uvw" , 
+   std::string str_list[str_list_size] = { "abc" , "delimiter" , "ijk" , "delimiter" ,
+                                           "mno" , "delimiter" , "rst" , "uvw" ,
                                            "delimiter" , "xyz" };
 
    strtk::range_adapter<std::string> range(str_list,str_list_size);
@@ -176,6 +176,18 @@ void tokenizer_example10()
       ++it;
    }
    std::cout << std::endl;
+}
+
+void tokenizer_example11()
+{
+   std::string s = "abc|123|xyz|789";
+   strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
+   strtk::std_string_tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate);
+   strtk::std_string_tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type::iterator it = tokenizer.begin();
+
+   std::list<std::string> token_list;
+   std::copy(tokenizer.begin(),tokenizer.end(),strtk::range_to_string_back_inserter(token_list));
+   std::copy(token_list.begin(),token_list.end(),std::ostream_iterator<std::string>(std::cout,"\t"));
 }
 
 void split_example01()
@@ -318,6 +330,7 @@ int main(void)
    tokenizer_example08();
    tokenizer_example09();
    tokenizer_example10();
+   tokenizer_example11();
    split_example01();
    split_example02();
    split_example03();
