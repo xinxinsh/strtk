@@ -1455,23 +1455,18 @@ namespace strtk
                      bool allow_through_on_match = true)
       :case_insensitive_(case_insensitive),
        allow_through_on_match_(allow_through_on_match),
-       predicate_(predicate)
-      {
-         str_list_length = std::distance(begin,end);
-         string_list_ = new std::string[str_list_length];
-         std::copy(begin,end,string_list_);
-      }
-
-     ~filter_on_match() { delete[] string_list_; }
+       begin_(begin),
+       end_(end),
+       predicate_(predicate){}
 
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
       {
-         for(unsigned int i = 0; i < str_list_length; ++i)
+         for(const std::string* i = begin_; i != end_ ; ++i)
          {
             if ((case_insensitive_ &&
-               (case_insensitive_match(string_list_[i].begin(),string_list_[i].end(),range.first,range.second))) ||
-               (!case_insensitive_ && std::equal(string_list_[i].begin(),string_list_[i].end(),range.first)))
+               (case_insensitive_match((*i).begin(),(*i).end(),range.first,range.second))) ||
+               (!case_insensitive_ && std::equal((*i).begin(),(*i).end(),range.first)))
             {
                if (allow_through_on_match_)
                {
@@ -1482,7 +1477,6 @@ namespace strtk
          }
          if (!allow_through_on_match_)
          {
-            std::cout << "s: [" << std::string(range.first,range.second) << "] size: " <<std::string(range.first,range.second).size() << std::endl;
             predicate_(range);
             return;
          }
@@ -1490,11 +1484,11 @@ namespace strtk
 
       inline void operator() (const std::string& s) const
       {
-         for(unsigned int i = 0; i < str_list_length; ++i)
+         for(const std::string* i = begin_; i != end_ ; ++i)
          {
             if ((case_insensitive_ &&
-               (case_insensitive_match(string_list_[i].begin(),string_list_[i].end(),s.begin(),s.end()))) ||
-               (!case_insensitive_ && std::equal(string_list_[i].begin(),string_list_[i].end(),s.begin())))
+               (case_insensitive_match((*i).begin(),(*i).end(),s.begin(),s.end()))) ||
+               (!case_insensitive_ && std::equal((*i).begin(),(*i).end(),s.begin())))
             {
                if (allow_through_on_match_)
                {
@@ -1513,8 +1507,8 @@ namespace strtk
    private:
       bool allow_through_on_match_;
       bool case_insensitive_;
-      std::size_t str_list_length;
-      std::string* string_list_;
+      const std::string* begin_;
+      const std::string* end_;
       OutputPredicate& predicate_;
    };
 
