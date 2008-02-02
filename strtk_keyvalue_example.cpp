@@ -34,17 +34,12 @@ public:
 
    void operator()(const typename Tokenizer::iterator::value_type& v)
    {
-      t_.assign(v.first,v.second);
       std::pair<std::string,std::string> kv;
-      strtk::parse(t_,kv.first,kv.second);
+      strtk::parse(v.first,v.second,t_,kv.first,kv.second);
       c_.push_back(kv);
    }
 
 private:
-
-   key_value_parser(const key_value_parser& kvp){}
-   key_value_parser& operator=(const key_value_parser& kvp){}
-
    Container& c_;
    Tokenizer& t_;
 };
@@ -56,17 +51,20 @@ int main(void)
    typedef strtk::single_delimiter_predicate<std::string::value_type> predicate_type1;
    typedef strtk::multiple_char_delimiter_predicate predicate_type2;
 
-   strtk::std_string_tokenizer<predicate_type1>::type pair_tokenizer(data,predicate_type1('|'));
-   strtk::std_string_tokenizer<predicate_type2>::type key_value_tokenizer(data,predicate_type2("="),true);
+   typedef strtk::std_string_tokenizer<predicate_type1>::type tokenizer_type1;
+   typedef strtk::std_string_tokenizer<predicate_type2>::type tokenizer_type2;
+
+   typedef key_value_parser<std::deque< std::pair<std::string,std::string> >,tokenizer_type2> kvp_type;
+
+   tokenizer_type1 pair_tokenizer(data,predicate_type1('|'));
+   tokenizer_type2 key_value_tokenizer(data,predicate_type2("="),true);
 
    std::deque< std::pair<std::string,std::string> > keyvalue_list;
 
-   typedef key_value_parser<std::deque< std::pair<std::string,std::string> >,strtk::std_string_tokenizer<predicate_type2>::type> kv_parser_type;
+   kvp_type kvp(keyvalue_list,key_value_tokenizer);
 
-   strtk::for_each_token<strtk::std_string_tokenizer<predicate_type1>::type,kv_parser_type>(data,pair_tokenizer,kv_parser_type(keyvalue_list,key_value_tokenizer));
-
+   strtk::for_each_token<tokenizer_type1,kvp_type>(data,pair_tokenizer,kvp);
    std::deque< std::pair<std::string,std::string> >::iterator it = keyvalue_list.begin();
-
    while(it != keyvalue_list.end())
    {
       std::cout << "<" << (*it).first << "," << (*it).second << ">" << std::endl;
