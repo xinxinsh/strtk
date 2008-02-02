@@ -47,11 +47,8 @@ public:
 
    inline void operator() (const std::string& s)
    {
-      std::cout << "x1" << std::endl;
       const filter_type& filter = filter_;
-      std::cout << "x2" << std::endl;
       strtk::for_each_token(s,tokenizer_,filter);
-      std::cout << "x3" << std::endl;
    }
 
 private:
@@ -70,7 +67,7 @@ void parse_text(const std::string& file_name, Container& c)
    typedef parse_line<Container,strtk::multiple_char_delimiter_predicate> pl_type;
    pl_type pl(c,predicate);
    const pl_type& pl_ref = pl;
-   strtk::for_each_line(file_name,pl_ref);
+   strtk::for_each_line<const pl_type&>(file_name,pl_ref);
 }
 
 int main(void)
