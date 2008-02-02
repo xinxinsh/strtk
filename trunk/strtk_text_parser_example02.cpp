@@ -33,26 +33,33 @@ template<typename Container, typename Predicate>
 struct parse_line
 {
 public:
+
+   typedef typename strtk::filter_on_match< strtk::range_to_string_back_inserter_iterator<Container> > filter_type;
+   typedef typename strtk::std_string_tokenizer<Predicate>::type tokenizer_type;
    parse_line(Container& c, Predicate& p)
    : c_(c),
      p_(p),
      tmp_(""),
      tokenizer_(tmp_,p_,true),
-     filter_on_match_(reinterpret_cast<const std::string*>(not_of_interest_list),
-                      reinterpret_cast<const std::string*>(not_of_interest_list + list_size),
-                      strtk::range_to_string_back_inserter_iterator<Container>(c_),true,false){}
+     filter_(reinterpret_cast<const std::string*>(not_of_interest_list),
+             reinterpret_cast<const std::string*>(not_of_interest_list + list_size),
+             strtk::range_to_string_back_inserter_iterator<Container>(c_),true,false){}
 
    inline void operator() (const std::string& s)
    {
-      strtk::for_each_token(s,tokenizer_,filter_on_match_);
+      std::cout << "x1" << std::endl;
+      const filter_type& filter = filter_;
+      std::cout << "x2" << std::endl;
+      strtk::for_each_token(s,tokenizer_,filter);
+      std::cout << "x3" << std::endl;
    }
 
 private:
    Container& c_;
    Predicate& p_;
    std::string tmp_;
-   typename strtk::std_string_tokenizer<Predicate>::type tokenizer_;
-   typename strtk::filter_on_match< strtk::range_to_string_back_inserter_iterator<Container> > filter_on_match_;
+   tokenizer_type tokenizer_;
+   filter_type filter_;
 };
 
 template<typename Container>
@@ -60,8 +67,10 @@ void parse_text(const std::string& file_name, Container& c)
 {
    std::string delimiters = " ,.;:<>'[]{}()_?/'`~!@#$%^&*|-_\"=+";
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
-   parse_line<Container,strtk::multiple_char_delimiter_predicate> pl(c,predicate);
-   strtk::for_each_line(file_name,pl);
+   typedef parse_line<Container,strtk::multiple_char_delimiter_predicate> pl_type;
+   pl_type pl(c,predicate);
+   const pl_type& pl_ref = pl;
+   strtk::for_each_line(file_name,pl_ref);
 }
 
 int main(void)
