@@ -33,27 +33,26 @@ template<typename Container, typename Predicate>
 struct parse_line
 {
 public:
-   parse_line(Container& c, const Predicate& p)
+   parse_line(Container& c, Predicate& p)
    : c_(c),
      p_(p),
      tmp_(""),
-     tokenizer_(tmp_,p_,true)
-   {}
+     tokenizer_(tmp_,p_,true),
+     filter_on_match_(reinterpret_cast<const std::string*>(not_of_interest_list),
+                      reinterpret_cast<const std::string*>(not_of_interest_list + list_size),
+                      strtk::range_to_string_back_inserter_iterator<Container>(c_),true,false){}
 
    inline void operator() (const std::string& s)
    {
-      strtk::for_each_token(s,tokenizer_,
-                            strtk::filter_on_match< strtk::range_to_string_back_inserter_iterator<Container> >
-                            (not_of_interest_list,not_of_interest_list + list_size,
-                            strtk::range_to_string_back_inserter_iterator<Container>(c_),
-                            true,false));
+      strtk::for_each_token(s,tokenizer_,filter_on_match_);
    }
 
 private:
    Container& c_;
-   const Predicate& p_;
+   Predicate& p_;
    std::string tmp_;
    typename strtk::std_string_tokenizer<Predicate>::type tokenizer_;
+   typename strtk::filter_on_match< strtk::range_to_string_back_inserter_iterator<Container> > filter_on_match_;
 };
 
 template<typename Container>
@@ -61,7 +60,8 @@ void parse_text(const std::string& file_name, Container& c)
 {
    std::string delimiters = " ,.;:<>'[]{}()_?/'`~!@#$%^&*|-_\"=+";
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
-   strtk::for_each_line(file_name,parse_line<Container,strtk::multiple_char_delimiter_predicate>(c,predicate));
+   parse_line<Container,strtk::multiple_char_delimiter_predicate> pl(c,predicate);
+   strtk::for_each_line(file_name,pl);
 }
 
 int main(void)

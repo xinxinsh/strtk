@@ -27,62 +27,61 @@
 #include <string>
 #include <algorithm>
 
-
 #include <boost/lexical_cast.hpp>
 
 
 namespace strtk
 {
 
-   template<typename Tokenizer, typename Handler>
+   template<typename Tokenizer, class Function>
    unsigned int for_each_token(const std::string& buffer,
                                Tokenizer& tokenizer,
-                               Handler& handler)
+                               Function function)
    {
       unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenizer::iterator it = tokenizer.begin();
       while(it != tokenizer.end())
       {
-         handler(*it);
+         function(*it);
          ++it;
          ++token_count;
       }
       return token_count;
    }
 
-   template<typename Handler>
-   inline unsigned int for_each_line(std::ifstream& stream, Handler& handler)
+   template<class Function>
+   inline unsigned int for_each_line(std::ifstream& stream, Function function)
    {
       std::string buffer(1024,0x0);
       unsigned int line_count = 0;
       while(std::getline(stream,buffer))
       {
          ++line_count;
-         handler(buffer);
+         function(buffer);
       }
       return line_count;
    }
 
-   template<typename Handler>
-   inline unsigned int for_each_line(const std::string& file_name, Handler& handler)
+   template<class Function>
+   inline unsigned int for_each_line(const std::string& file_name, Function function)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
-         return for_each_line(stream,handler);
+         return for_each_line(stream,function);
       else
          return 0;
    }
 
-   template<typename Handler>
-   inline unsigned int for_each_line_conditional(std::ifstream& stream, Handler& handler)
+   template<class Function>
+   inline unsigned int for_each_line_conditional(std::ifstream& stream, Function function)
    {
       std::string buffer(1024,0x0);
       unsigned int line_count = 0;
       while(std::getline(stream,buffer))
       {
          ++line_count;
-         if(!handler(buffer))
+         if(!function(buffer))
          {
             return line_count;
          }
@@ -90,12 +89,12 @@ namespace strtk
       return line_count;
    }
 
-   template<typename Handler>
-   inline unsigned int for_each_line_conditional(const std::string& file_name, Handler& handler)
+   template<class Function>
+   inline unsigned int for_each_line_conditional(const std::string& file_name, Function function)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
-         return for_each_line(stream,handler);
+         return for_each_line(stream,function);
       else
          return 0;
    }
@@ -195,8 +194,8 @@ namespace strtk
       value_type delimiter_table_[0xFF];
    };
 
-   template<typename Iterator, typename Predicate>
-   inline unsigned int remove_inplace(const Predicate& predicate,
+   template<typename Iterator, class Predicate>
+   inline unsigned int remove_inplace(Predicate predicate,
                                       Iterator begin,
                                       Iterator end)
    {
@@ -232,8 +231,8 @@ namespace strtk
       }
    }
 
-   template<typename Predicate>
-   inline void remove_inplace(const Predicate& predicate,
+   template<class Predicate>
+   inline void remove_inplace(Predicate predicate,
                               std::string& s)
    {
       unsigned int removal_count = remove_inplace(predicate,s.begin(),s.end());
@@ -243,8 +242,8 @@ namespace strtk
       }
    }
 
-   template<typename Iterator, typename Predicate>
-   inline unsigned int remove_consecutives_inplace(const Predicate& predicate,
+   template<typename Iterator, class Predicate>
+   inline unsigned int remove_consecutives_inplace(Predicate predicate,
                                                    Iterator begin,
                                                    Iterator end)
    {
@@ -284,8 +283,8 @@ namespace strtk
       }
    }
 
-   template<typename Predicate>
-   inline void remove_consecutives_inplace(const Predicate& predicate,
+   template<class Predicate>
+   inline void remove_consecutives_inplace(Predicate predicate,
                                            std::string& s)
    {
       if (s.empty()) return;
@@ -534,7 +533,7 @@ namespace strtk
             return *this;
          }
 
-         T operator*()
+         T operator*() const
          {
             return std::make_pair<iterator,iterator>(curr_tok_begin_,curr_tok_end_);
          }
@@ -632,9 +631,6 @@ namespace strtk
       }
 
    private:
-
-      tokenizer(const tokenizer&);
-      tokenizer& operator=(const tokenizer&);
 
       const DelimiterPredicate& predicate_;
       Iterator begin_;
@@ -1141,7 +1137,7 @@ namespace strtk
 
    template<> struct interleave_ary<2> { typedef unsigned short type; };
    template<> struct interleave_ary<4> { typedef unsigned int   type; };
-   //template<> struct interleave_ary<8> { typedef long long    type; }; Note: atm not supported by ISO C++
+   //template<> struct interleave_ary<8> { typedef long long    type; }; Note: atm not supported by ISO C++ (N1811)
 
    template<std::size_t n>
    inline void create_nway_interleave_table(typename interleave_ary<n>::type table[256])
@@ -1256,81 +1252,86 @@ namespace strtk
                               str2.c_str(),str2.c_str() + str2.size());
    }
 
-   inline void compute_hash(const char data, unsigned int& hash)
+   namespace hash_details_
    {
-      hash ^= ((hash <<  7) ^ data ^ (hash >> 3));
-   }
 
-   inline void compute_hash(const unsigned char data, unsigned int& hash)
-   {
-      hash ^=  ((hash <<  7) ^ data ^ (hash >> 3));
-   }
-
-   inline void compute_hash(const char data[], unsigned int& hash)
-   {
-      hash ^=  ((hash <<  7) ^ data[0] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ data[1] ^ (hash >> 5));
-   }
-
-   inline void compute_hash(const unsigned char data[], unsigned int& hash)
-   {
-      hash ^=  ((hash <<  7) ^ data[0] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ data[1] ^ (hash >> 5));
-   }
-
-   inline void compute_hash(const int& data, unsigned int& hash)
-   {
-      const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-      hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
-      hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
-   }
-
-   inline void compute_hash(const unsigned int& data, unsigned int& hash)
-   {
-      const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-      hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
-      hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
-   }
-
-   inline void compute_hash(const double& data, unsigned int& hash)
-   {
-      const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-      hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
-      hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
-      hash ^=  ((hash <<  7) ^ it[4] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[5] ^ (hash >> 5));
-      hash ^=  ((hash <<  7) ^ it[6] ^ (hash >> 3));
-      hash ^= ~((hash << 11) ^ it[7] ^ (hash >> 5));
-   }
-
-   template<typename T>
-   inline void compute_hash(const T& data, unsigned int& hash)
-   {
-      const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-      for(unsigned int i = 0; i < (sizeof(T) >> 1); ++i)
+      inline void compute_hash(const char data, unsigned int& hash)
       {
-         hash ^=  ((hash <<  7) ^ (*it++) ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ (*it++) ^ (hash >> 5));
+         hash ^= ((hash <<  7) ^ data ^ (hash >> 3));
       }
-   }
 
-   template<typename Iterator, std::size_t block_size>
-   inline void compute_block(Iterator buffer_it, std::size_t& length, unsigned int& hash)
-   {
-     while(length >= block_size)
-     {
-       for(std::size_t i = 0; i < block_size; ++i, ++buffer_it)
-       {
-         compute_hash((*buffer_it),hash);
-       }
-       length -= block_size;
-     }
+      inline void compute_hash(const unsigned char data, unsigned int& hash)
+      {
+         hash ^=  ((hash <<  7) ^ data ^ (hash >> 3));
+      }
+
+      inline void compute_hash(const char data[], unsigned int& hash)
+      {
+         hash ^=  ((hash <<  7) ^ data[0] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ data[1] ^ (hash >> 5));
+      }
+
+      inline void compute_hash(const unsigned char data[], unsigned int& hash)
+      {
+         hash ^=  ((hash <<  7) ^ data[0] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ data[1] ^ (hash >> 5));
+      }
+
+      inline void compute_hash(const int& data, unsigned int& hash)
+      {
+         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
+      }
+
+      inline void compute_hash(const unsigned int& data, unsigned int& hash)
+      {
+         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
+      }
+
+      inline void compute_hash(const double& data, unsigned int& hash)
+      {
+         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[4] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[5] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[6] ^ (hash >> 3));
+         hash ^= ~((hash << 11) ^ it[7] ^ (hash >> 5));
+      }
+
+      template<typename T>
+      inline void compute_hash(const T& data, unsigned int& hash)
+      {
+         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
+         for(unsigned int i = 0; i < (sizeof(T) >> 1); ++i)
+         {
+            hash ^=  ((hash <<  7) ^ (*it++) ^ (hash >> 3));
+            hash ^= ~((hash << 11) ^ (*it++) ^ (hash >> 5));
+         }
+      }
+
+      template<typename Iterator, std::size_t block_size>
+      inline void compute_block(Iterator buffer_it, std::size_t& length, unsigned int& hash)
+      {
+        while(length >= block_size)
+        {
+          for(std::size_t i = 0; i < block_size; ++i, ++buffer_it)
+          {
+            compute_hash((*buffer_it),hash);
+          }
+          length -= block_size;
+        }
+      }
+
    }
 
    template<typename Iterator>
@@ -1339,15 +1340,15 @@ namespace strtk
                     unsigned int& hash_value)
    {
       hash_value = 0xAAAAAAAA;
-      compute_block<Iterator,32>(buffer_it,length,hash_value);
-      compute_block<Iterator,16>(buffer_it,length,hash_value);
-      compute_block<Iterator, 8>(buffer_it,length,hash_value);
-      compute_block<Iterator, 4>(buffer_it,length,hash_value);
-      compute_block<Iterator, 2>(buffer_it,length,hash_value);
+      hash_details_::compute_block<Iterator,32>(buffer_it,length,hash_value);
+      hash_details_::compute_block<Iterator,16>(buffer_it,length,hash_value);
+      hash_details_::compute_block<Iterator, 8>(buffer_it,length,hash_value);
+      hash_details_::compute_block<Iterator, 4>(buffer_it,length,hash_value);
+      hash_details_::compute_block<Iterator, 2>(buffer_it,length,hash_value);
 
       if (length > 0)
       {
-         compute_hash((*buffer_it),hash_value);
+         hash_details_::compute_hash((*buffer_it),hash_value);
       }
    }
 
@@ -1388,11 +1389,11 @@ namespace strtk
       return true;
    }
 
-   template<typename OutputPredicate>
+   template<class OutputPredicate>
    struct filter_empty_range
    {
    public:
-      filter_empty_range(const OutputPredicate& predicate)
+      filter_empty_range(OutputPredicate predicate)
       : predicate_(predicate){}
 
       template<typename Iterator>
@@ -1405,9 +1406,7 @@ namespace strtk
       }
 
    private:
-      filter_empty_range(const filter_empty_range& fer);
-      filter_empty_range operator=(const filter_empty_range& fer);
-      const OutputPredicate& predicate_;
+      OutputPredicate predicate_;
    };
 
    template<typename OutputPredicate>
@@ -1432,7 +1431,7 @@ namespace strtk
       {
          if (match(match_pattern_,s) ^ allow_through_on_match_)
          {
-            predicate_(range);
+            predicate_(s);
          }
       }
 
@@ -1445,15 +1444,15 @@ namespace strtk
       OutputPredicate& predicate_;
    };
 
-   template<typename OutputPredicate>
+  template<typename OutputPredicate>
    struct filter_on_match
    {
    public:
-      template<typename Iterator>
-      filter_on_match(const Iterator begin, Iterator end,
-                            OutputPredicate& predicate,
-                            bool case_insensitive,
-                            bool allow_through_on_match = true)
+
+     filter_on_match(const std::string* begin, const std::string* end,
+                     OutputPredicate predicate,
+                     bool case_insensitive,
+                     bool allow_through_on_match = true)
       :case_insensitive_(case_insensitive),
        allow_through_on_match_(allow_through_on_match),
        predicate_(predicate)
@@ -1493,18 +1492,18 @@ namespace strtk
       {
          for(unsigned int i = 0; i < str_list_length; ++i)
          {
-            if ((case_insensitive &&
+            if ((case_insensitive_ &&
                (case_insensitive_match(string_list_[i].begin(),string_list_[i].end(),s.begin(),s.end()))) ||
-               (!case_insensitive && std::equal(string_list_.begin(),string_list_.end(),s.first)))
+               (!case_insensitive_ && std::equal(string_list_[i].begin(),string_list_[i].end(),s.begin())))
             {
-               if (allow_through_on_match)
+               if (allow_through_on_match_)
                {
                   predicate_(s);
                   return;
                }
             }
          }
-         if (!allow_through_on_match)
+         if (!allow_through_on_match_)
          {
             predicate_(s);
             return;
@@ -1512,9 +1511,6 @@ namespace strtk
       }
 
    private:
-      filter_on_match(const filter_on_match& fom);
-      filter_on_match operator=(const filter_on_match& fom);
-
       bool allow_through_on_match_;
       bool case_insensitive_;
       std::size_t str_list_length;
@@ -1541,12 +1537,14 @@ namespace strtk
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9, typename T10>
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4,
                              T5& t5, T6& t6, T7& t7, T8& t8,
                              T9& t9, T10& t10)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
        t1 = boost::lexical_cast< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
        t2 = boost::lexical_cast< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1565,12 +1563,14 @@ namespace strtk
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9>
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4,
                              T5& t5, T6& t6, T7& t7, T8& t8,
                              T9& t9)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1587,14 +1587,15 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8>
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4,
                              T5& t5, T6& t6, T7& t7, T8& t8)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(*it);
-      ++it; ++token_count;
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1608,10 +1609,12 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7>
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1626,10 +1629,12 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5,typename T6 >
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1643,10 +1648,12 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5 >
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1658,10 +1665,12 @@ namespace strtk
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4>
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1671,11 +1680,13 @@ namespace strtk
    }
 
    template< typename Tokenzier,
-             typename T1, typename T2, typename T3>
-   inline unsigned int parse(Tokenzier& tokenizer,
+             typename T1, typename T2, typename T3 >
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1684,10 +1695,12 @@ namespace strtk
    }
 
    template<typename Tokenzier, typename T1, typename T2>
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T1& t1, T2& t2)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1695,10 +1708,12 @@ namespace strtk
    }
 
    template<typename Tokenzier, typename T>
-   inline unsigned int parse(Tokenzier& tokenizer,
+   inline unsigned int parse(const std::string& buffer,
+                             Tokenzier& tokenizer,
                              T& t)
    {
       unsigned int token_count = 0;
+      tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t = boost::lexical_cast<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
@@ -1708,111 +1723,196 @@ namespace strtk
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9, typename T10>
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4,
                              T5& t5, T6& t6, T7& t7, T8& t8,
                              T9& t9, T10& t10)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3,t4,t5,t6, t7,t8,t9, t10);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+       t1 = boost::lexical_cast< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t2 = boost::lexical_cast< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t3 = boost::lexical_cast< T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t4 = boost::lexical_cast< T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t5 = boost::lexical_cast< T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t6 = boost::lexical_cast< T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t7 = boost::lexical_cast< T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t8 = boost::lexical_cast< T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t9 = boost::lexical_cast< T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t10 = boost::lexical_cast<T10>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9>
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4,
                              T5& t5, T6& t6, T7& t7, T8& t8,
                              T9& t9)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3,t4,t5,t6, t7,t8,t9);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t8 = boost::lexical_cast<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t9 = boost::lexical_cast<T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8>
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4,
                              T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3,t4,t5,t6, t7,t8);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t8 = boost::lexical_cast<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7>
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3,t4,t5,t6, t7);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5,typename T6 >
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3,t4,t5,t6);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5 >
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3,t4,t5);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4>
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3,t4);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3 >
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2, T3& t3)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2, t3);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template<typename Tokenzier, typename T1, typename T2>
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T1& t1, T2& t2)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t1,t2);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template<typename Tokenzier, typename T>
-   inline unsigned int parse(const std::string& buffer,
+   inline unsigned int parse(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end,
                              Tokenzier& tokenizer,
                              T& t)
    {
-      tokenizer.assign(buffer.begin(),buffer.end());
-      return parse(tokenizer,t);
+      unsigned int token_count = 0;
+      tokenizer.assign(begin,end);
+      typename Tokenzier::iterator it = tokenizer.begin();
+      t = boost::lexical_cast<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return token_count;
    }
 
    template< typename T1, typename T2, typename T3, typename T4,

@@ -316,13 +316,13 @@ bool test_empty_filter_itr()
 
 bool test_construct_and_parse()
 {
+   std::string output = "";
    std::string  i1 = "abcd";
    char         i2 = 'x';
    int          i3 = -1234;
    unsigned int i4 = 78901;
    double       i5 = 4567.8901;
 
-   std::string output = "";
    strtk::construct(output,"|",i1,i2,i3,i4,i5);
 
    std::string  o1 = "";
@@ -347,8 +347,10 @@ bool test_construct_and_parse()
       std::cout << "Construct and Parse Test FAILED!" << std::endl;
       return false;
    }
+
    return true;
 }
+
 
 int main(void)
 {

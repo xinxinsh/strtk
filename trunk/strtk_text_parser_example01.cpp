@@ -58,7 +58,8 @@ void parse_text(const std::string& file_name, Container& c)
 {
    std::string delimiters = " ,.;:<>'[]{}()_?/'`~!@#$%^&*|-_\"=+";
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
-   unsigned int line_count = strtk::for_each_line(file_name,parse_line<Container,strtk::multiple_char_delimiter_predicate>(c,predicate));
+   parse_line<Container,strtk::multiple_char_delimiter_predicate> pl(c,predicate);
+   strtk::for_each_line(file_name,pl);
 }
 
 int main(void)
