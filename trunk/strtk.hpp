@@ -606,6 +606,19 @@ namespace strtk
         end_itr_(end_,end_,predicate_,compress_delimiters),
         compress_delimiters_(compress_delimiters)
       {}
+      
+      tokenizer& operator=(const tokenizer& t)
+      {
+         if (this != &t)
+         {
+            begin_               = t.begin_;
+            end_                 = t.end_;
+            end_itr_             = t.end_itr_;
+            begin_itr_           = t.begin_itr_;
+            compress_delimiters_ = t.compress_delimiters_;
+         }
+         return *this;
+      }
 
       void assign(const std::string& s) const
       {
