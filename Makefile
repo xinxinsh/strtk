@@ -25,7 +25,7 @@ OBJECTS = $(CPP_SRC:.cpp=.o)
 %.o: %.hpp %.cpp
 	$(COMPILER) $(OPTIONS_LIBS) $*.cpp
 
-all: stk_tokenizer_cmp strtk_examples strtk_keyvalue_example strtk_text_parser_example01 strtk_text_parser_example02 strtk_tokenizer_test
+all: stk_tokenizer_cmp strtk_examples strtk_keyvalue_example strtk_text_parser_example01 strtk_text_parser_example02 strtk_tokenizer_test strtk_hexview
 
 stk_tokenizer_cmp: stk_tokenizer_cmp.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) stk_tokenizer_cmp stk_tokenizer_cmp.cpp
@@ -45,6 +45,8 @@ strtk_text_parser_example02: strtk_text_parser_example02.cpp strtk.hpp
 strtk_tokenizer_test: strtk_tokenizer_test.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_tokenizer_test strtk_tokenizer_test.cpp
 
+strtk_hexview: strtk_hexview.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_hexview strtk_hexview.cpp
 
 clean:
 	rm -f core *.o *.bak *stackdump *#
