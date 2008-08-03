@@ -318,6 +318,19 @@ void remove_consecutives_example03()
    std::cout << s << std::endl;
 }
 
+void uri_extractor_example01()
+{
+   std::string text = "someone@somewhere.com http://www.test.com any.one@any.where.com ftp://123.abcxyz.com";
+   std::list<std::string> email_list;
+   std::list<std::string> url_list;
+   strtk::email_extractor(text,email_list);
+   strtk::url_extractor(text,url_list);
+   std::cout << "emails: ";
+   std::copy(email_list.begin(),email_list.end(),std::ostream_iterator<std::string>(std::cout," "));
+   std::cout << std::endl << "urls: ";
+   std::copy(url_list.begin(),url_list.end(),std::ostream_iterator<std::string>(std::cout," "));
+}
+
 int main(void)
 {
    tokenizer_example01();
@@ -341,5 +354,6 @@ int main(void)
    remove_consecutives_example01();
    remove_consecutives_example02();
    remove_consecutives_example03();
+   uri_extractor_example01();
    return 0;
 }
