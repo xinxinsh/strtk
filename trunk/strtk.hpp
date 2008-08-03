@@ -28,7 +28,7 @@
 #include <algorithm>
 
 #include <boost/lexical_cast.hpp>
-
+#include <boost/regex.hpp>
 
 namespace strtk
 {
@@ -522,9 +522,11 @@ namespace strtk
             return *this;
          }
 
-         tokenizer_iterator operator++(const int)
+         tokenizer_iterator operator++(int)
          {
-            return this->operator++();
+            tokenizer_iterator* tmp = this;
+            this->operator++();
+            return (*tmp);
          }
 
          tokenizer_iterator& operator+=(const int inc)
@@ -606,7 +608,7 @@ namespace strtk
         end_itr_(end_,end_,predicate_,compress_delimiters),
         compress_delimiters_(compress_delimiters)
       {}
-      
+
       tokenizer& operator=(const tokenizer& t)
       {
          if (this != &t)
@@ -657,7 +659,7 @@ namespace strtk
    struct std_string_tokenizer
    {
       typedef tokenizer<std::string::const_iterator,DelimiterPredicate> type;
-      typedef std::pair< std::string::const_iterator , std::string::const_iterator> iterator_type;
+      typedef std::pair<std::string::const_iterator , std::string::const_iterator> iterator_type;
    };
 
    template<typename T>
@@ -814,6 +816,24 @@ namespace strtk
          ++token_count;
       }
       return token_count;
+   }
+
+   template<typename Iterator>
+   inline std::size_t count_consecutive_duplicates(Iterator begin,Iterator end)
+   {
+      if (std::distance(begin,end) < 2) return 0;
+      Iterator prev = begin;
+      Iterator it = begin + 1;
+      std::size_t count = 0;
+      while(it != end)
+      {
+         if (*prev == *it)
+            ++count;
+         else
+            prev = it;
+         ++it;
+      }
+      return count;
    }
 
    inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
@@ -1270,55 +1290,55 @@ namespace strtk
 
       inline void compute_hash(const char data, unsigned int& hash)
       {
-         hash ^= ((hash <<  7) ^ data ^ (hash >> 3));
+         hash ^= ((hash <<  7) ^ data * (hash >> 3));
       }
 
       inline void compute_hash(const unsigned char data, unsigned int& hash)
       {
-         hash ^=  ((hash <<  7) ^ data ^ (hash >> 3));
+         hash ^=  ((hash <<  7) ^ data * (hash >> 3));
       }
 
       inline void compute_hash(const char data[], unsigned int& hash)
       {
-         hash ^=  ((hash <<  7) ^ data[0] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ data[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ data[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + data[1] ^ (hash >> 5));
       }
 
       inline void compute_hash(const unsigned char data[], unsigned int& hash)
       {
-         hash ^=  ((hash <<  7) ^ data[0] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ data[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ data[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + data[1] ^ (hash >> 5));
       }
 
       inline void compute_hash(const int& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[3] ^ (hash >> 5));
       }
 
       inline void compute_hash(const unsigned int& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[3] ^ (hash >> 5));
       }
 
       inline void compute_hash(const double& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^ it[0] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[1] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[2] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[3] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[4] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[5] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[6] ^ (hash >> 3));
-         hash ^= ~((hash << 11) ^ it[7] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[3] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[5] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^ it[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + it[7] ^ (hash >> 5));
       }
 
       template<typename T>
@@ -1327,8 +1347,8 @@ namespace strtk
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
          for(unsigned int i = 0; i < (sizeof(T) >> 1); ++i)
          {
-            hash ^=  ((hash <<  7) ^ (*it++) ^ (hash >> 3));
-            hash ^= ~((hash << 11) ^ (*it++) ^ (hash >> 5));
+            hash ^=  ((hash <<  7) ^ (*it++) * (hash >> 3));
+            hash ^= ~((hash << 11) + (*it++) ^ (hash >> 5));
          }
       }
 
@@ -2099,6 +2119,32 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t1);
       output += delimiter;
       output += boost::lexical_cast<std::string>(t2);
+   }
+
+   template<typename StringSequence>
+   void url_extractor(const std::string& text, StringSequence& uri_list)
+   {
+      boost::regex uri_expression("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
+      boost::sregex_iterator it(text.begin(), text.end(), uri_expression);
+      boost::sregex_iterator end;
+      while(it != end)
+      {
+         uri_list.push_back(std::string((*it)[0].first,(*it)[0].second));
+         ++it;
+      }
+   }
+
+   template<typename StringSequence>
+   void email_extractor(const std::string& text, StringSequence& email_list)
+   {
+      boost::regex email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
+      boost::sregex_iterator it(text.begin(), text.end(), email_expression);
+      boost::sregex_iterator end;
+      while(it != end)
+      {
+         email_list.push_back(std::string((*it)[0].first,(*it)[0].second));
+         ++it;
+      }
    }
 
 }
