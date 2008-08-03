@@ -29,6 +29,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
+#include <boost/random.hpp>
 
 namespace strtk
 {
@@ -2147,6 +2148,33 @@ namespace strtk
       }
    }
 
-}
+   void generate_random_data(unsigned char* data, unsigned int length, unsigned int pre_gen_cnt = 0, unsigned int seed = 0xA5A5A5A5)
+   {
+      boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
+      boost::uniform_int<unsigned int> dist(std::numeric_limits<unsigned int>::min(),std::numeric_limits<unsigned int>::max());
+      boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned int> > rnd(rng,dist);
+      if (pre_gen_cnt > 0)
+      {
+         unsigned char c = 0x0;
+         for(unsigned int i = 0; i < pre_gen_cnt; c = rnd(), ++i);
+      }
+      unsigned char* it = data;
+      unsigned int* x = 0;
+      while (length >= sizeof(unsigned int))
+      {
+         x = reinterpret_cast<unsigned int*>(it);
+         (*x) = rnd();
+         it += sizeof(unsigned int);
+         length -= sizeof(unsigned int);
+      }
+      if(length > 0)
+      {
+         it -= (sizeof(unsigned int) - length);
+         x = reinterpret_cast<unsigned int*>(it);
+         (*x) = rnd();
+      }
+   }
+
+} // namespace strtk
 
 #endif
