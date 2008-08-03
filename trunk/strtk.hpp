@@ -2128,9 +2128,11 @@ namespace strtk
       boost::regex uri_expression("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
       boost::sregex_iterator it(text.begin(), text.end(), uri_expression);
       boost::sregex_iterator end;
+      std::string token(1024,0x0);
       while(it != end)
       {
-         uri_list.push_back(std::string((*it)[0].first,(*it)[0].second));
+         token.assign((*it)[0].first,(*it)[0].second);
+         uri_list.push_back(token);
          ++it;
       }
    }
@@ -2141,9 +2143,11 @@ namespace strtk
       boost::regex email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
       boost::sregex_iterator it(text.begin(), text.end(), email_expression);
       boost::sregex_iterator end;
+      std::string token(1024,0x0);
       while(it != end)
       {
-         email_list.push_back(std::string((*it)[0].first,(*it)[0].second));
+         token.assign((*it)[0].first,(*it)[0].second);
+         email_list.push_back(token);
          ++it;
       }
    }
