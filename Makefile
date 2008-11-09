@@ -17,8 +17,8 @@
 
 COMPILER         = -c++
 OPTIMIZATION_OPT = -O3
-OPTIONS          = -pedantic -ansi -Wall -lstdc++ $(OPTIMIZATION_OPT) -o
-REGEX            = boost_regex-gcc-mt-1_33_1
+OPTIONS          = -pedantic -ansi -Wall -lstdc++ $(REGEX) $(OPTIMIZATION_OPT) -o
+REGEX            = -L/usr/lib -lboost_regex-gcc41-1_34_1
 
 OBJECTS = $(CPP_SRC:.cpp=.o)
 
@@ -31,7 +31,7 @@ stk_tokenizer_cmp: stk_tokenizer_cmp.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) stk_tokenizer_cmp stk_tokenizer_cmp.cpp
 
 strtk_examples: strtk_examples.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_examples strtk_examples.cpp -l$(REGEX)
+	$(COMPILER) $(OPTIONS) strtk_examples strtk_examples.cpp
 
 strtk_keyvalue_example: strtk_keyvalue_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_keyvalue_example strtk_keyvalue_example.cpp
