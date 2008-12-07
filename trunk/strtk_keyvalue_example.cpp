@@ -32,6 +32,17 @@ public:
    : c_(c),
      t_(t){}
 
+   key_value_parser(const key_value_parser& kvp)
+   : c_(kvp.c_),
+     t_(kvp.t_)
+   {}
+
+   key_value_parser& operator=(const key_value_parser& kvp)
+   {
+      c_ = kvp.c_;
+      t_ = kvp.t_;
+   }
+
    void operator()(const typename Tokenizer::iterator::value_type& v)
    {
       std::pair<std::string,std::string> kv;

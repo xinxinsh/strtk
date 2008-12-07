@@ -248,17 +248,6 @@ void split_example04()
    std::cout << std::endl;
 }
 
-void split_example05()
-{
-   std::string s = "abc?123,xyz;789";
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > > token_it_list;
-   strtk::strsplit(s," .,;?",std::back_inserter(token_it_list),true);
-   std::list<std::string> token_list;
-   std::copy(token_it_list.begin(),token_it_list.end(),strtk::range_to_string_back_inserter(token_list));
-   std::copy(token_list.begin(),token_list.end(),std::ostream_iterator<std::string>(std::cout,"\t"));
-   std::cout << std::endl;
-}
-
 void construct_example()
 {
    std::string  i1 = "abcd";
@@ -332,8 +321,8 @@ void uri_extractor_example01()
    std::string text = "someone@somewhere.com http://www.test.com any.one@any.where.com ftp://123.abcxyz.com";
    std::list<std::string> email_list;
    std::list<std::string> url_list;
-   strtk::regex_extractor(strtk::email_expression,text,std::back_inserter(email_list));
-   strtk::regex_extractor(strtk::uri_expression,text,std::back_inserter(url_list));
+   strtk::split(strtk::email_expression,text,std::back_inserter(email_list));
+   strtk::split(strtk::uri_expression,text,std::back_inserter(url_list));
    std::cout << "emails: ";
    std::copy(email_list.begin(),email_list.end(),std::ostream_iterator<std::string>(std::cout," "));
    std::cout << std::endl << "urls: ";
@@ -357,7 +346,6 @@ int main(void)
    split_example02();
    split_example03();
    split_example04();
-   split_example05();
    construct_example();
    parse_example();
    remove_inplace_example01();

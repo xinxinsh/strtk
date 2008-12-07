@@ -2,7 +2,7 @@
  *******************************************************************
  *                       String Tool Kit Library                   *
  *                                                                 *
- * STRTK Tokenizer v BOOST Tokenizer                               *
+ * StrTk Tokenizer Vs BOOST Tokenizer                              *
  * Author: Arash Partow - 2003                                     *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
@@ -78,7 +78,6 @@ void strtk_tokenizer_timed_test()
 {
    std::string s = "";
    std::string so = "";
-   std::string tok = "";
    s.reserve(base.size() * replicate_count);
    so.reserve(base.size() * replicate_count);
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
@@ -100,8 +99,8 @@ void strtk_tokenizer_timed_test()
 
 void boost_tokenizer_timed_test()
 {
-   std::string s ="";
-   std::string so ="";
+   std::string s = "";
+   std::string so  ="";
    s.reserve(base.size() * replicate_count);
    so.reserve(base.size() * replicate_count);
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
