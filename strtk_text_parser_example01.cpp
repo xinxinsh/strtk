@@ -15,6 +15,14 @@
  *******************************************************************
 */
 
+
+/*
+  Description: The following will parse a text file line-by-line,
+               tokenizing each line using the delimiters set as
+               described blow. The objective is to populate the
+               word_list with tokens derived from the text file.
+*/
+
 #include <iostream>
 #include <iterator>
 #include <utility>
@@ -34,6 +42,17 @@ public:
    : c_(c),
      p_(p)
    {}
+
+   parse_line(const parse_line& pl)
+   : c_(pl.c_),
+     p_(pl.p_)
+   {}
+
+   parse_line& operator=(const parse_line& pl)
+   {
+      c_ = pl.c_;
+      p_ = pl.p_;
+   }
 
    inline void operator() (const std::string& s)
    {

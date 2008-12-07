@@ -286,8 +286,7 @@ namespace strtk
    }
 
    template<class Predicate>
-   inline void remove_consecutives_inplace(Predicate predicate,
-                                           std::string& s)
+   inline void remove_consecutives_inplace(Predicate predicate, std::string& s)
    {
       if (s.empty()) return;
       unsigned int removal_count = remove_consecutives_inplace(predicate,s.begin(),s.end());
@@ -569,12 +568,12 @@ namespace strtk
          }
 
       protected:
+         const Predicate& predicate_;
          iterator it_;
          iterator end_;
          iterator prev_;
          iterator curr_tok_begin_;
          iterator curr_tok_end_;
-         const Predicate& predicate_;
          bool last_token_;
          bool compress_delimiters_;
       };
@@ -652,8 +651,8 @@ namespace strtk
       const DelimiterPredicate& predicate_;
       Iterator begin_;
       Iterator end_;
-      iterator end_itr_;
       iterator begin_itr_;
+      iterator end_itr_;
       bool compress_delimiters_;
    };
 
@@ -737,21 +736,23 @@ namespace strtk
    template<typename DelimiterPredicate,
             typename Iterator,
             typename OutputIterator>
-   inline void split(const Iterator begin,
-                     const Iterator end,
-                     const DelimiterPredicate& delimiter,
-                     OutputIterator out,
-                     const bool compress_delimiters = false)
+   inline std::size_t split(const Iterator begin,
+                            const Iterator end,
+                            const DelimiterPredicate& delimiter,
+                            OutputIterator out,
+                            const bool compress_delimiters = false)
    {
-      if (0 == std::distance(begin,end)) return;
+      if (0 == std::distance(begin,end)) return 0;
       Iterator it = begin;
       Iterator prev = it;
+      std::size_t match_count = 0;
       while(it != end)
       {
         if(delimiter(*it))
         {
            out = std::make_pair<Iterator,Iterator>(prev,it);
            ++out;
+           ++match_count;
            if (!compress_delimiters)
               ++it;
            else
@@ -765,35 +766,78 @@ namespace strtk
       {
          out = std::make_pair<Iterator,Iterator>(prev,it);
          ++out;
+         ++match_count;
       }
+      return match_count;
    }
 
    template<typename DelimiterPredicate,
             typename OutputIterator>
-   inline void split(const std::string& str,
-                     const DelimiterPredicate& delimiter,
-                     OutputIterator out,
-                     const bool compress_delimiters = false)
+   inline std::size_t split(const std::string& str,
+                            const DelimiterPredicate& delimiter,
+                            OutputIterator out,
+                            const bool compress_delimiters = false)
    {
-      split(str.begin(),str.end(),delimiter,out,compress_delimiters);
+      return split(str.begin(),str.end(),delimiter,out,compress_delimiters);
    }
 
    template<typename OutputIterator>
-   inline void split(const std::string& str,
-                     const std::string::value_type& delimiter,
-                     OutputIterator out,
-                     const bool compress_delimiters = false)
+   inline std::size_t split(const std::string& str,
+                            const std::string::value_type delimiter,
+                            OutputIterator out,
+                            const bool compress_delimiters = false)
    {
-      split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out,compress_delimiters);
+      return split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out,compress_delimiters);
+   }
+
+   static const boost::regex uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
+   static const boost::regex email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
+   static const boost::regex ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
+
+   template<typename InputIterator, typename OutputIterator>
+   std::size_t split(const boost::regex& expression,
+                     const InputIterator begin,
+                     const InputIterator end,
+                     OutputIterator out)
+   {
+      boost::sregex_iterator it(begin,end,expression);
+      boost::sregex_iterator it_end;
+      std::string token(1024,0x0);
+      std::size_t match_count = 0;
+      while(it_end != it)
+      {
+         token.assign((*it)[0].first,(*it)[0].second);
+         (out++) = token;
+         ++it;
+         ++match_count;
+      }
+      return match_count;
+   }
+
+   template<typename InputIterator, typename OutputIterator>
+   std::size_t split(const std::string& expression,
+                     const InputIterator begin,
+                     const InputIterator end,
+                     OutputIterator out)
+   {
+      const boost::regex expr(expression);
+      return split(expr,begin,end,out);
    }
 
    template<typename OutputIterator>
-   inline void strsplit(const std::string& str,
-                        const std::string& delimiter,
-                        OutputIterator out,
-                        const bool compress_delimiters = false)
+   std::size_t split(const std::string& expression,
+                     const std::string text,
+                     OutputIterator out)
    {
-      split(str.begin(),str.end(),multiple_char_delimiter_predicate(delimiter),out,compress_delimiters);
+      return split(expression,text.begin(),text.end(),out);
+   }
+
+   template<typename OutputIterator>
+   std::size_t split(const boost::regex& expression,
+                     const std::string& text,
+                     OutputIterator out)
+   {
+      return split(expression,text.begin(),text.end(),out);
    }
 
    template<typename Iterator, typename DelimiterPredicate>
@@ -847,9 +891,6 @@ namespace strtk
 
    class token_grid
    {
-   private:
-
-
    public:
       typedef std::deque< std::pair<unsigned char*, unsigned char*> > itr_list_type;
       typedef std::deque<itr_list_type> itr_list_list_type;
@@ -1064,14 +1105,6 @@ namespace strtk
          }
       }
 
-      void remove_row(const std::size_t& row)
-      {
-         if (row < token_list_.size())
-         {
-            token_list_.erase(token_list_.begin() + row);
-         }
-      }
-
    private:
 
       token_grid(const token_grid& tg);
@@ -1081,7 +1114,6 @@ namespace strtk
       {
          std::ifstream stream(file_name_.c_str(),std::ios::binary);
          if (!stream) return false;
-
          stream.seekg (0,std::ios::end);
          buffer_size_ = stream.tellg();
          if (0 == buffer_size_) return false;
@@ -1122,16 +1154,16 @@ namespace strtk
 
    inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
-      const std::size_t symbol_count = 16;
-      const unsigned char hex_symbol[symbol_count] = {
-                                                      '0','1','2','3','4','5','6','7',
-                                                      '8','9','A','B','C','D','E','F'
-                                                     };
+      static const std::size_t symbol_count = 16;
+      static const unsigned char hex_symbol[symbol_count] = {
+                                                             '0','1','2','3','4','5','6','7',
+                                                             '8','9','A','B','C','D','E','F'
+                                                            };
 
       for(const unsigned char* it = begin; it != end; ++it)
       {
-         *out = hex_symbol[((*it) >> 0x04) & 0x0F]; ++out;
-         *out = hex_symbol[ (*it)          & 0x0F]; ++out;
+         *(out++) = hex_symbol[((*it) >> 0x04) & 0x0F];
+         *(out++) = hex_symbol[ (*it)          & 0x0F];
       }
    }
 
@@ -1150,47 +1182,47 @@ namespace strtk
 
    inline void convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
-      const std::size_t symbol_count = 256;
-      const unsigned char hex_to_bin[symbol_count] = {
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                                                      0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-                                                     };
+      static const std::size_t symbol_count = 256;
+      static const unsigned char hex_to_bin[symbol_count] = {
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                                              0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+                                                            };
 
 
       for(const unsigned char* it = begin; it != end;)
       {
-         (*out)  = hex_to_bin[(*it)] << 4; ++it;
-         (*out) |= hex_to_bin[(*it)]     ; ++it;
+         (*out)  = static_cast<unsigned char>(hex_to_bin[*(it++)] << 4);
+         (*out) |= static_cast<unsigned char>(hex_to_bin[*(it++)]     );
          ++out;
       }
    }
@@ -1210,8 +1242,8 @@ namespace strtk
 
    inline unsigned int convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
-      const std::size_t symbol_count = 64;
-      const unsigned char bin_to_base64 [symbol_count]
+      static const std::size_t symbol_count = 64;
+      static const unsigned char bin_to_base64 [symbol_count]
              = {
                 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
                 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
@@ -1223,14 +1255,14 @@ namespace strtk
       const unsigned char* it = begin;
       for(std::size_t i = 0; i < rounds; ++i)
       {
-         unsigned int block  = *it << 16; ++it;
-                      block |= *it <<  8; ++it;
-                      block |= *it      ; ++it;
+         unsigned int block  = *(it++) << 16;
+                      block |= *(it++) <<  8;
+                      block |= *(it++)      ;
 
-         *out = bin_to_base64[( block >> 18 ) & 0x3F]; ++out;
-         *out = bin_to_base64[( block >> 12 ) & 0x3F]; ++out;
-         *out = bin_to_base64[( block >>  6 ) & 0x3F]; ++out;
-         *out = bin_to_base64[( block       ) & 0x3F]; ++out;
+         *(out++) = bin_to_base64[( block >> 18 ) & 0x3F];
+         *(out++) = bin_to_base64[( block >> 12 ) & 0x3F];
+         *(out++) = bin_to_base64[( block >>  6 ) & 0x3F];
+         *(out++) = bin_to_base64[( block       ) & 0x3F];
       }
 
       if ((rounds = (std::distance(begin,end) % 3)) > 0)
@@ -1239,20 +1271,20 @@ namespace strtk
          {
             case 1 : {
                        unsigned int block  = (unsigned char) (*it) << 16;
-                       *out = bin_to_base64[( block >> 18 ) & 0x3F]; ++out;
-                       *out = bin_to_base64[( block >> 12 ) & 0x3F]; ++out;
-                       *out = '='; ++out;
-                       *out = '='; ++out;
+                       *(out++) = bin_to_base64[( block >> 18 ) & 0x3F];
+                       *(out++) = bin_to_base64[( block >> 12 ) & 0x3F];
+                       *(out++) = '=';
+                       *(out++) = '=';
                      }
                      break;
 
             case 2 : {
-                        unsigned int block  = *it << 16; ++it;
-                                     block |= *it <<  8; ++it;
-                        *out = bin_to_base64[( block >> 18 ) & 0x3F]; ++out;
-                        *out = bin_to_base64[( block >> 12 ) & 0x3F]; ++out;
-                        *out = bin_to_base64[( block >>  6 ) & 0x3F]; ++out;
-                        *out = '='; ++out;
+                        unsigned int block  = *(it++) << 16;
+                                     block |= *(it++) <<  8;
+                        *(out++) = bin_to_base64[( block >> 18 ) & 0x3F];
+                        *(out++) = bin_to_base64[( block >> 12 ) & 0x3F];
+                        *(out++) = bin_to_base64[( block >>  6 ) & 0x3F];
+                        *(out++) = '=';
                      }
                      break;
          }
@@ -1269,62 +1301,64 @@ namespace strtk
 
    inline void convert_bin_to_base64(const std::string& binary_data, std::string& output)
    {
-      output.resize(binary_data.size() << 1);
+      output.resize(std::max<std::size_t>(4,binary_data.size() << 1));
       std::size_t resize = convert_bin_to_base64(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
       output.resize(resize);
    }
 
    inline unsigned int convert_base64_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
-      const std::size_t symbol_count = 256;
-      const unsigned char base64_to_bin[symbol_count] = {
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0x3E, 0xFF, 0xFF, 0xFF, 0x3F,
-                                                 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B,
-                                                 0x3C, 0x3D, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-                                                 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
-                                                 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
-                                                 0x17, 0x18, 0x19, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
-                                                 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
-                                                 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
-                                                 0x31, 0x32, 0x33, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-                                               };
+      static const std::size_t symbol_count = 256;
+      static const unsigned char base64_to_bin[symbol_count] = {
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0x3E, 0xFF, 0xFF, 0xFF, 0x3F,
+                                                                0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B,
+                                                                0x3C, 0x3D, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+                                                                0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+                                                                0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
+                                                                0x17, 0x18, 0x19, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
+                                                                0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+                                                                0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
+                                                                0x31, 0x32, 0x33, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+                                                              };
 
-      std::size_t length = std::distance(begin,end);
+      const unsigned char* it = (end - 1);
+      while (('=' == *it) && (begin != it)) --it;
+      std::size_t length = std::distance(begin,(it + 1));
       std::size_t rounds = length / 4;
-      const unsigned char* it = begin;
+      it = begin;
       for(std::size_t i = 0; i < rounds; ++i)
       {
-         unsigned int block  = base64_to_bin[*it] << 18; ++it;
-                      block |= base64_to_bin[*it] << 12; ++it;
-                      block |= base64_to_bin[*it] <<  6; ++it;
-                      block |= base64_to_bin[*it];       ++it;
+         unsigned int block  = base64_to_bin[*(it++)] << 18;
+                      block |= base64_to_bin[*(it++)] << 12;
+                      block |= base64_to_bin[*(it++)] <<  6;
+                      block |= base64_to_bin[*(it++)];
 
-         *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF); ++out;
-         *out = static_cast<unsigned char>(( block >>  8 ) & 0xFF); ++out;
-         *out = static_cast<unsigned char>(( block       ) & 0xFF); ++out;
+         *(out++) = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
+         *(out++) = static_cast<unsigned char>(( block >>  8 ) & 0xFF);
+         *(out++) = static_cast<unsigned char>(( block       ) & 0xFF);
       }
 
       if ((rounds = (length % 4)) > 0)
@@ -1332,20 +1366,20 @@ namespace strtk
          switch(rounds)
          {
             case 2 : {
-                        unsigned int block  = base64_to_bin[*it] << 18; ++it;
-                                     block |= base64_to_bin[*it] << 12; ++it;
-                        *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF); ++out;
-                        return static_cast<unsigned int>((3 * length) / 4 + 1);
+                        unsigned int block  = base64_to_bin[*(it++)] << 18;
+                                     block |= base64_to_bin[*(it++)] << 12;
+                        *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
                      }
+                     break;
 
             case 3 : {
-                        unsigned int block  = base64_to_bin[*it] << 18; ++it;
-                                     block |= base64_to_bin[*it] << 12; ++it;
-                                     block |= base64_to_bin[*it] <<  6; ++it;
-                        *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF); ++out;
-                        *out = static_cast<unsigned char>(( block >>  8 ) & 0xFF); ++out;
-                        return static_cast<unsigned int>((3 * length) / 4 + 2);
+                        unsigned int block  = base64_to_bin[*(it++)] << 18;
+                                     block |= base64_to_bin[*(it++)] << 12;
+                                     block |= base64_to_bin[*(it++)] <<  6;
+                        *(out++) = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
+                        *(out  ) = static_cast<unsigned char>(( block >>  8 ) & 0xFF);
                      }
+                     break;
          }
       }
       return static_cast<unsigned int>((3 * length) / 4);
@@ -1374,42 +1408,42 @@ namespace strtk
          return false;
       }
 
-      const std::size_t interleave_table_size = 256;
-      const unsigned short interleave_table[interleave_table_size] =
-                     {
-                       0x0000, 0x0001, 0x0004, 0x0005, 0x0010, 0x0011, 0x0014, 0x0015,
-                       0x0040, 0x0041, 0x0044, 0x0045, 0x0050, 0x0051, 0x0054, 0x0055,
-                       0x0100, 0x0101, 0x0104, 0x0105, 0x0110, 0x0111, 0x0114, 0x0115,
-                       0x0140, 0x0141, 0x0144, 0x0145, 0x0150, 0x0151, 0x0154, 0x0155,
-                       0x0400, 0x0401, 0x0404, 0x0405, 0x0410, 0x0411, 0x0414, 0x0415,
-                       0x0440, 0x0441, 0x0444, 0x0445, 0x0450, 0x0451, 0x0454, 0x0455,
-                       0x0500, 0x0501, 0x0504, 0x0505, 0x0510, 0x0511, 0x0514, 0x0515,
-                       0x0540, 0x0541, 0x0544, 0x0545, 0x0550, 0x0551, 0x0554, 0x0555,
-                       0x1000, 0x1001, 0x1004, 0x1005, 0x1010, 0x1011, 0x1014, 0x1015,
-                       0x1040, 0x1041, 0x1044, 0x1045, 0x1050, 0x1051, 0x1054, 0x1055,
-                       0x1100, 0x1101, 0x1104, 0x1105, 0x1110, 0x1111, 0x1114, 0x1115,
-                       0x1140, 0x1141, 0x1144, 0x1145, 0x1150, 0x1151, 0x1154, 0x1155,
-                       0x1400, 0x1401, 0x1404, 0x1405, 0x1410, 0x1411, 0x1414, 0x1415,
-                       0x1440, 0x1441, 0x1444, 0x1445, 0x1450, 0x1451, 0x1454, 0x1455,
-                       0x1500, 0x1501, 0x1504, 0x1505, 0x1510, 0x1511, 0x1514, 0x1515,
-                       0x1540, 0x1541, 0x1544, 0x1545, 0x1550, 0x1551, 0x1554, 0x1555,
-                       0x4000, 0x4001, 0x4004, 0x4005, 0x4010, 0x4011, 0x4014, 0x4015,
-                       0x4040, 0x4041, 0x4044, 0x4045, 0x4050, 0x4051, 0x4054, 0x4055,
-                       0x4100, 0x4101, 0x4104, 0x4105, 0x4110, 0x4111, 0x4114, 0x4115,
-                       0x4140, 0x4141, 0x4144, 0x4145, 0x4150, 0x4151, 0x4154, 0x4155,
-                       0x4400, 0x4401, 0x4404, 0x4405, 0x4410, 0x4411, 0x4414, 0x4415,
-                       0x4440, 0x4441, 0x4444, 0x4445, 0x4450, 0x4451, 0x4454, 0x4455,
-                       0x4500, 0x4501, 0x4504, 0x4505, 0x4510, 0x4511, 0x4514, 0x4515,
-                       0x4540, 0x4541, 0x4544, 0x4545, 0x4550, 0x4551, 0x4554, 0x4555,
-                       0x5000, 0x5001, 0x5004, 0x5005, 0x5010, 0x5011, 0x5014, 0x5015,
-                       0x5040, 0x5041, 0x5044, 0x5045, 0x5050, 0x5051, 0x5054, 0x5055,
-                       0x5100, 0x5101, 0x5104, 0x5105, 0x5110, 0x5111, 0x5114, 0x5115,
-                       0x5140, 0x5141, 0x5144, 0x5145, 0x5150, 0x5151, 0x5154, 0x5155,
-                       0x5400, 0x5401, 0x5404, 0x5405, 0x5410, 0x5411, 0x5414, 0x5415,
-                       0x5440, 0x5441, 0x5444, 0x5445, 0x5450, 0x5451, 0x5454, 0x5455,
-                       0x5500, 0x5501, 0x5504, 0x5505, 0x5510, 0x5511, 0x5514, 0x5515,
-                       0x5540, 0x5541, 0x5544, 0x5545, 0x5550, 0x5551, 0x5554, 0x5555
-                     };
+      static const std::size_t interleave_table_size = 256;
+      static const unsigned short interleave_table[interleave_table_size] =
+                                  {
+                                    0x0000, 0x0001, 0x0004, 0x0005, 0x0010, 0x0011, 0x0014, 0x0015,
+                                    0x0040, 0x0041, 0x0044, 0x0045, 0x0050, 0x0051, 0x0054, 0x0055,
+                                    0x0100, 0x0101, 0x0104, 0x0105, 0x0110, 0x0111, 0x0114, 0x0115,
+                                    0x0140, 0x0141, 0x0144, 0x0145, 0x0150, 0x0151, 0x0154, 0x0155,
+                                    0x0400, 0x0401, 0x0404, 0x0405, 0x0410, 0x0411, 0x0414, 0x0415,
+                                    0x0440, 0x0441, 0x0444, 0x0445, 0x0450, 0x0451, 0x0454, 0x0455,
+                                    0x0500, 0x0501, 0x0504, 0x0505, 0x0510, 0x0511, 0x0514, 0x0515,
+                                    0x0540, 0x0541, 0x0544, 0x0545, 0x0550, 0x0551, 0x0554, 0x0555,
+                                    0x1000, 0x1001, 0x1004, 0x1005, 0x1010, 0x1011, 0x1014, 0x1015,
+                                    0x1040, 0x1041, 0x1044, 0x1045, 0x1050, 0x1051, 0x1054, 0x1055,
+                                    0x1100, 0x1101, 0x1104, 0x1105, 0x1110, 0x1111, 0x1114, 0x1115,
+                                    0x1140, 0x1141, 0x1144, 0x1145, 0x1150, 0x1151, 0x1154, 0x1155,
+                                    0x1400, 0x1401, 0x1404, 0x1405, 0x1410, 0x1411, 0x1414, 0x1415,
+                                    0x1440, 0x1441, 0x1444, 0x1445, 0x1450, 0x1451, 0x1454, 0x1455,
+                                    0x1500, 0x1501, 0x1504, 0x1505, 0x1510, 0x1511, 0x1514, 0x1515,
+                                    0x1540, 0x1541, 0x1544, 0x1545, 0x1550, 0x1551, 0x1554, 0x1555,
+                                    0x4000, 0x4001, 0x4004, 0x4005, 0x4010, 0x4011, 0x4014, 0x4015,
+                                    0x4040, 0x4041, 0x4044, 0x4045, 0x4050, 0x4051, 0x4054, 0x4055,
+                                    0x4100, 0x4101, 0x4104, 0x4105, 0x4110, 0x4111, 0x4114, 0x4115,
+                                    0x4140, 0x4141, 0x4144, 0x4145, 0x4150, 0x4151, 0x4154, 0x4155,
+                                    0x4400, 0x4401, 0x4404, 0x4405, 0x4410, 0x4411, 0x4414, 0x4415,
+                                    0x4440, 0x4441, 0x4444, 0x4445, 0x4450, 0x4451, 0x4454, 0x4455,
+                                    0x4500, 0x4501, 0x4504, 0x4505, 0x4510, 0x4511, 0x4514, 0x4515,
+                                    0x4540, 0x4541, 0x4544, 0x4545, 0x4550, 0x4551, 0x4554, 0x4555,
+                                    0x5000, 0x5001, 0x5004, 0x5005, 0x5010, 0x5011, 0x5014, 0x5015,
+                                    0x5040, 0x5041, 0x5044, 0x5045, 0x5050, 0x5051, 0x5054, 0x5055,
+                                    0x5100, 0x5101, 0x5104, 0x5105, 0x5110, 0x5111, 0x5114, 0x5115,
+                                    0x5140, 0x5141, 0x5144, 0x5145, 0x5150, 0x5151, 0x5154, 0x5155,
+                                    0x5400, 0x5401, 0x5404, 0x5405, 0x5410, 0x5411, 0x5414, 0x5415,
+                                    0x5440, 0x5441, 0x5444, 0x5445, 0x5450, 0x5451, 0x5454, 0x5455,
+                                    0x5500, 0x5501, 0x5504, 0x5505, 0x5510, 0x5511, 0x5514, 0x5515,
+                                    0x5540, 0x5541, 0x5544, 0x5545, 0x5550, 0x5551, 0x5554, 0x5555
+                                  };
 
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
@@ -1526,24 +1560,24 @@ namespace strtk
       {
          return std::numeric_limits<std::size_t>::max();
       }
-      const std::size_t high_bits_in_char[256] = {
-                                                   0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
-                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
-                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
-                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
-                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
-                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
-                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
-                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
-                                                   1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
-                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
-                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
-                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
-                                                   2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
-                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
-                                                   3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
-                                                   4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8
-                                                 };
+      static const std::size_t high_bits_in_char[256] = {
+                                                          0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
+                                                          1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                          1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                          2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                          1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                          2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                          2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                          3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                          1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+                                                          2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                          2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                          3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                          2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+                                                          3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                          3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+                                                          4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8
+                                                        };
       std::size_t distance = 0;
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
@@ -1766,15 +1800,31 @@ namespace strtk
    {
    public:
 
-     filter_on_match(const std::string* begin, const std::string* end,
-                     OutputPredicate predicate,
-                     bool case_insensitive,
-                     bool allow_through_on_match = true)
-      :case_insensitive_(case_insensitive),
-       allow_through_on_match_(allow_through_on_match),
-       begin_(begin),
-       end_(end),
-       predicate_(predicate){}
+      filter_on_match(const std::string* begin, const std::string* end,
+                      OutputPredicate predicate,
+                      bool case_insensitive,
+                      bool allow_through_on_match = true)
+       :case_insensitive_(case_insensitive),
+        allow_through_on_match_(allow_through_on_match),
+        begin_(begin),
+        end_(end),
+        predicate_(predicate){}
+
+      filter_on_match(const filter_on_match& fom)
+      : case_insensitive_(fom.case_insensitive_),
+        allow_through_on_match_(fom.allow_through_on_match_),
+        begin_(fom.begin_),
+        end_ (fom.end_),
+        predicate_(fom.predicate_){}
+
+      filter_on_match& operator=(const filter_on_match& fom)
+      {
+         case_insensitive_ = fom.case_insensitive_;
+         allow_through_on_match_ = fom.allow_through_on_match_;
+         begin_ = fom.begin_;
+         end_ = fom.end_;
+         predicate_ = fom.predicate_;
+      }
 
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
@@ -1822,8 +1872,8 @@ namespace strtk
       }
 
    private:
-      bool allow_through_on_match_;
       bool case_insensitive_;
+      bool allow_through_on_match_;
       const std::string* begin_;
       const std::string* end_;
       OutputPredicate& predicate_;
@@ -1848,13 +1898,13 @@ namespace strtk
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9, typename T10>
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4,
-                             T5& t5, T6& t6, T7& t7, T8& t8,
-                             T9& t9, T10& t10)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4,
+                            T5& t5, T6& t6, T7& t7, T8& t8,
+                            T9& t9, T10& t10)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
        t1 = boost::lexical_cast< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1874,13 +1924,13 @@ namespace strtk
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9>
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4,
-                             T5& t5, T6& t6, T7& t7, T8& t8,
-                             T9& t9)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4,
+                            T5& t5, T6& t6, T7& t7, T8& t8,
+                            T9& t9)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1898,12 +1948,12 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8>
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4,
-                             T5& t5, T6& t6, T7& t7, T8& t8)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4,
+                            T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1920,11 +1970,11 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7>
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1940,11 +1990,11 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5,typename T6 >
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1959,11 +2009,11 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5 >
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1976,11 +2026,11 @@ namespace strtk
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4>
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -1992,11 +2042,11 @@ namespace strtk
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3 >
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2006,11 +2056,11 @@ namespace strtk
    }
 
    template<typename Tokenzier, typename T1, typename T2>
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2019,11 +2069,11 @@ namespace strtk
    }
 
    template<typename Tokenzier, typename T>
-   inline unsigned int parse(const std::string& buffer,
-                             Tokenzier& tokenizer,
-                             T& t)
+   inline std::size_t parse(const std::string& buffer,
+                            Tokenzier& tokenizer,
+                            T& t)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
       t = boost::lexical_cast<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2034,14 +2084,14 @@ namespace strtk
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9, typename T10>
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4,
-                             T5& t5, T6& t6, T7& t7, T8& t8,
-                             T9& t9, T10& t10)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4,
+                            T5& t5, T6& t6, T7& t7, T8& t8,
+                            T9& t9, T10& t10)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
        t1 = boost::lexical_cast< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2061,14 +2111,14 @@ namespace strtk
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9>
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4,
-                             T5& t5, T6& t6, T7& t7, T8& t8,
-                             T9& t9)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4,
+                            T5& t5, T6& t6, T7& t7, T8& t8,
+                            T9& t9)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2086,13 +2136,13 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8>
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4,
-                             T5& t5, T6& t6, T7& t7, T8& t8)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4,
+                            T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2109,12 +2159,12 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7>
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2130,12 +2180,12 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5,typename T6 >
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2150,12 +2200,12 @@ namespace strtk
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
              typename T5 >
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2168,12 +2218,12 @@ namespace strtk
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4>
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3, T4& t4)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2185,12 +2235,12 @@ namespace strtk
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3 >
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2, T3& t3)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2, T3& t3)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2200,12 +2250,12 @@ namespace strtk
    }
 
    template<typename Tokenzier, typename T1, typename T2>
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T1& t1, T2& t2)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T1& t1, T2& t2)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2214,12 +2264,12 @@ namespace strtk
    }
 
    template<typename Tokenzier, typename T>
-   inline unsigned int parse(const std::string::const_iterator& begin,
-                             const std::string::const_iterator& end,
-                             Tokenzier& tokenizer,
-                             T& t)
+   inline std::size_t parse(const std::string::const_iterator& begin,
+                            const std::string::const_iterator& end,
+                            Tokenzier& tokenizer,
+                            T& t)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
       t = boost::lexical_cast<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
@@ -2235,24 +2285,15 @@ namespace strtk
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                          const T9& t9, const T10& t10)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t4);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t5);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t6);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t7);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t8);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t9);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
+      output += boost::lexical_cast<std::string>(t3); output += delimiter;
+      output += boost::lexical_cast<std::string>(t4); output += delimiter;
+      output += boost::lexical_cast<std::string>(t5); output += delimiter;
+      output += boost::lexical_cast<std::string>(t6); output += delimiter;
+      output += boost::lexical_cast<std::string>(t7); output += delimiter;
+      output += boost::lexical_cast<std::string>(t8); output += delimiter;
+      output += boost::lexical_cast<std::string>(t9); output += delimiter;
       output += boost::lexical_cast<std::string>(t10);
    }
 
@@ -2265,22 +2306,14 @@ namespace strtk
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                          const T9& t9)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t4);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t5);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t6);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t7);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t8);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
+      output += boost::lexical_cast<std::string>(t3); output += delimiter;
+      output += boost::lexical_cast<std::string>(t4); output += delimiter;
+      output += boost::lexical_cast<std::string>(t5); output += delimiter;
+      output += boost::lexical_cast<std::string>(t6); output += delimiter;
+      output += boost::lexical_cast<std::string>(t7); output += delimiter;
+      output += boost::lexical_cast<std::string>(t8); output += delimiter;
       output += boost::lexical_cast<std::string>(t9);
    }
 
@@ -2291,20 +2324,13 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t4);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t5);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t6);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t7);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
+      output += boost::lexical_cast<std::string>(t3); output += delimiter;
+      output += boost::lexical_cast<std::string>(t4); output += delimiter;
+      output += boost::lexical_cast<std::string>(t5); output += delimiter;
+      output += boost::lexical_cast<std::string>(t6); output += delimiter;
+      output += boost::lexical_cast<std::string>(t7); output += delimiter;
       output += boost::lexical_cast<std::string>(t8);
    }
 
@@ -2315,18 +2341,12 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t4);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t5);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t6);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
+      output += boost::lexical_cast<std::string>(t3); output += delimiter;
+      output += boost::lexical_cast<std::string>(t4); output += delimiter;
+      output += boost::lexical_cast<std::string>(t5); output += delimiter;
+      output += boost::lexical_cast<std::string>(t6); output += delimiter;
       output += boost::lexical_cast<std::string>(t7);
    }
 
@@ -2338,16 +2358,11 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t4);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t5);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
+      output += boost::lexical_cast<std::string>(t3); output += delimiter;
+      output += boost::lexical_cast<std::string>(t4); output += delimiter;
+      output += boost::lexical_cast<std::string>(t5); output += delimiter;
       output += boost::lexical_cast<std::string>(t6);
    }
 
@@ -2358,14 +2373,10 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t4);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
+      output += boost::lexical_cast<std::string>(t3); output += delimiter;
+      output += boost::lexical_cast<std::string>(t4); output += delimiter;
       output += boost::lexical_cast<std::string>(t5);
    }
 
@@ -2374,12 +2385,9 @@ namespace strtk
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
+      output += boost::lexical_cast<std::string>(t3); output += delimiter;
       output += boost::lexical_cast<std::string>(t4);
    }
 
@@ -2388,10 +2396,8 @@ namespace strtk
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
+      output += boost::lexical_cast<std::string>(t2); output += delimiter;
       output += boost::lexical_cast<std::string>(t3);
    }
 
@@ -2400,14 +2406,14 @@ namespace strtk
                          const std::string& delimiter,
                          const T1& t1, const T2& t2)
    {
-      output += boost::lexical_cast<std::string>(t1);
-      output += delimiter;
+      output += boost::lexical_cast<std::string>(t1); output += delimiter;
       output += boost::lexical_cast<std::string>(t2);
    }
 
    template<typename InputIterator>
    inline void join(std::string& output, const std::string& delimiter,
-                    const InputIterator begin, const InputIterator end)
+                    const InputIterator begin,
+                    const InputIterator end)
    {
       InputIterator it = begin;
       while(it != end)
@@ -2422,59 +2428,12 @@ namespace strtk
 
    template<typename InputIterator>
    inline std::string join(const std::string& delimiter,
-                           const InputIterator begin, const InputIterator end)
+                           const InputIterator begin,
+                           const InputIterator end)
    {
       std::string output;
       join(output,delimiter,begin,end);
       return output;
-   }
-
-   const boost::regex uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
-   const boost::regex email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
-   const boost::regex ip_expression   ("(([0-1]?[0-9]{1,2}\\.)|(2[0-4][0-9]\\.)|(25[0-5]\\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))");
-
-   template<typename InputIterator, typename OutputIterator>
-   std::size_t regex_extractor(const boost::regex& expression,
-                               const InputIterator begin, const InputIterator end,
-                               OutputIterator out)
-   {
-      boost::sregex_iterator it(begin,end,expression);
-      boost::sregex_iterator it_end;
-      std::string token(1024,0x0);
-      std::size_t match_count = 0;
-      while(it_end != it)
-      {
-         token.assign((*it)[0].first,(*it)[0].second);
-         (out++) = token;
-         ++it;
-         ++match_count;
-      }
-      return match_count;
-   }
-
-   template<typename InputIterator, typename OutputIterator>
-   std::size_t regex_extractor(const std::string& expression,
-                               const InputIterator begin, const InputIterator end,
-                               OutputIterator out)
-   {
-      const boost::regex expr(expression);
-      return regex_extractor(expr,begin,end,out);
-   }
-
-   template<typename OutputIterator>
-   std::size_t regex_extractor(const std::string& expression,
-                               const std::string text,
-                               OutputIterator out)
-   {
-      return regex_extractor(expression,text.begin(),text.end(),out);
-   }
-
-   template<typename OutputIterator>
-   std::size_t regex_extractor(const boost::regex& expression,
-                               const std::string& text,
-                               OutputIterator out)
-   {
-      return regex_extractor(expression,text.begin(),text.end(),out);
    }
 
    void generate_random_data(unsigned char* data, unsigned int length, unsigned int pre_gen_cnt = 0, unsigned int seed = 0xA5A5A5A5)
@@ -2501,6 +2460,29 @@ namespace strtk
          it -= (sizeof(unsigned int) - length);
          x = reinterpret_cast<unsigned int*>(it);
          (*x) = rnd();
+      }
+   }
+
+   namespace text
+   {
+      std::string center(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      {
+         if (str.size() >= width) return str;
+         std::size_t pad_count = width - str.size();
+         std::size_t pad_count_2 = (pad_count >> 1) + (pad_count & 1);
+         return std::string(pad_count >> 1,pad) + str + std::string(pad_count_2,pad);
+      }
+
+      std::string right_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      {
+         if (str.size() >= width) return str;
+         return std::string(width - str.size(),pad) + str;
+      }
+
+      std::string left_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      {
+         if (str.size() >= width) return str;
+         return str + std::string(width - str.size(),pad);
       }
    }
 

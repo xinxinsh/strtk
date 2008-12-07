@@ -15,6 +15,14 @@
  *******************************************************************
 */
 
+/*
+  Description: The following will parse a text file line-by-line,
+               tokenizing each line using the delimiters set as
+               described blow. The objective is to populate the
+               word_list with tokens derived from the text file
+               that are not in the "not_of_interest_list".
+*/
+
 #include <iostream>
 #include <iterator>
 #include <utility>
@@ -44,6 +52,23 @@ public:
      filter_(reinterpret_cast<const std::string*>(not_of_interest_list),
              reinterpret_cast<const std::string*>(not_of_interest_list + list_size),
              strtk::range_to_string_back_inserter_iterator<Container>(c_),true,false){}
+
+   parse_line(const parse_line& pl)
+   : c_(pl.c_),
+     p_(pl.p_),
+     tmp_(pl.tmp_),
+     tokenizer_(pl.tokenizer_),
+     filter_(pl.filter_)
+   {}
+
+   parse_line& operator=(const parse_line& pl)
+   {
+      c_ = pl.c_;
+      p_ = pl.p_;
+      tmp_ = pl.tmp_;
+      tokenizer_ = pl.tokenizer_;
+      filter_ = pl.filter_;
+   }
 
    inline void operator() (const std::string& s)
    {
