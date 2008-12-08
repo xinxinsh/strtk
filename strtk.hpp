@@ -1819,11 +1819,15 @@ namespace strtk
 
       filter_on_match& operator=(const filter_on_match& fom)
       {
-         case_insensitive_ = fom.case_insensitive_;
-         allow_through_on_match_ = fom.allow_through_on_match_;
-         begin_ = fom.begin_;
-         end_ = fom.end_;
-         predicate_ = fom.predicate_;
+         if (this != &fom)
+         {
+            case_insensitive_ = fom.case_insensitive_;
+            allow_through_on_match_ = fom.allow_through_on_match_;
+            begin_ = fom.begin_;
+            end_ = fom.end_;
+            predicate_ = fom.predicate_;
+         }
+         return *this;
       }
 
       template<typename Iterator>
