@@ -39,8 +39,12 @@ public:
 
    key_value_parser& operator=(const key_value_parser& kvp)
    {
-      c_ = kvp.c_;
-      t_ = kvp.t_;
+      if (this != &kvp)
+      {
+         c_ = kvp.c_;
+         t_ = kvp.t_;
+      }
+      return *this;
    }
 
    void operator()(const typename Tokenizer::iterator::value_type& v)

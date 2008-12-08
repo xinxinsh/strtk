@@ -50,8 +50,12 @@ public:
 
    parse_line& operator=(const parse_line& pl)
    {
-      c_ = pl.c_;
-      p_ = pl.p_;
+      if (this != &pl)
+      {
+         c_ = pl.c_;
+         p_ = pl.p_;
+      }
+      return *this;
    }
 
    inline void operator() (const std::string& s)
