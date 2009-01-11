@@ -101,6 +101,18 @@ namespace strtk
          return 0;
    }
 
+   template<typename Predicate, typename InputIterator, typename OutputIterator>
+   InputIterator copy_if(Predicate predicate, InputIterator begin, InputIterator end, OutputIterator out)
+   {
+      InputIterator it = begin;
+      while(it != end)
+      {
+         if (!predicate(*it)) break;
+         *(out++)= *(it++);
+      }
+      return it;
+   }
+
    template<typename T>
    struct single_delimiter_predicate
    {
@@ -628,6 +640,11 @@ namespace strtk
          assign(s.begin(),s.end());
       }
 
+      void assign(const std::string& s)
+      {
+         assign(s.begin(),s.end());
+      }
+
       void assign(Iterator begin,Iterator end)
       {
         begin_ = begin;
@@ -750,8 +767,7 @@ namespace strtk
       {
         if(delimiter(*it))
         {
-           out = std::make_pair<Iterator,Iterator>(prev,it);
-           ++out;
+           *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
            ++match_count;
            if (!compress_delimiters)
               ++it;
@@ -764,8 +780,7 @@ namespace strtk
       }
       if ((prev != it) || delimiter(*(it - 1)))
       {
-         out = std::make_pair<Iterator,Iterator>(prev,it);
-         ++out;
+         *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
          ++match_count;
       }
       return match_count;
@@ -790,9 +805,9 @@ namespace strtk
       return split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out,compress_delimiters);
    }
 
-   static const boost::regex uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
-   static const boost::regex email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
-   static const boost::regex ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
+   const std::string uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
+   const std::string email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
+   const std::string ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
 
    template<typename InputIterator, typename OutputIterator>
    std::size_t split(const boost::regex& expression,
@@ -807,7 +822,7 @@ namespace strtk
       while(it_end != it)
       {
          token.assign((*it)[0].first,(*it)[0].second);
-         (out++) = token;
+         *(out++) = token;
          ++it;
          ++match_count;
       }
@@ -820,8 +835,8 @@ namespace strtk
                      const InputIterator end,
                      OutputIterator out)
    {
-      const boost::regex expr(expression);
-      return split(expr,begin,end,out);
+      const boost::regex regex_expression(expression);
+      return split(regex_expression,begin,end,out);
    }
 
    template<typename OutputIterator>
@@ -838,6 +853,73 @@ namespace strtk
                      OutputIterator out)
    {
       return split(expression,text.begin(),text.end(),out);
+   }
+
+   template<const std::size_t offset_list_size>
+   class offset_predicate
+   {
+   public:
+      offset_predicate(const int offset_list[], const bool rotate = false)
+      : rotate_(rotate)
+      {
+         current_index_ = 0;
+         std::copy(offset_list, offset_list + offset_list_size, offset_list_);
+         offset_list_[offset_list_size] = 0;
+      }
+
+      bool operator!() const
+      {
+         return offset_list_size == 0;
+      }
+
+      void reset() const
+      {
+         current_index_ = 0;
+      }
+
+      std::size_t size() const
+      {
+         return offset_list_size;
+      }
+
+      int next() const
+      {
+         int result = offset_list_[current_index_++];
+         if (rotate_ && current_index_ >= offset_list_size) current_index_ = 0;
+         return result;
+      }
+
+   private:
+      bool rotate_;
+      mutable std::size_t current_index_;
+      int offset_list_[offset_list_size + 1];
+   };
+
+   template<typename OffsetPredicate,
+            typename Iterator,
+            typename OutputIterator>
+   inline std::size_t offset_splitter(const Iterator begin,
+                                      const Iterator end,
+                                      const OffsetPredicate& offset,
+                                      OutputIterator out)
+   {
+      std::size_t length = 0;
+      if (0 == (length = std::distance(begin,end))) return 0;
+      Iterator it = begin;
+      Iterator prev = it;
+      std::size_t match_count = 0;
+      int offset_length = 0;
+      std::size_t inc_amnt = 0;
+      while ((it != end) && (0 < (offset_length = offset.next())))
+      {
+         inc_amnt = std::min<std::size_t>(length,offset_length);
+         prev = it;
+         it +=  inc_amnt;
+         length -= inc_amnt;
+         *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
+         ++match_count;
+      }
+      return match_count;
    }
 
    template<typename Iterator, typename DelimiterPredicate>
@@ -895,7 +977,6 @@ namespace strtk
       typedef std::deque< std::pair<unsigned char*, unsigned char*> > itr_list_type;
       typedef std::deque<itr_list_type> itr_list_list_type;
 
-
       class row_type
       {
       public:
@@ -922,10 +1003,235 @@ namespace strtk
             {
                itr_list_type::value_type& curr_range = *it;
                tmp_str.assign(curr_range.first,curr_range.second);
-               (*out) = boost::lexical_cast<T>(tmp_str);
+               *(out++) = boost::lexical_cast<T>(tmp_str);
                ++it;
-               ++out;
             }
+         }
+
+         std::string as_string()
+         {
+            return std::string(token_list_->begin()->first,token_list_->back().second);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6,
+                  typename T7, typename T8,
+                  typename T9, typename T10 >
+         void parse(const unsigned int& col1, const unsigned int& col2,
+                    const unsigned int& col3, const unsigned int& col4,
+                    const unsigned int& col5, const unsigned int& col6,
+                    const unsigned int& col7, const unsigned int& col8,
+                    const unsigned int& col9, const unsigned int& col10,
+                    T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9, T10& t10) const
+         {
+            std::string tmp_str;
+            itr_list_type::value_type curr_range = (*token_list_)[col1];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t1 = boost::lexical_cast<T1>(tmp_str);
+
+            curr_range = (*token_list_)[col2];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t2 = boost::lexical_cast<T2>(tmp_str);
+
+            curr_range = (*token_list_)[col3];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t3 = boost::lexical_cast<T3>(tmp_str);
+
+            curr_range = (*token_list_)[col4];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t4 = boost::lexical_cast<T4>(tmp_str);
+
+            curr_range = (*token_list_)[col5];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t5 = boost::lexical_cast<T5>(tmp_str);
+
+            curr_range = (*token_list_)[col6];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t6 = boost::lexical_cast<T6>(tmp_str);
+
+            curr_range = (*token_list_)[col7];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t7 = boost::lexical_cast<T7>(tmp_str);
+
+            curr_range = (*token_list_)[col8];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t8 = boost::lexical_cast<T8>(tmp_str);
+
+            curr_range = (*token_list_)[col9];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t9 = boost::lexical_cast<T9>(tmp_str);
+
+            curr_range = (*token_list_)[col10];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t10 = boost::lexical_cast<T10>(tmp_str);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6,
+                  typename T7, typename T8,
+                  typename T9 >
+         void parse(const unsigned int& col1, const unsigned int& col2,
+                    const unsigned int& col3, const unsigned int& col4,
+                    const unsigned int& col5, const unsigned int& col6,
+                    const unsigned int& col7, const unsigned int& col8,
+                    const unsigned int& col9,
+                    T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9) const
+         {
+            std::string tmp_str;
+            itr_list_type::value_type curr_range = (*token_list_)[col1];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t1 = boost::lexical_cast<T1>(tmp_str);
+
+            curr_range = (*token_list_)[col2];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t2 = boost::lexical_cast<T2>(tmp_str);
+
+            curr_range = (*token_list_)[col3];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t3 = boost::lexical_cast<T3>(tmp_str);
+
+            curr_range = (*token_list_)[col4];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t4 = boost::lexical_cast<T4>(tmp_str);
+
+            curr_range = (*token_list_)[col5];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t5 = boost::lexical_cast<T5>(tmp_str);
+
+            curr_range = (*token_list_)[col6];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t6 = boost::lexical_cast<T6>(tmp_str);
+
+            curr_range = (*token_list_)[col7];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t7 = boost::lexical_cast<T7>(tmp_str);
+
+            curr_range = (*token_list_)[col8];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t8 = boost::lexical_cast<T8>(tmp_str);
+
+            curr_range = (*token_list_)[col9];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t9 = boost::lexical_cast<T9>(tmp_str);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6,
+                  typename T7, typename T8>
+         void parse(const unsigned int& col1, const unsigned int& col2,
+                    const unsigned int& col3, const unsigned int& col4,
+                    const unsigned int& col5, const unsigned int& col6,
+                    const unsigned int& col7, const unsigned int& col8,
+                    T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8) const
+         {
+            std::string tmp_str;
+            itr_list_type::value_type curr_range = (*token_list_)[col1];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t1 = boost::lexical_cast<T1>(tmp_str);
+
+            curr_range = (*token_list_)[col2];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t2 = boost::lexical_cast<T2>(tmp_str);
+
+            curr_range = (*token_list_)[col3];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t3 = boost::lexical_cast<T3>(tmp_str);
+
+            curr_range = (*token_list_)[col4];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t4 = boost::lexical_cast<T4>(tmp_str);
+
+            curr_range = (*token_list_)[col5];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t5 = boost::lexical_cast<T5>(tmp_str);
+
+            curr_range = (*token_list_)[col6];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t6 = boost::lexical_cast<T6>(tmp_str);
+
+            curr_range = (*token_list_)[col7];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t7 = boost::lexical_cast<T7>(tmp_str);
+
+            curr_range = (*token_list_)[col8];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t8 = boost::lexical_cast<T8>(tmp_str);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6, typename T7>
+         void parse(const unsigned int& col1, const unsigned int& col2,
+                    const unsigned int& col3, const unsigned int& col4,
+                    const unsigned int& col5, const unsigned int& col6,
+                    const unsigned int& col7,
+                    T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7) const
+         {
+            std::string tmp_str;
+            itr_list_type::value_type curr_range = (*token_list_)[col1];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t1 = boost::lexical_cast<T1>(tmp_str);
+
+            curr_range = (*token_list_)[col2];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t2 = boost::lexical_cast<T2>(tmp_str);
+
+            curr_range = (*token_list_)[col3];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t3 = boost::lexical_cast<T3>(tmp_str);
+
+            curr_range = (*token_list_)[col4];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t4 = boost::lexical_cast<T4>(tmp_str);
+
+            curr_range = (*token_list_)[col5];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t5 = boost::lexical_cast<T5>(tmp_str);
+
+            curr_range = (*token_list_)[col6];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t6 = boost::lexical_cast<T6>(tmp_str);
+
+            curr_range = (*token_list_)[col7];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t7 = boost::lexical_cast<T7>(tmp_str);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6>
+         void parse(const unsigned int& col1, const unsigned int& col2,
+                    const unsigned int& col3, const unsigned int& col4,
+                    const unsigned int& col5, const unsigned int& col6,
+                    T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
+         {
+            std::string tmp_str;
+            itr_list_type::value_type curr_range = (*token_list_)[col1];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t1 = boost::lexical_cast<T1>(tmp_str);
+
+            curr_range = (*token_list_)[col2];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t2 = boost::lexical_cast<T2>(tmp_str);
+
+            curr_range = (*token_list_)[col3];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t3 = boost::lexical_cast<T3>(tmp_str);
+
+            curr_range = (*token_list_)[col4];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t4 = boost::lexical_cast<T4>(tmp_str);
+
+            curr_range = (*token_list_)[col5];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t5 = boost::lexical_cast<T5>(tmp_str);
+
+            curr_range = (*token_list_)[col6];
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t6 = boost::lexical_cast<T6>(tmp_str);
          }
 
          template<typename T1, typename T2,
@@ -1039,7 +1345,7 @@ namespace strtk
          if (0 != buffer_) delete [] buffer_;
       }
 
-      bool operator()()              const { return state_;             }
+      bool operator!()               const { return !state_;            }
       std::string source_file()      const { return file_name_;         }
       std::size_t row_count()        const { return token_list_.size(); }
       std::size_t min_column_count() const { return min_column_count_;  }
@@ -1059,8 +1365,7 @@ namespace strtk
          {
             itr_list_type::value_type curr_range = (*it++)[index];
             tmp_str.assign(curr_range.first,curr_range.second);
-            (*out) = boost::lexical_cast<T>(tmp_str);
-            ++out;
+            *(out++) = boost::lexical_cast<T>(tmp_str);
          }
       }
 
@@ -1079,14 +1384,17 @@ namespace strtk
          {
             itr_list_type::value_type curr_range = (*it)[index1];
             tmp_str.assign(curr_range.first,curr_range.second);
-            (*out1) = boost::lexical_cast<T1>(tmp_str);
-            ++out1;
+            *(out1++) = boost::lexical_cast<T1>(tmp_str);
 
             curr_range = (*it++)[index2];
             tmp_str.assign(curr_range.first,curr_range.second);
-            (*out2) = boost::lexical_cast<T2>(tmp_str);
-            ++out2;
+            *(out2++) = boost::lexical_cast<T2>(tmp_str);
          }
+      }
+
+      void remove_row(const std::size_t& index)
+      {
+         if (index < token_list_.size()) token_list_.erase(token_list_.begin() + index);
       }
 
       template<typename Predicate>
@@ -1096,13 +1404,41 @@ namespace strtk
          std::string tmp_str(0xFF,0x00);
          while(token_list_.end() != it)
          {
-            if (p(it->front().first,it->back().second))
+            if (!it->empty() && p(it->front().first,it->back().second))
             {
                it = token_list_.erase(it);
             }
             else
               ++it;
          }
+      }
+
+      void enforce_column_count(const unsigned int& column_count)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         while(token_list_.end() != it)
+         {
+            if (it->size() != column_count)
+            {
+               it = token_list_.erase(it);
+            }
+            else
+              ++it;
+         }
+         min_column_count_ = column_count;
+         max_column_count_ = column_count;
+
+      }
+
+      void clear()
+      {
+         delete[] buffer_;
+         buffer_ = 0;
+         buffer_size_ = 0;
+         token_list_.clear();
+         min_column_count_ = 0;
+         state_ = false;
+         file_name_ = "";
       }
 
    private:
@@ -1133,9 +1469,12 @@ namespace strtk
          {
             itr_list_type current_token_list;
             split(it->first,it->second,token_predicate,std::back_inserter(current_token_list));
-            token_list_.push_back(current_token_list);
-            min_column_count_ = std::min(min_column_count_,current_token_list.size());
-            max_column_count_ = std::max(max_column_count_,current_token_list.size());
+            if (!current_token_list.empty())
+            {
+               token_list_.push_back(current_token_list);
+               min_column_count_ = std::min(min_column_count_,current_token_list.size());
+               max_column_count_ = std::max(max_column_count_,current_token_list.size());
+            }
          }
          return true;
       }
@@ -1258,7 +1597,6 @@ namespace strtk
          unsigned int block  = *(it++) << 16;
                       block |= *(it++) <<  8;
                       block |= *(it++)      ;
-
          *(out++) = bin_to_base64[( block >> 18 ) & 0x3F];
          *(out++) = bin_to_base64[( block >> 12 ) & 0x3F];
          *(out++) = bin_to_base64[( block >>  6 ) & 0x3F];
@@ -1505,8 +1843,8 @@ namespace strtk
       }
    }
 
-   enum bitwise_operation { eAND, eOR, eXOR };
-   inline void bitwise_transform(const bitwise_operation& operation,
+   namespace bitwise_operation { enum type { eAND, eOR, eXOR }; }
+   inline void bitwise_transform(const bitwise_operation::type& operation,
                                  const unsigned char* begin1, const unsigned char* end1,
                                  const unsigned char* begin2, const unsigned char* end2,
                                  unsigned char* out)
@@ -1521,13 +1859,13 @@ namespace strtk
 
       switch(operation)
       {
-         case eAND : while(it1 != end1) { *(out++) = *(it1++) & *(it2++); } return;
-         case eOR  : while(it1 != end1) { *(out++) = *(it1++) | *(it2++); } return;
-         case eXOR : while(it1 != end1) { *(out++) = *(it1++) ^ *(it2++); } return;
+         case bitwise_operation::eAND : while(it1 != end1) { *(out++) = *(it1++) & *(it2++); } return;
+         case bitwise_operation::eOR  : while(it1 != end1) { *(out++) = *(it1++) | *(it2++); } return;
+         case bitwise_operation::eXOR : while(it1 != end1) { *(out++) = *(it1++) ^ *(it2++); } return;
       }
    }
 
-   inline void bitwise_transform(const bitwise_operation& operation,
+   inline void bitwise_transform(const bitwise_operation::type& operation,
                                  const char* begin1, const char* end1,
                                  const char* begin2, const char* end2,
                                  char* out)
@@ -1540,7 +1878,7 @@ namespace strtk
                                reinterpret_cast<unsigned char*>(out));
    }
 
-   inline void bitwise_transform(const bitwise_operation& operation,
+   inline void bitwise_transform(const bitwise_operation::type& operation,
                                  const std::string& str1,
                                  const std::string& str2,
                                  std::string& out)
@@ -1618,45 +1956,45 @@ namespace strtk
 
       inline void compute_hash(const char data[], unsigned int& hash)
       {
-         hash ^=  ((hash <<  7) ^ data[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + data[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
       }
 
       inline void compute_hash(const unsigned char data[], unsigned int& hash)
       {
-         hash ^=  ((hash <<  7) ^ data[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + data[1] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
       }
 
       inline void compute_hash(const int& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^ it[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[1] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[3] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
       }
 
       inline void compute_hash(const unsigned int& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^ it[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[1] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[3] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
       }
 
       inline void compute_hash(const double& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^ it[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[1] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[3] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[4] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[5] ^ (hash >> 5));
-         hash ^=  ((hash <<  7) ^ it[6] * (hash >> 3));
-         hash ^= ~((hash << 11) + it[7] ^ (hash >> 5));
+         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[5] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[7] ^ (hash >> 5)));
       }
 
       template<typename T>
@@ -1800,35 +2138,15 @@ namespace strtk
    {
    public:
 
-      filter_on_match(const std::string* begin, const std::string* end,
-                      OutputPredicate predicate,
-                      bool case_insensitive,
-                      bool allow_through_on_match = true)
-       :case_insensitive_(case_insensitive),
-        allow_through_on_match_(allow_through_on_match),
-        begin_(begin),
-        end_(end),
-        predicate_(predicate){}
-
-      filter_on_match(const filter_on_match& fom)
-      : case_insensitive_(fom.case_insensitive_),
-        allow_through_on_match_(fom.allow_through_on_match_),
-        begin_(fom.begin_),
-        end_ (fom.end_),
-        predicate_(fom.predicate_){}
-
-      filter_on_match& operator=(const filter_on_match& fom)
-      {
-         if (this != &fom)
-         {
-            case_insensitive_ = fom.case_insensitive_;
-            allow_through_on_match_ = fom.allow_through_on_match_;
-            begin_ = fom.begin_;
-            end_ = fom.end_;
-            predicate_ = fom.predicate_;
-         }
-         return *this;
-      }
+     filter_on_match(const std::string* begin, const std::string* end,
+                     OutputPredicate predicate,
+                     bool case_insensitive,
+                     bool allow_through_on_match = true)
+      :case_insensitive_(case_insensitive),
+       allow_through_on_match_(allow_through_on_match),
+       begin_(begin),
+       end_(end),
+       predicate_(predicate){}
 
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
@@ -2487,6 +2805,24 @@ namespace strtk
       {
          if (str.size() >= width) return str;
          return str + std::string(width - str.size(),pad);
+      }
+
+      template<typename T>
+      std::string center(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      {
+         return center(width,pad,boost::lexical_cast<std::string>(t));
+      }
+
+      template<typename T>
+      std::string right_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      {
+         return right_align(width,pad,boost::lexical_cast<std::string>(t));
+      }
+
+      template<typename T>
+      std::string left_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      {
+         return left_align(width,pad,boost::lexical_cast<std::string>(t));
       }
    }
 

@@ -18,7 +18,7 @@
 COMPILER         = -c++
 OPTIMIZATION_OPT = -O3
 OPTIONS          = -pedantic -ansi -Wall -lstdc++ $(REGEX) $(OPTIMIZATION_OPT) -o
-REGEX            = -L/usr/lib -lboost_regex-gcc41-1_34_1
+REGEX            = -L/usr/lib -lboost_regex
 
 OBJECTS = $(CPP_SRC:.cpp=.o)
 
