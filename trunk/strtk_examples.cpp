@@ -248,6 +248,42 @@ void split_example04()
    std::cout << std::endl;
 }
 
+void offset_splitter_example01()
+{
+   std::string s = "abcdefghijklmnopqrstuvwxyz012";
+   const int offset_list[] = {1,2,3,4,5,6,7};
+   const strtk::offset_predicate<7> os_p(offset_list);
+   std::list< std::pair< std::string::const_iterator,std::string::const_iterator> > token_list;
+   strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
+   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      std::cout << "[" << std::string((*it).first,(*it).second) << "] ";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void offset_splitter_example02()
+{
+   std::string s = "09:10:11.123";
+   const int offset_list[] = {2,1,2,1,2,1,3};
+   const strtk::offset_predicate<7> os_p(offset_list);
+   std::list< std::pair< std::string::const_iterator,std::string::const_iterator> > token_list;
+   strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
+   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      if (1 != std::distance((*it).first,(*it).second))
+      {
+         std::cout << "[" << std::string((*it).first,(*it).second) << "] ";
+      }
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+
 void construct_example()
 {
    std::string  i1 = "abcd";
@@ -346,6 +382,8 @@ int main(void)
    split_example02();
    split_example03();
    split_example04();
+   offset_splitter_example01();
+   offset_splitter_example02();
    construct_example();
    parse_example();
    remove_inplace_example01();
