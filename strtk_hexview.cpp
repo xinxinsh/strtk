@@ -42,6 +42,9 @@ int main(void)
          strtk::convert_bin_to_hex(buffer,buffer + data_width,hex_buffer);
          std::cout << std::hex << std::setfill('0') << std::setw(10) << current_address << "  ";
          std::copy(hex_buffer,hex_buffer + (2 * data_width),std::ostream_iterator<unsigned char>(std::cout,""));
+         std::cout << " ";
+         strtk::convert_to_printable_chars(buffer,buffer + data_width);
+         std::copy(buffer,buffer + data_width,std::ostream_iterator<unsigned char>(std::cout,""));
          std::cout << std::endl;
          ++current_address;
       }
@@ -53,6 +56,9 @@ int main(void)
             strtk::convert_bin_to_hex(buffer,buffer + read_in_width,hex_buffer);
             std::cout << std::hex << std::setw(10) << current_address << "  ";
             std::copy(hex_buffer,hex_buffer + (2 * read_in_width),std::ostream_iterator<unsigned char>(std::cout,""));
+            std::cout << std::string(2 * (16 - read_in_width) + 1, ' ');
+            strtk::convert_to_printable_chars(buffer,buffer + read_in_width);
+            std::copy(buffer,buffer + read_in_width,std::ostream_iterator<unsigned char>(std::cout,""));
             std::cout << std::endl;
          }
          break;
