@@ -186,6 +186,21 @@ void tokenizer_example11()
    std::list<std::string> token_list;
    std::copy(tokenizer.begin(),tokenizer.end(),strtk::range_to_string_back_inserter(token_list));
    std::copy(token_list.begin(),token_list.end(),std::ostream_iterator<std::string>(std::cout,"\t"));
+   std::cout << std::endl;
+}
+
+void tokenizer_example12()
+{
+   // tokenizer_example01 with much simpler syntax.
+   std::string s = "abc|123|xyz|789";
+   strtk::std_string_tokenizer<>::type tokenizer(s,strtk::std_string_tokenizer<>::predicate_type('|'));
+   strtk::std_string_tokenizer<>::type::iterator it = tokenizer.begin();
+   while (it != tokenizer.end())
+   {
+      std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
+      ++it;
+   }
+   std::cout << std::endl;
 }
 
 void split_example01()
@@ -299,8 +314,8 @@ void construct_example()
 void parse_example()
 {
    std::string input = "abcd|x|-1234|78901|4567.8901";
-   typedef strtk::single_delimiter_predicate<std::string::value_type> single_predicate_type;
-   typedef strtk::std_string_tokenizer<single_predicate_type>::type tokenizer_type;
+   typedef strtk::std_string_tokenizer<>::predicate_type single_predicate_type;
+   typedef strtk::std_string_tokenizer<>::type tokenizer_type;
 
    single_predicate_type single_predicate('|');
    tokenizer_type tokenizer(input,single_predicate);
@@ -363,6 +378,20 @@ void uri_extractor_example01()
    std::copy(email_list.begin(),email_list.end(),std::ostream_iterator<std::string>(std::cout," "));
    std::cout << std::endl << "urls: ";
    std::copy(url_list.begin(),url_list.end(),std::ostream_iterator<std::string>(std::cout," "));
+   std::cout << std::endl;
+}
+
+void generate_random_example01()
+{
+   const std::size_t data_size = 10;
+   unsigned char* data = new unsigned char[data_size];
+   strtk::generate_random_data(data,data_size,1000000);
+   unsigned char* hex_data = new unsigned char[2 * data_size];
+   strtk::convert_bin_to_hex(data,data + data_size, hex_data);
+   std::copy(hex_data,hex_data + 2 * data_size,std::ostream_iterator<unsigned char>(std::cout));
+   std::cout << std::endl;
+   delete [] data;
+   delete [] hex_data;
 }
 
 int main(void)
@@ -378,6 +407,7 @@ int main(void)
    tokenizer_example09();
    tokenizer_example10();
    tokenizer_example11();
+   tokenizer_example12();
    split_example01();
    split_example02();
    split_example03();
@@ -391,5 +421,6 @@ int main(void)
    remove_consecutives_example02();
    remove_consecutives_example03();
    uri_extractor_example01();
+   generate_random_example01();
    return 0;
 }
