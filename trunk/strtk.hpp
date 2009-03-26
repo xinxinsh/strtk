@@ -78,7 +78,7 @@ namespace strtk
    template<class Function>
    inline unsigned int for_each_line_conditional(std::ifstream& stream, Function function)
    {
-      std::string buffer(1024,0x0);
+      std::string buffer(4096,0x0);
       unsigned int line_count = 0;
       while(std::getline(stream,buffer))
       {
@@ -689,7 +689,7 @@ namespace strtk
    template<typename DelimiterPredicate = single_delimiter_predicate<std::string::value_type> >
    struct std_string_tokenizer
    {
-      typedef typename DelimiterPredicate predicate_type;
+      typedef DelimiterPredicate predicate_type;
       typedef tokenizer<std::string::const_iterator,DelimiterPredicate> type;
       typedef std::pair<std::string::const_iterator , std::string::const_iterator> iterator_type;
    };
@@ -831,7 +831,7 @@ namespace strtk
    {
       boost::sregex_iterator it(begin,end,expression);
       boost::sregex_iterator it_end;
-      std::string token(1024,0x0);
+      std::string token(4096,0x0);
       std::size_t match_count = 0;
       while(it_end != it)
       {
