@@ -36,9 +36,9 @@ namespace strtk
 {
 
    template<typename Tokenizer, class Function>
-   unsigned int for_each_token(const std::string& buffer,
-                               Tokenizer& tokenizer,
-                               Function function)
+   inline unsigned int for_each_token(const std::string& buffer,
+                                      Tokenizer& tokenizer,
+                                      Function function)
    {
       unsigned int token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
@@ -102,7 +102,7 @@ namespace strtk
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
-   void copy_if(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
+   inline void copy_if(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
    {
       InputIterator it = begin;
       while(it != end)
@@ -115,7 +115,7 @@ namespace strtk
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
-   InputIterator copy_while(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
+   inline InputIterator copy_while(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
    {
       InputIterator it = begin;
       while(it != end)
@@ -127,7 +127,7 @@ namespace strtk
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
-   InputIterator copy_until(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
+   inline InputIterator copy_until(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
    {
       InputIterator it = begin;
       while(it != end)
@@ -183,7 +183,7 @@ namespace strtk
 
      ~multiple_delimiter_predicate() { delete[] delimiter_; }
 
-      bool operator()(const T& d) const
+      inline bool operator()(const T& d) const
       {
          return (std::find(delimiter_,delimiter_end_,d) != delimiter_end_);
       }
@@ -519,7 +519,7 @@ namespace strtk
             this->operator++();
          };
 
-         tokenizer_iterator& operator++()
+         inline tokenizer_iterator& operator++()
          {
             if (it_ != end_)
             {
@@ -560,14 +560,14 @@ namespace strtk
             return *this;
          }
 
-         tokenizer_iterator operator++(int)
+         inline tokenizer_iterator operator++(int)
          {
             tokenizer_iterator* tmp = this;
             this->operator++();
             return (*tmp);
          }
 
-         tokenizer_iterator& operator+=(const int inc)
+         inline tokenizer_iterator& operator+=(const int inc)
          {
             for(int i = 0; i < inc; ++i) ++(*this);
             return *this;
@@ -647,7 +647,7 @@ namespace strtk
         compress_delimiters_(compress_delimiters)
       {}
 
-      tokenizer& operator=(const tokenizer& t)
+      inline tokenizer& operator=(const tokenizer& t)
       {
          if (this != &t)
          {
@@ -660,17 +660,17 @@ namespace strtk
          return *this;
       }
 
-      void assign(const std::string& s) const
+      inline void assign(const std::string& s) const
       {
          assign(s.begin(),s.end());
       }
 
-      void assign(const std::string& s)
+      inline void assign(const std::string& s)
       {
          assign(s.begin(),s.end());
       }
 
-      void assign(const Iterator begin, const Iterator end)
+      inline void assign(const Iterator begin, const Iterator end)
       {
         begin_ = begin;
         end_ = end;
@@ -944,10 +944,10 @@ namespace strtk
    const std::string ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
 
    template<typename InputIterator, typename OutputIterator>
-   std::size_t split(const boost::regex& expression,
-                     const InputIterator begin,
-                     const InputIterator end,
-                     OutputIterator out)
+   inline std::size_t split(const boost::regex& expression,
+                            const InputIterator begin,
+                            const InputIterator end,
+                            OutputIterator out)
    {
       boost::sregex_iterator it(begin,end,expression);
       boost::sregex_iterator it_end;
@@ -964,27 +964,27 @@ namespace strtk
    }
 
    template<typename InputIterator, typename OutputIterator>
-   std::size_t split(const std::string& expression,
-                     const InputIterator begin,
-                     const InputIterator end,
-                     OutputIterator out)
+   inline std::size_t split(const std::string& expression,
+                            const InputIterator begin,
+                            const InputIterator end,
+                            OutputIterator out)
    {
       const boost::regex regex_expression(expression);
       return split(regex_expression,begin,end,out);
    }
 
    template<typename OutputIterator>
-   std::size_t split(const std::string& expression,
-                     const std::string text,
-                     OutputIterator out)
+   inline std::size_t split(const std::string& expression,
+                            const std::string text,
+                            OutputIterator out)
    {
       return split(expression,text.begin(),text.end(),out);
    }
 
    template<typename OutputIterator>
-   std::size_t split(const boost::regex& expression,
-                     const std::string& text,
-                     OutputIterator out)
+   inline std::size_t split(const boost::regex& expression,
+                            const std::string& text,
+                            OutputIterator out)
    {
       return split(expression,text.begin(),text.end(),out);
    }
@@ -1001,22 +1001,22 @@ namespace strtk
          offset_list_[offset_list_size] = 0;
       }
 
-      bool operator!() const
+      inline bool operator!() const
       {
          return (0 == offset_list_size);
       }
 
-      void reset() const
+      inline void reset() const
       {
          current_index_ = 0;
       }
 
-      std::size_t size() const
+      inline std::size_t size() const
       {
          return offset_list_size;
       }
 
-      int next() const
+      inline int next() const
       {
          int result = offset_list_[current_index_++];
          if (rotate_ && (current_index_ >= offset_list_size)) current_index_ = 0;
@@ -1132,7 +1132,7 @@ namespace strtk
             return row_type::operator[]<T>(index);
          }
 
-         std::size_t size() const { return token_list_->size(); }
+         inline std::size_t size() const { return token_list_->size(); }
 
          template<typename T, typename OutputIterator>
          inline void parse(OutputIterator out) const
@@ -1373,19 +1373,19 @@ namespace strtk
          if ((load_from_file_) && (0 != buffer_)) delete [] buffer_;
       }
 
-      bool operator!()               const { return !state_;            }
-      std::string source_file()      const { return file_name_;         }
-      std::size_t row_count()        const { return token_list_.size(); }
-      std::size_t min_column_count() const { return min_column_count_;  }
-      std::size_t max_column_count() const { return max_column_count_;  }
+      inline bool operator!()               const { return !state_;            }
+      inline std::string source_file()      const { return file_name_;         }
+      inline std::size_t row_count()        const { return token_list_.size(); }
+      inline std::size_t min_column_count() const { return min_column_count_;  }
+      inline std::size_t max_column_count() const { return max_column_count_;  }
 
-      row_type row(const unsigned int& row_index) const
+      inline row_type row(const unsigned int& row_index) const
       {
          return row_type(token_list_[row_index]);
       }
 
       template<typename OutputIterator>
-      void extract_column(const std::size_t& index, OutputIterator out)
+      inline  void extract_column(const std::size_t& index, OutputIterator out)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          std::string tmp_str(1024,0x00);
@@ -1396,10 +1396,10 @@ namespace strtk
       }
 
       template<typename OutputIterator1, typename OutputIterator2>
-      void extract_column(const std::size_t& index1,
-                          const std::size_t& index2,
-                          OutputIterator1 out1,
-                          OutputIterator2 out2)
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          std::string tmp_str(1024,0x00);
@@ -1412,12 +1412,12 @@ namespace strtk
       }
 
       template<typename OutputIterator1, typename OutputIterator2, typename OutputIterator3>
-      void extract_column(const std::size_t& index1,
-                          const std::size_t& index2,
-                          const std::size_t& index3,
-                          OutputIterator1 out1,
-                          OutputIterator2 out2,
-                          OutputIterator3 out3)
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 const std::size_t& index3,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2,
+                                 OutputIterator3 out3)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          std::string tmp_str(1024,0x00);
@@ -1432,14 +1432,14 @@ namespace strtk
 
       template<typename OutputIterator1, typename OutputIterator2,
                typename OutputIterator3, typename OutputIterator4>
-      void extract_column(const std::size_t& index1,
-                          const std::size_t& index2,
-                          const std::size_t& index3,
-                          const std::size_t& index4,
-                          OutputIterator1 out1,
-                          OutputIterator2 out2,
-                          OutputIterator3 out3,
-                          OutputIterator4 out4)
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 const std::size_t& index3,
+                                 const std::size_t& index4,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2,
+                                 OutputIterator3 out3,
+                                 OutputIterator4 out4)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          std::string tmp_str(1024,0x00);
@@ -1456,16 +1456,16 @@ namespace strtk
       template<typename OutputIterator1, typename OutputIterator2,
                typename OutputIterator3, typename OutputIterator4,
                typename OutputIterator5>
-      void extract_column(const std::size_t& index1,
-                          const std::size_t& index2,
-                          const std::size_t& index3,
-                          const std::size_t& index4,
-                          const std::size_t& index5,
-                          OutputIterator1 out1,
-                          OutputIterator2 out2,
-                          OutputIterator3 out3,
-                          OutputIterator4 out4,
-                          OutputIterator5 out5)
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 const std::size_t& index3,
+                                 const std::size_t& index4,
+                                 const std::size_t& index5,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2,
+                                 OutputIterator3 out3,
+                                 OutputIterator4 out4,
+                                 OutputIterator5 out5)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          std::string tmp_str(1024,0x00);
@@ -1480,13 +1480,13 @@ namespace strtk
          }
       }
 
-      void remove_row(const std::size_t& index)
+      inline void remove_row(const std::size_t& index)
       {
          if (index < token_list_.size()) token_list_.erase(token_list_.begin() + index);
       }
 
       template<typename Predicate>
-      void remove_row_if(Predicate p)
+      inline void remove_row_if(Predicate p)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          std::string tmp_str(0xFF,0x00);
@@ -1501,7 +1501,7 @@ namespace strtk
          }
       }
 
-      void enforce_column_count(const unsigned int& column_count)
+      inline void enforce_column_count(const unsigned int& column_count)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          while(token_list_.end() != it)
@@ -1517,7 +1517,7 @@ namespace strtk
          max_column_count_ = column_count;
       }
 
-      void clear()
+      inline void clear()
       {
          delete[] buffer_;
          buffer_ = 0;
@@ -1728,7 +1728,7 @@ namespace strtk
       return static_cast<unsigned int>((length / 3) * 4) + ((length % 3) > 0 ? 4 : 0);
    }
 
-   unsigned int convert_bin_to_base64(const char* begin, const char* end, char* out)
+   inline unsigned int convert_bin_to_base64(const char* begin, const char* end, char* out)
    {
       return convert_bin_to_base64(reinterpret_cast<const unsigned char*>(begin),
                                    reinterpret_cast<const unsigned char*>(end),
@@ -1835,7 +1835,7 @@ namespace strtk
       output.resize(resize);
    }
 
-   void convert_to_printable_chars(unsigned char* begin, unsigned char* end)
+   inline void convert_to_printable_chars(unsigned char* begin, unsigned char* end)
    {
       static const std::size_t table_size = 256;
       static const unsigned char printable_char_table[table_size] = {
@@ -2970,7 +2970,7 @@ namespace strtk
 
    namespace text
    {
-      std::string center(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      inline std::string center(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
       {
          if (str.size() >= width) return str;
          std::size_t pad_count = width - str.size();
@@ -2978,32 +2978,32 @@ namespace strtk
          return std::string(pad_count >> 1,pad) + str + std::string(pad_count_2,pad);
       }
 
-      std::string right_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      inline std::string right_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
       {
          if (str.size() >= width) return str;
          return std::string(width - str.size(),pad) + str;
       }
 
-      std::string left_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      inline std::string left_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
       {
          if (str.size() >= width) return str;
          return str + std::string(width - str.size(),pad);
       }
 
       template<typename T>
-      std::string center(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      inline std::string center(const std::size_t& width, const std::string::value_type& pad, const T& t)
       {
          return center(width,pad,boost::lexical_cast<std::string>(t));
       }
 
       template<typename T>
-      std::string right_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      inline std::string right_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
       {
          return right_align(width,pad,boost::lexical_cast<std::string>(t));
       }
 
       template<typename T>
-      std::string left_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      inline std::string left_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
       {
          return left_align(width,pad,boost::lexical_cast<std::string>(t));
       }
