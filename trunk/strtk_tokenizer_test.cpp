@@ -87,8 +87,8 @@ void test_split_and_tokenizer()
    };
 
    /*
-      Test IO 1 and 2 : Signal and Multi predicate tokenizing
-      Test IO 3 and 4 : Signal and Multi predicate compressed delimiter tokenizing
+      Test IO 1 and 2 : Single and Multi predicate tokenizing
+      Test IO 3 and 4 : Single and Multi predicate compressed delimiter tokenizing
    */
 
    const std::size_t test_count = 40;
@@ -310,8 +310,14 @@ bool test_empty_filter_itr()
    typedef std::vector< std::pair<std::string::const_iterator,std::string::const_iterator> > str_list;
    str_list sl;
    strtk::single_delimiter_predicate<std::string::value_type> p('|');
-   strtk::std_string_tokenizer< strtk::single_delimiter_predicate<std::string::value_type> >::type tok(s,p);
-   return (2 == for_each_token(s,tok,strtk::filter_empty_range< strtk::add_to_sequence<str_list> >(strtk::add_to_sequence<str_list>(sl))));
+   strtk::std_string_tokenizer< strtk::single_delimiter_predicate<std::string::value_type> >::type tok(s,p,true);
+   if (2 == for_each_token(s,tok,strtk::filter_empty_range< strtk::add_to_sequence<str_list> >(strtk::add_to_sequence<str_list>(sl))))
+      return true;
+   else
+   {
+      std::cout << "test_empty_filter_itr() - Failed Compressed Delimiter Test" << std::endl;
+      return false;
+   }
 }
 
 bool test_construct_and_parse()
@@ -344,7 +350,7 @@ bool test_construct_and_parse()
          (i4 == o4) &&
          (i5 == o5)))
    {
-      std::cout << "Construct and Parse Test FAILED!" << std::endl;
+      std::cout << "test_construct_and_parse() - Construct and Parse Test FAILED!" << std::endl;
       return false;
    }
 
@@ -355,7 +361,7 @@ bool test_construct_and_parse()
 int main(void)
 {
    test_split_and_tokenizer();
-   test_empty_filter_itr();
-   test_construct_and_parse();
+   assert(test_empty_filter_itr());
+   assert(test_construct_and_parse());
    return 0;
 }
