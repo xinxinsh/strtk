@@ -222,15 +222,16 @@ namespace strtk
       }
 
    private:
+      static const std::size_t table_size = 256;
 
       template<typename Iterator>
       inline void setup_delimiter_table(const Iterator begin,const Iterator end)
       {
-         for(unsigned int i = 0; i < 0xFF; ++i) delimiter_table_[i] = 0;
+         std::fill(delimiter_table_,delimiter_table_ + table_size, 0);
          for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
       }
 
-      value_type delimiter_table_[0xFF];
+      value_type delimiter_table_[table_size];
    };
 
    template<typename Iterator, class Predicate>
