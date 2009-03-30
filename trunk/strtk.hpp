@@ -1030,6 +1030,56 @@ namespace strtk
       int offset_list_[offset_list_size + 1];
    };
 
+   inline offset_predicate<7> offsets(const int& v1, const int& v2, const int& v3,
+                                      const int& v4, const int& v5, const int& v6,
+                                      const int& v7, const bool& rotate = false)
+   {
+      const int offset_list[7] = { v1, v2, v3, v4, v5, v6, v7 };
+      return offset_predicate<7>(offset_list,rotate);
+   }
+
+   inline offset_predicate<6> offsets(const int& v1, const int& v2, const int& v3,
+                                      const int& v4, const int& v5, const int& v6,
+                                      const bool& rotate = false)
+   {
+      const int offset_list[6] = { v1, v2, v3, v4, v5, v6 };
+      return offset_predicate<6>(offset_list,rotate);
+   }
+
+   inline offset_predicate<5> offsets(const int& v1, const int& v2, const int& v3,
+                                      const int& v4, const int& v5, const bool& rotate = false)
+   {
+      const int offset_list[5] = { v1, v2, v3, v4, v5 };
+      return offset_predicate<5>(offset_list,rotate);
+   }
+
+   inline offset_predicate<4> offsets(const int& v1, const int& v2, const int& v3,
+                                      const int& v4, const bool& rotate = false)
+   {
+      const int offset_list[4] = { v1, v2, v3, v4 };
+      return offset_predicate<4>(offset_list,rotate);
+   }
+
+   inline offset_predicate<3> offsets(const int& v1, const int& v2, const int& v3,
+                                      const bool& rotate = false)
+   {
+      const int offset_list[3] = { v1, v2, v3 };
+      return offset_predicate<3>(offset_list,rotate);
+   }
+
+   inline offset_predicate<2> offsets(const int& v1, const int& v2, const bool& rotate = false)
+   {
+      const int offset_list[2] = { v1, v2 };
+      return offset_predicate<2>(offset_list,rotate);
+   }
+
+   inline offset_predicate<1> offsets(const int& v1,
+                                      const bool& rotate = false)
+   {
+      const int offset_list[1] = { v1 };
+      return offset_predicate<1>(offset_list,rotate);
+   }
+
    template<typename OffsetPredicate,
             typename InputIterator,
             typename OutputIterator>

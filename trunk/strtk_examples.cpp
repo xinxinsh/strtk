@@ -206,10 +206,10 @@ void tokenizer_example12()
 void split_example01()
 {
    std::string s = "abc|123|xyz|789";
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > > token_list;
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    strtk::split(s,predicate,std::back_inserter(token_list));
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -221,10 +221,10 @@ void split_example01()
 void split_example02()
 {
    std::string s = "abc?123,xyz;789";
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > > token_list;
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
    strtk::split(s,predicate,std::back_inserter(token_list));
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -236,10 +236,10 @@ void split_example02()
 void split_example03()
 {
    std::string s = "abc|123|xyz|789";
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > > token_list;
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    strtk::split(s,predicate,std::back_inserter(token_list),true);
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -251,10 +251,10 @@ void split_example03()
 void split_example04()
 {
    std::string s = "abc?123,xyz;789";
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > > token_list;
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
    strtk::split(s,predicate,std::back_inserter(token_list),true);
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -268,9 +268,9 @@ void offset_splitter_example01()
    std::string s = "abcdefghijklmnopqrstuvwxyz012";
    const int offset_list[] = {1,2,3,4,5,6,7};
    const strtk::offset_predicate<7> os_p(offset_list);
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator> > token_list;
+   std::list< strtk::std_string_tokenizer<>::iterator_type> token_list;
    strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "] ";
@@ -284,9 +284,9 @@ void offset_splitter_example02()
    std::string s = "09:10:11.123";
    const int offset_list[] = {2,1,2,1,2,1,3};
    const strtk::offset_predicate<7> os_p(offset_list);
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator> > token_list;
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
-   std::list< std::pair< std::string::const_iterator,std::string::const_iterator > >::iterator it = token_list.begin();
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
       if (1 != std::distance((*it).first,(*it).second))
@@ -298,6 +298,19 @@ void offset_splitter_example02()
    std::cout << std::endl;
 }
 
+void offset_splitter_example03()
+{
+   std::string s = "abcdefghijklmnopqrstuvwxyz012";
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
+   strtk::offset_splitter(s.begin(),s.end(),strtk::offsets(1,2,3,4,5,6,7),std::back_inserter(token_list));
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      std::cout << "[" << std::string((*it).first,(*it).second) << "] ";
+      ++it;
+   }
+   std::cout << std::endl;
+}
 
 void construct_example()
 {
@@ -414,6 +427,7 @@ int main(void)
    split_example04();
    offset_splitter_example01();
    offset_splitter_example02();
+   offset_splitter_example03();
    construct_example();
    parse_example();
    remove_inplace_example01();
