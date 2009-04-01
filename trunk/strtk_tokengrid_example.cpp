@@ -161,11 +161,51 @@ void token_grid_test03()
    lst4.clear();
 }
 
+void token_grid_test04()
+{
+   std::string data;
+   data.reserve(160);
+   data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
+   for(unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
+   strtk::token_grid grid(data,data.size(),",");
+   grid.enforce_column_count(5);
+   for(unsigned int i = 0; i < grid.row_count(); ++i)
+   {
+      strtk::token_grid::row_type row = grid.row(i);
+      for(unsigned j = 0; j < row.size(); ++j)
+      {
+         strtk::token_grid::range_type r = row.token(j);
+         std::cout << std::string(r.first,r.second) << "\t";
+      }
+      std::cout << std::endl;
+   }
+}
+
+void token_grid_test05()
+{
+   std::string data;
+   data.reserve(160);
+   data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
+   for(unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
+   strtk::token_grid grid(data,data.size(),",");
+
+   for(unsigned int i = 0; i < grid.row_count(); ++i)
+   {
+      strtk::token_grid::row_type row = grid.row(i);
+      for(unsigned j = 0; j < row.size(); ++j)
+      {
+         std::cout << grid.get<int>(i,j) << "\t";
+      }
+      std::cout << std::endl;
+   }
+}
+
 int main(void)
 {
    token_grid_test01();
    token_grid_test02();
    token_grid_test03();
-
+   token_grid_test04();
+   token_grid_test05();
    return 0;
 }
