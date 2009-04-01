@@ -1156,10 +1156,159 @@ namespace strtk
       return count;
    }
 
+   void replace(const std::string& s,
+                const std::string& p,
+                const std::string& r,
+                std::string& ns)
+   {
+      if ((p == r) || p.empty())
+      {
+         ns.assign(s);
+         return;
+      }
+
+      std::size_t new_size = s.size();
+      int inc = r.size() - p.size();
+      std::size_t pos = 0;
+      std::size_t count = 0;
+      while (std::string::npos != (pos = s.find(p,pos)))
+      {
+         pos += p.size();
+         new_size += inc;
+         ++count;
+      }
+
+      if (0 == count)
+      {
+         ns.assign(s);
+         return;
+      }
+
+      ns.resize(new_size, 0x00);
+
+      pos = 0;
+      std::size_t prev_pos = 0;
+      std::string::iterator sit = const_cast<std::string&>(s).begin();
+      std::string::iterator nsit = ns.begin();
+
+      while ((0 < count) && (std::string::npos != (pos = s.find(p,pos))))
+      {
+         std::size_t diff = pos - prev_pos;
+         std::copy(sit,sit + diff,nsit);
+         nsit += diff;
+         std::copy(r.begin(),r.end(),nsit);
+         nsit += r.size();
+         pos += p.size();
+         sit += pos - prev_pos;
+         prev_pos = pos;
+         --count;
+      }
+      while(s.end() != sit) (*nsit++) = (*sit++);
+   }
+
+   template<typename InputIterator, typename OutputIterator>
+   unsigned int replace(const InputIterator s_begin, const InputIterator s_end,
+                        const InputIterator p_begin, const InputIterator p_end,
+                        const InputIterator r_begin, const InputIterator r_end,
+                        OutputIterator out)
+   {
+      typedef typename std::iterator_traits<InputIterator>::value_type T;
+
+      InputIterator s_it  = s_begin;
+      InputIterator r_it  = r_begin;
+      InputIterator p_it  = p_begin;
+
+      std::size_t s_len = std::distance(s_begin,s_end);
+      std::size_t p_len = std::distance(p_begin,p_end);
+      std::size_t r_len = std::distance(r_begin,r_end);
+
+      if ((0 == p_len) || ((p_len == r_len) && std::equal(p_begin,p_end,r_begin)))
+      {
+         std::copy(s_begin,s_end,out);
+         return s_len;
+      }
+
+      unsigned int pos = 0;
+      unsigned int prev_pos = 0;
+      unsigned int count = 0;
+      unsigned int new_size = s_len;
+      int inc = r_len - p_len;
+
+      InputIterator temp_s_it = s_it;
+
+      while(s_end != s_it)
+      {
+         /*
+            Need to replace the following search code with
+            Knuth-Pratt-Morris or Boyer-Moore string search
+            algorithms.
+         */
+         bool found = true;
+         p_it = p_begin;
+         temp_s_it = s_it;
+         while((p_end != p_it) && (s_end != temp_s_it))
+         {
+            if (*(temp_s_it++) != *(p_it++))
+            {
+               found = false;
+               break;
+            }
+         }
+         if (found && (p_it == p_end))
+         {
+            ++count;
+            new_size += inc;
+            s_it = temp_s_it;
+         }
+         else
+            ++s_it;
+      }
+
+      s_it = s_begin;
+      p_it = p_begin;
+
+      pos = 0;
+      prev_pos = 0;
+
+      temp_s_it = s_it;
+
+      while (0 < count)
+      {
+         p_it = p_begin;
+         bool found = true;
+         InputIterator pattern_start = temp_s_it;
+         while((p_end != p_it) && (s_end != temp_s_it))
+         {
+            if (*(temp_s_it++) != *(p_it++))
+            {
+               found = false;
+               temp_s_it = pattern_start;
+               ++temp_s_it;
+               break;
+            }
+         }
+         if (!found || (p_it != p_end)) continue;
+
+         pos = std::distance(s_begin,temp_s_it) - p_len;
+         int diff = pos - prev_pos;
+
+         std::copy(s_it,s_it + diff, out);
+         s_it = temp_s_it;
+         std::copy(r_it,r_end, out);
+
+         pos += p_len;
+         prev_pos = pos;
+         --count;
+      }
+      std::copy(s_it,s_end,out);
+      return new_size;
+   }
+
    class token_grid
    {
    public:
-      typedef std::deque< std::pair<unsigned char*, unsigned char*> > itr_list_type;
+      typedef std::pair<unsigned char*, unsigned char*> range_type;
+      typedef std::deque<range_type> itr_list_type;
       typedef std::deque<itr_list_type> itr_list_list_type;
 
       class row_type
@@ -1181,6 +1330,11 @@ namespace strtk
          inline T get(const unsigned int& index) const
          {
             return row_type::operator[]<T>(index);
+         }
+
+         inline range_type token(const unsigned int& index) const
+         {
+            return (*token_list_)[index];
          }
 
          inline std::size_t size() const { return token_list_->size(); }
@@ -1430,6 +1584,18 @@ namespace strtk
       inline std::size_t min_column_count() const { return min_column_count_;  }
       inline std::size_t max_column_count() const { return max_column_count_;  }
 
+      inline range_type token(const unsigned int& row, const unsigned int& col)
+      {
+         return token_list_[row][col];
+      }
+
+      template<typename T>
+      inline T get(const unsigned int& row, const unsigned int& col)
+      {
+         range_type r = token(row,col);
+         return boost::lexical_cast<T>(std::string(r.first,r.second));
+      }
+
       inline row_type row(const unsigned int& row_index) const
       {
          return row_type(token_list_[row_index]);
@@ -1554,16 +1720,18 @@ namespace strtk
 
       inline void enforce_column_count(const unsigned int& column_count)
       {
+         unsigned int count = 0;
          itr_list_list_type::iterator it = token_list_.begin();
+         itr_list_list_type new_token_list;
          while(token_list_.end() != it)
          {
-            if (it->size() != column_count)
+            if (it->size() == column_count)
             {
-               it = token_list_.erase(it);
+               new_token_list.push_back(*it);
             }
-            else
-              ++it;
+            ++it;
          }
+         token_list_.swap(new_token_list);
          min_column_count_ = column_count;
          max_column_count_ = column_count;
       }
