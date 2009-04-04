@@ -17,8 +17,11 @@
 
 COMPILER         = -c++
 OPTIMIZATION_OPT = -O3
-OPTIONS          = -pedantic -ansi -Wall -Werror -lstdc++ $(REGEX) $(OPTIMIZATION_OPT) -o
-REGEX            = -L/usr/lib -lboost_regex
+OPTIONS          = -pedantic -ansi -Wall -Werror $(OPTIMIZATION_OPT) -o
+REGEX            = -lboost_regex
+PTHREAD          = -lpthread
+LINKER_OPT       = -L/usr/lib -lstdc++ 
+
 
 OBJECTS = $(CPP_SRC:.cpp=.o)
 
@@ -39,31 +42,31 @@ BUILD_LIST+=strtk_tokengrid_example
 all: $(BUILD_LIST)
 
 stk_tokenizer_cmp: stk_tokenizer_cmp.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) stk_tokenizer_cmp stk_tokenizer_cmp.cpp
+	$(COMPILER) $(OPTIONS) stk_tokenizer_cmp stk_tokenizer_cmp.cpp $(LINKER_OPT)
 
 strtk_examples: strtk_examples.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_examples strtk_examples.cpp
+	$(COMPILER) $(OPTIONS) strtk_examples strtk_examples.cpp  $(LINKER_OPT) $(REGEX)
 
 strtk_keyvalue_example: strtk_keyvalue_example.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_keyvalue_example strtk_keyvalue_example.cpp
+	$(COMPILER) $(OPTIONS) strtk_keyvalue_example strtk_keyvalue_example.cpp $(LINKER_OPT)
 
 strtk_text_parser_example01: strtk_text_parser_example01.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_text_parser_example01 strtk_text_parser_example01.cpp
+	$(COMPILER) $(OPTIONS) strtk_text_parser_example01 strtk_text_parser_example01.cpp $(LINKER_OPT)
 
 strtk_text_parser_example02: strtk_text_parser_example02.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_text_parser_example02 strtk_text_parser_example02.cpp
+	$(COMPILER) $(OPTIONS) strtk_text_parser_example02 strtk_text_parser_example02.cpp $(LINKER_OPT)
 
 strtk_tokenizer_test: strtk_tokenizer_test.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_tokenizer_test strtk_tokenizer_test.cpp
+	$(COMPILER) $(OPTIONS) strtk_tokenizer_test strtk_tokenizer_test.cpp $(LINKER_OPT)
 
 strtk_hexview: strtk_hexview.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_hexview strtk_hexview.cpp
+	$(COMPILER) $(OPTIONS) strtk_hexview strtk_hexview.cpp $(LINKER_OPT)
 
 strtk_converters_example : strtk_converters_example.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_converters_example strtk_converters_example.cpp
+	$(COMPILER) $(OPTIONS) strtk_converters_example strtk_converters_example.cpp $(LINKER_OPT)
 	
 strtk_tokengrid_example : strtk_tokengrid_example.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_tokengrid_example strtk_tokengrid_example.cpp
+	$(COMPILER) $(OPTIONS) strtk_tokengrid_example strtk_tokengrid_example.cpp $(LINKER_OPT)
 
 strip_bin :
 	strip -s stk_tokenizer_cmp

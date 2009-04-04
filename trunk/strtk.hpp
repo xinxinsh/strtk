@@ -45,8 +45,7 @@ namespace strtk
       typename Tokenizer::iterator it = tokenizer.begin();
       while(it != tokenizer.end())
       {
-         function(*it);
-         ++it;
+         function(*(++it));
          ++token_count;
       }
       return token_count;
@@ -1339,20 +1338,6 @@ namespace strtk
 
          inline std::size_t size() const { return token_list_->size(); }
 
-         template<typename T, typename OutputIterator>
-         inline void parse(OutputIterator out) const
-         {
-            std::string tmp_str;
-            itr_list_type::iterator it = token_list_->begin();
-            while(token_list_->end() != it)
-            {
-               itr_list_type::value_type& curr_range = *it;
-               tmp_str.assign(curr_range.first,curr_range.second);
-               *(out++) = boost::lexical_cast<T>(tmp_str);
-               ++it;
-            }
-         }
-
          inline std::string as_string() const
          {
             return std::string(token_list_->begin()->first,token_list_->back().second);
@@ -1517,6 +1502,20 @@ namespace strtk
             process(tmp_str,(*token_list_)[col],t);
          }
 
+         template<typename T, typename OutputIterator>
+         inline void parse(OutputIterator out) const
+         {
+            std::string tmp_str;
+            itr_list_type::iterator it = const_cast<itr_list_type*>(token_list_)->begin();
+            while(token_list_->end() != it)
+            {
+               itr_list_type::value_type& r = *it;
+               tmp_str.assign(r.first,r.second);
+               *(out++) = boost::lexical_cast<T>(tmp_str);
+               ++it;
+            }
+         }
+
       private:
 
          template<typename T>
@@ -1531,9 +1530,11 @@ namespace strtk
       };
 
       token_grid(const std::string& file_name,
-                 const std::string& delimiters = ",|;\t")
+            const std::string& column_delimiters = ",|;\t",
+            const std::string& row_delimiters = "\n\r")
       : file_name_(file_name),
-        delimiters_(delimiters),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
         buffer_(0),
         buffer_size_(0),
         load_from_file_(true),
@@ -1542,9 +1543,11 @@ namespace strtk
 
       token_grid(const unsigned char* input_buffer,
                  const std::size_t& input_buffer_size,
-                 const std::string& delimiters = ",|;\t")
+                 const std::string& column_delimiters = ",|;\t",
+                 const std::string& row_delimiters = "\n\r")
       : file_name_(""),
-        delimiters_(delimiters),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
         buffer_(const_cast<unsigned char*>(input_buffer)),
         buffer_size_(input_buffer_size),
         load_from_file_(false),
@@ -1553,9 +1556,11 @@ namespace strtk
 
       token_grid(const char* input_buffer,
                  const std::size_t& input_buffer_size,
-                 const std::string& delimiters = ",|;\t")
+                 const std::string& column_delimiters = ",|;\t",
+                 const std::string& row_delimiters = "\n\r")
       : file_name_(""),
-        delimiters_(delimiters),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
         buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer))),
         buffer_size_(input_buffer_size),
         load_from_file_(false),
@@ -1564,9 +1569,11 @@ namespace strtk
 
       token_grid(const std::string& input_buffer,
                  const std::size_t& input_buffer_size,
-                 const std::string& delimiters = ",|;\t")
+                 const std::string& column_delimiters = ",|;\t",
+                 const std::string& row_delimiters = "\n\r")
       : file_name_(""),
-        delimiters_(delimiters),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
         buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer.c_str()))),
         buffer_size_(input_buffer_size),
         load_from_file_(false),
@@ -1602,7 +1609,7 @@ namespace strtk
       }
 
       template<typename OutputIterator>
-      inline  void extract_column(const std::size_t& index, OutputIterator out)
+      inline void extract_column(const std::size_t& index, OutputIterator out)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          std::string tmp_str(1024,0x00);
@@ -1765,10 +1772,15 @@ namespace strtk
             stream.read(reinterpret_cast<char*>(buffer_),static_cast<std::streamsize>(buffer_size_));
             stream.close();
          }
+
          itr_list_type str_list;
-         multiple_char_delimiter_predicate text_newline_predicate("\n\r");
-         split(buffer_, buffer_ + buffer_size_,text_newline_predicate,std::back_inserter(str_list), split_options::compress_delimiters);
-         multiple_char_delimiter_predicate token_predicate(delimiters_.begin(),delimiters_.end());
+         multiple_char_delimiter_predicate text_newline_predicate(row_delimiters_);
+         split(buffer_, buffer_ + buffer_size_,
+               text_newline_predicate,
+               std::back_inserter(str_list),
+               split_options::compress_delimiters);
+
+         multiple_char_delimiter_predicate token_predicate(column_delimiters_);
 
          min_column_count_ = std::numeric_limits<std::size_t>::max();
          max_column_count_ = std::numeric_limits<std::size_t>::min();
@@ -1798,7 +1810,8 @@ namespace strtk
 
       itr_list_list_type token_list_;
       std::string file_name_;
-      std::string delimiters_;
+      std::string column_delimiters_;
+      std::string row_delimiters_;
       unsigned char* buffer_;
       std::size_t buffer_size_;
       std::size_t min_column_count_;
