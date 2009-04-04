@@ -36,11 +36,11 @@ namespace strtk
 {
 
    template<typename Tokenizer, class Function>
-   inline unsigned int for_each_token(const std::string& buffer,
-                                      Tokenizer& tokenizer,
-                                      Function function)
+   inline std::size_t for_each_token(const std::string& buffer,
+                                     Tokenizer& tokenizer,
+                                     Function function)
    {
-      unsigned int token_count = 0;
+      std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenizer::iterator it = tokenizer.begin();
       while(it != tokenizer.end())
@@ -52,7 +52,7 @@ namespace strtk
    }
 
    template<class Function>
-   inline unsigned int for_each_line(std::ifstream& stream, Function function)
+   inline std::size_t for_each_line(std::ifstream& stream, Function function)
    {
       std::string buffer(4096,0x0);
       unsigned int line_count = 0;
@@ -65,7 +65,7 @@ namespace strtk
    }
 
    template<class Function>
-   inline unsigned int for_each_line(const std::string& file_name, Function function)
+   inline std::size_t for_each_line(const std::string& file_name, Function function)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
@@ -75,10 +75,10 @@ namespace strtk
    }
 
    template<class Function>
-   inline unsigned int for_each_line_conditional(std::ifstream& stream, Function function)
+   inline std::size_t for_each_line_conditional(std::ifstream& stream, Function function)
    {
       std::string buffer(4096,0x0);
-      unsigned int line_count = 0;
+      std::size_t line_count = 0;
       while(std::getline(stream,buffer))
       {
          ++line_count;
@@ -91,7 +91,7 @@ namespace strtk
    }
 
    template<class Function>
-   inline unsigned int for_each_line_conditional(const std::string& file_name, Function function)
+   inline std::size_t for_each_line_conditional(const std::string& file_name, Function function)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
@@ -234,13 +234,13 @@ namespace strtk
    };
 
    template<typename Iterator, class Predicate>
-   inline unsigned int remove_inplace(Predicate predicate,
-                                      Iterator begin,
-                                      Iterator end)
+   inline std::size_t remove_inplace(Predicate predicate,
+                                     Iterator begin,
+                                     Iterator end)
    {
       Iterator it1 = begin;
       Iterator it2 = begin;
-      unsigned int removal_count = 0;
+      std::size_t removal_count = 0;
       while(it1 != end)
       {
          while((it1 != end) && !predicate(*it1))
@@ -263,7 +263,7 @@ namespace strtk
 
    inline void remove_inplace(const std::string::value_type c, std::string& s)
    {
-      unsigned int removal_count = remove_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
+      std::size_t removal_count = remove_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -274,7 +274,7 @@ namespace strtk
    inline void remove_inplace(Predicate predicate,
                               std::string& s)
    {
-      unsigned int removal_count = remove_inplace(predicate,s.begin(),s.end());
+      std::size_t removal_count = remove_inplace(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -282,9 +282,9 @@ namespace strtk
    }
 
    template<typename Iterator, class Predicate>
-   inline unsigned int remove_consecutives_inplace(Predicate predicate,
-                                                   Iterator begin,
-                                                   Iterator end)
+   inline std::size_t remove_consecutives_inplace(Predicate predicate,
+                                                  Iterator begin,
+                                                  Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
       Iterator it1 = (begin + 1);
@@ -315,7 +315,7 @@ namespace strtk
    inline void remove_consecutives_inplace(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
-      unsigned int removal_count = remove_consecutives_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
+      std::size_t removal_count = remove_consecutives_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -326,7 +326,7 @@ namespace strtk
    inline void remove_consecutives_inplace(Predicate predicate, std::string& s)
    {
       if (s.empty()) return;
-      unsigned int removal_count = remove_consecutives_inplace(predicate,s.begin(),s.end());
+      std::size_t removal_count = remove_consecutives_inplace(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -334,13 +334,13 @@ namespace strtk
    }
 
    template<typename Iterator>
-   inline unsigned int remove_consecutives_inplace(Iterator begin, Iterator end)
+   inline std::size_t remove_consecutives_inplace(Iterator begin, Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
       Iterator it1 = (begin + 1);
       Iterator it2 = (begin + 1);
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
-      unsigned int removal_count = 0;
+      std::size_t removal_count = 0;
       while(it1 != end)
       {
          while((it1 != end) && (prev != (*it1)))
@@ -364,7 +364,7 @@ namespace strtk
 
    inline void remove_consecutives_inplace(std::string& s)
    {
-      unsigned int removal_count = remove_consecutives_inplace(s.begin(),s.end());
+      std::size_t removal_count = remove_consecutives_inplace(s.begin(),s.end());
 
       if (removal_count > 0)
       {
@@ -435,10 +435,10 @@ namespace strtk
    }
 
    template<typename InputIterator, typename OutputIterator>
-   unsigned int replace(const InputIterator s_begin, const InputIterator s_end,
-                        const InputIterator p_begin, const InputIterator p_end,
-                        const InputIterator r_begin, const InputIterator r_end,
-                        OutputIterator out)
+   std::size_t replace(const InputIterator s_begin, const InputIterator s_end,
+                       const InputIterator p_begin, const InputIterator p_end,
+                       const InputIterator r_begin, const InputIterator r_end,
+                       OutputIterator out)
    {
       typedef typename std::iterator_traits<InputIterator>::value_type T;
 
@@ -459,7 +459,7 @@ namespace strtk
       unsigned int pos = 0;
       unsigned int prev_pos = 0;
       unsigned int count = 0;
-      unsigned int new_size = s_len;
+      std::size_t new_size = s_len;
       int inc = r_len - p_len;
 
       InputIterator temp_s_it = s_it;
@@ -1725,7 +1725,7 @@ namespace strtk
          }
       }
 
-      inline void enforce_column_count(const unsigned int& column_count)
+      inline void enforce_column_count(const std::size_t& column_count)
       {
          itr_list_list_type::iterator it = token_list_.begin();
          itr_list_list_type new_token_list;
@@ -1908,7 +1908,7 @@ namespace strtk
       convert_hex_to_bin(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
    }
 
-   inline unsigned int convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   inline std::size_t convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       static const std::size_t symbol_count = 64;
       static const unsigned char bin_to_base64 [symbol_count]
@@ -1956,10 +1956,10 @@ namespace strtk
                      break;
          }
       }
-      return static_cast<unsigned int>((length / 3) * 4) + ((length % 3) > 0 ? 4 : 0);
+      return static_cast<std::size_t>((length / 3) * 4) + ((length % 3) > 0 ? 4 : 0);
    }
 
-   inline unsigned int convert_bin_to_base64(const char* begin, const char* end, char* out)
+   inline std::size_t convert_bin_to_base64(const char* begin, const char* end, char* out)
    {
       return convert_bin_to_base64(reinterpret_cast<const unsigned char*>(begin),
                                    reinterpret_cast<const unsigned char*>(end),
@@ -1973,7 +1973,7 @@ namespace strtk
       output.resize(resize);
    }
 
-   inline unsigned int convert_base64_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   inline std::size_t convert_base64_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       static const std::size_t symbol_count = 256;
       static const unsigned char base64_to_bin[symbol_count] = {
@@ -2049,10 +2049,10 @@ namespace strtk
                      break;
          }
       }
-      return static_cast<unsigned int>((3 * length) / 4);
+      return static_cast<std::size_t>((3 * length) / 4);
    }
 
-   inline unsigned int convert_base64_to_bin(const char* begin, const char* end, char* out)
+   inline std::size_t convert_base64_to_bin(const char* begin, const char* end, char* out)
    {
       return convert_base64_to_bin(reinterpret_cast<const unsigned char*>(begin),
                                    reinterpret_cast<const unsigned char*>(end),
@@ -3175,7 +3175,7 @@ namespace strtk
       return output;
    }
 
-   void generate_random_data(unsigned char* data, unsigned int length, unsigned int pre_gen_cnt = 0, unsigned int seed = 0xA5A5A5A5)
+   void generate_random_data(unsigned char* data, std::size_t length, unsigned int pre_gen_cnt = 0, unsigned int seed = 0xA5A5A5A5)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       boost::uniform_int<unsigned int> dist(std::numeric_limits<unsigned int>::min(),std::numeric_limits<unsigned int>::max());
