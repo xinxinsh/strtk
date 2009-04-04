@@ -19,6 +19,7 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <numeric>
 #include <utility>
 #include <string>
 #include <vector>
@@ -104,6 +105,7 @@ void output_containter(const Container& c)
 void token_grid_test03()
 {
    std::string data;
+   data += "1,2,3,4,5\n";
    data += "1,2,3,4,5\n";
    data += "1,2,3,4,5\n";
    data += "1,2,3,4,5\n";
@@ -200,6 +202,44 @@ void token_grid_test05()
    }
 }
 
+
+void token_grid_test06()
+{
+   std::string data;
+   data += "1.1,1.1,1.1,1.1,1.1,1.1\n"
+           "2.2,2.2,2.2,2.2,2.2,2.2\n"
+           "3.3,3.3,3.3,3.3,3.3,3.3\n"
+           "4.4,4.4,4.4,4.4,4.4,4.4\n"
+           "5.5,5.5,5.5,5.5,5.5,5.5\n"
+           "6.6,6.6,6.6,6.6,6.6,6.6\n"
+           "7.7,7.7,7.7,7.7,7.7,7.7\n";
+
+   strtk::token_grid grid(data,data.size(),",");
+
+   std::vector<double> avg_c(grid.row(0).size(),0.0);
+   std::vector<double> avg_r(grid.row_count(),0.0);
+   std::vector<double> tmp(grid.row(0).size(),0.0);
+   std::fill(avg_c.begin(),avg_c.end(),0.0);
+
+   for(unsigned int i = 0; i < grid.row_count(); ++i)
+   {
+      grid.row(i).parse<double>(tmp.begin());
+      std::transform(avg_c.begin(),avg_c.end(),tmp.begin(),avg_c.begin(),std::plus<double>());
+      avg_r[i] = std::accumulate(tmp.begin(),tmp.end(),0.0) / tmp.size();
+   }
+
+   for(unsigned int i = 0; i < avg_c.size(); avg_c[i++] /= grid.row_count());
+
+   std::cout << "Column Averages:\t";
+   std::copy(avg_c.begin(),avg_c.end(),std::ostream_iterator<double>(std::cout,"\t"));
+   std::cout << "\n";
+
+   std::cout << "Row Averages:\t";
+   std::copy(avg_r.begin(),avg_r.end(),std::ostream_iterator<double>(std::cout,"\t"));
+   std::cout << "\n";
+}
+
+
 int main(void)
 {
    token_grid_test01();
@@ -207,5 +247,6 @@ int main(void)
    token_grid_test03();
    token_grid_test04();
    token_grid_test05();
+   token_grid_test06();
    return 0;
 }
