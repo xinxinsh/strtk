@@ -910,9 +910,9 @@ namespace strtk
          sequence_.push_back(std::string(r.first,r.second));
       }
 
-      inline range_to_string_back_inserter_iterator& operator*()    { return (*this); }
-      inline range_to_string_back_inserter_iterator& operator++()   { return (*this); }
-      inline range_to_string_back_inserter_iterator operator++(int) { return (*this); }
+      inline range_to_string_back_inserter_iterator& operator*()     { return (*this); }
+      inline range_to_string_back_inserter_iterator& operator++()    { return (*this); }
+      inline range_to_string_back_inserter_iterator  operator++(int) { return (*this); }
 
    private:
       Sequence& sequence_;
@@ -1022,13 +1022,12 @@ namespace strtk
       };
    }
 
-
    template<typename DelimiterPredicate,
             typename Iterator,
             typename OutputIterator>
-   inline std::size_t split(const Iterator begin,
+   inline std::size_t split(const DelimiterPredicate& delimiter,
+                            const Iterator begin,
                             const Iterator end,
-                            const DelimiterPredicate& delimiter,
                             OutputIterator out,
                             const std::size_t split_options = 0x00)
    {
@@ -1040,16 +1039,16 @@ namespace strtk
       {
         if(delimiter(*it))
         {
-           if (split_options & strtk::split_options::include_delimiters)
+           if (split_options & split_options::include_delimiters)
            {
               *(out++) = std::make_pair<Iterator,Iterator>(prev,++it);
-              if (split_options & strtk::split_options::compress_delimiters)
+              if (split_options & split_options::compress_delimiters)
                  while(((++it) != end) && delimiter(*it));
            }
            else
            {
               *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
-              if (split_options & strtk::split_options::compress_delimiters)
+              if (split_options & split_options::compress_delimiters)
                  while(((++it) != end) && delimiter(*it));
               else
                  ++it;
@@ -1068,36 +1067,45 @@ namespace strtk
       return match_count;
    }
 
-   template<typename DelimiterPredicate,
-            typename OutputIterator>
-   inline std::size_t split(const std::string& str,
-                            const DelimiterPredicate& delimiter,
+   template<typename OutputIterator>
+   inline std::size_t split(const char* delimiters,
+                            const std::string& str,
                             OutputIterator out,
                             const std::size_t split_options = 0x00)
    {
-      return split(str.begin(),str.end(),delimiter,out,split_options);
+      return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_options);
    }
 
    template<typename OutputIterator>
-   inline std::size_t split(const std::string& str,
-                            const std::string::value_type delimiter,
+   inline std::size_t split(const std::string::value_type delimiter,
+                            const std::string& str,
                             OutputIterator out,
                             const std::size_t split_options = 0x00)
    {
-      return split(str.begin(),str.end(),single_delimiter_predicate<std::string::value_type>(delimiter),out,split_options);
+      return split(single_delimiter_predicate<std::string::value_type>(delimiter),str.begin(),str.end(),out,split_options);
    }
 
-   const std::string uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
-   const std::string email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
-   const std::string ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
+   template<typename DelimiterPredicate,
+            typename OutputIterator>
+   inline std::size_t split(const DelimiterPredicate& delimiter,
+                            const std::string& str,
+                            OutputIterator out,
+                            const std::size_t split_options = 0x00)
+   {
+      return split(delimiter,str.begin(),str.end(),out,split_options);
+   }
+
+   static const std::string uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
+   static const std::string email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
+   static const std::string ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
 
    template<typename InputIterator, typename OutputIterator>
-   inline std::size_t split(const boost::regex& expression,
-                            const InputIterator begin,
-                            const InputIterator end,
-                            OutputIterator out)
+   inline std::size_t split_regex(const boost::regex& delimiter_expression,
+                                  const InputIterator begin,
+                                  const InputIterator end,
+                                  OutputIterator out)
    {
-      boost::sregex_iterator it(begin,end,expression);
+      boost::sregex_iterator it(begin,end,delimiter_expression);
       boost::sregex_iterator it_end;
       std::string token(4096,0x0);
       std::size_t match_count = 0;
@@ -1112,29 +1120,29 @@ namespace strtk
    }
 
    template<typename InputIterator, typename OutputIterator>
-   inline std::size_t split(const std::string& expression,
-                            const InputIterator begin,
-                            const InputIterator end,
-                            OutputIterator out)
+   inline std::size_t split_regex(const std::string& delimiter_expression,
+                                  const InputIterator begin,
+                                  const InputIterator end,
+                                  OutputIterator out)
    {
-      const boost::regex regex_expression(expression);
-      return split(regex_expression,begin,end,out);
+      const boost::regex regex_expression(delimiter_expression);
+      return split_regex(regex_expression,begin,end,out);
    }
 
    template<typename OutputIterator>
-   inline std::size_t split(const std::string& expression,
-                            const std::string text,
-                            OutputIterator out)
+   inline std::size_t split_regex(const std::string& delimiter_expression,
+                                  const std::string text,
+                                  OutputIterator out)
    {
-      return split(expression,text.begin(),text.end(),out);
+      return split_regex(delimiter_expression,text.begin(),text.end(),out);
    }
 
    template<typename OutputIterator>
-   inline std::size_t split(const boost::regex& expression,
-                            const std::string& text,
-                            OutputIterator out)
+   inline std::size_t split_regex(const boost::regex& delimiter_expression,
+                                  const std::string& text,
+                                  OutputIterator out)
    {
-      return split(expression,text.begin(),text.end(),out);
+      return split_regex(delimiter_expression,text.begin(),text.end(),out);
    }
 
    template<const std::size_t offset_list_size>
@@ -1176,6 +1184,23 @@ namespace strtk
       mutable std::size_t current_index_;
       int offset_list_[offset_list_size + 1];
    };
+
+   inline offset_predicate<9> offsets(const int& v1, const int& v2, const int& v3,
+                                      const int& v4, const int& v5, const int& v6,
+                                      const int& v7, const int& v8, const int& v9,
+                                      const bool& rotate = false)
+   {
+      const int offset_list[9] = { v1, v2, v3, v4, v5, v6, v7, v8, v9 };
+      return offset_predicate<9>(offset_list,rotate);
+   }
+
+   inline offset_predicate<8> offsets(const int& v1, const int& v2, const int& v3,
+                                      const int& v4, const int& v5, const int& v6,
+                                      const int& v7, const int& v8, const bool& rotate = false)
+   {
+      const int offset_list[8] = { v1, v2, v3, v4, v5, v6, v7, v8 };
+      return offset_predicate<8>(offset_list,rotate);
+   }
 
    inline offset_predicate<7> offsets(const int& v1, const int& v2, const int& v3,
                                       const int& v4, const int& v5, const int& v6,
@@ -1302,523 +1327,6 @@ namespace strtk
       }
       return count;
    }
-
-   class token_grid
-   {
-   public:
-      typedef std::pair<unsigned char*, unsigned char*> range_type;
-      typedef std::deque<range_type> itr_list_type;
-      typedef std::deque<itr_list_type> itr_list_list_type;
-
-      class row_type
-      {
-      public:
-         row_type(const itr_list_type& token_list)
-         : token_list_(&token_list) {}
-
-         template<typename T>
-         inline T operator[](const unsigned int& index) const
-         {
-            itr_list_type::value_type curr_range = (*token_list_)[index];
-            std::string tmp_str;
-            tmp_str.assign(curr_range.first,curr_range.second);
-            return boost::lexical_cast<T>(tmp_str);
-         }
-
-         template<typename T>
-         inline T get(const unsigned int& index) const
-         {
-            return row_type::operator[]<T>(index);
-         }
-
-         inline range_type token(const unsigned int& index) const
-         {
-            return (*token_list_)[index];
-         }
-
-         inline std::size_t size() const { return token_list_->size(); }
-
-         inline std::string as_string() const
-         {
-            return std::string(token_list_->begin()->first,token_list_->back().second);
-         }
-
-         template<typename T1, typename T2,
-                  typename T3, typename T4,
-                  typename T5, typename T6,
-                  typename T7, typename T8,
-                  typename T9, typename T10 >
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           const unsigned int& col3, const unsigned int& col4,
-                           const unsigned int& col5, const unsigned int& col6,
-                           const unsigned int& col7, const unsigned int& col8,
-                           const unsigned int& col9, const unsigned int& col10,
-                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9, T10& t10) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-            process(tmp_str,(*token_list_)[ col5], t5);
-            process(tmp_str,(*token_list_)[ col6], t6);
-            process(tmp_str,(*token_list_)[ col7], t7);
-            process(tmp_str,(*token_list_)[ col8], t8);
-            process(tmp_str,(*token_list_)[ col9], t9);
-            process(tmp_str,(*token_list_)[col10],t10);
-         }
-
-         template<typename T1, typename T2,
-                  typename T3, typename T4,
-                  typename T5, typename T6,
-                  typename T7, typename T8,
-                  typename T9 >
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           const unsigned int& col3, const unsigned int& col4,
-                           const unsigned int& col5, const unsigned int& col6,
-                           const unsigned int& col7, const unsigned int& col8,
-                           const unsigned int& col9,
-                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-            process(tmp_str,(*token_list_)[ col5], t5);
-            process(tmp_str,(*token_list_)[ col6], t6);
-            process(tmp_str,(*token_list_)[ col7], t7);
-            process(tmp_str,(*token_list_)[ col8], t8);
-            process(tmp_str,(*token_list_)[ col9], t9);
-         }
-
-         template<typename T1, typename T2,
-                  typename T3, typename T4,
-                  typename T5, typename T6,
-                  typename T7, typename T8>
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           const unsigned int& col3, const unsigned int& col4,
-                           const unsigned int& col5, const unsigned int& col6,
-                           const unsigned int& col7, const unsigned int& col8,
-                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-            process(tmp_str,(*token_list_)[ col5], t5);
-            process(tmp_str,(*token_list_)[ col6], t6);
-            process(tmp_str,(*token_list_)[ col7], t7);
-            process(tmp_str,(*token_list_)[ col8], t8);
-         }
-
-         template<typename T1, typename T2,
-                  typename T3, typename T4,
-                  typename T5, typename T6, typename T7>
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           const unsigned int& col3, const unsigned int& col4,
-                           const unsigned int& col5, const unsigned int& col6,
-                           const unsigned int& col7,
-                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-            process(tmp_str,(*token_list_)[ col5], t5);
-            process(tmp_str,(*token_list_)[ col6], t6);
-            process(tmp_str,(*token_list_)[ col7], t7);
-         }
-
-         template<typename T1, typename T2,
-                  typename T3, typename T4,
-                  typename T5, typename T6>
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           const unsigned int& col3, const unsigned int& col4,
-                           const unsigned int& col5, const unsigned int& col6,
-                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-            process(tmp_str,(*token_list_)[ col5], t5);
-            process(tmp_str,(*token_list_)[ col6], t6);
-         }
-
-         template<typename T1, typename T2,
-                  typename T3, typename T4,typename T5>
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           const unsigned int& col3, const unsigned int& col4, const unsigned int& col5,
-                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-            process(tmp_str,(*token_list_)[ col5], t5);
-         }
-
-         template<typename T1, typename T2,
-                  typename T3, typename T4>
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           const unsigned int& col3, const unsigned int& col4,
-                           T1& t1, T2& t2, T3& t3, T4& t4) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-         }
-
-         template<typename T1, typename T2, typename T3>
-         inline void parse(const unsigned int& col1, const unsigned int& col2, const unsigned int& col3,
-                           T1& t1, T2& t2, T3& t3) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-         }
-
-         template<typename T1, typename T2>
-         inline void parse(const unsigned int& col1, const unsigned int& col2,
-                           T1& t1, T2& t2) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-         }
-
-         template<typename T1>
-         inline void parse(const unsigned int& col, T1& t) const
-         {
-            std::string tmp_str(1024,0x0);
-            process(tmp_str,(*token_list_)[col],t);
-         }
-
-         template<typename T, typename OutputIterator>
-         inline void parse(OutputIterator out) const
-         {
-            std::string tmp_str;
-            itr_list_type::iterator it = const_cast<itr_list_type*>(token_list_)->begin();
-            while(token_list_->end() != it)
-            {
-               itr_list_type::value_type& r = *it;
-               tmp_str.assign(r.first,r.second);
-               *(out++) = boost::lexical_cast<T>(tmp_str);
-               ++it;
-            }
-         }
-
-      private:
-
-         template<typename T>
-         inline void process(std::string& tmp_str, const itr_list_type::value_type& curr_range, T& t) const
-         {
-            tmp_str.assign(curr_range.first,curr_range.second);
-            t = boost::lexical_cast<T>(tmp_str);
-         }
-
-      private:
-         const itr_list_type* token_list_;
-      };
-
-      token_grid(const std::string& file_name,
-            const std::string& column_delimiters = ",|;\t",
-            const std::string& row_delimiters = "\n\r")
-      : file_name_(file_name),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
-        buffer_(0),
-        buffer_size_(0),
-        load_from_file_(true),
-        state_(load())
-      {}
-
-      token_grid(const unsigned char* input_buffer,
-                 const std::size_t& input_buffer_size,
-                 const std::string& column_delimiters = ",|;\t",
-                 const std::string& row_delimiters = "\n\r")
-      : file_name_(""),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
-        buffer_(const_cast<unsigned char*>(input_buffer)),
-        buffer_size_(input_buffer_size),
-        load_from_file_(false),
-        state_(load())
-      {}
-
-      token_grid(const char* input_buffer,
-                 const std::size_t& input_buffer_size,
-                 const std::string& column_delimiters = ",|;\t",
-                 const std::string& row_delimiters = "\n\r")
-      : file_name_(""),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
-        buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer))),
-        buffer_size_(input_buffer_size),
-        load_from_file_(false),
-        state_(load())
-      {}
-
-      token_grid(const std::string& input_buffer,
-                 const std::size_t& input_buffer_size,
-                 const std::string& column_delimiters = ",|;\t",
-                 const std::string& row_delimiters = "\n\r")
-      : file_name_(""),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
-        buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer.c_str()))),
-        buffer_size_(input_buffer_size),
-        load_from_file_(false),
-        state_(load())
-      {}
-
-     ~token_grid()
-      {
-         if ((load_from_file_) && (0 != buffer_)) delete [] buffer_;
-      }
-
-      inline bool operator!()               const { return !state_;            }
-      inline std::string source_file()      const { return file_name_;         }
-      inline std::size_t row_count()        const { return token_list_.size(); }
-      inline std::size_t min_column_count() const { return min_column_count_;  }
-      inline std::size_t max_column_count() const { return max_column_count_;  }
-
-      inline range_type token(const unsigned int& row, const unsigned int& col)
-      {
-         return token_list_[row][col];
-      }
-
-      template<typename T>
-      inline T get(const unsigned int& row, const unsigned int& col)
-      {
-         range_type r = token(row,col);
-         return boost::lexical_cast<T>(std::string(r.first,r.second));
-      }
-
-      inline row_type row(const unsigned int& row_index) const
-      {
-         return row_type(token_list_[row_index]);
-      }
-
-      template<typename OutputIterator>
-      inline void extract_column(const std::size_t& index, OutputIterator out)
-      {
-         itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str(1024,0x00);
-         while(token_list_.end() != it)
-         {
-            process_column(tmp_str,(*it++)[index],out);
-         }
-      }
-
-      template<typename OutputIterator1, typename OutputIterator2>
-      inline void extract_column(const std::size_t& index1,
-                                 const std::size_t& index2,
-                                 OutputIterator1 out1,
-                                 OutputIterator2 out2)
-      {
-         itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str(1024,0x00);
-         while(token_list_.end() != it)
-         {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
-            ++it;
-         }
-      }
-
-      template<typename OutputIterator1, typename OutputIterator2, typename OutputIterator3>
-      inline void extract_column(const std::size_t& index1,
-                                 const std::size_t& index2,
-                                 const std::size_t& index3,
-                                 OutputIterator1 out1,
-                                 OutputIterator2 out2,
-                                 OutputIterator3 out3)
-      {
-         itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str(1024,0x00);
-         while(token_list_.end() != it)
-         {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
-            process_column(tmp_str,(*it)[index3],out3);
-            ++it;
-         }
-      }
-
-      template<typename OutputIterator1, typename OutputIterator2,
-               typename OutputIterator3, typename OutputIterator4>
-      inline void extract_column(const std::size_t& index1,
-                                 const std::size_t& index2,
-                                 const std::size_t& index3,
-                                 const std::size_t& index4,
-                                 OutputIterator1 out1,
-                                 OutputIterator2 out2,
-                                 OutputIterator3 out3,
-                                 OutputIterator4 out4)
-      {
-         itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str(1024,0x00);
-         while(token_list_.end() != it)
-         {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
-            process_column(tmp_str,(*it)[index3],out3);
-            process_column(tmp_str,(*it)[index4],out4);
-            ++it;
-         }
-      }
-
-      template<typename OutputIterator1, typename OutputIterator2,
-               typename OutputIterator3, typename OutputIterator4,
-               typename OutputIterator5>
-      inline void extract_column(const std::size_t& index1,
-                                 const std::size_t& index2,
-                                 const std::size_t& index3,
-                                 const std::size_t& index4,
-                                 const std::size_t& index5,
-                                 OutputIterator1 out1,
-                                 OutputIterator2 out2,
-                                 OutputIterator3 out3,
-                                 OutputIterator4 out4,
-                                 OutputIterator5 out5)
-      {
-         itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str(1024,0x00);
-         while(token_list_.end() != it)
-         {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
-            process_column(tmp_str,(*it)[index3],out3);
-            process_column(tmp_str,(*it)[index4],out4);
-            process_column(tmp_str,(*it)[index5],out5);
-            ++it;
-         }
-      }
-
-      inline void remove_row(const std::size_t& index)
-      {
-         if (index < token_list_.size()) token_list_.erase(token_list_.begin() + index);
-      }
-
-      template<typename Predicate>
-      inline void remove_row_if(Predicate p)
-      {
-         itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str(0xFF,0x00);
-         while(token_list_.end() != it)
-         {
-            if (!it->empty() && p(it->front().first,it->back().second))
-            {
-               it = token_list_.erase(it);
-            }
-            else
-              ++it;
-         }
-      }
-
-      inline void enforce_column_count(const std::size_t& column_count)
-      {
-         itr_list_list_type::iterator it = token_list_.begin();
-         itr_list_list_type new_token_list;
-         while(token_list_.end() != it)
-         {
-            if (it->size() == column_count)
-            {
-               new_token_list.push_back(*it);
-            }
-            ++it;
-         }
-         token_list_.swap(new_token_list);
-         min_column_count_ = column_count;
-         max_column_count_ = column_count;
-      }
-
-      inline void clear()
-      {
-         delete[] buffer_;
-         buffer_ = 0;
-         buffer_size_ = 0;
-         token_list_.clear();
-         min_column_count_ = 0;
-         state_ = false;
-         file_name_ = "";
-      }
-
-   private:
-
-      token_grid(const token_grid& tg);
-      token_grid operator=(const token_grid& tg);
-
-      bool load()
-      {
-         if (load_from_file_)
-         {
-            std::ifstream stream(file_name_.c_str(),std::ios::binary);
-            if (!stream) return false;
-            stream.seekg (0,std::ios::end);
-            buffer_size_ = stream.tellg();
-            if (0 == buffer_size_) return false;
-            stream.seekg (0,std::ios::beg);
-            buffer_ = new unsigned char[buffer_size_ + 1]; // an extra char for end iterator;
-            stream.read(reinterpret_cast<char*>(buffer_),static_cast<std::streamsize>(buffer_size_));
-            stream.close();
-         }
-
-         itr_list_type str_list;
-         multiple_char_delimiter_predicate text_newline_predicate(row_delimiters_);
-         split(buffer_, buffer_ + buffer_size_,
-               text_newline_predicate,
-               std::back_inserter(str_list),
-               split_options::compress_delimiters);
-
-         multiple_char_delimiter_predicate token_predicate(column_delimiters_);
-
-         min_column_count_ = std::numeric_limits<std::size_t>::max();
-         max_column_count_ = std::numeric_limits<std::size_t>::min();
-
-         for(itr_list_type::iterator it = str_list.begin(); it != str_list.end(); ++it)
-         {
-            itr_list_type current_token_list;
-            split(it->first,it->second,token_predicate,std::back_inserter(current_token_list));
-            if (!current_token_list.empty())
-            {
-               token_list_.push_back(current_token_list);
-               min_column_count_ = std::min(min_column_count_,current_token_list.size());
-               max_column_count_ = std::max(max_column_count_,current_token_list.size());
-            }
-         }
-         return true;
-      }
-
-      template<typename OutputIterator>
-      inline void process_column(std::string& tmp_str, const itr_list_type::value_type& curr_range, OutputIterator out) const
-      {
-         tmp_str.assign(curr_range.first,curr_range.second);
-         *(out++) = boost::lexical_cast<typename std::iterator_traits<OutputIterator>::value_type>(tmp_str);
-      }
-
-   private:
-
-      itr_list_list_type token_list_;
-      std::string file_name_;
-      std::string column_delimiters_;
-      std::string row_delimiters_;
-      unsigned char* buffer_;
-      std::size_t buffer_size_;
-      std::size_t min_column_count_;
-      std::size_t max_column_count_;
-      bool load_from_file_;
-      bool state_;
-   };
 
    inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
@@ -2201,10 +1709,8 @@ namespace strtk
       const unsigned char* it2 = begin2;
       while(it1 != end1)
       {
-         *(reinterpret_cast<unsigned short*>(out))  = (interleave_table[*it2] << 1);
-         *(reinterpret_cast<unsigned short*>(out)) |=  interleave_table[*it1];
-         ++it1;
-         ++it2;
+         *(reinterpret_cast<unsigned short*>(out))  = (interleave_table[*(it2++)] << 1);
+         *(reinterpret_cast<unsigned short*>(out)) |=  interleave_table[*(it1++)];
          out+=2;
       }
       return true;
@@ -2305,13 +1811,8 @@ namespace strtk
                                const_cast<char*>(out.c_str()));
    }
 
-   inline std::size_t hamming_distance(const unsigned char* begin1, const unsigned char* end1,
-                                       const unsigned char* begin2, const unsigned char* end2)
+   inline std::size_t high_bit_count(const unsigned char c)
    {
-      if (std::distance(begin1,end1) != std::distance(begin2,end2))
-      {
-         return std::numeric_limits<std::size_t>::max();
-      }
       static const std::size_t high_bits_in_char[256] = {
                                                           0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
                                                           1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
@@ -2330,12 +1831,114 @@ namespace strtk
                                                           3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
                                                           4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8
                                                         };
+      return high_bits_in_char[c];
+   }
+
+   inline std::size_t high_bit_count(const unsigned short& s)
+   {
+      const unsigned char* ptr = reinterpret_cast<const unsigned char*>(&s);
+      return high_bit_count(*(ptr + 0)) + high_bit_count(*(ptr + 1));
+   }
+
+   inline std::size_t high_bit_count(const unsigned int& i)
+   {
+      const unsigned char* ptr = reinterpret_cast<const unsigned char*>(&i);
+      return high_bit_count(*(ptr + 0)) + high_bit_count(*(ptr + 1)) +
+             high_bit_count(*(ptr + 2)) + high_bit_count(*(ptr + 3));
+   }
+
+   /*
+   inline std::size_t high_bit_count(const long long& ll)
+   {
+      const unsigned char* ptr = reinterpret_cast<const unsigned char*>(&ll);
+      return high_bit_count(*(ptr + 0)) + high_bit_count(*(ptr + 1)) +
+             high_bit_count(*(ptr + 2)) + high_bit_count(*(ptr + 3)) +
+             high_bit_count(*(ptr + 4)) + high_bit_count(*(ptr + 5)) +
+             high_bit_count(*(ptr + 6)) + high_bit_count(*(ptr + 7));
+   }
+   */
+
+   inline std::size_t high_bit_count(const unsigned char* begin, const unsigned char* end)
+   {
+      std::size_t count = 0;
+      const unsigned char* it1 = begin;
+      while(it1 != end)
+      {
+         count += high_bit_count(*it1++);
+      }
+      return count;
+   }
+
+   inline std::size_t high_bit_count(const char* begin, const char* end)
+   {
+      return high_bit_count(reinterpret_cast<const unsigned char*>(begin),
+                            reinterpret_cast<const unsigned char*>(end));
+
+   }
+
+   inline std::size_t high_bit_count(const std::string& str)
+   {
+      return high_bit_count(str.c_str(),str.c_str() + str.size());
+   }
+
+   inline bool bit_state(const std::size_t& index, const unsigned char* ptr)
+   {
+      static const unsigned char bit_mask[] = {
+                                                0x01, //00000001
+                                                0x02, //00000010
+                                                0x04, //00000100
+                                                0x08, //00001000
+                                                0x10, //00010000
+                                                0x20, //00100000
+                                                0x40, //01000000
+                                                0x80  //10000000
+                                              };
+      return (0 != (ptr[(index >> 3)] & bit_mask[index & 7]));
+   }
+
+   inline void set_bit_high(const std::size_t& index, unsigned char* const ptr)
+   {
+      static const unsigned char bit_mask[] = {
+                                                0x01, //00000001
+                                                0x02, //00000010
+                                                0x04, //00000100
+                                                0x08, //00001000
+                                                0x10, //00010000
+                                                0x20, //00100000
+                                                0x40, //01000000
+                                                0x80  //10000000
+                                              };
+      ptr[(index >> 3)] |= bit_mask[index & 7];
+   }
+
+   inline void set_bit_low(const std::size_t& index, unsigned char* const ptr)
+   {
+      static const unsigned char bit_mask[] = {
+                                                0xFE, //11111110
+                                                0xFD, //11111101
+                                                0xFB, //11111011
+                                                0xF7, //11110111
+                                                0xEF, //11101111
+                                                0xDF, //11011111
+                                                0xBF, //10111111
+                                                0x7F  //01111111
+                                              };
+      ptr[(index >> 3)] &= bit_mask[index & 7];
+   }
+
+   inline std::size_t hamming_distance(const unsigned char* begin1, const unsigned char* end1,
+                                       const unsigned char* begin2, const unsigned char* end2)
+   {
+      if (std::distance(begin1,end1) != std::distance(begin2,end2))
+      {
+         return std::numeric_limits<std::size_t>::max();
+      }
       std::size_t distance = 0;
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
       while(it1 != end1)
       {
-         distance += high_bits_in_char[((*it1++) ^ (*it2++)) & 0xFF];
+         distance += high_bit_count(static_cast<unsigned char>(((*it1++) ^ (*it2++)) & 0xFF));
       }
       return distance;
    }
@@ -2461,6 +2064,523 @@ namespace strtk
       hash(s.begin(),s.size(),hash_value);
       return hash_value;
    }
+
+   class token_grid
+   {
+   public:
+      typedef std::pair<unsigned char*, unsigned char*> range_type;
+      typedef std::deque<range_type> itr_list_type;
+      typedef std::deque<itr_list_type> itr_list_list_type;
+
+      class row_type
+      {
+      public:
+         row_type(const itr_list_type& token_list)
+         : token_list_(&token_list) {}
+
+         template<typename T>
+         inline T operator[](const unsigned int& index) const
+         {
+            itr_list_type::value_type curr_range = (*token_list_)[index];
+            std::string tmp_str;
+            tmp_str.assign(curr_range.first,curr_range.second);
+            return boost::lexical_cast<T>(tmp_str);
+         }
+
+         template<typename T>
+         inline T get(const unsigned int& index) const
+         {
+            return row_type::operator[]<T>(index);
+         }
+
+         inline range_type token(const unsigned int& index) const
+         {
+            return (*token_list_)[index];
+         }
+
+         inline std::size_t size() const { return token_list_->size(); }
+
+         inline std::string as_string() const
+         {
+            return std::string(token_list_->begin()->first,token_list_->back().second);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6,
+                  typename T7, typename T8,
+                  typename T9, typename T10 >
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           const unsigned int& col3, const unsigned int& col4,
+                           const unsigned int& col5, const unsigned int& col6,
+                           const unsigned int& col7, const unsigned int& col8,
+                           const unsigned int& col9, const unsigned int& col10,
+                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9, T10& t10) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+            process(tmp_str,(*token_list_)[ col4], t4);
+            process(tmp_str,(*token_list_)[ col5], t5);
+            process(tmp_str,(*token_list_)[ col6], t6);
+            process(tmp_str,(*token_list_)[ col7], t7);
+            process(tmp_str,(*token_list_)[ col8], t8);
+            process(tmp_str,(*token_list_)[ col9], t9);
+            process(tmp_str,(*token_list_)[col10],t10);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6,
+                  typename T7, typename T8,
+                  typename T9 >
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           const unsigned int& col3, const unsigned int& col4,
+                           const unsigned int& col5, const unsigned int& col6,
+                           const unsigned int& col7, const unsigned int& col8,
+                           const unsigned int& col9,
+                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+            process(tmp_str,(*token_list_)[ col4], t4);
+            process(tmp_str,(*token_list_)[ col5], t5);
+            process(tmp_str,(*token_list_)[ col6], t6);
+            process(tmp_str,(*token_list_)[ col7], t7);
+            process(tmp_str,(*token_list_)[ col8], t8);
+            process(tmp_str,(*token_list_)[ col9], t9);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6,
+                  typename T7, typename T8>
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           const unsigned int& col3, const unsigned int& col4,
+                           const unsigned int& col5, const unsigned int& col6,
+                           const unsigned int& col7, const unsigned int& col8,
+                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+            process(tmp_str,(*token_list_)[ col4], t4);
+            process(tmp_str,(*token_list_)[ col5], t5);
+            process(tmp_str,(*token_list_)[ col6], t6);
+            process(tmp_str,(*token_list_)[ col7], t7);
+            process(tmp_str,(*token_list_)[ col8], t8);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6, typename T7>
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           const unsigned int& col3, const unsigned int& col4,
+                           const unsigned int& col5, const unsigned int& col6,
+                           const unsigned int& col7,
+                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+            process(tmp_str,(*token_list_)[ col4], t4);
+            process(tmp_str,(*token_list_)[ col5], t5);
+            process(tmp_str,(*token_list_)[ col6], t6);
+            process(tmp_str,(*token_list_)[ col7], t7);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,
+                  typename T5, typename T6>
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           const unsigned int& col3, const unsigned int& col4,
+                           const unsigned int& col5, const unsigned int& col6,
+                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+            process(tmp_str,(*token_list_)[ col4], t4);
+            process(tmp_str,(*token_list_)[ col5], t5);
+            process(tmp_str,(*token_list_)[ col6], t6);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4,typename T5>
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           const unsigned int& col3, const unsigned int& col4, const unsigned int& col5,
+                           T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+            process(tmp_str,(*token_list_)[ col4], t4);
+            process(tmp_str,(*token_list_)[ col5], t5);
+         }
+
+         template<typename T1, typename T2,
+                  typename T3, typename T4>
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           const unsigned int& col3, const unsigned int& col4,
+                           T1& t1, T2& t2, T3& t3, T4& t4) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+            process(tmp_str,(*token_list_)[ col4], t4);
+         }
+
+         template<typename T1, typename T2, typename T3>
+         inline void parse(const unsigned int& col1, const unsigned int& col2, const unsigned int& col3,
+                           T1& t1, T2& t2, T3& t3) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+            process(tmp_str,(*token_list_)[ col3], t3);
+         }
+
+         template<typename T1, typename T2>
+         inline void parse(const unsigned int& col1, const unsigned int& col2,
+                           T1& t1, T2& t2) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[ col1], t1);
+            process(tmp_str,(*token_list_)[ col2], t2);
+         }
+
+         template<typename T1>
+         inline void parse(const unsigned int& col, T1& t) const
+         {
+            std::string tmp_str(1024,0x0);
+            process(tmp_str,(*token_list_)[col],t);
+         }
+
+         template<typename T, typename OutputIterator>
+         inline void parse(OutputIterator out) const
+         {
+            std::string tmp_str;
+            itr_list_type::iterator it = const_cast<itr_list_type*>(token_list_)->begin();
+            while(token_list_->end() != it)
+            {
+               itr_list_type::value_type& r = *it;
+               tmp_str.assign(r.first,r.second);
+               *(out++) = boost::lexical_cast<T>(tmp_str);
+               ++it;
+            }
+         }
+
+      private:
+
+         template<typename T>
+         inline void process(std::string& tmp_str, const itr_list_type::value_type& curr_range, T& t) const
+         {
+            tmp_str.assign(curr_range.first,curr_range.second);
+            t = boost::lexical_cast<T>(tmp_str);
+         }
+
+      private:
+         const itr_list_type* token_list_;
+      };
+
+      token_grid(const std::string& file_name,
+            const std::string& column_delimiters = ",|;\t",
+            const std::string& row_delimiters = "\n\r")
+      : file_name_(file_name),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
+        buffer_(0),
+        buffer_size_(0),
+        load_from_file_(true),
+        state_(load())
+      {}
+
+      token_grid(const unsigned char* input_buffer,
+                 const std::size_t& input_buffer_size,
+                 const std::string& column_delimiters = ",|;\t",
+                 const std::string& row_delimiters = "\n\r")
+      : file_name_(""),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
+        buffer_(const_cast<unsigned char*>(input_buffer)),
+        buffer_size_(input_buffer_size),
+        load_from_file_(false),
+        state_(load())
+      {}
+
+      token_grid(const char* input_buffer,
+                 const std::size_t& input_buffer_size,
+                 const std::string& column_delimiters = ",|;\t",
+                 const std::string& row_delimiters = "\n\r")
+      : file_name_(""),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
+        buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer))),
+        buffer_size_(input_buffer_size),
+        load_from_file_(false),
+        state_(load())
+      {}
+
+      token_grid(const std::string& input_buffer,
+                 const std::size_t& input_buffer_size,
+                 const std::string& column_delimiters = ",;|\t",
+                 const std::string& row_delimiters = "\n\r")
+      : file_name_(""),
+        column_delimiters_(column_delimiters),
+        row_delimiters_(row_delimiters),
+        buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer.c_str()))),
+        buffer_size_(input_buffer_size),
+        load_from_file_(false),
+        state_(load())
+      {}
+
+     ~token_grid()
+      {
+         if ((load_from_file_) && (0 != buffer_)) delete [] buffer_;
+      }
+
+      inline bool operator!()               const { return !state_;            }
+      inline std::string source_file()      const { return file_name_;         }
+      inline std::size_t row_count()        const { return token_list_.size(); }
+      inline std::size_t min_column_count() const { return min_column_count_;  }
+      inline std::size_t max_column_count() const { return max_column_count_;  }
+
+      inline range_type token(const unsigned int& row, const unsigned int& col)
+      {
+         return token_list_[row][col];
+      }
+
+      template<typename T>
+      inline T get(const unsigned int& row, const unsigned int& col)
+      {
+         range_type r = token(row,col);
+         return boost::lexical_cast<T>(std::string(r.first,r.second));
+      }
+
+      inline row_type row(const unsigned int& row_index) const
+      {
+         return row_type(token_list_[row_index]);
+      }
+
+      template<typename OutputIterator>
+      inline void extract_column(const std::size_t& index, OutputIterator out)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         std::string tmp_str(1024,0x00);
+         while(token_list_.end() != it)
+         {
+            process_column(tmp_str,(*it++)[index],out);
+         }
+      }
+
+      template<typename OutputIterator1, typename OutputIterator2>
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         std::string tmp_str(1024,0x00);
+         while(token_list_.end() != it)
+         {
+            process_column(tmp_str,(*it)[index1],out1);
+            process_column(tmp_str,(*it)[index2],out2);
+            ++it;
+         }
+      }
+
+      template<typename OutputIterator1, typename OutputIterator2, typename OutputIterator3>
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 const std::size_t& index3,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2,
+                                 OutputIterator3 out3)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         std::string tmp_str(1024,0x00);
+         while(token_list_.end() != it)
+         {
+            process_column(tmp_str,(*it)[index1],out1);
+            process_column(tmp_str,(*it)[index2],out2);
+            process_column(tmp_str,(*it)[index3],out3);
+            ++it;
+         }
+      }
+
+      template<typename OutputIterator1, typename OutputIterator2,
+               typename OutputIterator3, typename OutputIterator4>
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 const std::size_t& index3,
+                                 const std::size_t& index4,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2,
+                                 OutputIterator3 out3,
+                                 OutputIterator4 out4)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         std::string tmp_str(1024,0x00);
+         while(token_list_.end() != it)
+         {
+            process_column(tmp_str,(*it)[index1],out1);
+            process_column(tmp_str,(*it)[index2],out2);
+            process_column(tmp_str,(*it)[index3],out3);
+            process_column(tmp_str,(*it)[index4],out4);
+            ++it;
+         }
+      }
+
+      template<typename OutputIterator1, typename OutputIterator2,
+               typename OutputIterator3, typename OutputIterator4,
+               typename OutputIterator5>
+      inline void extract_column(const std::size_t& index1,
+                                 const std::size_t& index2,
+                                 const std::size_t& index3,
+                                 const std::size_t& index4,
+                                 const std::size_t& index5,
+                                 OutputIterator1 out1,
+                                 OutputIterator2 out2,
+                                 OutputIterator3 out3,
+                                 OutputIterator4 out4,
+                                 OutputIterator5 out5)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         std::string tmp_str(1024,0x00);
+         while(token_list_.end() != it)
+         {
+            process_column(tmp_str,(*it)[index1],out1);
+            process_column(tmp_str,(*it)[index2],out2);
+            process_column(tmp_str,(*it)[index3],out3);
+            process_column(tmp_str,(*it)[index4],out4);
+            process_column(tmp_str,(*it)[index5],out5);
+            ++it;
+         }
+      }
+
+      inline void remove_row(const std::size_t& index)
+      {
+         if (index < token_list_.size()) token_list_.erase(token_list_.begin() + index);
+      }
+
+      template<typename Predicate>
+      inline void remove_row_if(Predicate p)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         std::string tmp_str(0xFF,0x00);
+         while(token_list_.end() != it)
+         {
+            if (!it->empty() && p(it->front().first,it->back().second))
+            {
+               it = token_list_.erase(it);
+            }
+            else
+              ++it;
+         }
+      }
+
+      inline void enforce_column_count(const std::size_t& column_count)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         itr_list_list_type new_token_list;
+         while(token_list_.end() != it)
+         {
+            if (it->size() == column_count)
+            {
+               new_token_list.push_back(*it);
+            }
+            ++it;
+         }
+         token_list_.swap(new_token_list);
+         min_column_count_ = column_count;
+         max_column_count_ = column_count;
+      }
+
+      inline void clear()
+      {
+         delete[] buffer_;
+         buffer_ = 0;
+         buffer_size_ = 0;
+         token_list_.clear();
+         min_column_count_ = 0;
+         state_ = false;
+         file_name_ = "";
+      }
+
+   private:
+
+      token_grid(const token_grid& tg);
+      token_grid operator=(const token_grid& tg);
+
+      bool load()
+      {
+         if (load_from_file_)
+         {
+            std::ifstream stream(file_name_.c_str(),std::ios::binary);
+            if (!stream) return false;
+            stream.seekg (0,std::ios::end);
+            buffer_size_ = stream.tellg();
+            if (0 == buffer_size_) return false;
+            stream.seekg (0,std::ios::beg);
+            buffer_ = new unsigned char[buffer_size_ + 1]; // an extra char for end iterator;
+            stream.read(reinterpret_cast<char*>(buffer_),static_cast<std::streamsize>(buffer_size_));
+            stream.close();
+         }
+
+         itr_list_type str_list;
+         multiple_char_delimiter_predicate text_newline_predicate(row_delimiters_);
+         split(text_newline_predicate,
+               buffer_, buffer_ + buffer_size_,
+               std::back_inserter(str_list),
+               split_options::compress_delimiters);
+
+         multiple_char_delimiter_predicate token_predicate(column_delimiters_);
+
+         min_column_count_ = std::numeric_limits<std::size_t>::max();
+         max_column_count_ = std::numeric_limits<std::size_t>::min();
+
+         for(itr_list_type::iterator it = str_list.begin(); it != str_list.end(); ++it)
+         {
+            itr_list_type current_token_list;
+            split(token_predicate,it->first,it->second,std::back_inserter(current_token_list));
+            if (!current_token_list.empty())
+            {
+               token_list_.push_back(current_token_list);
+               min_column_count_ = std::min(min_column_count_,current_token_list.size());
+               max_column_count_ = std::max(max_column_count_,current_token_list.size());
+            }
+         }
+         return true;
+      }
+
+      template<typename OutputIterator>
+      inline void process_column(std::string& tmp_str, const itr_list_type::value_type& curr_range, OutputIterator out) const
+      {
+         tmp_str.assign(curr_range.first,curr_range.second);
+         *(out++) = boost::lexical_cast<typename std::iterator_traits<OutputIterator>::value_type>(tmp_str);
+      }
+
+   private:
+
+      itr_list_list_type token_list_;
+      std::string file_name_;
+      std::string column_delimiters_;
+      std::string row_delimiters_;
+      unsigned char* buffer_;
+      std::size_t buffer_size_;
+      std::size_t min_column_count_;
+      std::size_t max_column_count_;
+      bool load_from_file_;
+      bool state_;
+   };
 
    template<typename Sequence>
    struct add_to_sequence
@@ -3201,6 +3321,173 @@ namespace strtk
          (*x) = rnd();
       }
    }
+
+   class serializer
+   {
+   public:
+
+      serializer(char* buffer, const std::size_t& buffer_length)
+      : original_buffer_(buffer),
+        buffer_(buffer + 1),
+        buffer_length_(buffer_length) {}
+
+      serializer(unsigned char* buffer, const std::size_t& buffer_length)
+      : original_buffer_(reinterpret_cast<char*>(buffer)),
+        buffer_(reinterpret_cast<char*>(buffer + 1)),
+        buffer_length_(buffer_length) {}
+
+      inline bool operator!() const
+      {
+         return (0 == buffer_length_) || (0 == original_buffer_) || (0 == buffer_);
+      }
+
+      void reset()
+      {
+         written_buffer_size_ = 0;
+         read_buffer_size_    = 0;
+         buffer_ = original_buffer_;
+      }
+
+      void clear()
+      {
+         reset();
+         std::fill_n(buffer_,buffer_length_,0x00);
+      }
+
+      void delete_internal_buffer()
+      {
+         if (original_buffer_)
+         {
+            delete[] original_buffer_;
+            original_buffer_ = 0;
+            buffer_ = 0;
+         }
+      }
+
+      std::size_t length() const { return written_buffer_size_; }
+
+      template<typename T> inline bool operator >> (T& output) { return read (output); }
+      template<typename T> inline bool operator << (T& output) { return write(output); }
+
+      inline bool read(char& output)           { return read_pod(output); }
+      inline bool read(short& output)          { return read_pod(output); }
+      inline bool read(unsigned short& output) { return read_pod(output); }
+      inline bool read(int& output)            { return read_pod(output); }
+      inline bool read(unsigned int& output)   { return read_pod(output); }
+      inline bool read(float& output)          { return read_pod(output); }
+      inline bool read(double& output)         { return read_pod(output); }
+      inline bool read(bool& output)           { return read_pod(output); }
+
+      inline bool read(std::string& output)
+      {
+         std::size_t length = 0;
+         if (!read_pod(length))
+         {
+            return false;
+         }
+
+         if ((length + sizeof(std::size_t) + read_buffer_size_) > buffer_length_)
+         {
+            return false;
+         }
+         output.resize(length);
+         std::copy(buffer_, buffer_ + length,output.begin());
+         buffer_ += length;
+         read_buffer_size_ += length;
+         return true;
+      }
+
+      inline bool write(const char&         input)   { return write_pod(input); }
+      inline bool write(const short&        input)   { return write_pod(input); }
+      inline bool write(const unsigned short& input) { return write_pod(input); }
+      inline bool write(const int&          input)   { return write_pod(input); }
+      inline bool write(const unsigned int& input)   { return write_pod(input); }
+      inline bool write(const float&        input)   { return write_pod(input); }
+      inline bool write(const double&       input)   { return write_pod(input); }
+      inline bool write(const bool&         input)   { return write_pod(input); }
+
+      inline bool write(const std::string& input)
+      {
+         return write(input.c_str(),static_cast<unsigned int>(input.size()));
+      }
+
+      inline bool write(const char* data, const unsigned int& length)
+      {
+         if ((length + sizeof(std::size_t) + written_buffer_size_) > buffer_length_)
+         {
+            return false;
+         }
+         write(length);
+         std::copy(data,data + length,buffer_);
+         buffer_ += length;
+         written_buffer_size_ += length;
+         return true;
+      }
+
+      inline void write_to_stream(std::ofstream& stream)
+      {
+         stream.write(original_buffer_,static_cast<std::streamsize>(written_buffer_size_));
+      }
+
+      inline void read_from_stream(std::ifstream& stream, const std::size_t& length)
+      {
+         if (length > buffer_length_) return;
+         stream.read(original_buffer_,static_cast<std::streamsize>(length));
+      }
+
+      inline void read_from_buffer(const char data[], const std::size_t& length)
+      {
+         if (length > buffer_length_) return;
+         std::copy(data, data + length,original_buffer_);
+      }
+
+      inline void write_to_buffer(char data[])
+      {
+         std::copy(original_buffer_,original_buffer_ + written_buffer_size_,data);
+      }
+
+   private:
+
+      serializer();
+      serializer(const serializer& s);
+      serializer& operator=(const serializer& s);
+
+      template<typename T>
+      inline bool write_pod(const T& data)
+      {
+         const std::size_t data_length = sizeof(T);
+         if ((data_length + written_buffer_size_) > buffer_length_)
+         {
+            return false;
+         }
+         const char* ptr = reinterpret_cast<const char*>(&data);
+         std::copy(ptr,ptr + data_length,buffer_);
+         buffer_ += data_length;
+         written_buffer_size_ += data_length;
+         return true;
+      }
+
+      template<typename T>
+      inline bool read_pod(T& data)
+      {
+         const std::size_t data_length = sizeof(T);
+         if ((data_length + read_buffer_size_) > buffer_length_)
+         {
+            return false;
+         }
+         char* ptr = reinterpret_cast<char*>(&data);
+         std::copy(buffer_,buffer_ + data_length, ptr);
+         buffer_ += data_length;
+         read_buffer_size_ += data_length;
+         return true;
+      }
+
+      char* original_buffer_;
+      char* buffer_;
+      std::size_t buffer_length_;
+      std::size_t written_buffer_size_;
+      std::size_t read_buffer_size_;
+   };
 
    namespace text
    {

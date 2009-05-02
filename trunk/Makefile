@@ -37,7 +37,7 @@ BUILD_LIST+=strtk_tokenizer_test
 BUILD_LIST+=strtk_hexview
 BUILD_LIST+=strtk_converters_example
 BUILD_LIST+=strtk_tokengrid_example
-
+BUILD_LIST+=strtk_serializer_example
 
 all: $(BUILD_LIST)
 
@@ -68,6 +68,9 @@ strtk_converters_example : strtk_converters_example.cpp strtk.hpp
 strtk_tokengrid_example : strtk_tokengrid_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_tokengrid_example strtk_tokengrid_example.cpp $(LINKER_OPT)
 
+strtk_serializer_example : strtk_serializer_example.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_serializer_example strtk_serializer_example.cpp $(LINKER_OPT)
+
 strip_bin :
 	strip -s stk_tokenizer_cmp
 	strip -s strtk_examples
@@ -78,6 +81,7 @@ strip_bin :
 	strip -s strtk_hexview
 	strip -s strtk_converters_example
 	strip -s strtk_tokengrid_example
+	strip -s strtk_serializer_example
 
 clean:
 	rm -f core *.o *.bak *stackdump *#

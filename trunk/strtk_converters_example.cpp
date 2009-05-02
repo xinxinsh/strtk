@@ -44,14 +44,13 @@ void example01()
    std::cout << base64bin << std::endl;
 }
 
-
 void example02()
 {
    const std::size_t size = 1024;
    unsigned char buffer[size];
    unsigned char hex_buffer[2 * size];
    unsigned char b64_buffer[2 * size];
-   for(unsigned int i = 0; i < size; ++i) buffer[i] = (unsigned char)(i);
+   for(unsigned int i = 0; i < size; ++i) buffer[i] = static_cast<unsigned char>(i);
    strtk::convert_bin_to_hex(buffer,buffer + size, hex_buffer);
    strtk::convert_bin_to_base64(buffer,buffer + size, b64_buffer);
 }
@@ -64,9 +63,9 @@ void example03()
    unsigned char b64_buffer[2 * size];
    for(unsigned int k = 1; k < size; ++k)
    {
-      for(unsigned int i = 0; i < k; ++i) buffer1[i] = (unsigned char)(i);
+      for(unsigned int i = 0; i < k; ++i) buffer1[i] = static_cast<unsigned char>(i);
       std::size_t b64_size = strtk::convert_bin_to_base64(buffer1,buffer1 + k, b64_buffer);
-      std::fill(buffer2,buffer2 + k,0x00);
+      std::fill_n(buffer2,k,0x00);
       strtk::convert_base64_to_bin(b64_buffer,b64_buffer + b64_size, buffer2);
       for(unsigned int i = 0; i < k; ++i)
       {
@@ -78,7 +77,6 @@ void example03()
       }
    }
 }
-
 
 int main(void)
 {
