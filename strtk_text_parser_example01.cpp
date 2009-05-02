@@ -58,9 +58,9 @@ public:
       return *this;
    }
 
-   inline void operator() (const std::string& s)
+   inline void operator()(const std::string& s)
    {
-      strtk::split(s,p_,std::back_inserter(local_list_),true);
+      strtk::split(p_,s,std::back_inserter(local_list_),true);
       for(local_list_type::const_iterator it = local_list_.begin();
           it != local_list_.end();
           ++it)

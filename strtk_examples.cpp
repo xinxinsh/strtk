@@ -208,7 +208,7 @@ void split_example01()
    std::string s = "abc|123|xyz|789";
    std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
-   strtk::split(s,predicate,std::back_inserter(token_list));
+   strtk::split(predicate,s,std::back_inserter(token_list));
    std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
@@ -223,7 +223,7 @@ void split_example02()
    std::string s = "abc?123,xyz;789";
    std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
-   strtk::split(s,predicate,std::back_inserter(token_list));
+   strtk::split(predicate,s,std::back_inserter(token_list));
    std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
@@ -238,7 +238,7 @@ void split_example03()
    std::string s = "abc|123|xyz|789";
    std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
-   strtk::split(s,predicate,std::back_inserter(token_list),true);
+   strtk::split(predicate,s,std::back_inserter(token_list),strtk::split_options::compress_delimiters);
    std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
@@ -253,7 +253,21 @@ void split_example04()
    std::string s = "abc?123,xyz;789";
    std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
-   strtk::split(s,predicate,std::back_inserter(token_list),true);
+   strtk::split(predicate,s,std::back_inserter(token_list),strtk::split_options::compress_delimiters);
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void split_example05()
+{
+   std::string s = "abc?123,xyz;789";
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
+   strtk::split(" .;?",s,std::back_inserter(token_list));
    std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
@@ -385,8 +399,8 @@ void uri_extractor_example01()
    std::string text = "someone@somewhere.com http://www.test.com any.one@any.where.com ftp://123.abcxyz.com";
    std::list<std::string> email_list;
    std::list<std::string> url_list;
-   strtk::split(strtk::email_expression,text,std::back_inserter(email_list));
-   strtk::split(strtk::uri_expression,text,std::back_inserter(url_list));
+   strtk::split_regex(strtk::email_expression,text,std::back_inserter(email_list));
+   strtk::split_regex(strtk::uri_expression,text,std::back_inserter(url_list));
    std::cout << "emails: ";
    std::copy(email_list.begin(),email_list.end(),std::ostream_iterator<std::string>(std::cout," "));
    std::cout << std::endl << "urls: ";
@@ -425,6 +439,7 @@ int main(void)
    split_example02();
    split_example03();
    split_example04();
+   split_example05();
    offset_splitter_example01();
    offset_splitter_example02();
    offset_splitter_example03();
