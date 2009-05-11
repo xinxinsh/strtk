@@ -232,7 +232,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
    return true;
 }
 
-int main(void)
+int main()
 {
    const std::size_t max_buffer_size = 64 * 1024; // 64KB
    char* buffer = new char[max_buffer_size];

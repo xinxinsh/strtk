@@ -35,6 +35,8 @@
 namespace strtk
 {
 
+   static const std::size_t one_kilobyte = 1024;
+
    template<typename Tokenizer, class Function>
    inline std::size_t for_each_token(const std::string& buffer,
                                      Tokenizer& tokenizer,
@@ -45,7 +47,7 @@ namespace strtk
       typename Tokenizer::iterator it = tokenizer.begin();
       while(it != tokenizer.end())
       {
-         function(*(++it));
+         function(*(it++));
          ++token_count;
       }
       return token_count;
@@ -54,8 +56,9 @@ namespace strtk
    template<class Function>
    inline std::size_t for_each_line(std::ifstream& stream, Function function)
    {
-      std::string buffer(4096,0x0);
-      unsigned int line_count = 0;
+      std::string buffer;
+      buffer.reserve(one_kilobyte);
+      std::size_t line_count = 0;
       while(std::getline(stream,buffer))
       {
          ++line_count;
@@ -77,7 +80,8 @@ namespace strtk
    template<class Function>
    inline std::size_t for_each_line_conditional(std::ifstream& stream, Function function)
    {
-      std::string buffer(4096,0x0);
+      std::string buffer;
+      buffer.reserve(one_kilobyte);
       std::size_t line_count = 0;
       while(std::getline(stream,buffer))
       {
@@ -95,16 +99,53 @@ namespace strtk
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
-         return for_each_line(stream,function);
+         return for_each_line_conditional(stream,function);
       else
          return 0;
+   }
+
+   template<typename T>
+   static inline T type_converter(const std::string& s) { return boost::lexical_cast<T>(s); }
+
+   template<>
+   inline std::string type_converter(const std::string& s) { return s; }
+
+   template <class T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::size_t load_from_text_file(std::ifstream& stream,
+                                          Sequence<T,Allocator>& sequence)
+   {
+     if (!stream) return 0;
+     std::string buffer;
+     buffer.reserve(one_kilobyte);
+     std::size_t line_count = 0;
+     while(std::getline(stream,buffer))
+     {
+        ++line_count;
+        sequence.push_back(type_converter<T>(buffer));
+     }
+     return line_count;
+   }
+
+   template <class T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::size_t load_from_text_file(const std::string& file_name,
+                                          Sequence<T,Allocator>& sequence)
+   {
+     std::ifstream stream(file_name.c_str());
+     if (!stream)
+        return 0;
+     else
+        return load_from_text_file(stream,sequence);
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
    inline void copy_if(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
    {
       InputIterator it = begin;
-      while(it != end)
+      while(end != it)
       {
          if (predicate(*it))
          {
@@ -117,7 +158,7 @@ namespace strtk
    inline InputIterator copy_while(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
    {
       InputIterator it = begin;
-      while(it != end)
+      while(end != it)
       {
          if (!predicate(*it)) break;
          *(out++)= *(it++);
@@ -129,7 +170,7 @@ namespace strtk
    inline InputIterator copy_until(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
    {
       InputIterator it = begin;
-      while(it != end)
+      while(end != it)
       {
          if (predicate(*it)) break;
          *(out++)= *(it++);
@@ -224,7 +265,7 @@ namespace strtk
       static const std::size_t table_size = 256;
 
       template<typename Iterator>
-      inline void setup_delimiter_table(const Iterator begin,const Iterator end)
+      inline void setup_delimiter_table(const Iterator begin, const Iterator end)
       {
          std::fill(delimiter_table_,delimiter_table_ + table_size, 0);
          for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
@@ -243,7 +284,7 @@ namespace strtk
       std::size_t removal_count = 0;
       while(it1 != end)
       {
-         while((it1 != end) && !predicate(*it1))
+         while((end != it1) && !predicate(*it1))
          {
             if (it1 != it2)
             {
@@ -252,7 +293,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((it1 != end) && predicate(*it1))
+         while((end != it1) && predicate(*it1))
          {
             ++it1;
             ++removal_count;
@@ -271,8 +312,7 @@ namespace strtk
    }
 
    template<class Predicate>
-   inline void remove_inplace(Predicate predicate,
-                              std::string& s)
+   inline void remove_inplace(Predicate predicate, std::string& s)
    {
       std::size_t removal_count = remove_inplace(predicate,s.begin(),s.end());
       if (removal_count > 0)
@@ -290,10 +330,10 @@ namespace strtk
       Iterator it1 = (begin + 1);
       Iterator it2 = (begin + 1);
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
-      unsigned int removal_count = 0;
+      std::size_t removal_count = 0;
       while(it1 != end)
       {
-         while((it1 != end) && (!predicate(*it1) || !predicate(prev)))
+         while((end != it1) && (!predicate(*it1) || !predicate(prev)))
          {
             if (it1 != it2)
             {
@@ -303,7 +343,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((it1 != end) && predicate(*it1))
+         while((end != it1) && predicate(*it1))
          {
             ++it1;
             ++removal_count;
@@ -343,7 +383,7 @@ namespace strtk
       std::size_t removal_count = 0;
       while(it1 != end)
       {
-         while((it1 != end) && (prev != (*it1)))
+         while((end != it1) && (prev != (*it1)))
          {
             if (it1 != it2)
             {
@@ -353,7 +393,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((it1 != end) && (prev == (*it1)))
+         while((end != it1) && (prev == (*it1)))
          {
             ++it1;
             ++removal_count;
@@ -378,7 +418,7 @@ namespace strtk
                        const Iterator begin,
                        const Iterator end)
    {
-      for(Iterator it = begin; it != end; ++it)
+      for(Iterator it = begin; end != it; ++it)
       {
          if (c1 == *it) *it = c2;
       }
@@ -456,9 +496,9 @@ namespace strtk
          return s_len;
       }
 
-      unsigned int pos = 0;
-      unsigned int prev_pos = 0;
-      unsigned int count = 0;
+      std::size_t pos = 0;
+      std::size_t prev_pos = 0;
+      std::size_t count = 0;
       std::size_t new_size = s_len;
       int inc = r_len - p_len;
 
@@ -551,9 +591,9 @@ namespace strtk
       Iterator c_it = data_begin;
       Iterator m_it = data_begin;
 
-      while ((d_it != data_end) && ((*p_it) != zero_or_more))
+      while ((data_end != d_it) && ((*p_it) != zero_or_more))
       {
-         if (((*p_it)!= (*d_it)) && (zero_or_one != (*p_it)))
+         if (((*p_it) != (*d_it)) && (zero_or_one != (*p_it)))
          {
             return false;
          }
@@ -561,11 +601,11 @@ namespace strtk
          ++d_it;
       }
 
-      while (d_it != data_end)
+      while (data_end != d_it)
       {
          if (zero_or_more == (*p_it))
          {
-            if (!*++p_it)
+            if (pattern_end == (++p_it))
             {
                return true;
             }
@@ -607,7 +647,7 @@ namespace strtk
       }
       std::string::const_iterator it1 = begin1;
       std::string::const_iterator it2 = begin2;
-      while(it1 != end1)
+      while(end1 != it1)
       {
          if (std::toupper(*it1) != std::toupper(*it2))
          {
@@ -627,7 +667,7 @@ namespace strtk
    template<typename Iterator>
    inline bool case_insensitive_match(const std::string& s, const Iterator begin, const Iterator end)
    {
-      for(const std::string* it = begin; it != end; ++it)
+      for(const std::string* it = begin; end != it; ++it)
       {
          if (case_insensitive_match(s,*it))
          {
@@ -669,12 +709,12 @@ namespace strtk
 
          inline tokenizer_iterator& operator++()
          {
-            if (it_ != end_)
+            if (end_ != it_)
             {
                prev_ = it_;
             }
 
-            while (it_ != end_)
+            while (end_ != it_)
             {
                if(predicate_(*it_))
                {
@@ -1035,7 +1075,7 @@ namespace strtk
       Iterator it = begin;
       Iterator prev = it;
       std::size_t match_count = 0;
-      while(it != end)
+      while(end != it)
       {
         if(delimiter(*it))
         {
@@ -1107,7 +1147,8 @@ namespace strtk
    {
       boost::sregex_iterator it(begin,end,delimiter_expression);
       boost::sregex_iterator it_end;
-      std::string token(4096,0x0);
+      std::string token;
+      token.reserve(one_kilobyte);
       std::size_t match_count = 0;
       while(it_end != it)
       {
@@ -1184,6 +1225,15 @@ namespace strtk
       mutable std::size_t current_index_;
       int offset_list_[offset_list_size + 1];
    };
+
+   inline offset_predicate<10> offsets(const int& v1, const int& v2, const int& v3,
+                                       const int& v4, const int& v5, const int& v6,
+                                       const int& v7, const int& v8, const int& v9,
+                                       const int& v10, const bool& rotate = false)
+   {
+      const int offset_list[10] = { v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 };
+      return offset_predicate<10>(offset_list,rotate);
+   }
 
    inline offset_predicate<9> offsets(const int& v1, const int& v2, const int& v3,
                                       const int& v4, const int& v5, const int& v6,
@@ -1266,13 +1316,13 @@ namespace strtk
       InputIterator prev = it;
       std::size_t match_count = 0;
       int offset_length = 0;
-      std::size_t inc_amnt = 0;
+      std::size_t increment_amount = 0;
       while ((it != end) && (0 < (offset_length = offset.next())))
       {
-         inc_amnt = std::min<std::size_t>(length,offset_length);
+         increment_amount = std::min<std::size_t>(length,offset_length);
          prev = it;
-         it += inc_amnt;
-         length -= inc_amnt;
+         it += increment_amount;
+         length -= increment_amount;
          *(out++) = std::make_pair<InputIterator,InputIterator>(prev,it);
          ++match_count;
       }
@@ -1289,7 +1339,7 @@ namespace strtk
       std::size_t token_count = 0;
       InputIterator it = begin;
       InputIterator prev = begin;
-      while(it != end)
+      while(end != it)
       {
         if(delimiter(*it))
         {
@@ -1317,7 +1367,7 @@ namespace strtk
       InputIterator prev = begin;
       InputIterator it = begin + 1;
       std::size_t count = 0;
-      while(it != end)
+      while(end != it)
       {
          if (*prev == *it)
             ++count;
@@ -1336,7 +1386,7 @@ namespace strtk
                                                              '8','9','A','B','C','D','E','F'
                                                             };
 
-      for(const unsigned char* it = begin; it != end; ++it)
+      for(const unsigned char* it = begin; end != it; ++it)
       {
          *(out++) = hex_symbol[((*it) >> 0x04) & 0x0F];
          *(out++) = hex_symbol[ (*it)          & 0x0F];
@@ -1394,8 +1444,8 @@ namespace strtk
                                                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  // 0xF8 - 0xFF
                                                             };
 
-
-      for(const unsigned char* it = begin; it != end;)
+      const unsigned char* it = begin;
+      while(end != it)
       {
          (*out)  = static_cast<unsigned char>(hex_to_bin[*(it++)] << 4);
          (*out) |= static_cast<unsigned char>(hex_to_bin[*(it++)]     );
@@ -1612,7 +1662,7 @@ namespace strtk
                                                                        0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E  // 0xF8 - 0xFF
                                                                     };
       unsigned char* it = begin;
-      while(it != end)
+      while(end != it)
       {
          (*it) = printable_char_table[static_cast<unsigned int>((*it))];
          ++it;
@@ -1628,7 +1678,7 @@ namespace strtk
    void convert_to_uppercase(unsigned char* begin, unsigned char* end)
    {
       unsigned char* it = begin;
-      while(it != end)
+      while(end != it)
       {
          //(*it) = std::toupper((*it), std::locale::classic());
          (*it) = static_cast<unsigned char>(::toupper(static_cast<int>(*it)));
@@ -1645,7 +1695,7 @@ namespace strtk
    void convert_to_lowercase(unsigned char* begin, unsigned char* end)
    {
       unsigned char* it = begin;
-      while(it != end)
+      while(end != it)
       {
          //(*it) = std::tolower((*it), std::locale::classic());
          (*it) = static_cast<unsigned char>(::tolower(static_cast<int>(*it)));
@@ -1707,7 +1757,7 @@ namespace strtk
 
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
-      while(it1 != end1)
+      while(end1 != it1)
       {
          *(reinterpret_cast<unsigned short*>(out))  = (interleave_table[*(it2++)] << 1);
          *(reinterpret_cast<unsigned short*>(out)) |=  interleave_table[*(it1++)];
@@ -1862,7 +1912,7 @@ namespace strtk
    {
       std::size_t count = 0;
       const unsigned char* it1 = begin;
-      while(it1 != end)
+      while(end != it1)
       {
          count += high_bit_count(*it1++);
       }
@@ -1936,7 +1986,7 @@ namespace strtk
       std::size_t distance = 0;
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
-      while(it1 != end1)
+      while(end1 != it1)
       {
          distance += high_bit_count(static_cast<unsigned char>(((*it1++) ^ (*it2++)) & 0xFF));
       }
@@ -2117,7 +2167,8 @@ namespace strtk
                            const unsigned int& col9, const unsigned int& col10,
                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9, T10& t10) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2142,7 +2193,8 @@ namespace strtk
                            const unsigned int& col9,
                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2164,7 +2216,8 @@ namespace strtk
                            const unsigned int& col7, const unsigned int& col8,
                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2184,7 +2237,8 @@ namespace strtk
                            const unsigned int& col7,
                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2202,7 +2256,8 @@ namespace strtk
                            const unsigned int& col5, const unsigned int& col6,
                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2217,7 +2272,8 @@ namespace strtk
                            const unsigned int& col3, const unsigned int& col4, const unsigned int& col5,
                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2231,7 +2287,8 @@ namespace strtk
                            const unsigned int& col3, const unsigned int& col4,
                            T1& t1, T2& t2, T3& t3, T4& t4) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2242,7 +2299,8 @@ namespace strtk
          inline void parse(const unsigned int& col1, const unsigned int& col2, const unsigned int& col3,
                            T1& t1, T2& t2, T3& t3) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
             process(tmp_str,(*token_list_)[ col3], t3);
@@ -2252,7 +2310,8 @@ namespace strtk
          inline void parse(const unsigned int& col1, const unsigned int& col2,
                            T1& t1, T2& t2) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[ col1], t1);
             process(tmp_str,(*token_list_)[ col2], t2);
          }
@@ -2260,7 +2319,8 @@ namespace strtk
          template<typename T1>
          inline void parse(const unsigned int& col, T1& t) const
          {
-            std::string tmp_str(1024,0x0);
+            std::string tmp_str;
+            tmp_str.reserve(one_kilobyte);
             process(tmp_str,(*token_list_)[col],t);
          }
 
@@ -2504,6 +2564,25 @@ namespace strtk
          max_column_count_ = column_count;
       }
 
+      inline void enforce_min_max_column_count(const std::size_t& min_column_count,
+                                               const std::size_t& max_column_count)
+      {
+         itr_list_list_type::iterator it = token_list_.begin();
+         itr_list_list_type new_token_list;
+         while(token_list_.end() != it)
+         {
+            std::size_t column_count = it->size();
+            if ((min_column_count <= column_count) && (column_count <= max_column_count))
+            {
+               new_token_list.push_back(*it);
+            }
+            ++it;
+         }
+         token_list_.swap(new_token_list);
+         min_column_count_ = min_column_count;
+         max_column_count_ = max_column_count;
+      }
+
       inline void clear()
       {
          delete[] buffer_;
@@ -2547,7 +2626,7 @@ namespace strtk
          min_column_count_ = std::numeric_limits<std::size_t>::max();
          max_column_count_ = std::numeric_limits<std::size_t>::min();
 
-         for(itr_list_type::iterator it = str_list.begin(); it != str_list.end(); ++it)
+         for(itr_list_type::iterator it = str_list.begin(); str_list.end() != it; ++it)
          {
             itr_list_type current_token_list;
             split(token_predicate,it->first,it->second,std::back_inserter(current_token_list));
@@ -2685,11 +2764,11 @@ namespace strtk
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
       {
-         for(const std::string* i = begin_; i != end_ ; ++i)
+         for(const std::string* it = begin_; end_ != it; ++it)
          {
             if ((case_insensitive_ &&
-               (case_insensitive_match((*i).begin(),(*i).end(),range.first,range.second))) ||
-               (!case_insensitive_ && std::equal((*i).begin(),(*i).end(),range.first)))
+               (case_insensitive_match((*it).begin(),(*it).end(),range.first,range.second))) ||
+               (!case_insensitive_ && std::equal((*it).begin(),(*it).end(),range.first)))
             {
                if (allow_through_on_match_)
                {
@@ -2707,11 +2786,11 @@ namespace strtk
 
       inline void operator() (const std::string& s) const
       {
-         for(const std::string* i = begin_; i != end_ ; ++i)
+         for(const std::string* it = begin_; end_ != it; ++it)
          {
             if ((case_insensitive_ &&
-               (case_insensitive_match((*i).begin(),(*i).end(),s.begin(),s.end()))) ||
-               (!case_insensitive_ && std::equal((*i).begin(),(*i).end(),s.begin())))
+               (case_insensitive_match((*it).begin(),(*it).end(),s.begin(),s.end()))) ||
+               (!case_insensitive_ && std::equal((*it).begin(),(*it).end(),s.begin())))
             {
                if (allow_through_on_match_)
                {
@@ -2744,7 +2823,7 @@ namespace strtk
                                    const Iterator& end,
                                    const MatchPredicate& predicate)
    {
-      while (it != end)
+      while (end != it)
       {
          if(predicate(*it))
             ++it;
@@ -3275,7 +3354,7 @@ namespace strtk
                     const InputIterator end)
    {
       InputIterator it = begin;
-      while(it != end)
+      while(end != it)
       {
          output += boost::lexical_cast<std::string>(*it);
          if (end == (++it))
@@ -3328,12 +3407,12 @@ namespace strtk
 
       serializer(char* buffer, const std::size_t& buffer_length)
       : original_buffer_(buffer),
-        buffer_(buffer + 1),
+        buffer_(buffer),
         buffer_length_(buffer_length) {}
 
       serializer(unsigned char* buffer, const std::size_t& buffer_length)
       : original_buffer_(reinterpret_cast<char*>(buffer)),
-        buffer_(reinterpret_cast<char*>(buffer + 1)),
+        buffer_(reinterpret_cast<char*>(buffer)),
         buffer_length_(buffer_length) {}
 
       inline bool operator!() const
@@ -3352,16 +3431,6 @@ namespace strtk
       {
          reset();
          std::fill_n(buffer_,buffer_length_,0x00);
-      }
-
-      void delete_internal_buffer()
-      {
-         if (original_buffer_)
-         {
-            delete[] original_buffer_;
-            original_buffer_ = 0;
-            buffer_ = 0;
-         }
       }
 
       std::size_t length() const { return written_buffer_size_; }
@@ -3482,7 +3551,7 @@ namespace strtk
          return true;
       }
 
-      char* original_buffer_;
+      char* const original_buffer_;
       char* buffer_;
       std::size_t buffer_length_;
       std::size_t written_buffer_size_;
@@ -3528,6 +3597,17 @@ namespace strtk
       {
          return left_align(width,pad,boost::lexical_cast<std::string>(t));
       }
+
+      std::string remaining_string(const std::size_t& index, const std::string& str)
+      {
+         return (index < str.size()) ?  str.substr(index,str.size() - index) : str;
+      }
+
+      void remaining_string(const std::size_t& index, const std::string& str, std::string& result)
+      {
+         result = (index < str.size()) ? str.substr(index,str.size() - index) : str;
+      }
+
    }
 
 } // namespace strtk
