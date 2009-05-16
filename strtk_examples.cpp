@@ -203,6 +203,16 @@ void tokenizer_example12()
    std::cout << std::endl;
 }
 
+void tokenizer_example13()
+{
+   std::string s = "abc|123|xyz|789";
+   strtk::std_string_tokenizer<>::type tokenizer(s,strtk::std_string_tokenizer<>::predicate_type('|'));
+   strtk::std_string_tokenizer<>::type::iterator it = tokenizer.begin();
+   std::cout << "[" << std::string((*it).first,(*it).second) << "]\t"; ++it;
+   std::cout << "[" << std::string((*it).first,(*it).second) << "]\t"; ++it;
+   std::cout << "Remaining string: " << it.remaining() << std::endl;
+}
+
 void split_example01()
 {
    std::string s = "abc|123|xyz|789";
@@ -435,6 +445,7 @@ int main(void)
    tokenizer_example10();
    tokenizer_example11();
    tokenizer_example12();
+   tokenizer_example13();
    split_example01();
    split_example02();
    split_example03();
