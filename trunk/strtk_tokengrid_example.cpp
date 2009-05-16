@@ -71,25 +71,25 @@ void token_grid_test02()
    {
       switch(i)
       {
-         case  0 : grid.row(i).parse(0,lst[0]);
+         case  0 : grid.row(i).parse_with_index(0,lst[0]);
                    break;
-         case  1 : grid.row(i).parse(0,1,lst[0],lst[1]);
+         case  1 : grid.row(i).parse_with_index(0,1,lst[0],lst[1]);
                    break;
-         case  2 : grid.row(i).parse(0,1,2,lst[0],lst[1],lst[2]);
+         case  2 : grid.row(i).parse_with_index(0,1,2,lst[0],lst[1],lst[2]);
                    break;
-         case  3 : grid.row(i).parse(0,1,2,3,lst[0],lst[1],lst[2],lst[3]);
+         case  3 : grid.row(i).parse_with_index(0,1,2,3,lst[0],lst[1],lst[2],lst[3]);
                    break;
-         case  4 : grid.row(i).parse(0,1,2,3,4,lst[0],lst[1],lst[2],lst[3],lst[4]);
+         case  4 : grid.row(i).parse_with_index(0,1,2,3,4,lst[0],lst[1],lst[2],lst[3],lst[4]);
                    break;
-         case  5 : grid.row(i).parse(0,1,2,3,4,5,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5]);
+         case  5 : grid.row(i).parse_with_index(0,1,2,3,4,5,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5]);
                    break;
-         case  6 : grid.row(i).parse(0,1,2,3,4,5,6,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6]);
+         case  6 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6]);
                    break;
-         case  7 : grid.row(i).parse(0,1,2,3,4,5,6,7,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7]);
+         case  7 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7]);
                    break;
-         case  8 : grid.row(i).parse(0,1,2,3,4,5,6,7,8,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8]);
+         case  8 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,8,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8]);
                    break;
-         case  9 : grid.row(i).parse(0,1,2,3,4,5,6,7,8,9,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8],lst[9]);
+         case  9 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,8,9,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8],lst[9]);
                    break;
       }
       std::cout << strtk::join(",",lst.begin(),lst.begin() + (i+1)) << std::endl;
