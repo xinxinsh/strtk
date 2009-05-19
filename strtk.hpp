@@ -105,10 +105,10 @@ namespace strtk
    }
 
    template<typename T>
-   static inline T type_converter(const std::string& s) { return boost::lexical_cast<T>(s); }
+   static inline T string_to_type_converter(const std::string& s) { return boost::lexical_cast<T>(s); }
 
    template<>
-   inline std::string type_converter(const std::string& s) { return s; }
+   inline std::string string_to_type_converter(const std::string& s) { return s; }
 
    template <class T,
              class Allocator,
@@ -123,7 +123,7 @@ namespace strtk
      while(std::getline(stream,buffer))
      {
         ++line_count;
-        sequence.push_back(type_converter<T>(buffer));
+        sequence.push_back(string_to_type_converter<T>(buffer));
      }
      return line_count;
    }
@@ -149,8 +149,9 @@ namespace strtk
       {
          if (predicate(*it))
          {
-            *(out++)= *(it++);
+            *(out++)= *it;
          }
+         ++it;
       }
    }
 
@@ -267,7 +268,7 @@ namespace strtk
       template<typename Iterator>
       inline void setup_delimiter_table(const Iterator begin, const Iterator end)
       {
-         std::fill(delimiter_table_,delimiter_table_ + table_size, 0);
+         std::fill_n(delimiter_table_, table_size, 0x00);
          for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
       }
 
@@ -792,7 +793,7 @@ namespace strtk
             return *this;
          }
 
-         inline std::string remaining()
+         inline std::string remaining() const
          {
             return std::string(curr_tok_begin_,end_);
          }
@@ -1822,14 +1823,9 @@ namespace strtk
 
    inline void bitwise_transform(const bitwise_operation::type& operation,
                                  const unsigned char* begin1, const unsigned char* end1,
-                                 const unsigned char* begin2, const unsigned char* end2,
+                                 const unsigned char* begin2,
                                  unsigned char* out)
    {
-      if (std::distance(begin1,end1) != std::distance(begin2,end2))
-      {
-         return;
-      }
-
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
 
@@ -1843,15 +1839,14 @@ namespace strtk
 
    inline void bitwise_transform(const bitwise_operation::type& operation,
                                  const char* begin1, const char* end1,
-                                 const char* begin2, const char* end2,
+                                 const char* begin2,
                                  char* out)
    {
-      return bitwise_transform(operation,
-                               reinterpret_cast<const unsigned char*>(begin1),
-                               reinterpret_cast<const unsigned char*>(end1),
-                               reinterpret_cast<const unsigned char*>(begin2),
-                               reinterpret_cast<const unsigned char*>(end2),
-                               reinterpret_cast<unsigned char*>(out));
+      bitwise_transform(operation,
+                        reinterpret_cast<const unsigned char*>(begin1),
+                        reinterpret_cast<const unsigned char*>(end1),
+                        reinterpret_cast<const unsigned char*>(begin2),
+                        reinterpret_cast<unsigned char*>(out));
    }
 
    inline void bitwise_transform(const bitwise_operation::type& operation,
@@ -1861,10 +1856,10 @@ namespace strtk
    {
       if (str1.size() != str2.size()) return;
       out.resize(str1.size());
-      return bitwise_transform(operation,
-                               str1.c_str(),str1.c_str() + str1.size(),
-                               str2.c_str(),str2.c_str() + str2.size(),
-                               const_cast<char*>(out.c_str()));
+      bitwise_transform(operation,
+                        str1.c_str(),str1.c_str() + str1.size(),
+                        str2.c_str(),
+                        const_cast<char*>(out.c_str()));
    }
 
    inline std::size_t high_bit_count(const unsigned char c)
@@ -2142,7 +2137,7 @@ namespace strtk
             itr_list_type::value_type curr_range = (*token_list_)[index];
             std::string tmp_str;
             tmp_str.assign(curr_range.first,curr_range.second);
-            return boost::lexical_cast<T>(tmp_str);
+            return string_to_type_converter<T>(tmp_str);
          }
 
          template<typename T>
@@ -2502,7 +2497,7 @@ namespace strtk
             {
                itr_list_type::value_type& r = *it;
                tmp_str.assign(r.first,r.second);
-               *(out++) = boost::lexical_cast<T>(tmp_str);
+               *(out++) = string_to_type_converter<T>(tmp_str);
                ++it;
             }
          }
@@ -2513,7 +2508,7 @@ namespace strtk
          inline void process(std::string& tmp_str, const itr_list_type::value_type& curr_range, T& t) const
          {
             tmp_str.assign(curr_range.first,curr_range.second);
-            t = boost::lexical_cast<T>(tmp_str);
+            t = string_to_type_converter<T>(tmp_str);
          }
 
       private:
@@ -2593,7 +2588,7 @@ namespace strtk
       inline T get(const unsigned int& row, const unsigned int& col)
       {
          range_type r = token(row,col);
-         return boost::lexical_cast<T>(std::string(r.first,r.second));
+         return string_to_type_converter<T>(std::string(r.first,r.second));
       }
 
       inline row_type row(const unsigned int& row_index) const
@@ -2818,7 +2813,7 @@ namespace strtk
       inline void process_column(std::string& tmp_str, const itr_list_type::value_type& curr_range, OutputIterator out) const
       {
          tmp_str.assign(curr_range.first,curr_range.second);
-         *(out++) = boost::lexical_cast<typename std::iterator_traits<OutputIterator>::value_type>(tmp_str);
+         *(out++) = string_to_type_converter<typename std::iterator_traits<OutputIterator>::value_type>(tmp_str);
       }
 
    private:
@@ -2861,7 +2856,7 @@ namespace strtk
    inline bool convert_string_range(const std::pair<std::string::const_iterator,std::string::const_iterator> range, T& t)
    {
       if (range.first == range.second) return false;
-      t = boost::lexical_cast<T>(std::string(range.first,range.second));
+      t = string_to_type_converter<T>(std::string(range.first,range.second));
       return true;
    }
 
@@ -3019,16 +3014,16 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-       t1 = boost::lexical_cast< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t2 = boost::lexical_cast< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t3 = boost::lexical_cast< T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t4 = boost::lexical_cast< T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t5 = boost::lexical_cast< T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t6 = boost::lexical_cast< T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t7 = boost::lexical_cast< T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t8 = boost::lexical_cast< T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t9 = boost::lexical_cast< T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t10 = boost::lexical_cast<T10>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t1 = string_to_type_converter< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t2 = string_to_type_converter< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t3 = string_to_type_converter< T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t4 = string_to_type_converter< T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t5 = string_to_type_converter< T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t6 = string_to_type_converter< T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t7 = string_to_type_converter< T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t8 = string_to_type_converter< T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t9 = string_to_type_converter< T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t10 = string_to_type_converter<T10>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3045,15 +3040,15 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = boost::lexical_cast<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t9 = boost::lexical_cast<T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t9 = string_to_type_converter<T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3068,14 +3063,14 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = boost::lexical_cast<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3089,13 +3084,13 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3109,12 +3104,12 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3128,11 +3123,11 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3145,10 +3140,10 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3161,9 +3156,9 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3175,8 +3170,8 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3188,7 +3183,7 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenzier::iterator it = tokenizer.begin();
-      t = boost::lexical_cast<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t = string_to_type_converter<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3206,16 +3201,16 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-       t1 = boost::lexical_cast< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t2 = boost::lexical_cast< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t3 = boost::lexical_cast< T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t4 = boost::lexical_cast< T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t5 = boost::lexical_cast< T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t6 = boost::lexical_cast< T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t7 = boost::lexical_cast< T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t8 = boost::lexical_cast< T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t9 = boost::lexical_cast< T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t10 = boost::lexical_cast<T10>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t1 = string_to_type_converter< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t2 = string_to_type_converter< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t3 = string_to_type_converter< T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t4 = string_to_type_converter< T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t5 = string_to_type_converter< T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t6 = string_to_type_converter< T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t7 = string_to_type_converter< T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t8 = string_to_type_converter< T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+       t9 = string_to_type_converter< T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t10 = string_to_type_converter<T10>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3233,15 +3228,15 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = boost::lexical_cast<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t9 = boost::lexical_cast<T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t9 = string_to_type_converter<T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3257,14 +3252,14 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = boost::lexical_cast<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3279,13 +3274,13 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = boost::lexical_cast<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3300,12 +3295,12 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = boost::lexical_cast<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3320,11 +3315,11 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = boost::lexical_cast<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3338,10 +3333,10 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = boost::lexical_cast<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3355,9 +3350,9 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = boost::lexical_cast<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3370,8 +3365,8 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = boost::lexical_cast<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = boost::lexical_cast<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
@@ -3384,7 +3379,7 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(begin,end);
       typename Tokenzier::iterator it = tokenizer.begin();
-      t = boost::lexical_cast<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      t = string_to_type_converter<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
       return token_count;
    }
 
