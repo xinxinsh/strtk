@@ -287,6 +287,20 @@ void split_example05()
    std::cout << std::endl;
 }
 
+void split_example06()
+{
+   std::string s = "(12)(345)(6789)(0ijkx)(yz)";
+   std::list<std::string> token_list;
+   strtk::split_regex("\\(.*?\\)",s,std::back_inserter(token_list));
+   std::list<std::string>::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      std::cout << "[" << (*it) << "]\t";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
 void offset_splitter_example01()
 {
    std::string s = "abcdefghijklmnopqrstuvwxyz012";
@@ -431,6 +445,60 @@ void generate_random_example01()
    delete [] hex_data;
 }
 
+void lexicographically_collate_example()
+{
+   std::string str_list[] = {
+                              "xyzabcabc",
+                              "ijkxyzabc",
+                              "abcdefghijklmnopqrstuvwxyz",
+                              "zyxwvutsrqponmlkjihgfedcba"
+                            };
+
+   for(std::size_t i = 0; i < sizeof(str_list)/sizeof(std::string); ++i)
+   {
+      std::cout << str_list[i] << " --> ";
+      strtk::lexicographically_collate(str_list[i]);
+      std::cout << str_list[i] << std::endl;
+   };
+
+   unsigned int uint_list[] = { 6,7,8,9,0,1,2,3,4,5 };
+
+   std::copy(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int),std::ostream_iterator<unsigned int>(std::cout," "));
+   std::cout << " --> ";
+   strtk::lexicographically_collate(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int));
+   std::copy(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int),std::ostream_iterator<unsigned int>(std::cout," "));
+   std::cout << std::endl;
+
+   std::list<int> int_list;
+   int_list.push_back(6); int_list.push_back(7);
+   int_list.push_back(8); int_list.push_back(9);
+   int_list.push_back(0); int_list.push_back(1);
+   int_list.push_back(2); int_list.push_back(3);
+   int_list.push_back(4); int_list.push_back(5);
+
+   std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout," "));
+   std::cout << " --> ";
+   strtk::lexicographically_collate(int_list.begin(),int_list.end());
+   std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout," "));
+   std::cout << std::endl;
+}
+
+void hash_example()
+{
+            char  chr_list[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
+   unsigned char uchr_list[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
+            int   int_list[] = {   -4,   -3,   -2,   -1,    0,    1,    2, 3, 4 };
+   unsigned int  uint_list[] = {    0,    1,    2,    3,    4,    5,    6, 7, 8 };
+         double   dbl_list[] = {  1.1,  2.2,  3.3,  4.4,  5.5,  6.6,  7.7 };
+
+   std::cout << "hash(char):   " << strtk::hash(chr_list, sizeof( chr_list) / sizeof(char))          << std::endl;
+   std::cout << "hash(uchar):  " << strtk::hash(uchr_list,sizeof(uchr_list) / sizeof(unsigned char)) << std::endl;
+   std::cout << "hash(int):    " << strtk::hash(int_list, sizeof( int_list) / sizeof(int))           << std::endl;
+   std::cout << "hash(uint):   " << strtk::hash(uint_list,sizeof(uint_list) / sizeof(unsigned int))  << std::endl;
+   std::cout << "hash(double): " << strtk::hash(dbl_list, sizeof( dbl_list) / sizeof(double))        << std::endl;
+}
+
+
 int main(void)
 {
    tokenizer_example01();
@@ -451,6 +519,7 @@ int main(void)
    split_example03();
    split_example04();
    split_example05();
+   split_example06();
    offset_splitter_example01();
    offset_splitter_example02();
    offset_splitter_example03();
@@ -462,5 +531,7 @@ int main(void)
    remove_consecutives_example03();
    uri_extractor_example01();
    generate_random_example01();
+   lexicographically_collate_example();
+   hash_example();
    return 0;
 }

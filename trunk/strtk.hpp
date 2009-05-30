@@ -45,7 +45,7 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenizer::iterator it = tokenizer.begin();
-      while(it != tokenizer.end())
+      while(tokenizer.end() != it)
       {
          function(*(it++));
          ++token_count;
@@ -105,10 +105,16 @@ namespace strtk
    }
 
    template<typename T>
-   static inline T string_to_type_converter(const std::string& s) { return boost::lexical_cast<T>(s); }
+   static inline T string_to_type_converter(const std::string& s)
+   {
+      return boost::lexical_cast<T>(s);
+   }
 
    template<>
-   inline std::string string_to_type_converter(const std::string& s) { return s; }
+   inline std::string string_to_type_converter(const std::string& s)
+   {
+      return s;
+   }
 
    template <class T,
              class Allocator,
@@ -216,6 +222,7 @@ namespace strtk
       template<typename Iterator>
       multiple_delimiter_predicate(const Iterator begin,const Iterator end)
       {
+         //static_assert(T == std::iterator_traits<Iterator>::value_type);
          length_ = std::distance(begin,end);
          delimiter_ = new T[length_];
          delimiter_end_ = delimiter_ + length_;
@@ -767,14 +774,14 @@ namespace strtk
             return std::make_pair<iterator,iterator>(curr_tok_begin_,curr_tok_end_);
          }
 
-         inline bool operator==(const tokenizer_iterator& it)
+         inline bool operator==(const tokenizer_iterator& it) const
          {
             return (it_   == it.it_  ) &&
                    (prev_ == it.prev_) &&
                    (end_  == it.end_ );
          }
 
-         inline bool operator!=(const tokenizer_iterator& it)
+         inline bool operator!=(const tokenizer_iterator& it) const
          {
             return !this->operator==(it);
          }
@@ -1178,7 +1185,7 @@ namespace strtk
 
    template<typename OutputIterator>
    inline std::size_t split_regex(const std::string& delimiter_expression,
-                                  const std::string text,
+                                  const std::string& text,
                                   OutputIterator out)
    {
       return split_regex(delimiter_expression,text.begin(),text.end(),out);
@@ -1371,17 +1378,102 @@ namespace strtk
    {
       if (std::distance(begin,end) < 2) return 0;
       InputIterator prev = begin;
-      InputIterator it = begin + 1;
+      InputIterator it = begin;
       std::size_t count = 0;
-      while(end != it)
+      while(end != ++it)
       {
          if (*prev == *it)
             ++count;
          else
             prev = it;
-         ++it;
       }
       return count;
+   }
+
+   template<typename InputIterator>
+   inline typename std::iterator_traits<InputIterator>::value_type min_value(const InputIterator begin, const InputIterator end)
+   {
+      typename std::iterator_traits<InputIterator>::value_type smallest = *begin;
+      InputIterator it = begin;
+      while(end != ++it)
+      {
+         if (*it < smallest)
+            smallest = *it;
+      }
+      return smallest;
+   }
+
+   template<typename InputIterator>
+   inline typename std::iterator_traits<InputIterator>::value_type max_value(const InputIterator begin, const InputIterator end)
+   {
+      typename std::iterator_traits<InputIterator>::value_type greatest = *begin;
+      InputIterator it = begin;
+      while(end != ++it)
+      {
+         if (*it > greatest)
+            greatest = *it;
+      }
+      return greatest;
+   }
+
+   template<typename Iterator>
+   void lexicographically_collate(Iterator begin, Iterator end)
+   {
+      typedef typename std::iterator_traits<Iterator>::value_type type;
+      typedef typename std::pair<Iterator,Iterator> itr_type;
+      typedef typename std::list<itr_type> itr_list_type;
+      itr_list_type itr_list;
+
+      type smallest = min_value(begin,end);
+
+      for(Iterator it = begin; it != end; ++it)
+      {
+         if (*it == smallest) itr_list.push_back(std::make_pair(it,it));
+      }
+
+      while(itr_list.size() > 1)
+      {
+         typename itr_list_type::iterator it = itr_list.begin();
+         while(itr_list.end() != it)
+         {
+            ++(*it).first;
+            if (end == (*it).first)
+               it = itr_list.erase(it);
+            else
+               ++it;
+         }
+
+         smallest = *(*itr_list.begin()).first;
+
+         for(it = (++itr_list.begin()); it != itr_list.end(); ++it)
+         {
+            if (*(*it).first < smallest) smallest = *(*it).first;
+         }
+
+         it = itr_list.begin();
+         while(itr_list.end() != it)
+         {
+           if (*(*it).first != smallest)
+               it = itr_list.erase(it);
+            else
+               ++it;
+         }
+
+         it = itr_list.begin();
+         while(itr_list.end() != it)
+         {
+            if (end == (*it).first)
+               it = itr_list.erase(it);
+            else
+               ++it;
+         }
+      }
+      std::rotate(begin,(*itr_list.begin()).second,end);
+   }
+
+   void lexicographically_collate(std::string& str)
+   {
+      lexicographically_collate(const_cast<char*>(str.c_str()), const_cast<char*>(str.c_str() + str.size()));
    }
 
    inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
@@ -2012,29 +2104,19 @@ namespace strtk
    namespace hash_details_
    {
 
-      inline void compute_hash(const char data, unsigned int& hash)
-      {
-         hash ^= ((hash <<  7) ^ data * (hash >> 3));
-      }
-
-      inline void compute_hash(const unsigned char data, unsigned int& hash)
-      {
-         hash ^=  ((hash <<  7) ^ data * (hash >> 3));
-      }
-
-      inline void compute_hash(const char data[], unsigned int& hash)
+      inline void compute_pod_hash(const char data[], unsigned int& hash)
       {
          hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
          hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
       }
 
-      inline void compute_hash(const unsigned char data[], unsigned int& hash)
+      inline void compute_pod_hash(const unsigned char data[], unsigned int& hash)
       {
          hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
          hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
       }
 
-      inline void compute_hash(const int& data, unsigned int& hash)
+      inline void compute_pod_hash(const int& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
          hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
@@ -2043,16 +2125,12 @@ namespace strtk
          hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
       }
 
-      inline void compute_hash(const unsigned int& data, unsigned int& hash)
+      inline void compute_pod_hash(const unsigned int& data, unsigned int& hash)
       {
-         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
+         compute_pod_hash(static_cast<const int&>(data),hash);
       }
 
-      inline void compute_hash(const double& data, unsigned int& hash)
+      inline void compute_pod_hash(const double& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
          hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
@@ -2065,48 +2143,74 @@ namespace strtk
          hash ^= ~((hash << 11) + (it[7] ^ (hash >> 5)));
       }
 
-      template<typename T>
-      inline void compute_hash(const T& data, unsigned int& hash)
+      /*
+      inline void compute_pod_hash(const long long& data, unsigned int& hash)
       {
          const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         for(unsigned int i = 0; i < (sizeof(T) >> 1); ++i)
+         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[5] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  it[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + (it[7] ^ (hash >> 5)));
+      }
+      */
+
+      template<std::size_t block_size, typename Iterator>
+      inline void compute_block(Iterator itr, std::size_t& length, unsigned int& hash)
+      {
+         while(length >= block_size)
          {
-            hash ^=  ((hash <<  7) ^ (*it++) * (hash >> 3));
-            hash ^= ~((hash << 11) + (*it++) ^ (hash >> 5));
+            for(std::size_t i = 0; i < block_size; ++i, ++itr)
+            {
+               compute_pod_hash((*itr),hash);
+            }
+            length -= block_size;
          }
       }
 
-      template<typename Iterator, std::size_t block_size>
-      inline void compute_block(Iterator buffer_it, std::size_t& length, unsigned int& hash)
+      template<std::size_t block_size>
+      inline void compute_block(unsigned char* itr, std::size_t& length, unsigned int& hash)
       {
-        while(length >= block_size)
-        {
-          for(std::size_t i = 0; i < block_size; ++i, ++buffer_it)
-          {
-            compute_hash((*buffer_it),hash);
-          }
-          length -= block_size;
-        }
+         while(length >= block_size)
+         {
+            for(std::size_t i = 0; i < block_size; ++i, ++itr)
+            {
+               compute_pod_hash((*itr),hash);
+            }
+            length -= block_size;
+         }
       }
 
+      template<std::size_t block_size>
+      inline void compute_block(char* itr, std::size_t& length, unsigned int& hash)
+      {
+         compute_block<block_size>(reinterpret_cast<unsigned char*>(itr),length,hash);
+      }
+
+   }//hash_details_
+
+   template<typename Iterator>
+   inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value)
+   {
+      hash_value = 0xAAAAAAAA;
+      if (length >= 64) hash_details_::compute_block<64>(itr,length,hash_value);
+      if (length >= 32) hash_details_::compute_block<32>(itr,length,hash_value);
+      if (length >= 16) hash_details_::compute_block<16>(itr,length,hash_value);
+      if (length >=  8) hash_details_::compute_block< 8>(itr,length,hash_value);
+      if (length >=  4) hash_details_::compute_block< 4>(itr,length,hash_value);
+      if (length >=  2) hash_details_::compute_block< 2>(itr,length,hash_value);
+      if (length >   0) hash_details_::compute_block< 1>(itr,length,hash_value);
    }
 
    template<typename Iterator>
-   inline void hash(const Iterator buffer_it,
-                    std::size_t length,
-                    unsigned int& hash_value)
+   inline unsigned int hash(const Iterator itr, std::size_t length)
    {
-      hash_value = 0xAAAAAAAA;
-      hash_details_::compute_block<Iterator,32>(buffer_it,length,hash_value);
-      hash_details_::compute_block<Iterator,16>(buffer_it,length,hash_value);
-      hash_details_::compute_block<Iterator, 8>(buffer_it,length,hash_value);
-      hash_details_::compute_block<Iterator, 4>(buffer_it,length,hash_value);
-      hash_details_::compute_block<Iterator, 2>(buffer_it,length,hash_value);
-
-      if (length > 0)
-      {
-         hash_details_::compute_hash((*buffer_it),hash_value);
-      }
+      unsigned int hash_value = 0;
+      hash(itr,length,hash_value);
+      return hash_value;
    }
 
    inline unsigned int hash(const std::string& s)
@@ -2132,7 +2236,7 @@ namespace strtk
          {}
 
          template<typename T>
-         inline T operator[](const unsigned int& index) const
+         inline T operator[](const std::size_t& index) const
          {
             itr_list_type::value_type curr_range = (*token_list_)[index];
             std::string tmp_str;
@@ -2141,12 +2245,12 @@ namespace strtk
          }
 
          template<typename T>
-         inline T get(const unsigned int& index) const
+         inline T get(const std::size_t& index) const
          {
             return row_type::operator[]<T>(index);
          }
 
-         inline range_type token(const unsigned int& index) const
+         inline range_type token(const std::size_t& index) const
          {
             return (*token_list_)[index];
          }
@@ -2171,11 +2275,11 @@ namespace strtk
                   typename T5, typename T6,
                   typename T7, typename T8,
                   typename T9, typename T10 >
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3, const unsigned int& col4,
-                                      const unsigned int& col5, const unsigned int& col6,
-                                      const unsigned int& col7, const unsigned int& col8,
-                                      const unsigned int& col9, const unsigned int& col10,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3, const std::size_t& col4,
+                                      const std::size_t& col5, const std::size_t& col6,
+                                      const std::size_t& col7, const std::size_t& col8,
+                                      const std::size_t& col9, const std::size_t& col10,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8, T9& t9, T10& t10) const
          {
@@ -2198,11 +2302,11 @@ namespace strtk
                   typename T5, typename T6,
                   typename T7, typename T8,
                   typename T9 >
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3, const unsigned int& col4,
-                                      const unsigned int& col5, const unsigned int& col6,
-                                      const unsigned int& col7, const unsigned int& col8,
-                                      const unsigned int& col9,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3, const std::size_t& col4,
+                                      const std::size_t& col5, const std::size_t& col6,
+                                      const std::size_t& col7, const std::size_t& col8,
+                                      const std::size_t& col9,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,
                                       T8& t8, T9& t9) const
          {
@@ -2223,10 +2327,10 @@ namespace strtk
                   typename T3, typename T4,
                   typename T5, typename T6,
                   typename T7, typename T8>
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3, const unsigned int& col4,
-                                      const unsigned int& col5, const unsigned int& col6,
-                                      const unsigned int& col7, const unsigned int& col8,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3, const std::size_t& col4,
+                                      const std::size_t& col5, const std::size_t& col6,
+                                      const std::size_t& col7, const std::size_t& col8,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8) const
          {
             std::string tmp_str;
@@ -2244,10 +2348,10 @@ namespace strtk
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6, typename T7>
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3, const unsigned int& col4,
-                                      const unsigned int& col5, const unsigned int& col6,
-                                      const unsigned int& col7,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3, const std::size_t& col4,
+                                      const std::size_t& col5, const std::size_t& col6,
+                                      const std::size_t& col7,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7) const
          {
             std::string tmp_str;
@@ -2264,9 +2368,9 @@ namespace strtk
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6>
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3, const unsigned int& col4,
-                                      const unsigned int& col5, const unsigned int& col6,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3, const std::size_t& col4,
+                                      const std::size_t& col5, const std::size_t& col6,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
          {
             std::string tmp_str;
@@ -2281,9 +2385,9 @@ namespace strtk
 
          template<typename T1, typename T2,
                   typename T3, typename T4,typename T5>
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3, const unsigned int& col4,
-                                      const unsigned int& col5,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3, const std::size_t& col4,
+                                      const std::size_t& col5,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
             std::string tmp_str;
@@ -2297,8 +2401,8 @@ namespace strtk
 
          template<typename T1, typename T2,
                   typename T3, typename T4>
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3, const unsigned int& col4,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3, const std::size_t& col4,
                                       T1& t1, T2& t2, T3& t3, T4& t4) const
          {
             std::string tmp_str;
@@ -2310,8 +2414,8 @@ namespace strtk
          }
 
          template<typename T1, typename T2, typename T3>
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
-                                      const unsigned int& col3,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+                                      const std::size_t& col3,
                                       T1& t1, T2& t2, T3& t3) const
          {
             std::string tmp_str;
@@ -2322,7 +2426,7 @@ namespace strtk
          }
 
          template<typename T1, typename T2>
-         inline void parse_with_index(const unsigned int& col1, const unsigned int& col2,
+         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       T1& t1, T2& t2) const
          {
             std::string tmp_str;
@@ -2332,7 +2436,7 @@ namespace strtk
          }
 
          template<typename T1>
-         inline void parse_with_index(const unsigned int& col, T1& t) const
+         inline void parse_with_index(const std::size_t& col, T1& t) const
          {
             std::string tmp_str;
             tmp_str.reserve(reserve_size_);
@@ -2579,13 +2683,13 @@ namespace strtk
       inline std::size_t min_column_count() const { return min_column_count_;  }
       inline std::size_t max_column_count() const { return max_column_count_;  }
 
-      inline range_type token(const unsigned int& row, const unsigned int& col)
+      inline range_type token(const unsigned int& row, const std::size_t& col)
       {
          return token_list_[row][col];
       }
 
       template<typename T>
-      inline T get(const unsigned int& row, const unsigned int& col)
+      inline T get(const unsigned int& row, const std::size_t& col)
       {
          range_type r = token(row,col);
          return string_to_type_converter<T>(std::string(r.first,r.second));
@@ -3698,7 +3802,7 @@ namespace strtk
          if (!read(list_size))
             return false;
          T t;
-         for(unsigned int i = 0; i < list_size; ++i)
+         for(std::size_t i = 0; i < list_size; ++i)
          {
             if (!t.read(*this)) return false;
             sequence.push_back(t);

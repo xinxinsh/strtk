@@ -78,7 +78,7 @@ int main(void)
 
    kvp_type kvp(keyvalue_list,key_value_tokenizer);
 
-   strtk::for_each_token<tokenizer_type1,kvp_type>(data,pair_tokenizer,kvp);
+   strtk::for_each_token(data,pair_tokenizer,kvp);
    std::deque< std::pair<std::string,std::string> >::iterator it = keyvalue_list.begin();
    while(it != keyvalue_list.end())
    {
