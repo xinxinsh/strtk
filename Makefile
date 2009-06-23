@@ -28,7 +28,7 @@ OBJECTS = $(CPP_SRC:.cpp=.o)
 %.o: %.hpp %.cpp
 	$(COMPILER) $(OPTIONS_LIBS) $*.cpp
 
-BUILD_LIST+=stk_tokenizer_cmp
+BUILD_LIST+=strtk_tokenizer_cmp
 BUILD_LIST+=strtk_examples
 BUILD_LIST+=strtk_keyvalue_example
 BUILD_LIST+=strtk_text_parser_example01
@@ -41,8 +41,8 @@ BUILD_LIST+=strtk_serializer_example
 
 all: $(BUILD_LIST)
 
-stk_tokenizer_cmp: stk_tokenizer_cmp.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) stk_tokenizer_cmp stk_tokenizer_cmp.cpp $(LINKER_OPT)
+strtk_tokenizer_cmp: strtk_tokenizer_cmp.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_tokenizer_cmp strtk_tokenizer_cmp.cpp $(LINKER_OPT)
 
 strtk_examples: strtk_examples.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_examples strtk_examples.cpp  $(LINKER_OPT) $(REGEX)
@@ -72,7 +72,7 @@ strtk_serializer_example : strtk_serializer_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_serializer_example strtk_serializer_example.cpp $(LINKER_OPT)
 
 strip_bin :
-	strip -s stk_tokenizer_cmp
+	strip -s strtk_tokenizer_cmp
 	strip -s strtk_examples
 	strip -s strtk_keyvalue_example
 	strip -s strtk_text_parser_example01
