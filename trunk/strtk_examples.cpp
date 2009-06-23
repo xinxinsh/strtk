@@ -161,7 +161,7 @@ void tokenizer_example10()
 {
    const unsigned int str_list_size = 12;
    std::string str_list[str_list_size] = { "abc" , "delimiter" , "ijk" , "delimiter" ,
-                                           "lmn" , "delimiter" , "opq", "rst"  ,"uvw" ,
+                                           "lmn" , "delimiter" , "opq", "rst" ,"uvw" ,
                                            "delimiter" , "xyz" , "123" };
 
    strtk::range_adapter<std::string> range(str_list,str_list_size);
@@ -420,7 +420,7 @@ void remove_consecutives_example03()
 
 void uri_extractor_example01()
 {
-   std::string text = "someone@somewhere.com http://www.test.com any.one@any.where.com ftp://123.abcxyz.com";
+   std::string text = "someone@somewhere.com http://www.test.net any.one@any.where.com ftp://123.abcxyz.org";
    std::list<std::string> email_list;
    std::list<std::string> url_list;
    strtk::split_regex(strtk::email_expression,text,std::back_inserter(email_list));
@@ -498,6 +498,38 @@ void hash_example()
    std::cout << "hash(double): " << strtk::hash(dbl_list, sizeof( dbl_list) / sizeof(double))        << std::endl;
 }
 
+void join_example()
+{
+   const std::size_t str_list_size = 5;
+   std::string str_list [] = {
+                               "1",
+                               "22",
+                               "333",
+                               "4444",
+                               "55555"
+                             };
+
+   std::cout << strtk::join(",",str_list,str_list + str_list_size) << std::endl;
+
+   std::cout << "Size equals 1: " << strtk::join_if(",", strtk::size_equal_to<1>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size equals 2: " << strtk::join_if(",", strtk::size_equal_to<2>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size equals 3: " << strtk::join_if(",", strtk::size_equal_to<3>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size equals 4: " << strtk::join_if(",", strtk::size_equal_to<4>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size equals 5: " << strtk::join_if(",", strtk::size_equal_to<5>(), str_list,str_list + str_list_size) << std::endl;
+
+   std::cout << "Size less than 1: " << strtk::join_if(",", strtk::size_less_than<1>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size less than 2: " << strtk::join_if(",", strtk::size_less_than<2>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size less than 3: " << strtk::join_if(",", strtk::size_less_than<3>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size less than 4: " << strtk::join_if(",", strtk::size_less_than<4>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size less than 5: " << strtk::join_if(",", strtk::size_less_than<5>(), str_list,str_list + str_list_size) << std::endl;
+
+   std::cout << "Size greater than 1: " << strtk::join_if(",", strtk::size_greater_than<1>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size greater than 2: " << strtk::join_if(",", strtk::size_greater_than<2>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size greater than 3: " << strtk::join_if(",", strtk::size_greater_than<3>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size greater than 4: " << strtk::join_if(",", strtk::size_greater_than<4>(), str_list,str_list + str_list_size) << std::endl;
+   std::cout << "Size greater than 5: " << strtk::join_if(",", strtk::size_greater_than<5>(), str_list,str_list + str_list_size) << std::endl;
+}
+
 
 int main(void)
 {
@@ -533,5 +565,6 @@ int main(void)
    generate_random_example01();
    lexicographically_collate_example();
    hash_example();
+   join_example();
    return 0;
 }

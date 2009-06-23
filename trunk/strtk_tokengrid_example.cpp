@@ -240,6 +240,40 @@ void token_grid_test06()
 }
 
 
+void token_grid_test07()
+{
+   std::string data;
+   data += "The The  The The  The   The The The The\n";
+   data += "quick quick  quick quick  quick   quick quick  quick quick\n";
+   data += "brown  brown brown brown brown brown brown brown brown\n";
+   data += "fox fox  fox  fox fox   fox fox  fox    fox\n";
+   data += "jumps jumps jumps jumps jumps jumps jumps jumps jumps\n";
+   data += "over  over  over  over  over  over  over  over  over\n";
+   data += "the   the the    the   the   the the  the   the\n";
+   data += "lazy  lazy lazy lazy  lazy  lazy lazy  lazy  lazy\n";
+   data += "dog   dog  dog   dog   dog   dog   dog   dog dog\n\n\n";
+
+   strtk::token_grid grid(data,data.size()," ");
+
+   if (grid.min_column_count() != grid.max_column_count())
+   {
+      std::cout << "token_grid_test07 - ERROR!" << std::endl;
+      std::cout << "min column count: " << grid.min_column_count() << std::endl;
+      std::cout << "max column count: " << grid.max_column_count() << std::endl;
+   }
+
+   std::vector<std::string> words;
+   words.reserve(grid.row_count());
+
+   for(std::size_t i = 0; i < grid.min_column_count(); ++i)
+   {
+      words.clear();
+      grid.extract_column(i,strtk::back_inserter_with_valuetype(words));
+      std::cout << strtk::join(" ",words.begin(),words.end()) << std::endl;
+   }
+}
+
+
 int main(void)
 {
    token_grid_test01();
@@ -248,5 +282,6 @@ int main(void)
    token_grid_test04();
    token_grid_test05();
    token_grid_test06();
+   token_grid_test07();
    return 0;
 }
