@@ -204,28 +204,28 @@ namespace strtk
       typedef T value_type;
 
       multiple_delimiter_predicate(const T* d_begin,const T* d_end)
+      : length_(std::distance(d_begin,d_end)),
+        delimiter_(new T[length_]),
+        delimiter_end_(delimiter_ + length_)
       {
-         length_ = std::distance(d_begin,d_end);
-         delimiter_ = new T[length_];
-         delimiter_end_ = delimiter_ + length_;
          std::copy(d_begin,d_end, delimiter_);
       }
 
       multiple_delimiter_predicate(const T d[], const std::size_t& length)
+      : length_(length),
+        delimiter_(new T[length_]),
+        delimiter_end_(delimiter_ + length_)
       {
-         length_ = length;
-         delimiter_ = new T[length_];
-         delimiter_end_ = delimiter_ + length_;
          std::copy(d,d + length, delimiter_);
       }
 
       template<typename Iterator>
       multiple_delimiter_predicate(const Iterator begin,const Iterator end)
+      : length_(std::distance(begin,end)),
+        delimiter_(new T[length_]),
+        delimiter_end_(delimiter_ + length_)
       {
          //static_assert(T == std::iterator_traits<Iterator>::value_type);
-         length_ = std::distance(begin,end);
-         delimiter_ = new T[length_];
-         delimiter_end_ = delimiter_ + length_;
          std::copy(begin,end, delimiter_);
       }
 
@@ -237,9 +237,14 @@ namespace strtk
       }
 
    private:
+
+      multiple_delimiter_predicate(const multiple_delimiter_predicate<T>& mdp);
+      multiple_delimiter_predicate operator=(const multiple_delimiter_predicate<T>& mdp);
+
+   private:
+      std::size_t length_;
       T* delimiter_;
       T* delimiter_end_;
-      std::size_t length_;
    };
 
    struct multiple_char_delimiter_predicate
@@ -646,7 +651,7 @@ namespace strtk
                    str.c_str(),str.c_str() + str.size(),'*','?');
    }
 
-   inline bool case_insensitive_match(const std::string::const_iterator begin1, const std::string::const_iterator end1,
+   inline bool imatch(const std::string::const_iterator begin1, const std::string::const_iterator end1,
                                       const std::string::const_iterator begin2, const std::string::const_iterator end2)
    {
       if (std::distance(begin1,end1) != std::distance(begin2,end2))
@@ -667,17 +672,17 @@ namespace strtk
       return true;
    }
 
-   inline bool case_insensitive_match(const std::string& s1, const std::string s2)
+   inline bool imatch(const std::string& s1, const std::string s2)
    {
-      return case_insensitive_match(s1.begin(),s1.end(),s2.begin(),s2.end());
+      return imatch(s1.begin(),s1.end(),s2.begin(),s2.end());
    }
 
    template<typename Iterator>
-   inline bool case_insensitive_match(const std::string& s, const Iterator begin, const Iterator end)
+   inline bool imatch(const std::string& s, const Iterator begin, const Iterator end)
    {
       for(const std::string* it = begin; end != it; ++it)
       {
-         if (case_insensitive_match(s,*it))
+         if (imatch(s,*it))
          {
             return true;
          }
@@ -1023,7 +1028,7 @@ namespace strtk
    }
 
    template<typename T>
-   class counting_back_inserter_iterator : public std::iterator<std::output_iterator_tag, T, void,void, void>
+   class counting_back_inserter_iterator : public std::iterator<std::output_iterator_tag,T,void,void,void>
    {
    public:
 
@@ -1204,9 +1209,9 @@ namespace strtk
    {
    public:
       offset_predicate(const int offset_list[], const bool rotate = false)
-      : rotate_(rotate)
+      : rotate_(rotate),
+        current_index_(0)
       {
-         current_index_ = 0;
          std::copy(offset_list, offset_list + offset_list_size, offset_list_);
          offset_list_[offset_list_size] = 0;
       }
@@ -2629,6 +2634,8 @@ namespace strtk
         row_delimiters_(row_delimiters),
         buffer_(0),
         buffer_size_(0),
+        min_column_count_(0),
+        max_column_count_(0),
         load_from_file_(true),
         state_(load())
       {}
@@ -2642,6 +2649,8 @@ namespace strtk
         row_delimiters_(row_delimiters),
         buffer_(const_cast<unsigned char*>(input_buffer)),
         buffer_size_(input_buffer_size),
+        min_column_count_(0),
+        max_column_count_(0),
         load_from_file_(false),
         state_(load())
       {}
@@ -2655,6 +2664,8 @@ namespace strtk
         row_delimiters_(row_delimiters),
         buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer))),
         buffer_size_(input_buffer_size),
+        min_column_count_(0),
+        max_column_count_(0),
         load_from_file_(false),
         state_(load())
       {}
@@ -2668,6 +2679,8 @@ namespace strtk
         row_delimiters_(row_delimiters),
         buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer.c_str()))),
         buffer_size_(input_buffer_size),
+        min_column_count_(0),
+        max_column_count_(0),
         load_from_file_(false),
         state_(load())
       {}
@@ -2901,8 +2914,14 @@ namespace strtk
 
          for(itr_list_type::iterator it = str_list.begin(); str_list.end() != it; ++it)
          {
+            if (0 == std::distance(it->first,it->second))
+               continue;
             itr_list_type current_token_list;
-            split(token_predicate,it->first,it->second,std::back_inserter(current_token_list));
+            split(token_predicate,
+                  it->first,
+                  it->second,
+                  std::back_inserter(current_token_list),
+                  split_options::compress_delimiters);
             if (!current_token_list.empty())
             {
                token_list_.push_back(current_token_list);
@@ -3028,7 +3047,7 @@ namespace strtk
                      OutputPredicate predicate,
                      bool case_insensitive,
                      bool allow_through_on_match = true)
-      :case_insensitive_(case_insensitive),
+     : case_insensitive_(case_insensitive),
        allow_through_on_match_(allow_through_on_match),
        begin_(begin),
        end_(end),
@@ -3040,7 +3059,7 @@ namespace strtk
          for(const std::string* it = begin_; end_ != it; ++it)
          {
             if ((case_insensitive_ &&
-               (case_insensitive_match((*it).begin(),(*it).end(),range.first,range.second))) ||
+               (imatch((*it).begin(),(*it).end(),range.first,range.second))) ||
                (!case_insensitive_ && std::equal((*it).begin(),(*it).end(),range.first)))
             {
                if (allow_through_on_match_)
@@ -3062,7 +3081,7 @@ namespace strtk
          for(const std::string* it = begin_; end_ != it; ++it)
          {
             if ((case_insensitive_ &&
-               (case_insensitive_match((*it).begin(),(*it).end(),s.begin(),s.end()))) ||
+               (imatch((*it).begin(),(*it).end(),s.begin(),s.end()))) ||
                (!case_insensitive_ && std::equal((*it).begin(),(*it).end(),s.begin())))
             {
                if (allow_through_on_match_)
@@ -3083,6 +3102,7 @@ namespace strtk
       filter_on_match& operator=(const filter_on_match& fom);
 
    private:
+
       bool case_insensitive_;
       bool allow_through_on_match_;
       const std::string* begin_;
@@ -3104,6 +3124,75 @@ namespace strtk
             break;
       }
    }
+
+   template<std::size_t length>
+   struct size_equal_to
+   {
+      template<typename Iterator>
+      inline bool operator()(const Iterator begin, const Iterator end)
+      {
+         return length == std::distance(begin,end);
+      }
+
+      template <class T,
+                class Allocator,
+                template <class,class> class Sequence>
+      inline bool operator()(const Sequence<T,Allocator>& sequence)
+      {
+         return length == sequence.size();
+      }
+
+      inline bool operator()(const std::string& str)
+      {
+         return length == str.size();
+      }
+   };
+
+   template<std::size_t length>
+   struct size_less_than
+   {
+      template<typename Iterator>
+      inline bool operator()(const Iterator begin, const Iterator end)
+      {
+         return std::distance(begin,end) < static_cast<typename std::iterator_traits<Iterator>::difference_type>(length);
+      }
+
+      template <class T,
+                class Allocator,
+                template <class,class> class Sequence>
+      inline bool operator()(const Sequence<T,Allocator>& sequence)
+      {
+         return sequence.size() < length;
+      }
+
+      inline bool operator()(const std::string& str)
+      {
+         return str.size() < length;
+      }
+   };
+
+   template<std::size_t length>
+   struct size_greater_than
+   {
+      template<typename Iterator>
+      inline bool operator()(const Iterator begin, const Iterator end)
+      {
+         return std::distance(begin,end) > static_cast<typename std::iterator_traits<Iterator>::difference_type>(length);
+      }
+
+      template <class T,
+                class Allocator,
+                template <class,class> class Sequence>
+      inline bool operator()(const Sequence<T,Allocator>& sequence)
+      {
+         return sequence.size() > length;
+      }
+
+      inline bool operator()(const std::string& str)
+      {
+         return str.size() > length;
+      }
+   };
 
    template< typename Tokenzier,
              typename T1, typename T2, typename T3, typename T4,
@@ -3647,6 +3736,61 @@ namespace strtk
       return output;
    }
 
+   template<typename InputIterator, typename Predicate>
+   inline void join_if(std::string& output,
+                       const std::string& delimiter,
+                       Predicate predicate,
+                       const InputIterator begin,
+                       const InputIterator end)
+   {
+      InputIterator it = begin;
+      bool first_time = true;
+      while(end != it)
+      {
+         if (predicate(*it))
+         {
+            if (!first_time)
+               output += delimiter;
+            else
+               first_time = false;
+            output += boost::lexical_cast<std::string>(*it);
+         }
+         if (end == (++it))
+            break;
+      }
+   }
+
+   template<typename InputIterator, typename Predicate>
+   inline std::string join_if(const std::string& delimiter,
+                              Predicate predicate,
+                              const InputIterator begin,
+                              const InputIterator end)
+   {
+      std::string output;
+      join_if(output,delimiter,predicate,begin,end);
+      return output;
+   }
+
+   inline void replicate(const std::size_t& count,
+                         const std::string& str,
+                         std::string& output)
+   {
+      if (0== count) return;
+      output.reserve(output.size() + (str.size() * count));
+      for(std::size_t i = 0; i < count; ++i)
+      {
+         output.append(str);
+      }
+   }
+
+   inline std::string replicate(const std::size_t& count,
+                                const std::string& str)
+   {
+      std::string output;
+      replicate(count,str,output);
+      return output;
+   }
+
    void generate_random_data(unsigned char* data, std::size_t length, unsigned int pre_gen_cnt = 0, unsigned int seed = 0xA5A5A5A5)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
@@ -3681,12 +3825,18 @@ namespace strtk
       serializer(char* buffer, const std::size_t& buffer_length)
       : original_buffer_(buffer),
         buffer_(buffer),
-        buffer_length_(buffer_length) {}
+        buffer_length_(buffer_length),
+        to_be_written_buffer_size_(0),
+        read_buffer_size_(0)
+      {}
 
       serializer(unsigned char* buffer, const std::size_t& buffer_length)
       : original_buffer_(reinterpret_cast<char*>(buffer)),
         buffer_(reinterpret_cast<char*>(buffer)),
-        buffer_length_(buffer_length) {}
+        buffer_length_(buffer_length),
+        to_be_written_buffer_size_(0),
+        read_buffer_size_(0)
+      {}
 
       inline bool operator!() const
       {
@@ -3769,9 +3919,10 @@ namespace strtk
          return true;
       }
 
-      inline void write_to_stream(std::ofstream& stream)
+      inline std::size_t write_to_stream(std::ofstream& stream)
       {
          stream.write(original_buffer_,static_cast<std::streamsize>(to_be_written_buffer_size_));
+         return to_be_written_buffer_size_;
       }
 
       inline bool read_from_stream(std::ifstream& stream, const std::size_t& length)
