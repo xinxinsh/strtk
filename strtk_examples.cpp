@@ -418,6 +418,22 @@ void remove_consecutives_example03()
    std::cout << s << std::endl;
 }
 
+void remove_trailing_example()
+{
+   std::string s = "The quick brown fox jumps over the lazy dog  , _";
+   std::cout << "Before: ["<< s << "]" << std::endl;
+   strtk::remove_trailing(" _,",s);
+   std::cout << "After:  ["<< s << "]" << std::endl;
+}
+
+void remove_proceeding_example()
+{
+   std::string s = "_ ,  The quick brown fox jumps over the lazy dog";
+   std::cout << "Before: ["<< s << "]" << std::endl;
+   strtk::remove_proceeding(" _,",s);
+   std::cout << "After:  ["<< s << "]" << std::endl;
+}
+
 void uri_extractor_example01()
 {
    std::string text = "someone@somewhere.com http://www.test.net any.one@any.where.com ftp://123.abcxyz.org";
@@ -561,6 +577,8 @@ int main(void)
    remove_consecutives_example01();
    remove_consecutives_example02();
    remove_consecutives_example03();
+   remove_trailing_example();
+   remove_proceeding_example();
    uri_extractor_example01();
    generate_random_example01();
    lexicographically_collate_example();

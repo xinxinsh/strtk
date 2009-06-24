@@ -167,7 +167,8 @@ namespace strtk
       InputIterator it = begin;
       while(end != it)
       {
-         if (!predicate(*it)) break;
+         if (!predicate(*it))
+            break;
          *(out++)= *(it++);
       }
       return it;
@@ -179,7 +180,8 @@ namespace strtk
       InputIterator it = begin;
       while(end != it)
       {
-         if (predicate(*it)) break;
+         if (predicate(*it))
+            break;
          *(out++)= *(it++);
       }
       return it;
@@ -368,7 +370,35 @@ namespace strtk
    inline void remove_consecutives_inplace(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_consecutives_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
+      std::size_t removal_count = remove_consecutives_inplace(single_delimiter_predicate<std::string::value_type>(c),
+                                                              s.begin(),
+                                                              s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   inline void remove_consecutives_inplace(const std::string& rem_chars, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(rem_chars),
+                                                              s.begin(),
+                                                              s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   inline void remove_consecutives_inplace(const char* rem_chars, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(
+                                                              rem_chars,
+                                                              rem_chars + strnlen(rem_chars,256)),
+                                                              s.begin(),
+                                                              s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -419,6 +449,140 @@ namespace strtk
    {
       std::size_t removal_count = remove_consecutives_inplace(s.begin(),s.end());
 
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   template<typename Iterator, class Predicate>
+   inline std::size_t remove_trailing(Predicate predicate,
+                                      Iterator begin,
+                                      Iterator end)
+   {
+      std::size_t length = std::distance(begin,end);
+      if (0 == length)
+         return 0;
+      Iterator it = begin + (length - 1);
+      std::size_t removal_count = 0;
+      while((begin != it) && predicate(*it))
+      {
+         it--;
+         removal_count++;
+      }
+      return removal_count;
+   }
+
+   inline void remove_trailing(const std::string::value_type c, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_trailing(single_delimiter_predicate<std::string::value_type>(c),
+                                                  s.begin(),
+                                                  s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   inline void remove_trailing(const std::string& rem_chars, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(rem_chars),
+                                                  s.begin(),
+                                                  s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   inline void remove_trailing(const char* rem_chars, std::string& s)
+   {
+      std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(
+                                                  rem_chars,
+                                                  rem_chars + strnlen(rem_chars,256)),
+                                                  s.begin(),
+                                                  s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   template<class Predicate>
+   inline void remove_trailing(Predicate predicate, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_trailing(predicate,s.begin(),s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   template<typename Iterator, class Predicate>
+   inline std::size_t remove_proceeding(Predicate predicate,
+                                        Iterator begin,
+                                        Iterator end)
+   {
+      std::size_t length = std::distance(begin,end);
+      if (0 == length)
+         return 0;
+      Iterator it = begin;
+      std::size_t removal_count = 0;
+      while((end != it) && predicate(*it))
+      {
+         it++;
+         removal_count++;
+      }
+      std::copy(it,end,begin);
+      return removal_count;
+   }
+
+   inline void remove_proceeding(const std::string::value_type c, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_proceeding(single_delimiter_predicate<std::string::value_type>(c),
+                                                    s.begin(),
+                                                    s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   inline void remove_proceeding(const std::string& rem_chars, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_proceeding(multiple_char_delimiter_predicate(rem_chars),
+                                                    s.begin(),
+                                                    s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   inline void remove_proceeding(const char* rem_chars, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_proceeding(multiple_char_delimiter_predicate(
+                                                    rem_chars,
+                                                    rem_chars + strnlen(rem_chars,256)),
+                                                    s.begin(),
+                                                    s.end());
+      if (removal_count > 0)
+      {
+         s.resize(s.size() - removal_count);
+      }
+   }
+
+   template<class Predicate>
+   inline void remove_proceeding(Predicate predicate, std::string& s)
+   {
+      if (s.empty()) return;
+      std::size_t removal_count = remove_proceeding(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -652,7 +816,7 @@ namespace strtk
    }
 
    inline bool imatch(const std::string::const_iterator begin1, const std::string::const_iterator end1,
-                                      const std::string::const_iterator begin2, const std::string::const_iterator end2)
+                      const std::string::const_iterator begin2, const std::string::const_iterator end2)
    {
       if (std::distance(begin1,end1) != std::distance(begin2,end2))
       {
@@ -662,6 +826,7 @@ namespace strtk
       std::string::const_iterator it2 = begin2;
       while(end1 != it1)
       {
+         //if (std::toupper(*it1, std::locale::classic()) != std::toupper(*it2, std::locale::classic()))
          if (std::toupper(*it1) != std::toupper(*it2))
          {
             return false;
