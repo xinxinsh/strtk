@@ -287,11 +287,58 @@ void split_example05()
    std::cout << std::endl;
 }
 
-void split_example06()
+void split_regex_example()
 {
    std::string s = "(12)(345)(6789)(0ijkx)(yz)";
    std::list<std::string> token_list;
    strtk::split_regex("\\(.*?\\)",s,std::back_inserter(token_list));
+   std::list<std::string>::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      std::cout << "[" << (*it) << "]\t";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void split_n_example01()
+{
+   std::string s = "token1|token2|token3|token4|token5";
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
+   strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
+   const std::size_t token_count = 4;
+   strtk::split_n(predicate,s,token_count,std::back_inserter(token_list));
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void split_n_example02()
+{
+   std::string s = "token1?token2,token3;token4,token5";
+   std::list< strtk::std_string_tokenizer<>::iterator_type > token_list;
+   strtk::multiple_char_delimiter_predicate predicate(" .;?");
+   const std::size_t token_count = 4;
+   strtk::split_n(predicate,s,token_count,std::back_inserter(token_list));
+   std::list<strtk::std_string_tokenizer<>::iterator_type>::iterator it = token_list.begin();
+   while(it != token_list.end())
+   {
+      std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
+      ++it;
+   }
+   std::cout << std::endl;
+}
+
+void split_regex_n_example()
+{
+   std::string s = "(token1)(token2)(token3)(token4)(token5)";
+   std::list<std::string> token_list;
+   const std::size_t token_count = 4;
+   strtk::split_regex_n("\\(.*?\\)",s,token_count,std::back_inserter(token_list));
    std::list<std::string>::iterator it = token_list.begin();
    while(it != token_list.end())
    {
@@ -567,7 +614,10 @@ int main(void)
    split_example03();
    split_example04();
    split_example05();
-   split_example06();
+   split_regex_example();
+   split_n_example01();
+   split_n_example02();
+   split_regex_n_example();
    offset_splitter_example01();
    offset_splitter_example02();
    offset_splitter_example03();

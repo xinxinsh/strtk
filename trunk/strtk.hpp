@@ -1318,6 +1318,98 @@ namespace strtk
       return split(delimiter,str.begin(),str.end(),out,split_options);
    }
 
+   template<typename DelimiterPredicate,
+            typename Iterator,
+            typename OutputIterator>
+   inline std::size_t split_n(const DelimiterPredicate& delimiter,
+                              const Iterator begin,
+                              const Iterator end,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      if (0 == std::distance(begin,end)) return 0;
+      Iterator it = begin;
+      Iterator prev = it;
+      std::size_t match_count = 0;
+      while(end != it)
+      {
+        if(delimiter(*it))
+        {
+           if (split_options & split_options::include_delimiters)
+           {
+              *(out++) = std::make_pair<Iterator,Iterator>(prev,++it);
+              if (++match_count >= token_count)
+                 return match_count;
+              if (split_options & split_options::compress_delimiters)
+                 while((end != (++it)) && delimiter(*it));
+           }
+           else
+           {
+              *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
+              if (++match_count >= token_count)
+                 return match_count;
+              if (split_options & split_options::compress_delimiters)
+                 while((end != (++it)) && delimiter(*it));
+              else
+                 ++it;
+           }
+           prev = it;
+        }
+        else
+           ++it;
+      }
+      if ((prev != it) || delimiter(*(it - 1)))
+      {
+         *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
+         ++match_count;
+      }
+      return match_count;
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t split_n(const char* delimiters,
+                              const std::string& str,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      return split_n(multiple_char_delimiter_predicate(delimiters),
+                     str.begin(), str.end(),
+                     token_count,
+                     out,
+                     split_options);
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t split_n(const std::string::value_type delimiter,
+                              const std::string& str,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      return split_n(single_delimiter_predicate<std::string::value_type>(delimiter),
+                     str.begin(),str.end(),
+                     token_count,
+                     out,
+                     split_options);
+   }
+
+   template<typename DelimiterPredicate,
+            typename OutputIterator>
+   inline std::size_t split_n(const DelimiterPredicate& delimiter,
+                              const std::string& str,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      return split_n(delimiter,
+                     str.begin(),str.end(),
+                     token_count,
+                     out,
+                     split_options);
+   }
+
    static const std::string uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
    static const std::string email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
    static const std::string ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
@@ -1367,6 +1459,67 @@ namespace strtk
                                   OutputIterator out)
    {
       return split_regex(delimiter_expression,text.begin(),text.end(),out);
+   }
+
+   template<typename InputIterator, typename OutputIterator>
+   inline std::size_t split_regex_n(const boost::regex& delimiter_expression,
+                                    const InputIterator begin,
+                                    const InputIterator end,
+                                    const std::size_t& token_count,
+                                    OutputIterator out)
+   {
+      boost::sregex_iterator it(begin,end,delimiter_expression);
+      boost::sregex_iterator it_end;
+      std::string token;
+      token.reserve(one_kilobyte);
+      std::size_t match_count = 0;
+      while(it_end != it)
+      {
+         token.assign((*it)[0].first,(*it)[0].second);
+         *(out++) = token;
+         ++it;
+         if (++match_count >= token_count)
+            return match_count;
+      }
+      return match_count;
+   }
+
+   template<typename InputIterator, typename OutputIterator>
+   inline std::size_t split_regex_n(const std::string& delimiter_expression,
+                                    const InputIterator begin,
+                                    const InputIterator end,
+                                    const std::size_t& token_count,
+                                    OutputIterator out)
+   {
+      const boost::regex regex_expression(delimiter_expression);
+      return split_regex_n(regex_expression,
+                           begin,end,
+                           token_count,
+                           out);
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t split_regex_n(const std::string& delimiter_expression,
+                                    const std::string& text,
+                                    const std::size_t& token_count,
+                                    OutputIterator out)
+   {
+      return split_regex_n(delimiter_expression,
+                           text.begin(),text.end(),
+                           token_count,
+                           out);
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t split_regex_n(const boost::regex& delimiter_expression,
+                                    const std::string& text,
+                                    const std::size_t& token_count,
+                                    OutputIterator out)
+   {
+      return split_regex_n(delimiter_expression,
+                           text.begin(),text.end(),
+                           token_count,
+                           out);
    }
 
    template<const std::size_t offset_list_size>
