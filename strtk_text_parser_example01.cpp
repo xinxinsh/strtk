@@ -35,7 +35,7 @@ template<typename Container, typename Predicate>
 struct parse_line
 {
 private:
-   typedef std::deque<strtk::std_string_tokenizer<char>::iterator_type> local_list_type;
+   typedef std::deque<strtk::std_string::tokenizer<char>::iterator_type> local_list_type;
 
 public:
    parse_line(Container& c, const Predicate& p)
@@ -85,7 +85,7 @@ void parse_text(const std::string& file_name, Container& c)
    strtk::for_each_line(file_name,pl);
 }
 
-int main(void)
+int main()
 {
    std::string text_file_name = "text.txt";
    std::deque< std::string > word_list;

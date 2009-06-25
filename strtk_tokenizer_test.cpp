@@ -270,8 +270,8 @@ void test_split_and_tokenizer()
 
    typedef strtk::single_delimiter_predicate<std::string::value_type> single_predicate_type;
    typedef strtk::multiple_char_delimiter_predicate multiple_predicate_type;
-   typedef strtk::std_string_tokenizer<single_predicate_type>::type tokenizer_type1;
-   typedef strtk::std_string_tokenizer<multiple_predicate_type>::type tokenizer_type2;
+   typedef strtk::std_string::tokenizer<single_predicate_type>::type tokenizer_type1;
+   typedef strtk::std_string::tokenizer<multiple_predicate_type>::type tokenizer_type2;
 
    single_predicate_type single_predicate('|');
    multiple_predicate_type multi_predicate("|?-,;_");
@@ -310,7 +310,7 @@ bool test_empty_filter_itr()
    typedef std::vector< std::pair<std::string::const_iterator,std::string::const_iterator> > str_list;
    str_list sl;
    strtk::single_delimiter_predicate<std::string::value_type> p('|');
-   strtk::std_string_tokenizer< strtk::single_delimiter_predicate<std::string::value_type> >::type tok(s,p,true);
+   strtk::std_string::tokenizer< strtk::single_delimiter_predicate<std::string::value_type> >::type tok(s,p,true);
    if (2 == for_each_token(s,tok,strtk::filter_empty_range< strtk::add_to_sequence<str_list> >(strtk::add_to_sequence<str_list>(sl))))
       return true;
    else
@@ -337,12 +337,7 @@ bool test_construct_and_parse()
    unsigned int o4 = 0;
    double       o5 = 0;
 
-   typedef strtk::single_delimiter_predicate<std::string::value_type> single_predicate_type;
-   typedef strtk::std_string_tokenizer<single_predicate_type>::type tokenizer_type;
-
-   single_predicate_type single_predicate('|');
-   tokenizer_type stk(output,single_predicate);
-   strtk::parse(output,stk,o1,o2,o3,o4,o5);
+   strtk::parse(output,"|",o1,o2,o3,o4,o5);
 
    if (!((i1 == o1) &&
          (i2 == o2) &&
@@ -357,8 +352,7 @@ bool test_construct_and_parse()
    return true;
 }
 
-
-int main(void)
+int main()
 {
    test_split_and_tokenizer();
    assert(test_empty_filter_itr());

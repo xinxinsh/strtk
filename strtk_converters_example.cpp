@@ -78,7 +78,7 @@ void example03()
    }
 }
 
-int main(void)
+int main()
 {
    example01();
    example02();

@@ -47,7 +47,8 @@ namespace strtk
       typename Tokenizer::iterator it = tokenizer.begin();
       while(tokenizer.end() != it)
       {
-         function(*(it++));
+         function(*it);
+         ++it;
          ++token_count;
       }
       return token_count;
@@ -928,9 +929,9 @@ namespace strtk
 
          inline tokenizer_iterator operator++(int)
          {
-            tokenizer_iterator* tmp = this;
+            tokenizer_iterator tmp = *this;
             this->operator++();
-            return (*tmp);
+            return tmp;
          }
 
          inline tokenizer_iterator& operator+=(const int inc)
@@ -1069,13 +1070,20 @@ namespace strtk
       bool compress_delimiters_;
    };
 
-   template<typename DelimiterPredicate = single_delimiter_predicate<std::string::value_type> >
-   struct std_string_tokenizer
+   namespace std_string
    {
-      typedef DelimiterPredicate predicate_type;
-      typedef tokenizer<std::string::const_iterator,DelimiterPredicate> type;
-      typedef std::pair<std::string::const_iterator , std::string::const_iterator> iterator_type;
-   };
+      template<typename DelimiterPredicate = single_delimiter_predicate<std::string::value_type> >
+      struct tokenizer
+      {
+         typedef DelimiterPredicate predicate_type;
+         typedef strtk::tokenizer<std::string::const_iterator,DelimiterPredicate> type;
+         typedef std::pair<std::string::const_iterator , std::string::const_iterator> iterator_type;
+      };
+
+      typedef std::vector<tokenizer<>::iterator_type> token_vector_type;
+      typedef std::deque<tokenizer<>::iterator_type> token_deque_type;
+      typedef std::list<tokenizer<>::iterator_type> token_list_type;
+   }
 
    template<typename T>
    class range_adapter
@@ -1094,8 +1102,15 @@ namespace strtk
       : begin_(begin),
         end_(begin_ + length){}
 
-      inline iterator begin() { return begin_; }
-      inline iterator end() { return end_; }
+      inline iterator begin()
+      {
+         return begin_;
+      }
+
+      inline iterator end()
+      {
+         return end_;
+      }
 
    private:
       iterator begin_;
@@ -1122,13 +1137,13 @@ namespace strtk
          return *this;
       }
 
-      inline range_to_string_back_inserter_iterator& operator=(const std_string_tokenizer<std::string::value_type>::iterator_type& r)
+      inline range_to_string_back_inserter_iterator& operator=(const std_string::tokenizer<std::string::value_type>::iterator_type& r)
       {
          sequence_.push_back(std::string(r.first,r.second));
          return (*this);
       }
 
-      inline void operator()(const std_string_tokenizer<std::string::value_type>::iterator_type& r)
+      inline void operator()(const std_string::tokenizer<std::string::value_type>::iterator_type& r)
       {
          sequence_.push_back(std::string(r.first,r.second));
       }
@@ -1300,6 +1315,15 @@ namespace strtk
    }
 
    template<typename OutputIterator>
+   inline std::size_t split(const std::string& delimiters,
+                            const std::string& str,
+                            OutputIterator out,
+                            const std::size_t split_options = 0x00)
+   {
+      return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_options);
+   }
+
+   template<typename OutputIterator>
    inline std::size_t split(const std::string::value_type delimiter,
                             const std::string& str,
                             OutputIterator out,
@@ -1376,6 +1400,35 @@ namespace strtk
    {
       return split_n(multiple_char_delimiter_predicate(delimiters),
                      str.begin(), str.end(),
+                     token_count,
+                     out,
+                     split_options);
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t split_n(const std::string& delimiters,
+                              const std::string& str,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      return split_n(multiple_char_delimiter_predicate(delimiters),
+                     str.begin(), str.end(),
+                     token_count,
+                     out,
+                     split_options);
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t split_n(const std::string& delimiters,
+                              const std::string::const_iterator& begin,
+                              const std::string::const_iterator& end,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      return split_n(multiple_char_delimiter_predicate(delimiters),
+                     begin,end,
                      token_count,
                      out,
                      split_options);
@@ -3512,386 +3565,349 @@ namespace strtk
       }
    };
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
+   template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9, typename T10>
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4,
-                            T5& t5, T6& t6, T7& t7, T8& t8,
-                            T9& t9, T10& t10)
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9, T10& t10)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-       t1 = string_to_type_converter< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t2 = string_to_type_converter< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t3 = string_to_type_converter< T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t4 = string_to_type_converter< T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t5 = string_to_type_converter< T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t6 = string_to_type_converter< T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t7 = string_to_type_converter< T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t8 = string_to_type_converter< T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t9 = string_to_type_converter< T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t10 = string_to_type_converter<T10>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 10;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+       t1 = string_to_type_converter< T1>(std::string((*it).first,(*it).second)); ++it;
+       t2 = string_to_type_converter< T2>(std::string((*it).first,(*it).second)); ++it;
+       t3 = string_to_type_converter< T3>(std::string((*it).first,(*it).second)); ++it;
+       t4 = string_to_type_converter< T4>(std::string((*it).first,(*it).second)); ++it;
+       t5 = string_to_type_converter< T5>(std::string((*it).first,(*it).second)); ++it;
+       t6 = string_to_type_converter< T6>(std::string((*it).first,(*it).second)); ++it;
+       t7 = string_to_type_converter< T7>(std::string((*it).first,(*it).second)); ++it;
+       t8 = string_to_type_converter< T8>(std::string((*it).first,(*it).second)); ++it;
+       t9 = string_to_type_converter< T9>(std::string((*it).first,(*it).second)); ++it;
+      t10 = string_to_type_converter<T10>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
+   template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9>
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4,
-                            T5& t5, T6& t6, T7& t7, T8& t8,
-                            T9& t9)
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t9 = string_to_type_converter<T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 9;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it;
+      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it;
+      t9 = string_to_type_converter<T9>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8>
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4,
-                            T5& t5, T6& t6, T7& t7, T8& t8)
+   template< typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7, typename T8 >
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 8;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it;
+      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7>
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
+   template< typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7 >
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 7;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it;
+      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
-             typename T5,typename T6 >
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
+   template< typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6 >
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 6;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
+      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
+   template< typename T1, typename T2, typename T3, typename T4,
              typename T5 >
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 5;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
+      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4>
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4)
+   template< typename T1, typename T2, typename T3, typename T4 >
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 4;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
+      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3 >
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3)
+   template< typename T1, typename T2, typename T3 >
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 3;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
+      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template<typename Tokenzier, typename T1, typename T2>
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2)
+   template< typename T1, typename T2 >
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      static const std::size_t token_count = 2;
+      std_string::token_vector_type token_list;
+      token_list.reserve(token_count);
+      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+         return false;
+      std_string::token_vector_type::iterator it = token_list.begin();
+      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
+      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second));
+      return true;
    }
 
-   template<typename Tokenzier, typename T>
-   inline std::size_t parse(const std::string& buffer,
-                            Tokenzier& tokenizer,
-                            T& t)
+   template<typename T>
+   inline bool parse(const std::string::const_iterator& begin,
+                     const std::string::const_iterator& end,
+                     const std::string& delimiters,
+                     T& t)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t = string_to_type_converter<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      if (0 == distance(begin,end)) return false;
+      static const std::size_t token_count = 1;
+      t = string_to_type_converter<T>(std::string(begin,end));
+      return true;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
+   template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9, typename T10>
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4,
-                            T5& t5, T6& t6, T7& t7, T8& t8,
-                            T9& t9, T10& t10)
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9, T10& t10)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-       t1 = string_to_type_converter< T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t2 = string_to_type_converter< T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t3 = string_to_type_converter< T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t4 = string_to_type_converter< T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t5 = string_to_type_converter< T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t6 = string_to_type_converter< T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t7 = string_to_type_converter< T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t8 = string_to_type_converter< T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-       t9 = string_to_type_converter< T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t10 = string_to_type_converter<T10>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
+   template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9>
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4,
-                            T5& t5, T6& t6, T7& t7, T8& t8,
-                            T9& t9)
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t9 = string_to_type_converter<T9>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
+   template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8>
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4,
-                            T5& t5, T6& t6, T7& t7, T8& t8)
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
+   template< typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7>
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it; ++token_count;
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7);
+   }
+
+   template< typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6)
+   {
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6);
+   }
+
+   template< typename T1, typename T2, typename T3, typename T4,
+             typename T5>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5)
+   {
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5);
+   }
+
+   template< typename T1, typename T2, typename T3, typename T4>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4)
+   {
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4);
+   }
+
+   template< typename T1, typename T2, typename T3>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3)
+   {
+      return parse(data.begin(),data.end(),delimiters,t1,t2,t3);
+   }
+
+   template< typename T1, typename T2>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2)
+   {
+      return parse(data.begin(),data.end(),delimiters,t1,t2);
+   }
+
+   template< typename T>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T& t)
+   {
+      return parse(data.begin(),data.end(),delimiters,t);
+   }
+
+   template <class T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::size_t parse_into_sequence(const std::string::const_iterator& begin,
+                                          const std::string::const_iterator& end,
+                                          const std::string& delimiters,
+                                          Sequence<T,Allocator>& sequence)
+   {
+      if ((0 == std::distance(begin,end)) || delimiters.empty()) return 0;
+      std_string::token_list_type token_list;
+      std::size_t token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                      begin,end,
+                                      std::back_inserter(token_list));
+      std_string::token_list_type::iterator it = token_list.begin();
+      while(token_list.end() != it)
+      {
+         sequence.push_back(string_to_type_converter<T>(std::string((*it).first,(*it).second)));
+         ++it;
+      }
       return token_count;
    }
 
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
-             typename T5,typename T6 >
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
+   template <class T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::size_t parse_into_sequence(const std::string& data,
+                                          const std::string& delimiters,
+                                          Sequence<T,Allocator>& sequence)
    {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
-   }
-
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4,
-             typename T5 >
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
-   {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
-   }
-
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3, typename T4>
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3, T4& t4)
-   {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
-   }
-
-   template< typename Tokenzier,
-             typename T1, typename T2, typename T3 >
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2, T3& t3)
-   {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
-   }
-
-   template<typename Tokenzier, typename T1, typename T2>
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T1& t1, T2& t2)
-   {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
-   }
-
-   template<typename Tokenzier, typename T>
-   inline std::size_t parse(const std::string::const_iterator& begin,
-                            const std::string::const_iterator& end,
-                            Tokenzier& tokenizer,
-                            T& t)
-   {
-      std::size_t token_count = 0;
-      tokenizer.assign(begin,end);
-      typename Tokenzier::iterator it = tokenizer.begin();
-      t = string_to_type_converter<T>(std::string((*it).first,(*it).second)); ++it; ++token_count;
-      return token_count;
+      return parse_into_sequence(data.begin(),data.end(),delimiters,sequence);
    }
 
    template< typename T1, typename T2, typename T3, typename T4,
@@ -4093,7 +4109,7 @@ namespace strtk
                          const std::string& str,
                          std::string& output)
    {
-      if (0== count) return;
+      if (0 == count) return;
       output.reserve(output.size() + (str.size() * count));
       for(std::size_t i = 0; i < count; ++i)
       {
@@ -4164,7 +4180,7 @@ namespace strtk
       void reset()
       {
          to_be_written_buffer_size_ = 0;
-         read_buffer_size_    = 0;
+         read_buffer_size_ = 0;
          buffer_ = original_buffer_;
       }
 

@@ -82,8 +82,8 @@ void strtk_tokenizer_timed_test()
    so.reserve(base.size() * replicate_count);
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
-   strtk::std_string_tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate);
-   strtk::std_string_tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator it = tokenizer.begin();
+   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate);
+   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator it = tokenizer.begin();
    unsigned int token_count = 0;
    timer t;
    t.start();
@@ -120,7 +120,7 @@ void boost_tokenizer_timed_test()
    printf("[boost] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",token_count,t.time(),(1.0 * token_count) / (1.0 * t.time()));
 }
 
-int main(void)
+int main()
 {
    boost_tokenizer_timed_test();
    strtk_tokenizer_timed_test();
