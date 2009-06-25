@@ -22,7 +22,7 @@
 #include <iomanip>
 #include "strtk.hpp"
 
-int main(void)
+int main()
 {
    /*
       Note: process takes input from stdin.

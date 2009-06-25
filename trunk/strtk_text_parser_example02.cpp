@@ -43,7 +43,7 @@ struct parse_line
 public:
 
    typedef typename strtk::filter_on_match< strtk::range_to_string_back_inserter_iterator<Container> > filter_type;
-   typedef typename strtk::std_string_tokenizer<Predicate>::type tokenizer_type;
+   typedef typename strtk::std_string::tokenizer<Predicate>::type tokenizer_type;
    parse_line(Container& c, Predicate& p)
    : c_(c),
      p_(p),
@@ -99,7 +99,7 @@ void parse_text(const std::string& file_name, Container& c)
    strtk::for_each_line<const pl_type&>(file_name,pl_ref);
 }
 
-int main(void)
+int main()
 {
    std::string text_file_name = "text.txt";
    std::deque< std::string > word_list;

@@ -274,7 +274,7 @@ void token_grid_test07()
 }
 
 
-int main(void)
+int main()
 {
    token_grid_test01();
    token_grid_test02();
