@@ -3565,9 +3565,9 @@ namespace strtk
       }
    };
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8,
-             typename T9, typename T10>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9, typename T10>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3594,9 +3594,9 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8,
-             typename T9>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3622,8 +3622,8 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3647,8 +3647,8 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3671,8 +3671,8 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3694,8 +3694,8 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3735,7 +3735,7 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2, typename T3 >
+   template<typename T1, typename T2, typename T3>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3753,7 +3753,7 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2 >
+   template<typename T1, typename T2>
    inline bool parse(const std::string::const_iterator& begin,
                      const std::string::const_iterator& end,
                      const std::string& delimiters,
@@ -3782,9 +3782,9 @@ namespace strtk
       return true;
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8,
-             typename T9, typename T10>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9, typename T10>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
@@ -3794,9 +3794,9 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8,
-             typename T9>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
@@ -3806,8 +3806,8 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
@@ -3826,8 +3826,8 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
@@ -3836,8 +3836,8 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
@@ -3846,7 +3846,7 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4>
+   template<typename T1, typename T2, typename T3, typename T4>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4)
@@ -3854,7 +3854,7 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4);
    }
 
-   template< typename T1, typename T2, typename T3>
+   template<typename T1, typename T2, typename T3>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3)
@@ -3862,7 +3862,7 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2,t3);
    }
 
-   template< typename T1, typename T2>
+   template<typename T1, typename T2>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2)
@@ -3870,7 +3870,7 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t1,t2);
    }
 
-   template< typename T>
+   template<typename T>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T& t)
