@@ -62,8 +62,8 @@ namespace strtk
       std::size_t line_count = 0;
       while(std::getline(stream,buffer))
       {
-         ++line_count;
          function(buffer);
+         ++line_count;
       }
       return line_count;
    }
@@ -193,8 +193,16 @@ namespace strtk
    {
    public:
       typedef T value_type;
-      inline single_delimiter_predicate(const T& d) : delimiter_(d) {}
-      inline bool operator()(const T& d) const { return d == delimiter_; }
+
+      single_delimiter_predicate(const T& d)
+      : delimiter_(d)
+      {}
+
+      inline bool operator()(const T& d) const
+      {
+         return d == delimiter_;
+      }
+
    private:
       T delimiter_;
    };
@@ -232,7 +240,10 @@ namespace strtk
          std::copy(begin,end, delimiter_);
       }
 
-     ~multiple_delimiter_predicate() { delete[] delimiter_; }
+     ~multiple_delimiter_predicate()
+      {
+        delete[] delimiter_;
+      }
 
       inline bool operator()(const T& d) const
       {
@@ -1080,9 +1091,10 @@ namespace strtk
          typedef std::pair<std::string::const_iterator , std::string::const_iterator> iterator_type;
       };
 
-      typedef std::vector<tokenizer<>::iterator_type> token_vector_type;
-      typedef std::deque<tokenizer<>::iterator_type> token_deque_type;
-      typedef std::list<tokenizer<>::iterator_type> token_list_type;
+      typedef tokenizer<>::iterator_type iterator_type;
+      typedef std::vector<iterator_type> token_vector_type;
+      typedef std::deque<iterator_type> token_deque_type;
+      typedef std::list<iterator_type> token_list_type;
    }
 
    template<typename T>
@@ -1096,11 +1108,13 @@ namespace strtk
 
       range_adapter(T* const begin, T* const end)
       : begin_(begin),
-        end_(end){}
+        end_(end)
+      {}
 
       range_adapter(T* const begin, const std::size_t length)
       : begin_(begin),
-        end_(begin_ + length){}
+        end_(begin_ + length)
+      {}
 
       inline iterator begin()
       {
@@ -1118,15 +1132,17 @@ namespace strtk
    };
 
    template<class Sequence>
-   class range_to_string_back_inserter_iterator : public std::iterator<std::output_iterator_tag, void, void,void, void>
+   class range_to_string_back_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
    {
    public:
 
       explicit range_to_string_back_inserter_iterator(Sequence& sequence)
-      : sequence_(sequence) {}
+      : sequence_(sequence)
+      {}
 
       range_to_string_back_inserter_iterator(const range_to_string_back_inserter_iterator& it)
-      : sequence_(it.sequence_) {}
+      : sequence_(it.sequence_)
+      {}
 
       inline range_to_string_back_inserter_iterator& operator=(const range_to_string_back_inserter_iterator& it)
       {
@@ -1148,9 +1164,20 @@ namespace strtk
          sequence_.push_back(std::string(r.first,r.second));
       }
 
-      inline range_to_string_back_inserter_iterator& operator*()     { return (*this); }
-      inline range_to_string_back_inserter_iterator& operator++()    { return (*this); }
-      inline range_to_string_back_inserter_iterator  operator++(int) { return (*this); }
+      inline range_to_string_back_inserter_iterator& operator*()
+      {
+         return (*this);
+      }
+
+      inline range_to_string_back_inserter_iterator& operator++()
+      {
+         return (*this);
+      }
+
+      inline range_to_string_back_inserter_iterator operator++(int)
+      {
+         return (*this);
+      }
 
    private:
       Sequence& sequence_;
@@ -1168,10 +1195,12 @@ namespace strtk
    public:
 
       explicit back_inserter_with_valuetype_iterator(Sequence& sequence)
-      : sequence_(sequence) {}
+      : sequence_(sequence)
+      {}
 
       back_inserter_with_valuetype_iterator(const back_inserter_with_valuetype_iterator& it)
-      : sequence_(it.sequence_) {}
+      : sequence_(it.sequence_)
+      {}
 
       inline back_inserter_with_valuetype_iterator& operator=(const back_inserter_with_valuetype_iterator& it)
       {
@@ -1193,9 +1222,20 @@ namespace strtk
          sequence_.push_back(v);
       }
 
-      inline back_inserter_with_valuetype_iterator& operator*()    { return (*this); }
-      inline back_inserter_with_valuetype_iterator& operator++()   { return (*this); }
-      inline back_inserter_with_valuetype_iterator operator++(int) { return (*this); }
+      inline back_inserter_with_valuetype_iterator& operator*()
+      {
+         return (*this);
+      }
+
+      inline back_inserter_with_valuetype_iterator& operator++()
+      {
+         return (*this);
+      }
+
+      inline back_inserter_with_valuetype_iterator operator++(int)
+      {
+         return (*this);
+      }
 
    private:
       Sequence& sequence_;
@@ -1212,10 +1252,13 @@ namespace strtk
    {
    public:
 
-      explicit counting_back_inserter_iterator(std::size_t& counter)  : counter_(counter) {}
+      explicit counting_back_inserter_iterator(std::size_t& counter)
+      : counter_(counter)
+      {}
 
       counting_back_inserter_iterator(const counting_back_inserter_iterator& it)
-      : counter_(it.counter_) {}
+      : counter_(it.counter_)
+      {}
 
       inline counting_back_inserter_iterator& operator=(const counting_back_inserter_iterator& it)
       {
@@ -1237,9 +1280,20 @@ namespace strtk
          ++counter_;
       }
 
-      inline counting_back_inserter_iterator& operator*()    { return (*this); }
-      inline counting_back_inserter_iterator& operator++()   { return (*this); }
-      inline counting_back_inserter_iterator operator++(int) { return (*this); }
+      inline counting_back_inserter_iterator& operator*()
+      {
+         return (*this);
+      }
+
+      inline counting_back_inserter_iterator& operator++()
+      {
+         return (*this);
+      }
+
+      inline counting_back_inserter_iterator operator++(int)
+      {
+         return (*this);
+      }
 
    private:
       std::size_t& counter_;
@@ -1823,16 +1877,19 @@ namespace strtk
 
          for(it = (++itr_list.begin()); it != itr_list.end(); ++it)
          {
-            if (*(*it).first < smallest) smallest = *(*it).first;
+            if (*(*it).first < smallest)
+            {
+               smallest = *(*it).first;
+            }
          }
 
          it = itr_list.begin();
          while(itr_list.end() != it)
          {
            if (*(*it).first != smallest)
-               it = itr_list.erase(it);
-            else
-               ++it;
+              it = itr_list.erase(it);
+           else
+              ++it;
          }
 
          it = itr_list.begin();
@@ -3261,10 +3318,12 @@ namespace strtk
          if (load_from_file_)
          {
             std::ifstream stream(file_name_.c_str(),std::ios::binary);
-            if (!stream) return false;
+            if (!stream)
+               return false;
             stream.seekg (0,std::ios::end);
             buffer_size_ = stream.tellg();
-            if (0 == buffer_size_) return false;
+            if (0 == buffer_size_)
+               return false;
             stream.seekg (0,std::ios::beg);
             buffer_ = new unsigned char[buffer_size_ + 1]; // an extra char for end iterator;
             stream.read(reinterpret_cast<char*>(buffer_),static_cast<std::streamsize>(buffer_size_));
@@ -3328,11 +3387,14 @@ namespace strtk
    struct add_to_sequence
    {
    public:
-      add_to_sequence(Sequence& sequence) : sequence_(sequence){}
+      add_to_sequence(Sequence& sequence)
+      : sequence_(sequence)
+      {}
 
-      template<typename T>
-      void operator()(const T& t) const { sequence_.push_back(t); }
-      add_to_sequence(const add_to_sequence<Sequence>& ats) : sequence_(ats.sequence_){}
+      add_to_sequence(const add_to_sequence<Sequence>& ats)
+      : sequence_(ats.sequence_)
+      {}
+
       add_to_sequence<Sequence>& operator=(const add_to_sequence<Sequence>& ats)
       {
          if (this != &ats)
@@ -3340,6 +3402,12 @@ namespace strtk
             this->sequence_ = ats.sequence_;
          }
          return *this;
+      }
+
+      template<typename T>
+      void operator()(const T& t) const
+      {
+         sequence_.push_back(t);
       }
 
    private:
@@ -3355,11 +3423,12 @@ namespace strtk
    }
 
    template<class OutputPredicate>
-   struct filter_empty_range
+   struct filter_non_empty_range
    {
    public:
-      filter_empty_range(OutputPredicate predicate)
-      : predicate_(predicate){}
+      filter_non_empty_range(OutputPredicate predicate)
+      : predicate_(predicate)
+      {}
 
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
@@ -3381,7 +3450,8 @@ namespace strtk
       filter_on_wildcard_match(const std::string& match_pattern,OutputPredicate& predicate, bool allow_through_on_match = true)
       : allow_through_on_match_(allow_through_on_match),
         match_pattern_(match_pattern),
-        predicate_(predicate){}
+        predicate_(predicate)
+      {}
 
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
@@ -3401,6 +3471,7 @@ namespace strtk
       }
 
    private:
+
       filter_on_wildcard_match(const filter_on_wildcard_match& fom);
       filter_on_wildcard_match operator=(const filter_on_wildcard_match& fom);
 
@@ -3422,7 +3493,8 @@ namespace strtk
        allow_through_on_match_(allow_through_on_match),
        begin_(begin),
        end_(end),
-       predicate_(predicate){}
+       predicate_(predicate)
+     {}
 
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
@@ -3576,11 +3648,10 @@ namespace strtk
                      T9& t9, T10& t10)
    {
       static const std::size_t token_count = 10;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
        t1 = string_to_type_converter< T1>(std::string((*it).first,(*it).second)); ++it;
        t2 = string_to_type_converter< T2>(std::string((*it).first,(*it).second)); ++it;
        t3 = string_to_type_converter< T3>(std::string((*it).first,(*it).second)); ++it;
@@ -3605,11 +3676,10 @@ namespace strtk
                      T9& t9)
    {
       static const std::size_t token_count = 9;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
       t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
@@ -3631,11 +3701,10 @@ namespace strtk
                      T5& t5, T6& t6, T7& t7, T8& t8)
    {
       static const std::size_t token_count = 8;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
       t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
@@ -3656,11 +3725,10 @@ namespace strtk
                      T5& t5, T6& t6, T7& t7)
    {
       static const std::size_t token_count = 7;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
       t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
@@ -3680,11 +3748,10 @@ namespace strtk
                      T5& t5, T6& t6)
    {
       static const std::size_t token_count = 6;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
       t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
@@ -3703,11 +3770,10 @@ namespace strtk
                      T5& t5)
    {
       static const std::size_t token_count = 5;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
       t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
@@ -3723,11 +3789,10 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4)
    {
       static const std::size_t token_count = 4;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
       t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
@@ -3742,11 +3807,10 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3)
    {
       static const std::size_t token_count = 3;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
       t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second));
@@ -3760,11 +3824,10 @@ namespace strtk
                      T1& t1, T2& t2)
    {
       static const std::size_t token_count = 2;
-      std_string::token_vector_type token_list;
-      token_list.reserve(token_count);
-      if (token_count != split_n(delimiters,begin,end,token_count,std::back_inserter(token_list)))
+      std_string::iterator_type token_list[token_count];
+      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      std_string::token_vector_type::iterator it = token_list.begin();
+      std_string::iterator_type* it = token_list;
       t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
       t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second));
       return true;
@@ -3910,9 +3973,9 @@ namespace strtk
       return parse_into_sequence(data.begin(),data.end(),delimiters,sequence);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8,
-             typename T9, typename T10 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9, typename T10>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
@@ -3931,9 +3994,9 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t10);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8,
-             typename T9 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
@@ -3951,8 +4014,8 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t9);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7, typename T8>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
@@ -3968,8 +4031,8 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t8);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
@@ -3985,8 +4048,8 @@ namespace strtk
    }
 
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5,typename T6>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5,typename T6>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
@@ -4000,8 +4063,8 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t6);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5 >
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
@@ -4014,7 +4077,7 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t5);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4 >
+   template<typename T1, typename T2, typename T3, typename T4>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4)
@@ -4025,7 +4088,7 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t4);
    }
 
-   template< typename T1, typename T2, typename T3 >
+   template<typename T1, typename T2, typename T3>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3)
@@ -4035,7 +4098,7 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t3);
    }
 
-   template< typename T1, typename T2 >
+   template<typename T1, typename T2>
    inline void construct(std::string& output,
                          const std::string& delimiter,
                          const T1& t1, const T2& t2)
@@ -4150,6 +4213,45 @@ namespace strtk
          x = reinterpret_cast<unsigned int*>(it);
          (*x) = rnd();
       }
+   }
+
+   template <typename Iterator>
+   bool next_combination(Iterator first, Iterator k, Iterator last)
+   {
+      /* Credits: Mark Nelson http://marknelson.us */
+      if ((first == last) || (k == first) || (k == last))
+         return false;
+      Iterator i1 = first;
+      Iterator i2 = last;
+      ++i1;
+      if (i1 == last)
+         return false;
+      i1 = last;
+      --i1;
+      i1 = k;
+      --i2;
+      while (i1 != first)
+      {
+         if (*--i1 < *i2)
+         {
+            Iterator j = k;
+            while(!(*i1 < *j)) j++;
+            std::iter_swap(i1,j);
+            i1++;
+            j++;
+            i2=k;
+            std::rotate(i1,j,last);
+            while(j != last)
+            {
+               ++j;
+               ++i2;
+            }
+            std::rotate(k,i2,last);
+            return true;
+         }
+      }
+      std::rotate(first,k,last);
+      return false;
    }
 
    class serializer
@@ -4289,7 +4391,8 @@ namespace strtk
          T t;
          for(std::size_t i = 0; i < list_size; ++i)
          {
-            if (!t.read(*this)) return false;
+            if (!t.read(*this))
+               return false;
             sequence.push_back(t);
          }
          return true;
