@@ -311,7 +311,7 @@ bool test_empty_filter_itr()
    str_list sl;
    strtk::single_delimiter_predicate<std::string::value_type> p('|');
    strtk::std_string::tokenizer< strtk::single_delimiter_predicate<std::string::value_type> >::type tok(s,p,true);
-   if (2 == for_each_token(s,tok,strtk::filter_empty_range< strtk::add_to_sequence<str_list> >(strtk::add_to_sequence<str_list>(sl))))
+   if (2 == for_each_token(s,tok,strtk::filter_non_empty_range< strtk::add_to_sequence<str_list> >(strtk::add_to_sequence<str_list>(sl))))
       return true;
    else
    {

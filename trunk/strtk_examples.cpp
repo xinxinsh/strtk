@@ -621,6 +621,19 @@ void join_example()
    std::cout << "Size greater than 5: " << strtk::join_if(",", strtk::size_greater_than<5>(), str_list,str_list + str_list_size) << std::endl;
 }
 
+void combination_example()
+{
+   std::string s = "abcde";
+   std::size_t set_size = s.size() - 1;
+   std::size_t combination_index = 0;
+   do
+   {
+      std::cout << combination_index++ << "\t";
+      std::copy(s.begin(),s.begin() + set_size,std::ostream_iterator<std::string::value_type>(std::cout,""));
+      std::cout << std::endl;
+   }
+   while (strtk::next_combination(s.begin(),s.begin() + set_size,s.end()));
+}
 
 int main()
 {
@@ -664,5 +677,6 @@ int main()
    lexicographically_collate_example();
    hash_example();
    join_example();
+   combination_example();
    return 0;
 }
