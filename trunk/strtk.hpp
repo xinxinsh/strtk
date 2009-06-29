@@ -117,7 +117,7 @@ namespace strtk
       return s;
    }
 
-   template <class T,
+   template <typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t load_from_text_file(std::ifstream& stream,
@@ -135,7 +135,7 @@ namespace strtk
      return line_count;
    }
 
-   template <class T,
+   template <typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t load_from_text_file(const std::string& file_name,
@@ -1760,7 +1760,7 @@ namespace strtk
       std::size_t match_count = 0;
       int offset_length = 0;
       std::size_t increment_amount = 0;
-      while ((it != end) && (0 < (offset_length = offset.next())))
+      while ((end != it) && (0 < (offset_length = offset.next())))
       {
          increment_amount = std::min<std::size_t>(length,offset_length);
          prev = it;
@@ -2007,7 +2007,7 @@ namespace strtk
                 '0','1','2','3','4','5','6','7','8','9','+','/'
                };
 
-      std::size_t length = std::distance(begin,end);
+      const std::size_t length = std::distance(begin,end);
       std::size_t rounds = length / 3;
       const unsigned char* it = begin;
       for(std::size_t i = 0; i < rounds; ++i)
@@ -2021,7 +2021,7 @@ namespace strtk
          *(out++) = bin_to_base64[( block       ) & 0x3F];
       }
 
-      if ((rounds = (std::distance(begin,end) % 3)) > 0)
+      if ((rounds = (length % 3)) > 0)
       {
          switch(rounds)
          {
@@ -2292,7 +2292,7 @@ namespace strtk
       {
          *(reinterpret_cast<unsigned short*>(out))  = (interleave_table[*(it2++)] << 1);
          *(reinterpret_cast<unsigned short*>(out)) |=  interleave_table[*(it1++)];
-         out+=2;
+         out += 2;
       }
       return true;
    }
@@ -3447,7 +3447,9 @@ namespace strtk
    struct filter_on_wildcard_match
    {
    public:
-      filter_on_wildcard_match(const std::string& match_pattern,OutputPredicate& predicate, bool allow_through_on_match = true)
+      filter_on_wildcard_match(const std::string& match_pattern,
+                               OutputPredicate& predicate,
+                               bool allow_through_on_match = true)
       : allow_through_on_match_(allow_through_on_match),
         match_pattern_(match_pattern),
         predicate_(predicate)
@@ -3577,7 +3579,7 @@ namespace strtk
          return length == std::distance(begin,end);
       }
 
-      template <class T,
+      template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
       inline bool operator()(const Sequence<T,Allocator>& sequence)
@@ -3600,7 +3602,7 @@ namespace strtk
          return std::distance(begin,end) < static_cast<typename std::iterator_traits<Iterator>::difference_type>(length);
       }
 
-      template <class T,
+      template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
       inline bool operator()(const Sequence<T,Allocator>& sequence)
@@ -3623,7 +3625,7 @@ namespace strtk
          return std::distance(begin,end) > static_cast<typename std::iterator_traits<Iterator>::difference_type>(length);
       }
 
-      template <class T,
+      template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
       inline bool operator()(const Sequence<T,Allocator>& sequence)
@@ -3941,7 +3943,7 @@ namespace strtk
       return parse(data.begin(),data.end(),delimiters,t);
    }
 
-   template <class T,
+   template <typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t parse_into_sequence(const std::string::const_iterator& begin,
@@ -3963,7 +3965,7 @@ namespace strtk
       return token_count;
    }
 
-   template <class T,
+   template <typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t parse_into_sequence(const std::string& data,
@@ -4216,21 +4218,21 @@ namespace strtk
    }
 
    template <typename Iterator>
-   bool next_combination(Iterator first, Iterator k, Iterator last)
+   bool next_combination(const Iterator first, Iterator k, const Iterator last)
    {
       /* Credits: Mark Nelson http://marknelson.us */
-      if ((first == last) || (k == first) || (k == last))
+      if ((first == last) || (first == k) || (last == k))
          return false;
       Iterator i1 = first;
       Iterator i2 = last;
       ++i1;
-      if (i1 == last)
+      if (last == i1)
          return false;
       i1 = last;
       --i1;
       i1 = k;
       --i2;
-      while (i1 != first)
+      while (first != i1)
       {
          if (*--i1 < *i2)
          {
@@ -4241,7 +4243,7 @@ namespace strtk
             j++;
             i2=k;
             std::rotate(i1,j,last);
-            while(j != last)
+            while(last != j)
             {
                ++j;
                ++i2;
@@ -4380,7 +4382,7 @@ namespace strtk
          std::copy(original_buffer_,original_buffer_ + to_be_written_buffer_size_,data);
       }
 
-      template <class T,
+      template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
       inline bool read_into_external_sequence(Sequence<T,Allocator>& sequence)
@@ -4398,7 +4400,7 @@ namespace strtk
          return true;
       }
 
-      template <class T,
+      template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
       inline bool write_from_external_sequence(const Sequence<T,Allocator>& sequence)
