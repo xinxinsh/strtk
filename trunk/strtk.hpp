@@ -149,7 +149,9 @@ namespace strtk
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
-   inline void copy_if(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
+   inline void copy_if(Predicate predicate,
+                       const InputIterator begin, const InputIterator end,
+                       OutputIterator out)
    {
       InputIterator it = begin;
       while(end != it)
@@ -163,7 +165,9 @@ namespace strtk
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
-   inline InputIterator copy_while(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
+   inline InputIterator copy_while(Predicate predicate,
+                                   const InputIterator begin, const InputIterator end,
+                                   OutputIterator out)
    {
       InputIterator it = begin;
       while(end != it)
@@ -176,7 +180,9 @@ namespace strtk
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
-   inline InputIterator copy_until(Predicate predicate, const InputIterator begin, const InputIterator end, OutputIterator out)
+   inline InputIterator copy_until(Predicate predicate,
+                                   const InputIterator begin, const InputIterator end,
+                                   OutputIterator out)
    {
       InputIterator it = begin;
       while(end != it)
@@ -1131,20 +1137,20 @@ namespace strtk
       iterator end_;
    };
 
-   template<class Sequence>
-   class range_to_string_back_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
+   template <typename Sequence>
+   class range_to_type_back_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
    {
    public:
 
-      explicit range_to_string_back_inserter_iterator(Sequence& sequence)
+      explicit range_to_type_back_inserter_iterator(Sequence& sequence)
       : sequence_(sequence)
       {}
 
-      range_to_string_back_inserter_iterator(const range_to_string_back_inserter_iterator& it)
+      range_to_type_back_inserter_iterator(const range_to_type_back_inserter_iterator& it)
       : sequence_(it.sequence_)
       {}
 
-      inline range_to_string_back_inserter_iterator& operator=(const range_to_string_back_inserter_iterator& it)
+      inline range_to_type_back_inserter_iterator& operator=(const range_to_type_back_inserter_iterator& it)
       {
          if (this != &it)
          {
@@ -1153,28 +1159,28 @@ namespace strtk
          return *this;
       }
 
-      inline range_to_string_back_inserter_iterator& operator=(const std_string::tokenizer<std::string::value_type>::iterator_type& r)
+      inline range_to_type_back_inserter_iterator& operator=(const std_string::tokenizer<std::string::value_type>::iterator_type& r)
       {
-         sequence_.push_back(std::string(r.first,r.second));
+         sequence_.push_back(string_to_type_converter<typename Sequence::value_type>(std::string(r.first,r.second)));
          return (*this);
       }
 
       inline void operator()(const std_string::tokenizer<std::string::value_type>::iterator_type& r)
       {
-         sequence_.push_back(std::string(r.first,r.second));
+         sequence_.push_back(string_to_type_converter<typename Sequence::value_type>(std::string(r.first,r.second)));
       }
 
-      inline range_to_string_back_inserter_iterator& operator*()
+      inline range_to_type_back_inserter_iterator& operator*()
       {
          return (*this);
       }
 
-      inline range_to_string_back_inserter_iterator& operator++()
+      inline range_to_type_back_inserter_iterator& operator++()
       {
          return (*this);
       }
 
-      inline range_to_string_back_inserter_iterator operator++(int)
+      inline range_to_type_back_inserter_iterator operator++(int)
       {
          return (*this);
       }
@@ -1183,10 +1189,10 @@ namespace strtk
       Sequence& sequence_;
    };
 
-   template<class Sequence>
-   inline range_to_string_back_inserter_iterator<Sequence> range_to_string_back_inserter(Sequence& sequence_)
+   template <typename Sequence>
+   inline range_to_type_back_inserter_iterator<Sequence> range_to_type_back_inserter(Sequence& sequence)
    {
-      return (range_to_string_back_inserter_iterator<Sequence>(sequence_));
+      return (range_to_type_back_inserter_iterator<Sequence>(sequence));
    }
 
    template<class Sequence>
@@ -1821,7 +1827,7 @@ namespace strtk
    }
 
    template<typename InputIterator>
-   inline typename std::iterator_traits<InputIterator>::value_type min_value(const InputIterator begin, const InputIterator end)
+   inline typename std::iterator_traits<InputIterator>::value_type min_in_range(const InputIterator begin, const InputIterator end)
    {
       typename std::iterator_traits<InputIterator>::value_type smallest = *begin;
       InputIterator it = begin;
@@ -1834,7 +1840,7 @@ namespace strtk
    }
 
    template<typename InputIterator>
-   inline typename std::iterator_traits<InputIterator>::value_type max_value(const InputIterator begin, const InputIterator end)
+   inline typename std::iterator_traits<InputIterator>::value_type max_in_range(const InputIterator begin, const InputIterator end)
    {
       typename std::iterator_traits<InputIterator>::value_type greatest = *begin;
       InputIterator it = begin;
@@ -1854,7 +1860,7 @@ namespace strtk
       typedef typename std::list<itr_type> itr_list_type;
       itr_list_type itr_list;
 
-      type smallest = min_value(begin,end);
+      type smallest = min_in_range(begin,end);
 
       for(Iterator it = begin; it != end; ++it)
       {
@@ -2208,6 +2214,8 @@ namespace strtk
 
    void convert_to_uppercase(unsigned char* begin, unsigned char* end)
    {
+      std::transform(begin,end,begin,::toupper);
+      /*
       unsigned char* it = begin;
       while(end != it)
       {
@@ -2215,6 +2223,7 @@ namespace strtk
          (*it) = static_cast<unsigned char>(::toupper(static_cast<int>(*it)));
          ++it;
       }
+      */
    }
 
    void convert_to_uppercase(std::string& str)
@@ -2225,6 +2234,8 @@ namespace strtk
 
    void convert_to_lowercase(unsigned char* begin, unsigned char* end)
    {
+      std::transform(begin,end,begin,::tolower);
+      /*
       unsigned char* it = begin;
       while(end != it)
       {
@@ -2232,6 +2243,7 @@ namespace strtk
          (*it) = static_cast<unsigned char>(::tolower(static_cast<int>(*it)));
          ++it;
       }
+      */
    }
 
    void convert_to_lowercase(std::string& str)
@@ -2740,8 +2752,8 @@ namespace strtk
                                       const std::size_t& col5, const std::size_t& col6,
                                       const std::size_t& col7, const std::size_t& col8,
                                       const std::size_t& col9,
-                                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,
-                                      T8& t8, T9& t9) const
+                                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
+                                      T7& t7, T8& t8, T9& t9) const
          {
             std::string tmp_str;
             tmp_str.reserve(reserve_size_);
@@ -2764,7 +2776,8 @@ namespace strtk
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5, const std::size_t& col6,
                                       const std::size_t& col7, const std::size_t& col8,
-                                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8) const
+                                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
+                                      T7& t7, T8& t8) const
          {
             std::string tmp_str;
             tmp_str.reserve(reserve_size_);
@@ -2785,7 +2798,8 @@ namespace strtk
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5, const std::size_t& col6,
                                       const std::size_t& col7,
-                                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7) const
+                                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
+                                      T7& t7) const
          {
             std::string tmp_str;
             tmp_str.reserve(reserve_size_);

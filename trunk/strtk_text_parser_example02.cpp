@@ -42,7 +42,7 @@ struct parse_line
 {
 public:
 
-   typedef typename strtk::filter_on_match< strtk::range_to_string_back_inserter_iterator<Container> > filter_type;
+   typedef typename strtk::filter_on_match< strtk::range_to_type_back_inserter_iterator<Container> > filter_type;
    typedef typename strtk::std_string::tokenizer<Predicate>::type tokenizer_type;
    parse_line(Container& c, Predicate& p)
    : c_(c),
@@ -51,7 +51,7 @@ public:
      tokenizer_(tmp_,p_,true),
      filter_(reinterpret_cast<const std::string*>(not_of_interest_list),
              reinterpret_cast<const std::string*>(not_of_interest_list + list_size),
-             strtk::range_to_string_back_inserter_iterator<Container>(c_),true,false){}
+             strtk::range_to_type_back_inserter_iterator<Container>(c_),true,false){}
 
    parse_line(const parse_line& pl)
    : c_(pl.c_),

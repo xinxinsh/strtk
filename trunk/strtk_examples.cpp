@@ -178,14 +178,14 @@ void tokenizer_example10()
 
 void tokenizer_example11()
 {
-   std::string s = "abc|123|xyz|789";
+   std::string s = "123|456|789|101112";
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate);
    strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type::iterator it = tokenizer.begin();
 
-   std::list<std::string> token_list;
-   std::copy(tokenizer.begin(),tokenizer.end(),strtk::range_to_string_back_inserter(token_list));
-   std::copy(token_list.begin(),token_list.end(),std::ostream_iterator<std::string>(std::cout,"\t"));
+   std::list<int> token_list;
+   std::copy(tokenizer.begin(),tokenizer.end(),strtk::range_to_type_back_inserter(token_list));
+   std::copy(token_list.begin(),token_list.end(),std::ostream_iterator<int>(std::cout,"\t"));
    std::cout << std::endl;
 }
 

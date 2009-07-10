@@ -2,7 +2,7 @@
  *******************************************************************
  *                       String Tool Kit Library                   *
  *                                                                 *
- * Key-Value Pair Example 01                                       *
+ * Key-Value Pair Example                                          *
  * Author: Arash Partow - 2002                                     *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
@@ -63,12 +63,11 @@ int main(void)
 {
    std::string data = "int=-1|unsigned int=2345|double=6.789|string=a simple string";
 
-   typedef strtk::single_delimiter_predicate<std::string::value_type> predicate_type;
-   typedef strtk::std_string::tokenizer<predicate_type>::type tokenizer_type;
+   typedef strtk::std_string::tokenizer<>::type tokenizer_type;
    typedef std::deque< std::pair<std::string,std::string> > pair_list_type;
    typedef key_value_parser<pair_list_type> kvp_type;
 
-   tokenizer_type pair_tokenizer(data,predicate_type('|'));
+   tokenizer_type pair_tokenizer(data,'|');
    pair_list_type keyvalue_list;
    kvp_type kvp(keyvalue_list,"=");
 
