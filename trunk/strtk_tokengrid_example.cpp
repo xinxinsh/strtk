@@ -3,7 +3,7 @@
  *                       String Tool Kit Library                   *
  *                                                                 *
  * Token Grid Example                                              *
- * Author: Arash Partow - 2002                                     *
+ * Author: Arash Partow (2002-2009)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *

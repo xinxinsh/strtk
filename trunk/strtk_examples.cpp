@@ -3,7 +3,7 @@
  *                       String Tool Kit Library                   *
  *                                                                 *
  * Examples                                                        *
- * Author: Arash Partow - 2002                                     *
+ * Author: Arash Partow (2002-2009)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *
@@ -542,7 +542,8 @@ void lexicographically_collate_example()
                               "xyzabcabc",
                               "ijkxyzabc",
                               "abcdefghijklmnopqrstuvwxyz",
-                              "zyxwvutsrqponmlkjihgfedcba"
+                              "zyxwvutsrqponmlkjihgfedcba",
+                              "The Quick Brown Fox Jumps Over The Lazy Dog"
                             };
 
    for(std::size_t i = 0; i < sizeof(str_list)/sizeof(std::string); ++i)
