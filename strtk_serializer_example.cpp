@@ -3,7 +3,7 @@
  *                       String Tool Kit Library                   *
  *                                                                 *
  * Serializer Example                                              *
- * Author: Arash Partow - 2002                                     *
+ * Author: Arash Partow (2002-2009)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *
@@ -234,7 +234,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
 
 int main()
 {
-   const std::size_t max_buffer_size = 64 * 1024; // 64KB
+   const std::size_t max_buffer_size = 64 * strtk::one_kilobyte; // 64KB
    char* buffer = new char[max_buffer_size];
    test01(buffer,max_buffer_size);
    test02(buffer,max_buffer_size);

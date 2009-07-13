@@ -2,7 +2,7 @@
  *******************************************************************
  *                       String Tool Kit Library                   *
  *                                                                 *
- * Author: Arash Partow - 2002                                     *
+ * Author: Arash Partow (2002-2009)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *
@@ -4062,7 +4062,6 @@ namespace strtk
       output += boost::lexical_cast<std::string>(t6); output += delimiter;
       output += boost::lexical_cast<std::string>(t7);
    }
-
 
    template<typename T1, typename T2, typename T3, typename T4,
             typename T5,typename T6>
