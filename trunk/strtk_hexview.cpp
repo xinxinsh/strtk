@@ -24,23 +24,24 @@
                 and outputs it to stdout. An example of the
                 output:
 
-   00000000e5  2020202020202020737472746B3A3A63 ........strtk::c
-   00000000e6  6F6E766572745F62696E5F746F5F6865 onvert_bin_to_he
-   00000000e7  78286275666665722C62756666657220 x(buffer,buffer.
-   00000000e8  2B20726561645F696E5F77696474682C +.read_in_width,
-   00000000e9  6865785F627566666572293B0A202020 hex_buffer);....
-   00000000ea  2020202020202020207374643A3A636F .........std::co
-   00000000eb  7574203C3C207374643A3A686578203C ut.<<.std::hex.<
-   00000000ec  3C207374643A3A736574772831302920 <.std::setw(10).
-   00000000ed  3C3C2063757272656E745F6164647265 <<.current_addre
-   00000000ee  7373203C3C20222020223B0A20202020 ss.<<."..";.....
-   00000000ef  20202020202020207374643A3A636F70 ........std::cop
-   00000000f0  79286865785F6275666665722C686578 y(hex_buffer,hex
-   00000000f1  5F627566666572202B202832202A2072 _buffer.+.(2.*.r
-   00000000f2  6561645F696E5F7769647468292C7374 ead_in_width),st
-   00000000f3  643A3A6F73747265616D5F6974657261 d::ostream_itera
-   00000000f4  746F723C756E7369676E656420636861 tor<unsigned.cha
-   00000000f5  723E287374643A3A636F75742C222229 r>(std::cout,"")
+   00000006d0  696474685D3B0A0A202020666F722820 idth];.....for(.
+   00000006e0  3B203B20290A2020207B0A2020202020 ;.;.)....{......
+   00000006f0  207374643A3A63696E2E726561642872 .std::cin.read(r
+   0000000700  65696E746572707265745F636173743C einterpret_cast<
+   0000000710  636861722A3E28627566666572292C64 char*>(buffer),d
+   0000000720  6174615F7769647468293B0A20202020 ata_width);.....
+   0000000730  20206966202821287374643A3A63696E ..if.(!(std::cin
+   0000000740  2E656F662829207C7C207374643A3A63 .eof().||.std::c
+   0000000750  696E2E626164282929290A2020202020 in.bad()))......
+   0000000760  207B0A20202020202020202073747274 .{..........strt
+   0000000770  6B3A3A636F6E766572745F62696E5F74 k::convert_bin_t
+   0000000780  6F5F686578286275666665722C627566 o_hex(buffer,buf
+   0000000790  666572202B20646174615F7769647468 fer.+.data_width
+   00000007a0  2C6865785F627566666572293B0A2020 ,hex_buffer);...
+   00000007b0  202020202020207374643A3A636F7574 .......std::cout
+   00000007c0  203C3C207374643A3A686578203C3C20 .<<.std::hex.<<.
+   00000007d0  7374643A3A73657466696C6C28273027 std::setfill('0'
+   00000007e0  29203C3C207374643A3A736574772831 ).<<.std::setw(1
 
 */
 
@@ -59,12 +60,12 @@ int main()
       usage: cat file.txt | strtk_hexview
    */
    const std::size_t data_width = 16;
-   std::size_t current_address  = 0;
+   std::size_t current_address = 0;
 
    unsigned char* buffer = new unsigned char[data_width];
    unsigned char* hex_buffer = new unsigned char[2 * data_width];
 
-   while (true)
+   for( ; ; )
    {
       std::cin.read(reinterpret_cast<char*>(buffer),data_width);
       if (!(std::cin.eof() || std::cin.bad()))
@@ -76,7 +77,7 @@ int main()
          strtk::convert_to_printable_chars(buffer,buffer + data_width);
          std::copy(buffer,buffer + data_width,std::ostream_iterator<unsigned char>(std::cout,""));
          std::cout << std::endl;
-         ++current_address;
+         current_address += data_width;
       }
       else
       {
