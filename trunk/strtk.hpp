@@ -148,6 +148,49 @@ namespace strtk
         return load_from_text_file(stream,sequence);
    }
 
+   template <typename T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::size_t write_to_text_file(std::ofstream& stream,
+                                         const Sequence<T,Allocator>& sequence,
+                                         const std::string& delimiter = "")
+   {
+     if (!stream) return 0;
+     std::size_t count = 0;
+     typename Sequence<T,Allocator>::const_iterator it = sequence.begin();
+     if (!delimiter.empty())
+     {
+        while(sequence.end() != it)
+        {
+           stream << *it++ << delimiter;
+           ++count;
+        }
+     }
+     else
+     {
+        while(sequence.end() != it)
+        {
+           stream << *it++;
+           ++count;
+        }
+     }
+     return count;
+   }
+
+   template <typename T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::size_t write_to_text_file(const std::string& file_name,
+                                         const Sequence<T,Allocator>& sequence,
+                                         const std::string& delimiter = "")
+   {
+     std::ofstream stream(file_name.c_str());
+     if (!stream)
+        return 0;
+     else
+        return write_to_text_file(stream,sequence,delimiter);
+   }
+
    template<typename Predicate, typename InputIterator, typename OutputIterator>
    inline void copy_if(Predicate predicate,
                        const InputIterator begin, const InputIterator end,
@@ -4514,7 +4557,7 @@ namespace strtk
 
       std::string remaining_string(const std::size_t& index, const std::string& str)
       {
-         return (index < str.size()) ?  str.substr(index,str.size() - index) : str;
+         return (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }
 
       void remaining_string(const std::size_t& index, const std::string& str, std::string& result)

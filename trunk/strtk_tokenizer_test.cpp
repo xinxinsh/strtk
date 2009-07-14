@@ -15,6 +15,17 @@
  *******************************************************************
 */
 
+
+/*
+   Description: The String Tokenizer Test performs some very basic
+                "unit test"-like testing and code coverage upon the
+                String Toolkit library's various tokenization,
+                splitting and parsing routines.
+                A silent/blank return indicates a positive test sweep,
+                otherwise any output indicates test failures.
+*/
+
+
 #include <iostream>
 #include <iterator>
 #include <algorithm>

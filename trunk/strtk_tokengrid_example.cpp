@@ -16,6 +16,19 @@
 */
 
 
+/*
+   Description: This example aims to demonstrate the usage patterns
+                and functionality of the Token Grid class.
+                The example test cases construct a string that
+                represents a token grid - It should be noted the
+                class can just as easily use a text file as input.
+                The examples range from determining sums and averages
+                of rows and columns of numeric values, iterating down
+                columns, outputting rows/columns in specific orderings
+                etc.
+*/
+
+
 #include <iostream>
 #include <iterator>
 #include <algorithm>

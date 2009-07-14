@@ -34,10 +34,8 @@
 template<typename Container, typename Predicate>
 struct parse_line
 {
-private:
-   typedef std::deque<strtk::std_string::tokenizer<char>::iterator_type> local_list_type;
-
 public:
+
    parse_line(Container& c, const Predicate& p)
    : c_(c),
      p_(p)
@@ -60,18 +58,13 @@ public:
 
    inline void operator()(const std::string& s)
    {
-      strtk::split(p_,s,std::back_inserter(local_list_),true);
-      for(local_list_type::const_iterator it = local_list_.begin();
-          it != local_list_.end();
-          ++it)
-      {
-         c_.push_back(std::string((*it).first,(*it).second));
-      }
-      local_list_.resize(0);
+      strtk::split(p_,
+                   s,
+                   strtk::range_to_type_back_inserter(c_),
+                   strtk::split_options::compress_delimiters);
    }
 
 private:
-   local_list_type local_list_;
    Container& c_;
    const Predicate& p_;
 };
@@ -79,7 +72,7 @@ private:
 template<typename Container>
 void parse_text(const std::string& file_name, Container& c)
 {
-   std::string delimiters = " ,.;:<>'[]{}()_?/'`~!@#$%^&*|-_\"=+";
+   std::string delimiters = " ,.;:<>'[]{}()_?/\\'`~!@#$%^&*|-_\"=+\t\r";
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    parse_line<Container,strtk::multiple_char_delimiter_predicate> pl(c,predicate);
    strtk::for_each_line(file_name,pl);

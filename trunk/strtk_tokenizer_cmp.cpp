@@ -16,6 +16,20 @@
 */
 
 
+/*
+   Description: This comparison aims to determine the running time
+                difference between the BOOST string tokenizer and
+                the String Toolkit Library's string tokenizer.
+                The comparison involves each tokenizer accepting
+                a set of possible delimiters and a string to be
+                tokenized. The provided string is tokenized and the
+                tokens are subsequently concatenated to each other.
+                Running time is measured around the tokenization
+                loop, and printed out along with a measure indicating
+                the average number of tokens parsed per second.
+*/
+
+
 #include <iostream>
 #include <string>
 #include <iterator>
