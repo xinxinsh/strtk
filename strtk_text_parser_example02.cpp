@@ -15,6 +15,7 @@
  *******************************************************************
 */
 
+
 /*
   Description: The following will parse a text file line-by-line,
                tokenizing each line using the delimiters set as
@@ -22,6 +23,7 @@
                word_list with tokens derived from the text file
                that are not in the "not_of_interest_list".
 */
+
 
 #include <iostream>
 #include <iterator>
