@@ -69,11 +69,36 @@ namespace strtk
    }
 
    template<class Function>
+   inline std::size_t for_each_line_n(std::ifstream& stream, const std::size_t& n, Function function)
+   {
+      std::string buffer;
+      buffer.reserve(one_kilobyte);
+      std::size_t line_count = 0;
+      while(std::getline(stream,buffer))
+      {
+         function(buffer);
+         if (n == ++line_count)
+          break;
+      }
+      return line_count;
+   }
+
+   template<class Function>
    inline std::size_t for_each_line(const std::string& file_name, Function function)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
          return for_each_line(stream,function);
+      else
+         return 0;
+   }
+
+   template<class Function>
+   inline std::size_t for_each_line_n(const std::string& file_name, const std::size_t& n, Function function)
+   {
+      std::ifstream stream(file_name.c_str());
+      if (stream)
+         return for_each_line_n(stream,n,function);
       else
          return 0;
    }
@@ -86,11 +111,29 @@ namespace strtk
       std::size_t line_count = 0;
       while(std::getline(stream,buffer))
       {
-         ++line_count;
          if(!function(buffer))
          {
             return line_count;
          }
+         ++line_count;
+      }
+      return line_count;
+   }
+
+   template<class Function>
+   inline std::size_t for_each_line_n_conditional(std::ifstream& stream, const std::size_t& n, Function function)
+   {
+      std::string buffer;
+      buffer.reserve(one_kilobyte);
+      std::size_t line_count = 0;
+      while(std::getline(stream,buffer))
+      {
+         if(!function(buffer))
+         {
+            return line_count;
+         }
+         if (n == ++line_count)
+          break;
       }
       return line_count;
    }
@@ -105,6 +148,16 @@ namespace strtk
          return 0;
    }
 
+   template<class Function>
+   inline std::size_t for_each_line_n_conditional(const std::string& file_name, const std::size_t& n, Function function)
+   {
+      std::ifstream stream(file_name.c_str());
+      if (stream)
+         return for_each_line_n_conditional(stream,n,function);
+      else
+         return 0;
+   }
+
    template<typename T>
    static inline T string_to_type_converter(const std::string& s)
    {
@@ -115,6 +168,27 @@ namespace strtk
    inline std::string string_to_type_converter(const std::string& s)
    {
       return s;
+   }
+
+   template<typename T>
+   static inline bool string_to_type_converter(const std::string& s, T& t)
+   {
+      try
+      {
+         t = boost::lexical_cast<T>(s);
+      }
+      catch(boost::bad_lexical_cast& e)
+      {
+         return false;
+      }
+      return true;
+   }
+
+   template<>
+   inline bool string_to_type_converter(const std::string& s, std::string& out)
+   {
+      out = s;
+      return true;
    }
 
    template <typename T,
@@ -1352,6 +1426,66 @@ namespace strtk
    inline counting_back_inserter_iterator<T> counting_back_inserter(std::size_t& counter_)
    {
       return (counting_back_inserter_iterator<T>(counter_));
+   }
+
+   template<typename Function>
+   class functional_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
+   {
+   public:
+      functional_inserter_iterator(Function& function)
+      : function_(function)
+      {}
+
+      functional_inserter_iterator(const functional_inserter_iterator& it)
+      : function_(it.function_)
+      {}
+
+      inline functional_inserter_iterator& operator=(const functional_inserter_iterator& it)
+      {
+         if (this != &it)
+         {
+            this->function_ = it.function_;
+         }
+         return *this;
+      }
+
+      template<typename T>
+      inline functional_inserter_iterator& operator=(const T& t)
+      {
+         function_(t);
+         return (*this);
+      }
+
+      template<typename T>
+      inline void operator()(const T& t)
+      {
+         function_(t);
+      }
+
+      inline functional_inserter_iterator& operator*()
+      {
+         return (*this);
+      }
+
+      inline functional_inserter_iterator& operator++()
+      {
+         return (*this);
+      }
+
+      inline functional_inserter_iterator operator++(int)
+      {
+         return (*this);
+      }
+
+   private:
+
+      Function& function_;
+   };
+
+   template<typename Function>
+   inline functional_inserter_iterator<Function> functional_inserter(Function function)
+   {
+      return (functional_inserter_iterator<Function>(function));
    }
 
    namespace split_options
@@ -3711,17 +3845,18 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-       t1 = string_to_type_converter< T1>(std::string((*it).first,(*it).second)); ++it;
-       t2 = string_to_type_converter< T2>(std::string((*it).first,(*it).second)); ++it;
-       t3 = string_to_type_converter< T3>(std::string((*it).first,(*it).second)); ++it;
-       t4 = string_to_type_converter< T4>(std::string((*it).first,(*it).second)); ++it;
-       t5 = string_to_type_converter< T5>(std::string((*it).first,(*it).second)); ++it;
-       t6 = string_to_type_converter< T6>(std::string((*it).first,(*it).second)); ++it;
-       t7 = string_to_type_converter< T7>(std::string((*it).first,(*it).second)); ++it;
-       t8 = string_to_type_converter< T8>(std::string((*it).first,(*it).second)); ++it;
-       t9 = string_to_type_converter< T9>(std::string((*it).first,(*it).second)); ++it;
-      t10 = string_to_type_converter<T10>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
+      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
+      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
+      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
+      result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8); ++it;
+      result = result && string_to_type_converter< T9>(std::string((*it).first,(*it).second),t9); ++it;
+      result = result && string_to_type_converter<T10>(std::string((*it).first,(*it).second),t10);
+      return result;
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -3739,16 +3874,17 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it;
-      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second)); ++it;
-      t9 = string_to_type_converter<T9>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
+      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
+      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
+      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
+      result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8); ++it;
+      result = result && string_to_type_converter< T9>(std::string((*it).first,(*it).second),t9);
+      return result;
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -3764,15 +3900,16 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second)); ++it;
-      t8 = string_to_type_converter<T8>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
+      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
+      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
+      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
+      result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8);
+      return result;
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -3788,14 +3925,15 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second)); ++it;
-      t7 = string_to_type_converter<T7>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
+      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
+      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
+      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7);
+      return result;
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -3811,13 +3949,14 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second)); ++it;
-      t6 = string_to_type_converter<T6>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
+      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
+      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6);
+      return result;
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -3833,12 +3972,13 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second)); ++it;
-      t5 = string_to_type_converter<T5>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
+      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5);
+      return result;
    }
 
    template< typename T1, typename T2, typename T3, typename T4 >
@@ -3852,11 +3992,12 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second)); ++it;
-      t4 = string_to_type_converter<T4>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4);
+      return result;
    }
 
    template<typename T1, typename T2, typename T3>
@@ -3870,10 +4011,11 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second)); ++it;
-      t3 = string_to_type_converter<T3>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3);
+      return result;
    }
 
    template<typename T1, typename T2>
@@ -3887,9 +4029,10 @@ namespace strtk
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
       std_string::iterator_type* it = token_list;
-      t1 = string_to_type_converter<T1>(std::string((*it).first,(*it).second)); ++it;
-      t2 = string_to_type_converter<T2>(std::string((*it).first,(*it).second));
-      return true;
+      bool result = true;
+      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2);
+      return result;
    }
 
    template<typename T>
@@ -3900,8 +4043,7 @@ namespace strtk
    {
       if (0 == distance(begin,end)) return false;
       static const std::size_t token_count = 1;
-      t = string_to_type_converter<T>(std::string(begin,end));
-      return true;
+      return string_to_type_converter<T>(std::string(begin,end),t);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
