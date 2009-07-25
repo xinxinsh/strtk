@@ -177,7 +177,7 @@ namespace strtk
       {
          t = boost::lexical_cast<T>(s);
       }
-      catch(boost::bad_lexical_cast& e)
+      catch(boost::bad_lexical_cast&)
       {
          return false;
       }
@@ -1672,6 +1672,36 @@ namespace strtk
    }
 
    template<typename OutputIterator>
+   inline std::size_t split_n(const std::string& delimiters,
+                              const char* begin,
+                              const char* end,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      return split_n(multiple_char_delimiter_predicate(delimiters),
+                     begin,end,
+                     token_count,
+                     out,
+                     split_options);
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t split_n(const std::string& delimiters,
+                              const unsigned char* begin,
+                              const unsigned char* end,
+                              const std::size_t& token_count,
+                              OutputIterator out,
+                              const std::size_t split_options = 0x00)
+   {
+      return split_n(multiple_char_delimiter_predicate(delimiters),
+                     begin,end,
+                     token_count,
+                     out,
+                     split_options);
+   }
+
+   template<typename OutputIterator>
    inline std::size_t split_n(const std::string::value_type delimiter,
                               const std::string& str,
                               const std::size_t& token_count,
@@ -2723,7 +2753,7 @@ namespace strtk
                               str2.c_str(),str2.c_str() + str2.size());
    }
 
-   namespace hash_details_
+   namespace details
    {
 
       inline void compute_pod_hash(const char data[], unsigned int& hash)
@@ -2812,19 +2842,19 @@ namespace strtk
          compute_block<block_size>(reinterpret_cast<unsigned char*>(itr),length,hash);
       }
 
-   }//hash_details_
+   } //details
 
    template<typename Iterator>
    inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value)
    {
       hash_value = 0xAAAAAAAA;
-      if (length >= 64) hash_details_::compute_block<64>(itr,length,hash_value);
-      if (length >= 32) hash_details_::compute_block<32>(itr,length,hash_value);
-      if (length >= 16) hash_details_::compute_block<16>(itr,length,hash_value);
-      if (length >=  8) hash_details_::compute_block< 8>(itr,length,hash_value);
-      if (length >=  4) hash_details_::compute_block< 4>(itr,length,hash_value);
-      if (length >=  2) hash_details_::compute_block< 2>(itr,length,hash_value);
-      if (length >   0) hash_details_::compute_block< 1>(itr,length,hash_value);
+      if (length >= 64) details::compute_block<64>(itr,length,hash_value);
+      if (length >= 32) details::compute_block<32>(itr,length,hash_value);
+      if (length >= 16) details::compute_block<16>(itr,length,hash_value);
+      if (length >=  8) details::compute_block< 8>(itr,length,hash_value);
+      if (length >=  4) details::compute_block< 4>(itr,length,hash_value);
+      if (length >=  2) details::compute_block< 2>(itr,length,hash_value);
+      if (length >   0) details::compute_block< 1>(itr,length,hash_value);
    }
 
    template<typename Iterator>
@@ -3830,220 +3860,468 @@ namespace strtk
       }
    };
 
+   namespace details
+   {
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8,
+               typename T9, typename T10>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8,
+                             T9& t9, T10& t10)
+      {
+         static const std::size_t token_count = 10;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
+         result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
+         result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
+         result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
+         result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
+         result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8); ++it;
+         result = result && string_to_type_converter< T9>(std::string((*it).first,(*it).second),t9); ++it;
+         result = result && string_to_type_converter<T10>(std::string((*it).first,(*it).second),t10);
+         return result;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8,
+               typename T9>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8,
+                             T9& t9)
+      {
+         static const std::size_t token_count = 9;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
+         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
+         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
+         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6); ++it;
+         result = result && string_to_type_converter<T7>(std::string((*it).first,(*it).second),t7); ++it;
+         result = result && string_to_type_converter<T8>(std::string((*it).first,(*it).second),t8); ++it;
+         result = result && string_to_type_converter<T9>(std::string((*it).first,(*it).second),t9);
+         return result;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8)
+      {
+         static const std::size_t token_count = 8;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
+         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
+         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
+         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6); ++it;
+         result = result && string_to_type_converter<T7>(std::string((*it).first,(*it).second),t7); ++it;
+         result = result && string_to_type_converter<T8>(std::string((*it).first,(*it).second),t8);
+         return result;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7)
+      {
+         static const std::size_t token_count = 7;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
+         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
+         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
+         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6); ++it;
+         result = result && string_to_type_converter<T7>(std::string((*it).first,(*it).second),t7);
+         return result;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6)
+      {
+         static const std::size_t token_count = 6;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
+         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
+         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
+         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6);
+         return result;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3, typename T4,
+               typename T5>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5)
+      {
+         static const std::size_t token_count = 5;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
+         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
+         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5);
+         return result;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3, typename T4>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4)
+      {
+         static const std::size_t token_count = 4;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
+         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4);
+         return result;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename T2, typename T3>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3)
+      {
+         static const std::size_t token_count = 3;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
+         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3);
+         return result;
+      }
+
+      template<typename InputIterator, typename T1, typename T2>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2)
+      {
+         static const std::size_t token_count = 2;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         bool result = true;
+         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
+         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2);
+         return result;
+      }
+
+      template<typename InputIterator, typename T>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T& t)
+      {
+         static const std::size_t token_count = 1;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         return string_to_type_converter<T>(std::string((*it).first,(*it).second),t);
+      }
+
+   }
+
    template<typename T1, typename T2, typename T3, typename T4,
             typename T5, typename T6, typename T7, typename T8,
             typename T9, typename T10>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7, T8& t8,
                      T9& t9, T10& t10)
    {
-      static const std::size_t token_count = 10;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
-      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
-      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
-      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
-      result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8); ++it;
-      result = result && string_to_type_converter< T9>(std::string((*it).first,(*it).second),t9); ++it;
-      result = result && string_to_type_converter<T10>(std::string((*it).first,(*it).second),t10);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
             typename T5, typename T6, typename T7, typename T8,
             typename T9>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7, T8& t8,
                      T9& t9)
    {
-      static const std::size_t token_count = 9;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
-      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
-      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
-      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
-      result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8); ++it;
-      result = result && string_to_type_converter< T9>(std::string((*it).first,(*it).second),t9);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
             typename T5, typename T6, typename T7, typename T8>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      static const std::size_t token_count = 8;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
-      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
-      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
-      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
-      result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
             typename T5, typename T6, typename T7>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7)
    {
-      static const std::size_t token_count = 7;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
-      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
-      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
-      result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
             typename T5, typename T6>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6)
    {
-      static const std::size_t token_count = 6;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
-      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
-      result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
             typename T5>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5)
    {
-      static const std::size_t token_count = 5;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
-      result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4 >
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   template< typename T1, typename T2, typename T3, typename T4>
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      static const std::size_t token_count = 4;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-      result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4);
    }
 
    template<typename T1, typename T2, typename T3>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3)
    {
-      static const std::size_t token_count = 3;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-      result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3);
    }
 
    template<typename T1, typename T2>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T1& t1, T2& t2)
    {
-      static const std::size_t token_count = 2;
-      std_string::iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list))
-         return false;
-      std_string::iterator_type* it = token_list;
-      bool result = true;
-      result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-      result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2);
-      return result;
+      return details::parse_impl(begin,end,delimiters,t1,t2);
    }
 
    template<typename T>
-   inline bool parse(const std::string::const_iterator& begin,
-                     const std::string::const_iterator& end,
+   inline bool parse(const char* begin,
+                     const char* end,
                      const std::string& delimiters,
                      T& t)
    {
-      if (0 == distance(begin,end)) return false;
-      static const std::size_t token_count = 1;
-      return string_to_type_converter<T>(std::string(begin,end),t);
+      return details::parse_impl(begin,end,delimiters,t);
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9, typename T10>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9, T10& t10)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7);
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6);
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5);
+   }
+
+   template< typename T1, typename T2, typename T3, typename T4>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4);
+   }
+
+   template<typename T1, typename T2, typename T3>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3);
+   }
+
+   template<typename T1, typename T2>
+   inline bool parse(const std::string::const_iterator begin,
+                     const std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2);
+   }
+
+   template<typename T>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T& t)
+   {
+      return details::parse_impl(begin,end,delimiters,t);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4055,7 +4333,7 @@ namespace strtk
                      T5& t5, T6& t6, T7& t7, T8& t8,
                      T9& t9, T10& t10)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4067,7 +4345,7 @@ namespace strtk
                      T5& t5, T6& t6, T7& t7, T8& t8,
                      T9& t9)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4077,7 +4355,7 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
    }
 
    template< typename T1, typename T2, typename T3, typename T4,
@@ -4087,7 +4365,7 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6,t7);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4097,7 +4375,7 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5,t6);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4107,7 +4385,7 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4,t5);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5);
    }
 
    template<typename T1, typename T2, typename T3, typename T4>
@@ -4115,7 +4393,7 @@ namespace strtk
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3,t4);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4);
    }
 
    template<typename T1, typename T2, typename T3>
@@ -4123,7 +4401,7 @@ namespace strtk
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2,t3);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3);
    }
 
    template<typename T1, typename T2>
@@ -4131,7 +4409,7 @@ namespace strtk
                      const std::string& delimiters,
                      T1& t1, T2& t2)
    {
-      return parse(data.begin(),data.end(),delimiters,t1,t2);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2);
    }
 
    template<typename T>
@@ -4139,7 +4417,7 @@ namespace strtk
                      const std::string& delimiters,
                      T& t)
    {
-      return parse(data.begin(),data.end(),delimiters,t);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t);
    }
 
    template <typename T,
