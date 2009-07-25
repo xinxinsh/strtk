@@ -331,32 +331,139 @@ bool test_empty_filter_itr()
    }
 }
 
+struct data_block
+{
+   std::string    d1;
+   char           d2;
+   int            d3;
+   unsigned int   d4;
+   double         d5;
+   float          d6;
+   short          d7;
+   unsigned short d8;
+   bool           d9;
+   unsigned char  d10;
+
+   void clear(const std::size_t& i)
+   {
+      if (i >=  1) d1  = "";
+      if (i >=  2) d2  = 0x00;
+      if (i >=  3) d3  = 0;
+      if (i >=  4) d4  = 0;
+      if (i >=  5) d5  = 0;
+      if (i >=  6) d6  = 0;
+      if (i >=  7) d7  = 7;
+      if (i >=  8) d8  = 0;
+      if (i >=  9) d9  = false;
+      if (i >= 10) d10 = 0x00;
+   }
+
+   bool operator==(const data_block& db)
+   {
+      return d1 == db.d1 &&
+             d2 == db.d2 &&
+             d3 == db.d3 &&
+             d4 == db.d4 &&
+             d5 == db.d5 &&
+             d6 == db.d6 &&
+             d7 == db.d7 &&
+             d8 == db.d8 &&
+             d9 == db.d9 &&
+             d10 == db.d10;
+   }
+
+   bool operator!=(const data_block& db)
+   {
+      return !this->operator ==(db);
+   }
+
+};
+
 bool test_construct_and_parse()
 {
+   data_block i;
    std::string output = "";
-   std::string  i1 = "abcd";
-   char         i2 = 'x';
-   int          i3 = -1234;
-   unsigned int i4 = 78901;
-   double       i5 = 4567.8901;
+   i.d1  = "The quick brown fox jumps over the lazy dog";
+   i.d2  = 'x';
+   i.d3  = -1234;
+   i.d4  = 78901;
+   i.d5  = 4567.8901;
+   i.d6  = 123.456f;
+   i.d7  = -16000;
+   i.d8  = 15000;
+   i.d9  = true;
+   i.d10 = 0xEE;
 
-   strtk::construct(output,"|",i1,i2,i3,i4,i5);
+   strtk::construct(output,"|",i.d1,i.d2,i.d3,i.d4,i.d5,i.d6,i.d7,i.d8,i.d9,i.d10);
+   data_block o = i;
 
-   std::string  o1 = "";
-   char         o2 = 0x00;
-   int          o3 = 0;
-   unsigned int o4 = 0;
-   double       o5 = 0;
-
-   strtk::parse(output,"|",o1,o2,o3,o4,o5);
-
-   if (!((i1 == o1) &&
-         (i2 == o2) &&
-         (i3 == o3) &&
-         (i4 == o4) &&
-         (i5 == o5)))
+   o.clear(1);
+   if (!strtk::parse(output,"|",o.d1) || (o != i))
    {
-      std::cout << "test_construct_and_parse() - Construct and Parse Test FAILED!" << std::endl;
+      std::cout << "test_construct_and_parse() - parse fail 1" << std::endl;
+      return false;
+   }
+
+   o.clear(2);
+   if (!strtk::parse(output,"|",o.d1,o.d2) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 2" << std::endl;
+      return false;
+   }
+
+   o.clear(3);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 3" << std::endl;
+      return false;
+   }
+
+   o.clear(4);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 4" << std::endl;
+      return false;
+   }
+
+   o.clear(5);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 5" << std::endl;
+      return false;
+   }
+
+   o.clear(6);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 6" << std::endl;
+      return false;
+   }
+
+   o.clear(7);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 7" << std::endl;
+      return false;
+   }
+
+   o.clear(8);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 8" << std::endl;
+      return false;
+   }
+
+   o.clear(9);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8,o.d9) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 9" << std::endl;
+      return false;
+   }
+
+   o.clear(10);
+   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8,o.d9,o.d10) || (o != i))
+   {
+      std::cout << "test_construct_and_parse() - parse fail 10" << std::endl;
       return false;
    }
 
