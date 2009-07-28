@@ -427,21 +427,26 @@ void construct_example()
 
 void parse_example01()
 {
-   std::string input = "abcd|x|-1234|78901|4567.8901";
+   std::string input = "abcd|x|-1234|78901|4567.8901|0x75BCD15|AABB";
 
    std::string  o1 = "";
    char         o2 = 0x00;
    int          o3 = 0;
    unsigned int o4 = 0;
    double       o5 = 0;
-
-   strtk::parse(input,"|",o1,o2,o3,o4,o5);
+   unsigned int o6 = 0;
+   short int    o7 = 0;
+   strtk::hex_to_number_sink<unsigned int> hns1(o6);
+   strtk::hex_to_number_sink<short int> hns2(o7);
+   strtk::parse(input,"|",o1,o2,o3,o4,o5,hns1,hns2);
 
    std::cout << o1 << "\t"
              << o2 << "\t"
              << o3 << "\t"
              << o4 << "\t"
-             << o5 << std::endl;
+             << o5 << "\t"
+             << o6 << "\t"
+             << o7 << std::endl;
 }
 
 void parse_example02()
