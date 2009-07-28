@@ -159,18 +159,6 @@ namespace strtk
    }
 
    template<typename T>
-   static inline T string_to_type_converter(const std::string& s)
-   {
-      return boost::lexical_cast<T>(s);
-   }
-
-   template<>
-   inline std::string string_to_type_converter(const std::string& s)
-   {
-      return s;
-   }
-
-   template<typename T>
    static inline bool string_to_type_converter(const std::string& s, T& t)
    {
       try
@@ -245,7 +233,7 @@ namespace strtk
          return false;
       while(end != it)
       {
-         const unsigned int digit = digit_table[*it++];
+         const int digit = static_cast<int>(digit_table[static_cast<unsigned int>(*it++)]);
          if (0xFF == digit)
             return false;
          v = (10 * v) + digit;
@@ -299,12 +287,175 @@ namespace strtk
       const char* end = s.c_str() + s.size();
       while(end != it)
       {
-         const unsigned int digit = digit_table[*it++];
+         const unsigned int digit = static_cast<unsigned int>(digit_table[static_cast<unsigned int>(*it++)]);
          if (0xFF == digit)
             return false;
          v = (10 * v) + digit;
       }
       return true;
+   }
+
+   template<typename T>
+   static inline T string_to_type_converter(const std::string& s)
+   {
+      return boost::lexical_cast<T>(s);
+   }
+
+   template<>
+   inline std::string string_to_type_converter(const std::string& s)
+   {
+      return s;
+   }
+
+   template<>
+   inline int string_to_type_converter(const std::string& s)
+   {
+      int result = 0;
+      if (string_to_type_converter(s,result))
+         return result;
+      else
+         throw;
+   }
+
+   template<>
+   inline unsigned int string_to_type_converter(const std::string& s)
+   {
+      unsigned int result = 0;
+      if (string_to_type_converter(s,result))
+         return result;
+      else
+         throw;
+   }
+
+   namespace details
+   {
+
+      template<typename T>
+      inline void signed_number_to_string_impl(T value, std::string& result)
+      {
+         static const unsigned char digit[10] = {
+                                                  '0','1','2','3','4',
+                                                  '5','6','7','8','9'
+                                                };
+         if (result.capacity() < (3 * sizeof(value) + 1))
+            result.resize(3 * sizeof(value) + 1);
+         char* it = const_cast<char*>(result.c_str());
+         bool negative = (value < 0);
+         value = std::abs(value);
+         int tmp_value = value;
+         do
+         {
+            tmp_value = value;
+            value /= 10;
+            *(it++) = digit[(tmp_value - value * 10)];
+         }
+         while(value);
+         if (negative) *(it++) = '-';
+         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
+         it = const_cast<char*>(result.c_str());
+         char* it2 = it + (result.size() - 1);
+         while(it < it2)
+         {
+            char tmp = *it;
+            *it = *it2;
+            *it2 = tmp;
+            ++it; --it2;
+         }
+      }
+
+      template<typename T>
+      inline void unsigned_number_to_string_impl(T value, std::string& result)
+      {
+         static const unsigned char digit[10] = {
+                                                  '0','1','2','3','4',
+                                                  '5','6','7','8','9'
+                                                };
+         if (result.capacity() < (3 * sizeof(value) + 1))
+            result.resize(3 * sizeof(value) + 1);
+         char* it = const_cast<char*>(result.c_str());
+         unsigned int tmp_value = value;
+         do
+         {
+            tmp_value = value;
+            value /= 10;
+            *(it++) = digit[(tmp_value - value * 10)];
+         }
+         while(value);
+         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
+         it = const_cast<char*>(result.c_str());
+         char* it2 = it + (result.size() - 1);
+         while(it < it2)
+         {
+            char tmp = *it;
+            *it = *it2;
+            *it2 = tmp;
+            ++it; --it2;
+         }
+      }
+   }
+
+   inline void number_to_string(short value, std::string& result)
+   {
+      details::signed_number_to_string_impl(value,result);
+   }
+
+   inline void number_to_string(int value, std::string& result)
+   {
+      details::signed_number_to_string_impl(value,result);
+   }
+
+   inline void number_to_string(unsigned short value, std::string& result)
+   {
+      details::unsigned_number_to_string_impl(value,result);
+   }
+
+   inline void number_to_string(unsigned int value, std::string& result)
+   {
+      details::unsigned_number_to_string_impl(value,result);
+   }
+
+   template<typename T>
+   inline std::string type_to_string(const T& t)
+   {
+      return boost::lexical_cast<std::string>(t);
+   }
+
+   template<>
+   inline std::string type_to_string(const std::string& v)
+   {
+      return v;
+   }
+
+   template<>
+   inline std::string type_to_string(const short& v)
+   {
+      std::string result;
+      number_to_string(v,result);
+      return result;
+   }
+
+   template<>
+   inline std::string type_to_string(const int& v)
+   {
+      std::string result;
+      number_to_string(v,result);
+      return result;
+   }
+
+   template<>
+   inline std::string type_to_string(const unsigned short& v)
+   {
+      std::string result;
+      number_to_string(v,result);
+      return result;
+   }
+
+   template<>
+   inline std::string type_to_string(const unsigned int& v)
+   {
+      std::string result;
+      number_to_string(v,result);
+      return result;
    }
 
    template <typename T,
@@ -4577,16 +4728,16 @@ namespace strtk
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                          const T9& t9, const T10& t10)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3); output += delimiter;
-      output += boost::lexical_cast<std::string>(t4); output += delimiter;
-      output += boost::lexical_cast<std::string>(t5); output += delimiter;
-      output += boost::lexical_cast<std::string>(t6); output += delimiter;
-      output += boost::lexical_cast<std::string>(t7); output += delimiter;
-      output += boost::lexical_cast<std::string>(t8); output += delimiter;
-      output += boost::lexical_cast<std::string>(t9); output += delimiter;
-      output += boost::lexical_cast<std::string>(t10);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3); output += delimiter;
+      output += type_to_string(t4); output += delimiter;
+      output += type_to_string(t5); output += delimiter;
+      output += type_to_string(t6); output += delimiter;
+      output += type_to_string(t7); output += delimiter;
+      output += type_to_string(t8); output += delimiter;
+      output += type_to_string(t9); output += delimiter;
+      output += type_to_string(t10);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4598,15 +4749,15 @@ namespace strtk
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                          const T9& t9)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3); output += delimiter;
-      output += boost::lexical_cast<std::string>(t4); output += delimiter;
-      output += boost::lexical_cast<std::string>(t5); output += delimiter;
-      output += boost::lexical_cast<std::string>(t6); output += delimiter;
-      output += boost::lexical_cast<std::string>(t7); output += delimiter;
-      output += boost::lexical_cast<std::string>(t8); output += delimiter;
-      output += boost::lexical_cast<std::string>(t9);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3); output += delimiter;
+      output += type_to_string(t4); output += delimiter;
+      output += type_to_string(t5); output += delimiter;
+      output += type_to_string(t6); output += delimiter;
+      output += type_to_string(t7); output += delimiter;
+      output += type_to_string(t8); output += delimiter;
+      output += type_to_string(t9);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4616,14 +4767,14 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7, const T8& t8)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3); output += delimiter;
-      output += boost::lexical_cast<std::string>(t4); output += delimiter;
-      output += boost::lexical_cast<std::string>(t5); output += delimiter;
-      output += boost::lexical_cast<std::string>(t6); output += delimiter;
-      output += boost::lexical_cast<std::string>(t7); output += delimiter;
-      output += boost::lexical_cast<std::string>(t8);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3); output += delimiter;
+      output += type_to_string(t4); output += delimiter;
+      output += type_to_string(t5); output += delimiter;
+      output += type_to_string(t6); output += delimiter;
+      output += type_to_string(t7); output += delimiter;
+      output += type_to_string(t8);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4633,13 +4784,13 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6, const T7& t7)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3); output += delimiter;
-      output += boost::lexical_cast<std::string>(t4); output += delimiter;
-      output += boost::lexical_cast<std::string>(t5); output += delimiter;
-      output += boost::lexical_cast<std::string>(t6); output += delimiter;
-      output += boost::lexical_cast<std::string>(t7);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3); output += delimiter;
+      output += type_to_string(t4); output += delimiter;
+      output += type_to_string(t5); output += delimiter;
+      output += type_to_string(t6); output += delimiter;
+      output += type_to_string(t7);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4649,12 +4800,12 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5, const T6& t6)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3); output += delimiter;
-      output += boost::lexical_cast<std::string>(t4); output += delimiter;
-      output += boost::lexical_cast<std::string>(t5); output += delimiter;
-      output += boost::lexical_cast<std::string>(t6);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3); output += delimiter;
+      output += type_to_string(t4); output += delimiter;
+      output += type_to_string(t5); output += delimiter;
+      output += type_to_string(t6);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4664,11 +4815,11 @@ namespace strtk
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                          const T5& t5)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3); output += delimiter;
-      output += boost::lexical_cast<std::string>(t4); output += delimiter;
-      output += boost::lexical_cast<std::string>(t5);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3); output += delimiter;
+      output += type_to_string(t4); output += delimiter;
+      output += type_to_string(t5);
    }
 
    template<typename T1, typename T2, typename T3, typename T4>
@@ -4676,10 +4827,10 @@ namespace strtk
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3, const T4& t4)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3); output += delimiter;
-      output += boost::lexical_cast<std::string>(t4);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3); output += delimiter;
+      output += type_to_string(t4);
    }
 
    template<typename T1, typename T2, typename T3>
@@ -4687,9 +4838,9 @@ namespace strtk
                          const std::string& delimiter,
                          const T1& t1, const T2& t2, const T3& t3)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2); output += delimiter;
-      output += boost::lexical_cast<std::string>(t3);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2); output += delimiter;
+      output += type_to_string(t3);
    }
 
    template<typename T1, typename T2>
@@ -4697,8 +4848,8 @@ namespace strtk
                          const std::string& delimiter,
                          const T1& t1, const T2& t2)
    {
-      output += boost::lexical_cast<std::string>(t1); output += delimiter;
-      output += boost::lexical_cast<std::string>(t2);
+      output += type_to_string(t1); output += delimiter;
+      output += type_to_string(t2);
    }
 
    template<typename InputIterator>
@@ -4709,7 +4860,7 @@ namespace strtk
       InputIterator it = begin;
       while(end != it)
       {
-         output += boost::lexical_cast<std::string>(*it);
+         output += type_to_string(*it);
          if (end == (++it))
             break;
          else
@@ -4744,7 +4895,7 @@ namespace strtk
                output += delimiter;
             else
                first_time = false;
-            output += boost::lexical_cast<std::string>(*it);
+            output += type_to_string(*it);
          }
          if (end == (++it))
             break;
@@ -5051,6 +5202,96 @@ namespace strtk
       std::size_t read_buffer_size_;
    };
 
+   template<typename T>
+   class hex_to_number_sink
+   {
+      // static_assert for T either int or unsigned int and alike (could use a concept)
+   public:
+
+      hex_to_number_sink(T& t)
+      : t_(&t)
+      {}
+
+      hex_to_number_sink(const hex_to_number_sink& hns)
+      :t_(hns.t_)
+      {}
+
+      inline hex_to_number_sink& operator=(const hex_to_number_sink& hns)
+      {
+         t_ = hns.t_;
+      }
+
+      inline hex_to_number_sink& operator=(const std::string& s)
+      {
+         std::size_t offset = 0;
+         if ((s.size() > 2) && (s[0] == '0') && ((s[1] == 'x') || (s[1] == 'X')))
+            offset = 2;
+         if ((s.size() - offset) > (2 * sizeof(T)))
+               return *this;
+         const std::size_t buffer_size = 2 * sizeof(T);
+         char buffer[buffer_size] = { 0 };
+         std::copy(s.c_str() + offset, s.c_str() + s.size(), buffer + ((s.size() - offset) % 2));
+         *t_ = 0;
+         strtk::convert_hex_to_bin(buffer,
+                                   buffer + s.size(),
+                                   reinterpret_cast<char*>(t_));
+         reverse_bytes();
+         return *this;
+      }
+
+   private:
+
+      inline void reverse_bytes()
+      {
+         unsigned char* it1 = reinterpret_cast<unsigned char*>(t_);
+         unsigned char* it2 = it1 + (sizeof(T) - 1);
+         while(it1 < it2)
+         {
+            char tmp = *it1;
+                *it1 = *it2;
+                *it2 = tmp;
+            ++it1; --it2;
+         }
+      }
+
+   private:
+      T* t_;
+   };
+
+   template<typename T>
+   hex_to_number_sink<T> create_hex_to_number_sink(T& t)
+   {
+      return hex_to_number_sink<T>(t);
+   }
+
+   template<>
+   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<short>& out)
+   {
+      out = s;
+      return true;
+   }
+
+   template<>
+   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<int>& out)
+   {
+      out = s;
+      return true;
+   }
+
+   template<>
+   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<unsigned short>& out)
+   {
+      out = s;
+      return true;
+   }
+
+   template<>
+   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<unsigned int>& out)
+   {
+      out = s;
+      return true;
+   }
+
    namespace text
    {
       inline std::string center(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
@@ -5076,19 +5317,19 @@ namespace strtk
       template<typename T>
       inline std::string center(const std::size_t& width, const std::string::value_type& pad, const T& t)
       {
-         return center(width,pad,boost::lexical_cast<std::string>(t));
+         return center(width,pad,type_to_string(t));
       }
 
       template<typename T>
       inline std::string right_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
       {
-         return right_align(width,pad,boost::lexical_cast<std::string>(t));
+         return right_align(width,pad,type_to_string(t));
       }
 
       template<typename T>
       inline std::string left_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
       {
-         return left_align(width,pad,boost::lexical_cast<std::string>(t));
+         return left_align(width,pad,type_to_string(t));
       }
 
       std::string remaining_string(const std::size_t& index, const std::string& str)
