@@ -2168,8 +2168,10 @@ namespace strtk
       convert_bin_to_hex(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
    }
 
-   inline void convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
+   inline bool convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
+      if (std::distance(begin,end) % 2)
+         return false;
       static const std::size_t symbol_count = 256;
       static const unsigned char hex_to_bin[symbol_count] = {
                                                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 0x00 - 0x07
@@ -2213,19 +2215,22 @@ namespace strtk
          (*out) |= static_cast<unsigned char>(hex_to_bin[*(it++)]     );
          ++out;
       }
+      return true;
    }
 
-   inline void convert_hex_to_bin(const char* begin, const char* end, char* out)
+   inline bool convert_hex_to_bin(const char* begin, const char* end, char* out)
    {
-      convert_hex_to_bin(reinterpret_cast<const unsigned char*>(begin),
-                         reinterpret_cast<const unsigned char*>(end),
-                         reinterpret_cast<unsigned char*>(out));
+      return convert_hex_to_bin(reinterpret_cast<const unsigned char*>(begin),
+                                reinterpret_cast<const unsigned char*>(end),
+                                reinterpret_cast<unsigned char*>(out));
    }
 
-   inline void convert_hex_to_bin(const std::string& binary_data, std::string& output)
+   inline bool convert_hex_to_bin(const std::string& hex_data, std::string& output)
    {
-      output.resize(binary_data.size() >> 1);
-      convert_hex_to_bin(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+      if (hex_data.empty() || (hex_data.size() % 2))
+         return false;
+      output.resize(hex_data.size() >> 1);
+      return convert_hex_to_bin(hex_data.c_str(),hex_data.c_str() + hex_data.size(),const_cast<char*>(output.c_str()));
    }
 
    inline std::size_t convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
@@ -4941,11 +4946,12 @@ namespace strtk
          if ((s.size() - offset) > (2 * sizeof(T)))
                return *this;
          const std::size_t buffer_size = 2 * sizeof(T);
-         char buffer[buffer_size] = { 0 };
-         std::copy(s.c_str() + offset, s.c_str() + s.size(), buffer + ((s.size() - offset) % 2));
+         const std::size_t buffer_offset = ((s.size() - offset) % 2);
+         char buffer[buffer_size] = { '0' };
+         std::copy(s.c_str() + offset, s.c_str() + s.size(), buffer + buffer_offset);
          *t_ = 0;
          strtk::convert_hex_to_bin(buffer,
-                                   buffer + s.size(),
+                                   buffer + (s.size() - offset) + buffer_offset,
                                    reinterpret_cast<char*>(t_));
          reverse_bytes();
          return *this;
