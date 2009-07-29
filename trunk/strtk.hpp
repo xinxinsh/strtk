@@ -197,6 +197,14 @@ namespace strtk
       return s;
    }
 
+   #define STRING_TO_TYPE_CONVERTER(ITER_TYPE)\
+   template<typename T> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end){ return string_to_type_converter<T>(std::string(begin,end)); }
+
+   STRING_TO_TYPE_CONVERTER(char*)
+   STRING_TO_TYPE_CONVERTER(unsigned char*)
+   STRING_TO_TYPE_CONVERTER(std::string::iterator)
+   STRING_TO_TYPE_CONVERTER(std::string::const_iterator)
+
    template<typename T>
    inline std::string type_to_string(const T& t)
    {
@@ -5101,7 +5109,7 @@ namespace strtk
       template<typename T>
       inline bool string_to_signed_type_converter_impl(const std::string& s, T& v)
       {
-         return string_to_signed_type_converter_impl(s.c_str(), s.c_str() + s.size(),v);
+         return string_to_signed_type_converter_impl_itr(s.c_str(), s.c_str() + s.size(),v);
       }
 
       template<typename Iterator, typename T>
@@ -5128,7 +5136,7 @@ namespace strtk
       template<typename T>
       inline bool string_to_unsigned_type_converter_impl(const std::string& s, T& v)
       {
-         return string_to_unsigned_type_converter_impl(s.c_str(), s.c_str() + s.size(),v);
+         return string_to_unsigned_type_converter_impl_itr(s.c_str(), s.c_str() + s.size(),v);
       }
 
       static const unsigned char digit[10] = {
@@ -5199,7 +5207,6 @@ namespace strtk
       STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
       STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
 
-
       #define STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(ITR_TYPE)\
       template<typename T> inline bool string_to_unsigned_type_converter_impl(const ITR_TYPE begin, const ITR_TYPE end, T& v) { return string_to_unsigned_type_converter_impl_itr(begin,end,v); }
 
@@ -5208,14 +5215,6 @@ namespace strtk
       STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
       STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
    }
-
-   #define STRING_TO_TYPE_CONVERTER(ITER_TYPE)\
-   template<typename T> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end) { return string_to_type_converter<T>(std::string(begin,end)); }
-
-   STRING_TO_TYPE_CONVERTER(char*)
-   STRING_TO_TYPE_CONVERTER(unsigned char*)
-   STRING_TO_TYPE_CONVERTER(std::string::iterator)
-   STRING_TO_TYPE_CONVERTER(std::string::const_iterator)
 
    #define STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(ITER_TYPE)\
    template<> inline std::string string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end) { return std::string(begin,end); }\
