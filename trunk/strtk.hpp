@@ -172,6 +172,12 @@ namespace strtk
       return true;
    }
 
+   template<typename T, typename InputIterator>
+   inline bool string_to_type_converter(const InputIterator begin, const InputIterator end, T& t)
+   {
+      return string_to_type_converter(std::string(begin,end),t);
+   }
+
    template<>
    inline bool string_to_type_converter(const std::string& s, std::string& out)
    {
@@ -179,124 +185,8 @@ namespace strtk
       return true;
    }
 
-   template<>
-   inline bool string_to_type_converter(const std::string& s, int& v)
-   {
-      if (s.empty()) return false;
-      static const std::size_t symbol_count = 256;
-      static const unsigned char digit_table[symbol_count] = {
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xFF - 0x07
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x08 - 0x0F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x10 - 0x17
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x18 - 0x1F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x20 - 0x27
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x28 - 0x2F
-                                                               0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 0x30 - 0x37
-                                                               0x08, 0x09, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x38 - 0x3F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x40 - 0x47
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x48 - 0x4F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x50 - 0x57
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x58 - 0x5F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x60 - 0x67
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x68 - 0x6F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x70 - 0x77
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x78 - 0x7F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x80 - 0x87
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x88 - 0x8F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x90 - 0x97
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x98 - 0x9F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xA0 - 0xA7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xA8 - 0xAF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xB0 - 0xB7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xB8 - 0xBF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xC0 - 0xC7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xC8 - 0xCF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xD0 - 0xD7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xD8 - 0xDF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xE0 - 0xE7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xE8 - 0xEF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xF0 - 0xF7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // 0xF8 - 0xFF
-                                                             };
-      v = 0;
-      const char* it = s.c_str();
-      const char* end = s.c_str() + s.size();
-      bool negative = false;
-      if ('+' == *it)
-         ++it;
-      else if ('-' == *it)
-      {
-         ++it;
-         negative = true;
-      }
-      if (end == it)
-         return false;
-      while(end != it)
-      {
-         const int digit = static_cast<int>(digit_table[static_cast<unsigned int>(*it++)]);
-         if (0xFF == digit)
-            return false;
-         v = (10 * v) + digit;
-      }
-      if (negative)
-         v *= -1;
-      return true;
-   }
-
-   template<>
-   inline bool string_to_type_converter(const std::string& s, unsigned int& v)
-   {
-      if (s.empty()) return false;
-      static const std::size_t symbol_count = 256;
-      static const unsigned char digit_table[symbol_count] = {
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xFF - 0x07
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x08 - 0x0F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x10 - 0x17
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x18 - 0x1F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x20 - 0x27
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x28 - 0x2F
-                                                               0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 0x30 - 0x37
-                                                               0x08, 0x09, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x38 - 0x3F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x40 - 0x47
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x48 - 0x4F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x50 - 0x57
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x58 - 0x5F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x60 - 0x67
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x68 - 0x6F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x70 - 0x77
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x78 - 0x7F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x80 - 0x87
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x88 - 0x8F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x90 - 0x97
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x98 - 0x9F
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xA0 - 0xA7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xA8 - 0xAF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xB0 - 0xB7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xB8 - 0xBF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xC0 - 0xC7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xC8 - 0xCF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xD0 - 0xD7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xD8 - 0xDF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xE0 - 0xE7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xE8 - 0xEF
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xF0 - 0xF7
-                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // 0xF8 - 0xFF
-                                                             };
-      v = 0;
-      const char* it = s.c_str();
-      const char* end = s.c_str() + s.size();
-      while(end != it)
-      {
-         const unsigned int digit = static_cast<unsigned int>(digit_table[static_cast<unsigned int>(*it++)]);
-         if (0xFF == digit)
-            return false;
-         v = (10 * v) + digit;
-      }
-      return true;
-   }
-
    template<typename T>
-   static inline T string_to_type_converter(const std::string& s)
+   inline T string_to_type_converter(const std::string& s)
    {
       return boost::lexical_cast<T>(s);
    }
@@ -305,113 +195,6 @@ namespace strtk
    inline std::string string_to_type_converter(const std::string& s)
    {
       return s;
-   }
-
-   template<>
-   inline int string_to_type_converter(const std::string& s)
-   {
-      int result = 0;
-      if (string_to_type_converter(s,result))
-         return result;
-      else
-         throw;
-   }
-
-   template<>
-   inline unsigned int string_to_type_converter(const std::string& s)
-   {
-      unsigned int result = 0;
-      if (string_to_type_converter(s,result))
-         return result;
-      else
-         throw;
-   }
-
-   namespace details
-   {
-
-      template<typename T>
-      inline void signed_number_to_string_impl(T value, std::string& result)
-      {
-         static const unsigned char digit[10] = {
-                                                  '0','1','2','3','4',
-                                                  '5','6','7','8','9'
-                                                };
-         if (result.capacity() < (3 * sizeof(value) + 1))
-            result.resize(3 * sizeof(value) + 1);
-         char* it = const_cast<char*>(result.c_str());
-         bool negative = (value < 0);
-         value = std::abs(value);
-         int tmp_value = value;
-         do
-         {
-            tmp_value = value;
-            value /= 10;
-            *(it++) = digit[(tmp_value - value * 10)];
-         }
-         while(value);
-         if (negative) *(it++) = '-';
-         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
-         it = const_cast<char*>(result.c_str());
-         char* it2 = it + (result.size() - 1);
-         while(it < it2)
-         {
-            char tmp = *it;
-            *it = *it2;
-            *it2 = tmp;
-            ++it; --it2;
-         }
-      }
-
-      template<typename T>
-      inline void unsigned_number_to_string_impl(T value, std::string& result)
-      {
-         static const unsigned char digit[10] = {
-                                                  '0','1','2','3','4',
-                                                  '5','6','7','8','9'
-                                                };
-         if (result.capacity() < (3 * sizeof(value) + 1))
-            result.resize(3 * sizeof(value) + 1);
-         char* it = const_cast<char*>(result.c_str());
-         unsigned int tmp_value = value;
-         do
-         {
-            tmp_value = value;
-            value /= 10;
-            *(it++) = digit[(tmp_value - value * 10)];
-         }
-         while(value);
-         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
-         it = const_cast<char*>(result.c_str());
-         char* it2 = it + (result.size() - 1);
-         while(it < it2)
-         {
-            char tmp = *it;
-            *it = *it2;
-            *it2 = tmp;
-            ++it; --it2;
-         }
-      }
-   }
-
-   inline void number_to_string(short value, std::string& result)
-   {
-      details::signed_number_to_string_impl(value,result);
-   }
-
-   inline void number_to_string(int value, std::string& result)
-   {
-      details::signed_number_to_string_impl(value,result);
-   }
-
-   inline void number_to_string(unsigned short value, std::string& result)
-   {
-      details::unsigned_number_to_string_impl(value,result);
-   }
-
-   inline void number_to_string(unsigned int value, std::string& result)
-   {
-      details::unsigned_number_to_string_impl(value,result);
    }
 
    template<typename T>
@@ -424,38 +207,6 @@ namespace strtk
    inline std::string type_to_string(const std::string& v)
    {
       return v;
-   }
-
-   template<>
-   inline std::string type_to_string(const short& v)
-   {
-      std::string result;
-      number_to_string(v,result);
-      return result;
-   }
-
-   template<>
-   inline std::string type_to_string(const int& v)
-   {
-      std::string result;
-      number_to_string(v,result);
-      return result;
-   }
-
-   template<>
-   inline std::string type_to_string(const unsigned short& v)
-   {
-      std::string result;
-      number_to_string(v,result);
-      return result;
-   }
-
-   template<>
-   inline std::string type_to_string(const unsigned int& v)
-   {
-      std::string result;
-      number_to_string(v,result);
-      return result;
    }
 
    template <typename T,
@@ -2811,8 +2562,9 @@ namespace strtk
    template<std::size_t n>
    struct interleave_ary;
 
-   template<> struct interleave_ary<2> { typedef unsigned short type; };
-   template<> struct interleave_ary<4> { typedef unsigned int   type; };
+   template<> struct interleave_ary<sizeof(unsigned short)> { typedef unsigned short type; };
+   template<> struct interleave_ary<sizeof(unsigned int  )> { typedef unsigned int   type; };
+   //template<> struct interleave_ary<sizeof(unsigned long )> { typedef unsigned long  type; };
    //template<> struct interleave_ary<8> { typedef long long    type; }; Note: atm not supported by ISO C++ (N1811)
 
    template<std::size_t n>
@@ -3158,9 +2910,7 @@ namespace strtk
          inline T operator[](const std::size_t& index) const
          {
             itr_list_type::value_type curr_range = (*token_list_)[index];
-            std::string tmp_str;
-            tmp_str.assign(curr_range.first,curr_range.second);
-            return string_to_type_converter<T>(tmp_str);
+            return string_to_type_converter<T>(curr_range.first,curr_range.second);
          }
 
          template<typename T>
@@ -3202,18 +2952,16 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8, T9& t9, T10& t10) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[ col1], t1);
-            process(tmp_str,(*token_list_)[ col2], t2);
-            process(tmp_str,(*token_list_)[ col3], t3);
-            process(tmp_str,(*token_list_)[ col4], t4);
-            process(tmp_str,(*token_list_)[ col5], t5);
-            process(tmp_str,(*token_list_)[ col6], t6);
-            process(tmp_str,(*token_list_)[ col7], t7);
-            process(tmp_str,(*token_list_)[ col8], t8);
-            process(tmp_str,(*token_list_)[ col9], t9);
-            process(tmp_str,(*token_list_)[col10],t10);
+            process((*token_list_)[ col1], t1);
+            process((*token_list_)[ col2], t2);
+            process((*token_list_)[ col3], t3);
+            process((*token_list_)[ col4], t4);
+            process((*token_list_)[ col5], t5);
+            process((*token_list_)[ col6], t6);
+            process((*token_list_)[ col7], t7);
+            process((*token_list_)[ col8], t8);
+            process((*token_list_)[ col9], t9);
+            process((*token_list_)[col10],t10);
          }
 
          template<typename T1, typename T2,
@@ -3229,17 +2977,15 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8, T9& t9) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
-            process(tmp_str,(*token_list_)[col3],t3);
-            process(tmp_str,(*token_list_)[col4],t4);
-            process(tmp_str,(*token_list_)[col5],t5);
-            process(tmp_str,(*token_list_)[col6],t6);
-            process(tmp_str,(*token_list_)[col7],t7);
-            process(tmp_str,(*token_list_)[col8],t8);
-            process(tmp_str,(*token_list_)[col9],t9);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
+            process((*token_list_)[col3],t3);
+            process((*token_list_)[col4],t4);
+            process((*token_list_)[col5],t5);
+            process((*token_list_)[col6],t6);
+            process((*token_list_)[col7],t7);
+            process((*token_list_)[col8],t8);
+            process((*token_list_)[col9],t9);
          }
 
          template<typename T1, typename T2,
@@ -3253,16 +2999,14 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
-            process(tmp_str,(*token_list_)[col3],t3);
-            process(tmp_str,(*token_list_)[col4],t4);
-            process(tmp_str,(*token_list_)[col5],t5);
-            process(tmp_str,(*token_list_)[col6],t6);
-            process(tmp_str,(*token_list_)[col7],t7);
-            process(tmp_str,(*token_list_)[col8],t8);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
+            process((*token_list_)[col3],t3);
+            process((*token_list_)[col4],t4);
+            process((*token_list_)[col5],t5);
+            process((*token_list_)[col6],t6);
+            process((*token_list_)[col7],t7);
+            process((*token_list_)[col8],t8);
          }
 
          template<typename T1, typename T2,
@@ -3275,15 +3019,13 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
-            process(tmp_str,(*token_list_)[col3],t3);
-            process(tmp_str,(*token_list_)[col4],t4);
-            process(tmp_str,(*token_list_)[col5],t5);
-            process(tmp_str,(*token_list_)[col6],t6);
-            process(tmp_str,(*token_list_)[col7],t7);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
+            process((*token_list_)[col3],t3);
+            process((*token_list_)[col4],t4);
+            process((*token_list_)[col5],t5);
+            process((*token_list_)[col6],t6);
+            process((*token_list_)[col7],t7);
          }
 
          template<typename T1, typename T2,
@@ -3294,14 +3036,12 @@ namespace strtk
                                       const std::size_t& col5, const std::size_t& col6,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
-            process(tmp_str,(*token_list_)[col3],t3);
-            process(tmp_str,(*token_list_)[col4],t4);
-            process(tmp_str,(*token_list_)[col5],t5);
-            process(tmp_str,(*token_list_)[col6],t6);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
+            process((*token_list_)[col3],t3);
+            process((*token_list_)[col4],t4);
+            process((*token_list_)[col5],t5);
+            process((*token_list_)[col6],t6);
          }
 
          template<typename T1, typename T2,
@@ -3311,13 +3051,11 @@ namespace strtk
                                       const std::size_t& col5,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
-            process(tmp_str,(*token_list_)[col3],t3);
-            process(tmp_str,(*token_list_)[col4],t4);
-            process(tmp_str,(*token_list_)[col5],t5);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
+            process((*token_list_)[col3],t3);
+            process((*token_list_)[col4],t4);
+            process((*token_list_)[col5],t5);
          }
 
          template<typename T1, typename T2,
@@ -3326,12 +3064,10 @@ namespace strtk
                                       const std::size_t& col3, const std::size_t& col4,
                                       T1& t1, T2& t2, T3& t3, T4& t4) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
-            process(tmp_str,(*token_list_)[col3],t3);
-            process(tmp_str,(*token_list_)[col4],t4);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
+            process((*token_list_)[col3],t3);
+            process((*token_list_)[col4],t4);
          }
 
          template<typename T1, typename T2, typename T3>
@@ -3339,29 +3075,23 @@ namespace strtk
                                       const std::size_t& col3,
                                       T1& t1, T2& t2, T3& t3) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
-            process(tmp_str,(*token_list_)[col3],t3);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
+            process((*token_list_)[col3],t3);
          }
 
          template<typename T1, typename T2>
          inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       T1& t1, T2& t2) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col1],t1);
-            process(tmp_str,(*token_list_)[col2],t2);
+            process((*token_list_)[col1],t1);
+            process((*token_list_)[col2],t2);
          }
 
          template<typename T1>
          inline void parse_with_index(const std::size_t& col, T1& t) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[col],t);
+            process((*token_list_)[col],t);
          }
 
          template<typename T1, typename T2,
@@ -3373,18 +3103,16 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9, T10& t10) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0], t1);
-            process(tmp_str,(*token_list_)[1], t2);
-            process(tmp_str,(*token_list_)[2], t3);
-            process(tmp_str,(*token_list_)[3], t4);
-            process(tmp_str,(*token_list_)[4], t5);
-            process(tmp_str,(*token_list_)[5], t6);
-            process(tmp_str,(*token_list_)[6], t7);
-            process(tmp_str,(*token_list_)[7], t8);
-            process(tmp_str,(*token_list_)[8], t9);
-            process(tmp_str,(*token_list_)[9],t10);
+            process((*token_list_)[0], t1);
+            process((*token_list_)[1], t2);
+            process((*token_list_)[2], t3);
+            process((*token_list_)[3], t4);
+            process((*token_list_)[4], t5);
+            process((*token_list_)[5], t6);
+            process((*token_list_)[6], t7);
+            process((*token_list_)[7], t8);
+            process((*token_list_)[8], t9);
+            process((*token_list_)[9],t10);
          }
 
          template<typename T1, typename T2,
@@ -3396,17 +3124,15 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
-            process(tmp_str,(*token_list_)[2],t3);
-            process(tmp_str,(*token_list_)[3],t4);
-            process(tmp_str,(*token_list_)[4],t5);
-            process(tmp_str,(*token_list_)[5],t6);
-            process(tmp_str,(*token_list_)[6],t7);
-            process(tmp_str,(*token_list_)[7],t8);
-            process(tmp_str,(*token_list_)[8],t9);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
+            process((*token_list_)[2],t3);
+            process((*token_list_)[3],t4);
+            process((*token_list_)[4],t5);
+            process((*token_list_)[5],t6);
+            process((*token_list_)[6],t7);
+            process((*token_list_)[7],t8);
+            process((*token_list_)[8],t9);
          }
 
          template<typename T1, typename T2,
@@ -3416,16 +3142,14 @@ namespace strtk
          inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
-            process(tmp_str,(*token_list_)[2],t3);
-            process(tmp_str,(*token_list_)[3],t4);
-            process(tmp_str,(*token_list_)[4],t5);
-            process(tmp_str,(*token_list_)[5],t6);
-            process(tmp_str,(*token_list_)[6],t7);
-            process(tmp_str,(*token_list_)[7],t8);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
+            process((*token_list_)[2],t3);
+            process((*token_list_)[3],t4);
+            process((*token_list_)[4],t5);
+            process((*token_list_)[5],t6);
+            process((*token_list_)[6],t7);
+            process((*token_list_)[7],t8);
          }
 
          template<typename T1, typename T2,
@@ -3434,15 +3158,13 @@ namespace strtk
          inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
-            process(tmp_str,(*token_list_)[2],t3);
-            process(tmp_str,(*token_list_)[3],t4);
-            process(tmp_str,(*token_list_)[4],t5);
-            process(tmp_str,(*token_list_)[5],t6);
-            process(tmp_str,(*token_list_)[6],t7);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
+            process((*token_list_)[2],t3);
+            process((*token_list_)[3],t4);
+            process((*token_list_)[4],t5);
+            process((*token_list_)[5],t6);
+            process((*token_list_)[6],t7);
          }
 
          template<typename T1, typename T2,
@@ -3451,78 +3173,64 @@ namespace strtk
          inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
-            process(tmp_str,(*token_list_)[2],t3);
-            process(tmp_str,(*token_list_)[3],t4);
-            process(tmp_str,(*token_list_)[4],t5);
-            process(tmp_str,(*token_list_)[5],t6);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
+            process((*token_list_)[2],t3);
+            process((*token_list_)[3],t4);
+            process((*token_list_)[4],t5);
+            process((*token_list_)[5],t6);
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,typename T5>
          inline void parse(T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
-            process(tmp_str,(*token_list_)[2],t3);
-            process(tmp_str,(*token_list_)[3],t4);
-            process(tmp_str,(*token_list_)[4],t5);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
+            process((*token_list_)[2],t3);
+            process((*token_list_)[3],t4);
+            process((*token_list_)[4],t5);
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4>
          inline void parse(T1& t1, T2& t2, T3& t3, T4& t4) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
-            process(tmp_str,(*token_list_)[2],t3);
-            process(tmp_str,(*token_list_)[3],t4);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
+            process((*token_list_)[2],t3);
+            process((*token_list_)[3],t4);
          }
 
          template<typename T1, typename T2, typename T3>
          inline void parse(T1& t1, T2& t2, T3& t3) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
-            process(tmp_str,(*token_list_)[2],t3);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
+            process((*token_list_)[2],t3);
          }
 
          template<typename T1, typename T2>
          inline void parse(T1& t1, T2& t2) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t1);
-            process(tmp_str,(*token_list_)[1],t2);
+            process((*token_list_)[0],t1);
+            process((*token_list_)[1],t2);
          }
 
          template<typename T1>
          inline void parse(T1& t) const
          {
-            std::string tmp_str;
-            tmp_str.reserve(reserve_size_);
-            process(tmp_str,(*token_list_)[0],t);
+            process((*token_list_)[0],t);
          }
 
          template<typename T, typename OutputIterator>
          inline void parse(OutputIterator out) const
          {
-            std::string tmp_str;
             itr_list_type::iterator it = const_cast<itr_list_type*>(token_list_)->begin();
             while(token_list_->end() != it)
             {
-               itr_list_type::value_type& r = *it;
-               tmp_str.assign(r.first,r.second);
-               *(out++) = string_to_type_converter<T>(tmp_str);
+               itr_list_type::value_type& range = *it;
+               *(out++) = string_to_type_converter<T>(range.first,range.second);
                ++it;
             }
          }
@@ -3530,10 +3238,9 @@ namespace strtk
       private:
 
          template<typename T>
-         inline void process(std::string& tmp_str, const itr_list_type::value_type& curr_range, T& t) const
+         inline void process(const itr_list_type::value_type& range, T& t) const
          {
-            tmp_str.assign(curr_range.first,curr_range.second);
-            t = string_to_type_converter<T>(tmp_str);
+            t = string_to_type_converter<T>(range.first,range.second);
          }
 
       private:
@@ -3621,7 +3328,7 @@ namespace strtk
       inline T get(const unsigned int& row, const std::size_t& col)
       {
          range_type r = token(row,col);
-         return string_to_type_converter<T>(std::string(r.first,r.second));
+         return string_to_type_converter<T>(r.first,r.second);
       }
 
       inline row_type row(const unsigned int& row_index) const
@@ -3636,7 +3343,7 @@ namespace strtk
          std::string tmp_str(1024,0x00);
          while(token_list_.end() != it)
          {
-            process_column(tmp_str,(*it++)[index],out);
+            process_column((*it++)[index],out);
          }
       }
 
@@ -3651,8 +3358,8 @@ namespace strtk
          tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
+            process_column((*it)[index1],out1);
+            process_column((*it)[index2],out2);
             ++it;
          }
       }
@@ -3670,9 +3377,9 @@ namespace strtk
          tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
-            process_column(tmp_str,(*it)[index3],out3);
+            process_column((*it)[index1],out1);
+            process_column((*it)[index2],out2);
+            process_column((*it)[index3],out3);
             ++it;
          }
       }
@@ -3693,10 +3400,10 @@ namespace strtk
          tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
-            process_column(tmp_str,(*it)[index3],out3);
-            process_column(tmp_str,(*it)[index4],out4);
+            process_column((*it)[index1],out1);
+            process_column((*it)[index2],out2);
+            process_column((*it)[index3],out3);
+            process_column((*it)[index4],out4);
             ++it;
          }
       }
@@ -3720,11 +3427,11 @@ namespace strtk
          tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
-            process_column(tmp_str,(*it)[index1],out1);
-            process_column(tmp_str,(*it)[index2],out2);
-            process_column(tmp_str,(*it)[index3],out3);
-            process_column(tmp_str,(*it)[index4],out4);
-            process_column(tmp_str,(*it)[index5],out5);
+            process_column((*it)[index1],out1);
+            process_column((*it)[index2],out2);
+            process_column((*it)[index3],out3);
+            process_column((*it)[index4],out4);
+            process_column((*it)[index5],out5);
             ++it;
          }
       }
@@ -3851,10 +3558,10 @@ namespace strtk
       }
 
       template<typename OutputIterator>
-      inline void process_column(std::string& tmp_str, const itr_list_type::value_type& curr_range, OutputIterator out) const
+      inline void process_column(const itr_list_type::value_type& range, OutputIterator out) const
       {
-         tmp_str.assign(curr_range.first,curr_range.second);
-         *(out++) = string_to_type_converter<typename std::iterator_traits<OutputIterator>::value_type>(tmp_str);
+         typedef typename std::iterator_traits<OutputIterator>::value_type output_type;
+         *(out++) = string_to_type_converter<output_type>(range.first,range.second);
       }
 
    private:
@@ -4149,16 +3856,16 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter< T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter< T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter< T3>(std::string((*it).first,(*it).second),t3); ++it;
-         result = result && string_to_type_converter< T4>(std::string((*it).first,(*it).second),t4); ++it;
-         result = result && string_to_type_converter< T5>(std::string((*it).first,(*it).second),t5); ++it;
-         result = result && string_to_type_converter< T6>(std::string((*it).first,(*it).second),t6); ++it;
-         result = result && string_to_type_converter< T7>(std::string((*it).first,(*it).second),t7); ++it;
-         result = result && string_to_type_converter< T8>(std::string((*it).first,(*it).second),t8); ++it;
-         result = result && string_to_type_converter< T9>(std::string((*it).first,(*it).second),t9); ++it;
-         result = result && string_to_type_converter<T10>(std::string((*it).first,(*it).second),t10);
+         result = result && string_to_type_converter< T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter< T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter< T3>((*it).first,(*it).second,t3); ++it;
+         result = result && string_to_type_converter< T4>((*it).first,(*it).second,t4); ++it;
+         result = result && string_to_type_converter< T5>((*it).first,(*it).second,t5); ++it;
+         result = result && string_to_type_converter< T6>((*it).first,(*it).second,t6); ++it;
+         result = result && string_to_type_converter< T7>((*it).first,(*it).second,t7); ++it;
+         result = result && string_to_type_converter< T8>((*it).first,(*it).second,t8); ++it;
+         result = result && string_to_type_converter< T9>((*it).first,(*it).second,t9); ++it;
+         result = result && string_to_type_converter<T10>((*it).first,(*it).second,t10);
          return result;
       }
 
@@ -4181,15 +3888,15 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
-         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
-         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
-         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6); ++it;
-         result = result && string_to_type_converter<T7>(std::string((*it).first,(*it).second),t7); ++it;
-         result = result && string_to_type_converter<T8>(std::string((*it).first,(*it).second),t8); ++it;
-         result = result && string_to_type_converter<T9>(std::string((*it).first,(*it).second),t9);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
+         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
+         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
+         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6); ++it;
+         result = result && string_to_type_converter<T7>((*it).first,(*it).second,t7); ++it;
+         result = result && string_to_type_converter<T8>((*it).first,(*it).second,t8); ++it;
+         result = result && string_to_type_converter<T9>((*it).first,(*it).second,t9);
          return result;
       }
 
@@ -4210,14 +3917,14 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
-         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
-         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
-         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6); ++it;
-         result = result && string_to_type_converter<T7>(std::string((*it).first,(*it).second),t7); ++it;
-         result = result && string_to_type_converter<T8>(std::string((*it).first,(*it).second),t8);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
+         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
+         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
+         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6); ++it;
+         result = result && string_to_type_converter<T7>((*it).first,(*it).second,t7); ++it;
+         result = result && string_to_type_converter<T8>((*it).first,(*it).second,t8);
          return result;
       }
 
@@ -4238,13 +3945,13 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
-         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
-         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
-         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6); ++it;
-         result = result && string_to_type_converter<T7>(std::string((*it).first,(*it).second),t7);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
+         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
+         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
+         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6); ++it;
+         result = result && string_to_type_converter<T7>((*it).first,(*it).second,t7);
          return result;
       }
 
@@ -4265,12 +3972,12 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
-         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
-         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5); ++it;
-         result = result && string_to_type_converter<T6>(std::string((*it).first,(*it).second),t6);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
+         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
+         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
+         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6);
          return result;
       }
 
@@ -4291,11 +3998,11 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
-         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4); ++it;
-         result = result && string_to_type_converter<T5>(std::string((*it).first,(*it).second),t5);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
+         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
+         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5);
          return result;
       }
 
@@ -4314,10 +4021,10 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3); ++it;
-         result = result && string_to_type_converter<T4>(std::string((*it).first,(*it).second),t4);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
+         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4);
          return result;
       }
 
@@ -4336,9 +4043,9 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2); ++it;
-         result = result && string_to_type_converter<T3>(std::string((*it).first,(*it).second),t3);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
+         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3);
          return result;
       }
 
@@ -4356,8 +4063,8 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
          bool result = true;
-         result = result && string_to_type_converter<T1>(std::string((*it).first,(*it).second),t1); ++it;
-         result = result && string_to_type_converter<T2>(std::string((*it).first,(*it).second),t2);
+         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
+         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2);
          return result;
       }
 
@@ -4374,7 +4081,7 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         return string_to_type_converter<T>(std::string((*it).first,(*it).second),t);
+         return string_to_type_converter<T>((*it).first,(*it).second,t);
       }
 
    }
@@ -5050,6 +4757,8 @@ namespace strtk
       inline bool read(unsigned short& output) { return read_pod(output); }
       inline bool read(int& output)            { return read_pod(output); }
       inline bool read(unsigned int& output)   { return read_pod(output); }
+      inline bool read(long& output)           { return read_pod(output); }
+      inline bool read(unsigned long& output)  { return read_pod(output); }
       inline bool read(float& output)          { return read_pod(output); }
       inline bool read(double& output)         { return read_pod(output); }
       inline bool read(bool& output)           { return read_pod(output); }
@@ -5078,6 +4787,8 @@ namespace strtk
       inline bool write(const unsigned short& input) { return write_pod(input); }
       inline bool write(const int&            input) { return write_pod(input); }
       inline bool write(const unsigned int&   input) { return write_pod(input); }
+      inline bool write(const long&           input) { return write_pod(input); }
+      inline bool write(const unsigned long&  input) { return write_pod(input); }
       inline bool write(const float&          input) { return write_pod(input); }
       inline bool write(const double&         input) { return write_pod(input); }
       inline bool write(const bool&           input) { return write_pod(input); }
@@ -5219,6 +4930,7 @@ namespace strtk
       inline hex_to_number_sink& operator=(const hex_to_number_sink& hns)
       {
          t_ = hns.t_;
+         return *this;
       }
 
       inline hex_to_number_sink& operator=(const std::string& s)
@@ -5257,40 +4969,6 @@ namespace strtk
    private:
       T* t_;
    };
-
-   template<typename T>
-   hex_to_number_sink<T> create_hex_to_number_sink(T& t)
-   {
-      return hex_to_number_sink<T>(t);
-   }
-
-   template<>
-   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<short>& out)
-   {
-      out = s;
-      return true;
-   }
-
-   template<>
-   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<int>& out)
-   {
-      out = s;
-      return true;
-   }
-
-   template<>
-   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<unsigned short>& out)
-   {
-      out = s;
-      return true;
-   }
-
-   template<>
-   inline bool string_to_type_converter(const std::string& s, hex_to_number_sink<unsigned int>& out)
-   {
-      out = s;
-      return true;
-   }
 
    namespace text
    {
@@ -5343,6 +5021,275 @@ namespace strtk
       }
 
    }
+
+   // Specializations
+
+   namespace details
+   {
+
+      static const std::size_t digit_table_symbol_count = 256;
+      static const unsigned char digit_table[digit_table_symbol_count] = {
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xFF - 0x07
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x08 - 0x0F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x10 - 0x17
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x18 - 0x1F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x20 - 0x27
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x28 - 0x2F
+                                                               0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 0x30 - 0x37
+                                                               0x08, 0x09, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x38 - 0x3F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x40 - 0x47
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x48 - 0x4F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x50 - 0x57
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x58 - 0x5F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x60 - 0x67
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x68 - 0x6F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x70 - 0x77
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x78 - 0x7F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x80 - 0x87
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x88 - 0x8F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x90 - 0x97
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0x98 - 0x9F
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xA0 - 0xA7
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xA8 - 0xAF
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xB0 - 0xB7
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xB8 - 0xBF
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xC0 - 0xC7
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xC8 - 0xCF
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xD0 - 0xD7
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xD8 - 0xDF
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xE0 - 0xE7
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xE8 - 0xEF
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xF0 - 0xF7
+                                                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // 0xF8 - 0xFF
+                                                             };
+
+      template<typename InputIterator, typename T>
+      inline bool string_to_signed_type_converter_impl_itr(InputIterator begin, InputIterator end, T& v)
+      {
+         if (0 == std::distance(begin,end))
+            return false;
+         v = 0;
+         InputIterator it = begin;
+         bool negative = false;
+         if ('+' == *it)
+            ++it;
+         else if ('-' == *it)
+         {
+            ++it;
+            negative = true;
+         }
+         if (end == it)
+            return false;
+         while(end != it)
+         {
+            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*it++)]);
+            if (0xFF == digit)
+               return false;
+            v = (10 * v) + digit;
+         }
+         if (negative)
+            v *= -1;
+         return true;
+      }
+
+      template<typename T>
+      inline bool string_to_signed_type_converter_impl(const std::string& s, T& v)
+      {
+         return string_to_signed_type_converter_impl(s.c_str(), s.c_str() + s.size(),v);
+      }
+
+      template<typename Iterator, typename T>
+      inline bool string_to_unsigned_type_converter_impl_itr(Iterator begin,Iterator end, T& v)
+      {
+         if (0 == std::distance(begin,end))
+            return false;
+         v = 0;
+         Iterator it = begin;
+         if ('+' == *it)
+            ++it;
+         if (end == it)
+            return false;
+         while(end != it)
+         {
+            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*it++)]);
+            if (0xFF == digit)
+               return false;
+            v = (10 * v) + digit;
+         }
+         return true;
+      }
+
+      template<typename T>
+      inline bool string_to_unsigned_type_converter_impl(const std::string& s, T& v)
+      {
+         return string_to_unsigned_type_converter_impl(s.c_str(), s.c_str() + s.size(),v);
+      }
+
+      static const unsigned char digit[10] = {
+                                               '0','1','2','3','4',
+                                               '5','6','7','8','9'
+                                             };
+
+      template<typename T>
+      inline void signed_number_to_string_impl(T value, std::string& result)
+      {
+         if (result.size() < (3 * sizeof(value) + 1))
+            result.resize(3 * sizeof(value) + 1);
+         char* it = const_cast<char*>(result.c_str());
+         bool negative = (value < 0);
+         value = static_cast<T>(std::abs(value));
+         int tmp_value = value;
+         do
+         {
+            tmp_value = value;
+            value /= 10;
+            *(it++) = digit[(tmp_value - value * 10)];
+         }
+         while(value);
+         if (negative) *(it++) = '-';
+         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
+         it = const_cast<char*>(result.c_str());
+         char* it2 = it + (result.size() - 1);
+         while(it < it2)
+         {
+            char tmp = *it;
+            *it = *it2;
+            *it2 = tmp;
+            ++it; --it2;
+         }
+      }
+
+      template<typename T>
+      inline void unsigned_number_to_string_impl(T value, std::string& result)
+      {
+         if (result.size() < (3 * sizeof(value) + 1))
+            result.resize(3 * sizeof(value) + 1);
+         char* it = const_cast<char*>(result.c_str());
+         unsigned int tmp_value = value;
+         do
+         {
+            tmp_value = value;
+            value /= 10;
+            *(it++) = digit[(tmp_value - value * 10)];
+         }
+         while(value);
+         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
+         it = const_cast<char*>(result.c_str());
+         char* it2 = it + (result.size() - 1);
+         while(it < it2)
+         {
+            char tmp = *it;
+            *it = *it2;
+            *it2 = tmp;
+            ++it; --it2;
+         }
+      }
+
+      #define STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(ITR_TYPE)\
+      template<typename T> inline bool string_to_signed_type_converter_impl(const ITR_TYPE begin, const ITR_TYPE end, T& v) { return string_to_signed_type_converter_impl_itr(begin,end,v); }
+
+      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(char*)
+      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(unsigned char*)
+      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
+      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
+
+
+      #define STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(ITR_TYPE)\
+      template<typename T> inline bool string_to_unsigned_type_converter_impl(const ITR_TYPE begin, const ITR_TYPE end, T& v) { return string_to_unsigned_type_converter_impl_itr(begin,end,v); }
+
+      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(char*)
+      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(unsigned char*)
+      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
+      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
+   }
+
+   #define STRING_TO_TYPE_CONVERTER(ITER_TYPE)\
+   template<typename T> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end) { return string_to_type_converter<T>(std::string(begin,end)); }
+
+   STRING_TO_TYPE_CONVERTER(char*)
+   STRING_TO_TYPE_CONVERTER(unsigned char*)
+   STRING_TO_TYPE_CONVERTER(std::string::iterator)
+   STRING_TO_TYPE_CONVERTER(std::string::const_iterator)
+
+   #define STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(ITER_TYPE)\
+   template<> inline std::string string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end) { return std::string(begin,end); }\
+   template<> inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, std::string& out) { out.assign(begin,end); return true; }
+
+   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(char*)
+   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(unsigned char*)
+   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(std::string::iterator)
+   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(std::string::const_iterator)
+
+   #define INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,ITER_TYPE)\
+   template<> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end) { T result = static_cast<T>(0); if (string_to_type_converter(begin,end,result)) return result; else throw; }
+
+   #define INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(T)\
+   template<> inline T string_to_type_converter(const std::string& s) { T result = static_cast<T>(0); if (string_to_type_converter(s,result)) return result; else throw; }\
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,char*)\
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,unsigned char*)\
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,std::string::iterator)\
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,std::string::const_iterator)
+
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(short)
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(int)
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(long)
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(unsigned short)
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(unsigned int)
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(unsigned long)
+
+   #define INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER(T)\
+   inline bool string_to_type_converter(const std::string& s, T& v) { return details::string_to_signed_type_converter_impl(s,v); }\
+   inline bool string_to_type_converter(const char* begin, const char* end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }\
+   inline bool string_to_type_converter(const unsigned char* begin, const unsigned char* end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }\
+   inline bool string_to_type_converter(const std::string::iterator begin, const std::string::iterator end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }\
+   inline bool string_to_type_converter(const std::string::const_iterator begin, const std::string::const_iterator end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }
+
+   #define INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER(T)\
+   inline bool string_to_type_converter(const std::string& s, T& v) { return details::string_to_unsigned_type_converter_impl(s,v); }\
+   inline bool string_to_type_converter(const char* begin, const char* end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v); }\
+   inline bool string_to_type_converter(const unsigned char* begin, const unsigned char* end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v); }\
+   inline bool string_to_type_converter(const std::string::iterator begin, const std::string::iterator end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v);}\
+   inline bool string_to_type_converter(const std::string::const_iterator begin, const std::string::const_iterator end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v); }
+
+   INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER(short)
+   INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER(int)
+   INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER(long)
+   INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER(unsigned short)
+   INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER(unsigned int)
+   INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER(unsigned long)
+
+   #define INSTANTIATE_SIGNED_NUMBER_TO_STRING(T)\
+   inline void number_to_string(T value, std::string& result) { details::signed_number_to_string_impl(value,result); }
+
+   #define INSTANTIATE_UNSIGNED_NUMBER_TO_STRING(T)\
+   inline void number_to_string(T value, std::string& result) { details::unsigned_number_to_string_impl(value,result); }
+
+   INSTANTIATE_SIGNED_NUMBER_TO_STRING(short)
+   INSTANTIATE_SIGNED_NUMBER_TO_STRING(int)
+   INSTANTIATE_SIGNED_NUMBER_TO_STRING(long)
+   INSTANTIATE_UNSIGNED_NUMBER_TO_STRING(unsigned short)
+   INSTANTIATE_UNSIGNED_NUMBER_TO_STRING(unsigned int)
+   INSTANTIATE_UNSIGNED_NUMBER_TO_STRING(unsigned long)
+
+   #define INSTANTIATE_TYPE_TO_STRING(T)\
+   template<> inline std::string type_to_string(const T& v) { std::string result; number_to_string(v,result); return result; }
+
+   INSTANTIATE_TYPE_TO_STRING(short)
+   INSTANTIATE_TYPE_TO_STRING(int)
+   INSTANTIATE_TYPE_TO_STRING(long)
+   INSTANTIATE_TYPE_TO_STRING(unsigned short)
+   INSTANTIATE_TYPE_TO_STRING(unsigned int)
+   INSTANTIATE_TYPE_TO_STRING(unsigned long)
+
+   #define INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(T)\
+   template<> bool string_to_type_converter(const std::string& s, hex_to_number_sink<T>& out) { out = s; return true; }
+
+   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(short)
+   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(int)
+   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(long)
+   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned short)
+   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned int)
+   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned long)
 
 } // namespace strtk
 
