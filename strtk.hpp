@@ -197,13 +197,17 @@ namespace strtk
       return s;
    }
 
-   #define STRING_TO_TYPE_CONVERTER(ITER_TYPE)\
-   template<typename T> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end){ return string_to_type_converter<T>(std::string(begin,end)); }
+   #define INSTANTIATE_STRING_TO_TYPE_CONVERTER(ITER_TYPE)\
+   template<typename T> inline T string_to_type_converter(const ITER_TYPE begin,\
+                                                          const ITER_TYPE end)\
+   {\
+      return string_to_type_converter<T>(std::string(begin,end));\
+   }
 
-   STRING_TO_TYPE_CONVERTER(char*)
-   STRING_TO_TYPE_CONVERTER(unsigned char*)
-   STRING_TO_TYPE_CONVERTER(std::string::iterator)
-   STRING_TO_TYPE_CONVERTER(std::string::const_iterator)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER(char*)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER(unsigned char*)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER(std::string::iterator)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER(std::string::const_iterator)
 
    template<typename T>
    inline std::string type_to_string(const T& t)
@@ -1908,6 +1912,26 @@ namespace strtk
       int offset_list_[offset_list_size + 1];
    };
 
+   inline offset_predicate<12> offsets(const int&  v1, const int&  v2, const int&  v3,
+                                       const int&  v4, const int&  v5, const int&  v6,
+                                       const int&  v7, const int&  v8, const int&  v9,
+                                       const int& v10, const int& v11, const int& v12,
+                                       const bool& rotate = false)
+   {
+      const int offset_list[12] = { v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 };
+      return offset_predicate<12>(offset_list,rotate);
+   }
+
+   inline offset_predicate<11> offsets(const int&  v1, const int&  v2, const int& v3,
+                                       const int&  v4, const int&  v5, const int& v6,
+                                       const int&  v7, const int&  v8, const int& v9,
+                                       const int& v10, const int& v11,
+                                       const bool& rotate = false)
+   {
+      const int offset_list[11] = { v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 };
+      return offset_predicate<11>(offset_list,rotate);
+   }
+
    inline offset_predicate<10> offsets(const int& v1, const int& v2, const int& v3,
                                        const int& v4, const int& v5, const int& v6,
                                        const int& v7, const int& v8, const int& v9,
@@ -2089,8 +2113,8 @@ namespace strtk
    void lexicographically_collate(Iterator begin, Iterator end)
    {
       typedef typename std::iterator_traits<Iterator>::value_type type;
-      typedef typename std::pair<Iterator,Iterator> itr_type;
-      typedef typename std::list<itr_type> itr_list_type;
+      typedef typename std::pair<Iterator,Iterator> ITER_TYPE;
+      typedef typename std::list<ITER_TYPE> itr_list_type;
       itr_list_type itr_list;
 
       type smallest = min_in_range(begin,end);
@@ -3323,7 +3347,10 @@ namespace strtk
 
      ~token_grid()
       {
-         if ((load_from_file_) && (0 != buffer_)) delete [] buffer_;
+         if ((load_from_file_) && (0 != buffer_))
+         {
+            delete [] buffer_;
+         }
       }
 
       inline bool operator!()               const { return !state_;            }
@@ -3353,7 +3380,6 @@ namespace strtk
       inline void extract_column(const std::size_t& index, OutputIterator out)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str(1024,0x00);
          while(token_list_.end() != it)
          {
             process_column((*it++)[index],out);
@@ -3367,8 +3393,6 @@ namespace strtk
                                  OutputIterator2 out2)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str;
-         tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
@@ -3386,8 +3410,6 @@ namespace strtk
                                  OutputIterator3 out3)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str;
-         tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
@@ -3409,8 +3431,6 @@ namespace strtk
                                  OutputIterator4 out4)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str;
-         tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
@@ -3436,8 +3456,6 @@ namespace strtk
                                  OutputIterator5 out5)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         std::string tmp_str;
-         tmp_str.reserve(one_kilobyte);
          while(token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
@@ -3851,6 +3869,72 @@ namespace strtk
    {
 
       template<typename InputIterator,
+               typename T1, typename  T2, typename  T3, typename T4,
+               typename T5, typename  T6, typename  T7, typename T8,
+               typename T9, typename T10, typename T11, typename T12>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,
+                             T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
+                             T9& t9, T10& t10, T11& t11, T12& t12)
+      {
+         static const std::size_t token_count = 12;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+
+         if(!string_to_type_converter< T1>((*it).first,(*it).second, t1)) return false; ++it;
+         if(!string_to_type_converter< T2>((*it).first,(*it).second, t2)) return false; ++it;
+         if(!string_to_type_converter< T3>((*it).first,(*it).second, t3)) return false; ++it;
+         if(!string_to_type_converter< T4>((*it).first,(*it).second, t4)) return false; ++it;
+         if(!string_to_type_converter< T5>((*it).first,(*it).second, t5)) return false; ++it;
+         if(!string_to_type_converter< T6>((*it).first,(*it).second, t6)) return false; ++it;
+         if(!string_to_type_converter< T7>((*it).first,(*it).second, t7)) return false; ++it;
+         if(!string_to_type_converter< T8>((*it).first,(*it).second, t8)) return false; ++it;
+         if(!string_to_type_converter< T9>((*it).first,(*it).second, t9)) return false; ++it;
+         if(!string_to_type_converter<T10>((*it).first,(*it).second,t10)) return false; ++it;
+         if(!string_to_type_converter<T11>((*it).first,(*it).second,t11)) return false; ++it;
+         if(!string_to_type_converter<T12>((*it).first,(*it).second,t12)) return false;
+         return true;
+      }
+
+      template<typename InputIterator,
+               typename T1, typename  T2, typename  T3, typename T4,
+               typename T5, typename  T6, typename  T7, typename T8,
+               typename T9, typename T10, typename T11>
+      inline bool parse_impl(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8,
+                             T9& t9, T10& t10, T11& t11)
+      {
+         static const std::size_t token_count = 11;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+         iterator_type token_list[token_count];
+         if (token_count != split_n(delimiters,begin,end,token_count,token_list))
+            return false;
+         iterator_type_ptr it = token_list;
+         if(!string_to_type_converter< T1>((*it).first,(*it).second, t1)) return false; ++it;
+         if(!string_to_type_converter< T2>((*it).first,(*it).second, t2)) return false; ++it;
+         if(!string_to_type_converter< T3>((*it).first,(*it).second, t3)) return false; ++it;
+         if(!string_to_type_converter< T4>((*it).first,(*it).second, t4)) return false; ++it;
+         if(!string_to_type_converter< T5>((*it).first,(*it).second, t5)) return false; ++it;
+         if(!string_to_type_converter< T6>((*it).first,(*it).second, t6)) return false; ++it;
+         if(!string_to_type_converter< T7>((*it).first,(*it).second, t7)) return false; ++it;
+         if(!string_to_type_converter< T8>((*it).first,(*it).second, t8)) return false; ++it;
+         if(!string_to_type_converter< T9>((*it).first,(*it).second, t9)) return false; ++it;
+         if(!string_to_type_converter<T10>((*it).first,(*it).second,t10)) return false; ++it;
+         if(!string_to_type_converter<T11>((*it).first,(*it).second,t11)) return false;
+         return true;
+      }
+
+      template<typename InputIterator,
                typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7, typename T8,
                typename T9, typename T10>
@@ -3868,18 +3952,17 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter< T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter< T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter< T3>((*it).first,(*it).second,t3); ++it;
-         result = result && string_to_type_converter< T4>((*it).first,(*it).second,t4); ++it;
-         result = result && string_to_type_converter< T5>((*it).first,(*it).second,t5); ++it;
-         result = result && string_to_type_converter< T6>((*it).first,(*it).second,t6); ++it;
-         result = result && string_to_type_converter< T7>((*it).first,(*it).second,t7); ++it;
-         result = result && string_to_type_converter< T8>((*it).first,(*it).second,t8); ++it;
-         result = result && string_to_type_converter< T9>((*it).first,(*it).second,t9); ++it;
-         result = result && string_to_type_converter<T10>((*it).first,(*it).second,t10);
-         return result;
+         if(!string_to_type_converter< T1>((*it).first,(*it).second, t1)) return false; ++it;
+         if(!string_to_type_converter< T2>((*it).first,(*it).second, t2)) return false; ++it;
+         if(!string_to_type_converter< T3>((*it).first,(*it).second, t3)) return false; ++it;
+         if(!string_to_type_converter< T4>((*it).first,(*it).second, t4)) return false; ++it;
+         if(!string_to_type_converter< T5>((*it).first,(*it).second, t5)) return false; ++it;
+         if(!string_to_type_converter< T6>((*it).first,(*it).second, t6)) return false; ++it;
+         if(!string_to_type_converter< T7>((*it).first,(*it).second, t7)) return false; ++it;
+         if(!string_to_type_converter< T8>((*it).first,(*it).second, t8)) return false; ++it;
+         if(!string_to_type_converter< T9>((*it).first,(*it).second, t9)) return false; ++it;
+         if(!string_to_type_converter<T10>((*it).first,(*it).second,t10)) return false;
+         return true;
       }
 
       template<typename InputIterator,
@@ -3900,17 +3983,16 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
-         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
-         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
-         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6); ++it;
-         result = result && string_to_type_converter<T7>((*it).first,(*it).second,t7); ++it;
-         result = result && string_to_type_converter<T8>((*it).first,(*it).second,t8); ++it;
-         result = result && string_to_type_converter<T9>((*it).first,(*it).second,t9);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false; ++it;
+         if(!string_to_type_converter<T3>((*it).first,(*it).second,t3)) return false; ++it;
+         if(!string_to_type_converter<T4>((*it).first,(*it).second,t4)) return false; ++it;
+         if(!string_to_type_converter<T5>((*it).first,(*it).second,t5)) return false; ++it;
+         if(!string_to_type_converter<T6>((*it).first,(*it).second,t6)) return false; ++it;
+         if(!string_to_type_converter<T7>((*it).first,(*it).second,t7)) return false; ++it;
+         if(!string_to_type_converter<T8>((*it).first,(*it).second,t8)) return false; ++it;
+         if(!string_to_type_converter<T9>((*it).first,(*it).second,t9)) return false;
+         return true;
       }
 
       template<typename InputIterator,
@@ -3929,16 +4011,15 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
-         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
-         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
-         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6); ++it;
-         result = result && string_to_type_converter<T7>((*it).first,(*it).second,t7); ++it;
-         result = result && string_to_type_converter<T8>((*it).first,(*it).second,t8);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false; ++it;
+         if(!string_to_type_converter<T3>((*it).first,(*it).second,t3)) return false; ++it;
+         if(!string_to_type_converter<T4>((*it).first,(*it).second,t4)) return false; ++it;
+         if(!string_to_type_converter<T5>((*it).first,(*it).second,t5)) return false; ++it;
+         if(!string_to_type_converter<T6>((*it).first,(*it).second,t6)) return false; ++it;
+         if(!string_to_type_converter<T7>((*it).first,(*it).second,t7)) return false; ++it;
+         if(!string_to_type_converter<T8>((*it).first,(*it).second,t8)) return false;
+         return true;
       }
 
       template<typename InputIterator,
@@ -3957,15 +4038,14 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
-         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
-         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
-         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6); ++it;
-         result = result && string_to_type_converter<T7>((*it).first,(*it).second,t7);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false; ++it;
+         if(!string_to_type_converter<T3>((*it).first,(*it).second,t3)) return false; ++it;
+         if(!string_to_type_converter<T4>((*it).first,(*it).second,t4)) return false; ++it;
+         if(!string_to_type_converter<T5>((*it).first,(*it).second,t5)) return false; ++it;
+         if(!string_to_type_converter<T6>((*it).first,(*it).second,t6)) return false; ++it;
+         if(!string_to_type_converter<T7>((*it).first,(*it).second,t7)) return false;
+         return true;
       }
 
       template<typename InputIterator,
@@ -3984,14 +4064,13 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
-         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
-         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5); ++it;
-         result = result && string_to_type_converter<T6>((*it).first,(*it).second,t6);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false; ++it;
+         if(!string_to_type_converter<T3>((*it).first,(*it).second,t3)) return false; ++it;
+         if(!string_to_type_converter<T4>((*it).first,(*it).second,t4)) return false; ++it;
+         if(!string_to_type_converter<T5>((*it).first,(*it).second,t5)) return false; ++it;
+         if(!string_to_type_converter<T6>((*it).first,(*it).second,t6)) return false;
+         return true;
       }
 
       template<typename InputIterator,
@@ -4010,13 +4089,12 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
-         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4); ++it;
-         result = result && string_to_type_converter<T5>((*it).first,(*it).second,t5);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false; ++it;
+         if(!string_to_type_converter<T3>((*it).first,(*it).second,t3)) return false; ++it;
+         if(!string_to_type_converter<T4>((*it).first,(*it).second,t4)) return false; ++it;
+         if(!string_to_type_converter<T5>((*it).first,(*it).second,t5)) return false;
+         return true;
       }
 
       template<typename InputIterator,
@@ -4033,12 +4111,11 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3); ++it;
-         result = result && string_to_type_converter<T4>((*it).first,(*it).second,t4);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false; ++it;
+         if(!string_to_type_converter<T3>((*it).first,(*it).second,t3)) return false; ++it;
+         if(!string_to_type_converter<T4>((*it).first,(*it).second,t4)) return false;
+         return true;
       }
 
       template<typename InputIterator,
@@ -4055,11 +4132,10 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2); ++it;
-         result = result && string_to_type_converter<T3>((*it).first,(*it).second,t3);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false; ++it;
+         if(!string_to_type_converter<T3>((*it).first,(*it).second,t3)) return false;
+         return true;
       }
 
       template<typename InputIterator, typename T1, typename T2>
@@ -4075,10 +4151,9 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         bool result = true;
-         result = result && string_to_type_converter<T1>((*it).first,(*it).second,t1); ++it;
-         result = result && string_to_type_converter<T2>((*it).first,(*it).second,t2);
-         return result;
+         if(!string_to_type_converter<T1>((*it).first,(*it).second,t1)) return false; ++it;
+         if(!string_to_type_converter<T2>((*it).first,(*it).second,t2)) return false;
+         return true;
       }
 
       template<typename InputIterator, typename T>
@@ -4097,6 +4172,32 @@ namespace strtk
          return string_to_type_converter<T>((*it).first,(*it).second,t);
       }
 
+   }
+
+   template<typename T1,  typename T2,  typename T3, typename  T4,
+            typename T5,  typename T6,  typename T7, typename  T8,
+            typename T9, typename T10, typename T11, typename T12>
+   inline bool parse(const char* begin,
+                     const char* end,
+                     const std::string& delimiters,
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
+                     T9& t9, T10& t10, T11& t11, T12& t12)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
+   }
+
+   template<typename T1,  typename T2,  typename T3, typename T4,
+            typename T5,  typename T6,  typename T7, typename T8,
+            typename T9, typename T10, typename T11>
+   inline bool parse(const char* begin,
+                     const char* end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9, T10& t10, T11& t11)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4203,6 +4304,32 @@ namespace strtk
                      T& t)
    {
       return details::parse_impl(begin,end,delimiters,t);
+   }
+
+   template<typename T1,  typename T2,  typename T3, typename  T4,
+            typename T5,  typename T6,  typename T7, typename  T8,
+            typename T9, typename T10, typename T11, typename T12>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
+                     T9& t9, T10& t10, T11& t11, T12& t12)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
+   }
+
+   template<typename T1,  typename T2,  typename T3, typename T4,
+            typename T5,  typename T6,  typename T7, typename T8,
+            typename T9, typename T10, typename T11>
+   inline bool parse(std::string::const_iterator begin,
+                     std::string::const_iterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9, T10& t10, T11& t11)
+   {
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4309,6 +4436,30 @@ namespace strtk
                      T& t)
    {
       return details::parse_impl(begin,end,delimiters,t);
+   }
+
+   template<typename T1,  typename T2,  typename T3, typename  T4,
+            typename T5,  typename T6,  typename T7, typename  T8,
+            typename T9, typename T10, typename T11, typename T12>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
+                     T9& t9, T10& t10, T11& t11, T12& t12)
+   {
+      return details::parse_impl(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
+   }
+
+   template<typename T1,  typename T2,  typename T3, typename T4,
+            typename T5,  typename T6,  typename T7, typename T8,
+            typename T9, typename T10, typename T11>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     T5& t5, T6& t6, T7& t7, T8& t8,
+                     T9& t9, T10& t10, T11& t11)
+   {
+      return details::parse_impl(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4437,6 +4588,51 @@ namespace strtk
                                           Sequence<T,Allocator>& sequence)
    {
       return parse_into_sequence(data.begin(),data.end(),delimiters,sequence);
+   }
+
+   template<typename T1,  typename T2, typename  T3, typename  T4,
+            typename T5,  typename T6, typename  T7, typename  T8,
+            typename T9, typename T10, typename T11, typename T12>
+   inline void construct(std::string& output,
+                         const std::string& delimiter,
+                         const T1& t1, const  T2&  t2, const  T3&  t3, const  T4&  t4,
+                         const T5& t5, const  T6&  t6, const  T7&  t7, const  T8&  t8,
+                         const T9& t9, const T10& t10, const T11& t11, const T12& t12)
+   {
+      output += type_to_string( t1); output += delimiter;
+      output += type_to_string( t2); output += delimiter;
+      output += type_to_string( t3); output += delimiter;
+      output += type_to_string( t4); output += delimiter;
+      output += type_to_string( t5); output += delimiter;
+      output += type_to_string( t6); output += delimiter;
+      output += type_to_string( t7); output += delimiter;
+      output += type_to_string( t8); output += delimiter;
+      output += type_to_string( t9); output += delimiter;
+      output += type_to_string(t10); output += delimiter;
+      output += type_to_string(t11); output += delimiter;
+      output += type_to_string(t12);
+   }
+
+   template<typename T1,  typename T2, typename  T3, typename T4,
+            typename T5,  typename T6, typename  T7, typename T8,
+            typename T9, typename T10, typename T11>
+   inline void construct(std::string& output,
+                         const std::string& delimiter,
+                         const T1& t1, const  T2&  t2, const T3& t3, const T4& t4,
+                         const T5& t5, const  T6&  t6, const T7& t7, const T8& t8,
+                         const T9& t9, const T10& t10, const T11& t11)
+   {
+      output += type_to_string( t1); output += delimiter;
+      output += type_to_string( t2); output += delimiter;
+      output += type_to_string( t3); output += delimiter;
+      output += type_to_string( t4); output += delimiter;
+      output += type_to_string( t5); output += delimiter;
+      output += type_to_string( t6); output += delimiter;
+      output += type_to_string( t7); output += delimiter;
+      output += type_to_string( t8); output += delimiter;
+      output += type_to_string( t9); output += delimiter;
+      output += type_to_string(t10); output += delimiter;
+      output += type_to_string(t11);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -5036,7 +5232,7 @@ namespace strtk
 
    }
 
-   // Specializations
+   // *** Specializations ***
 
    namespace details
    {
@@ -5199,37 +5395,64 @@ namespace strtk
          }
       }
 
-      #define STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(ITR_TYPE)\
-      template<typename T> inline bool string_to_signed_type_converter_impl(const ITR_TYPE begin, const ITR_TYPE end, T& v) { return string_to_signed_type_converter_impl_itr(begin,end,v); }
+      #define INSTANTIATE_STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(ITER_TYPE)\
+      template<typename T> inline bool string_to_signed_type_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+      {\
+         return string_to_signed_type_converter_impl_itr(begin,end,v);\
+      }
 
-      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(char*)
-      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(unsigned char*)
-      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
-      STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
+      INSTANTIATE_STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(char*)
+      INSTANTIATE_STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(unsigned char*)
+      INSTANTIATE_STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
+      INSTANTIATE_STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
 
-      #define STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(ITR_TYPE)\
-      template<typename T> inline bool string_to_unsigned_type_converter_impl(const ITR_TYPE begin, const ITR_TYPE end, T& v) { return string_to_unsigned_type_converter_impl_itr(begin,end,v); }
+      #define INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(ITER_TYPE)\
+      template<typename T> inline bool string_to_unsigned_type_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+      {\
+         return string_to_unsigned_type_converter_impl_itr(begin,end,v);\
+      }
 
-      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(char*)
-      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(unsigned char*)
-      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
-      STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
+      INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(char*)
+      INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(unsigned char*)
+      INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
+      INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
    }
 
-   #define STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(ITER_TYPE)\
-   template<> inline std::string string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end) { return std::string(begin,end); }\
-   template<> inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, std::string& out) { out.assign(begin,end); return true; }
+   #define INSTANTIATE_STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(ITER_TYPE)\
+   template<> inline std::string string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end)\
+   {\
+      return std::string(begin,end);\
+   }\
+   template<> inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, std::string& out)\
+   {\
+      out.assign(begin,end);\
+      return true;\
+   }
 
-   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(char*)
-   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(unsigned char*)
-   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(std::string::iterator)
-   STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(std::string::const_iterator)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(char*)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(unsigned char*)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(std::string::iterator)
+   INSTANTIATE_STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(std::string::const_iterator)
 
    #define INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,ITER_TYPE)\
-   template<> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end) { T result = static_cast<T>(0); if (string_to_type_converter(begin,end,result)) return result; else throw; }
+   template<> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end)\
+   {\
+      T result = static_cast<T>(0);\
+      if (string_to_type_converter(begin,end,result))\
+         return result;\
+      else\
+         throw;\
+   }
 
    #define INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(T)\
-   template<> inline T string_to_type_converter(const std::string& s) { T result = static_cast<T>(0); if (string_to_type_converter(s,result)) return result; else throw; }\
+   template<> inline T string_to_type_converter(const std::string& s)\
+   {\
+      T result = static_cast<T>(0);\
+      if (string_to_type_converter(s,result))\
+         return result;\
+      else\
+         throw;\
+   }\
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,char*)\
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,unsigned char*)\
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,std::string::iterator)\
@@ -5242,19 +5465,37 @@ namespace strtk
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(unsigned int)
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN(unsigned long)
 
+   #define INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER_T_ITER(T,ITER_TYPE)\
+   inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+   {\
+      return details::string_to_signed_type_converter_impl(begin,end,v);\
+   }
+
    #define INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER(T)\
-   inline bool string_to_type_converter(const std::string& s, T& v) { return details::string_to_signed_type_converter_impl(s,v); }\
-   inline bool string_to_type_converter(const char* begin, const char* end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }\
-   inline bool string_to_type_converter(const unsigned char* begin, const unsigned char* end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }\
-   inline bool string_to_type_converter(const std::string::iterator begin, const std::string::iterator end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }\
-   inline bool string_to_type_converter(const std::string::const_iterator begin, const std::string::const_iterator end, T& v) { return details::string_to_signed_type_converter_impl(begin,end,v); }
+   inline bool string_to_type_converter(const std::string& s, T& v)\
+   {\
+      return details::string_to_signed_type_converter_impl(s,v);\
+   }\
+   INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER_T_ITER(T,char*)\
+   INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER_T_ITER(T,unsigned char*)\
+   INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER_T_ITER(T,std::string::iterator)\
+   INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER_T_ITER(T,std::string::const_iterator)
+
+   #define INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER_T_ITER(T,ITER_TYPE)\
+   inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+   {\
+      return details::string_to_unsigned_type_converter_impl(begin,end,v);\
+   }\
 
    #define INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER(T)\
-   inline bool string_to_type_converter(const std::string& s, T& v) { return details::string_to_unsigned_type_converter_impl(s,v); }\
-   inline bool string_to_type_converter(const char* begin, const char* end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v); }\
-   inline bool string_to_type_converter(const unsigned char* begin, const unsigned char* end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v); }\
-   inline bool string_to_type_converter(const std::string::iterator begin, const std::string::iterator end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v);}\
-   inline bool string_to_type_converter(const std::string::const_iterator begin, const std::string::const_iterator end, T& v) { return details::string_to_unsigned_type_converter_impl(begin,end,v); }
+   inline bool string_to_type_converter(const std::string& s, T& v)\
+   {\
+      return details::string_to_unsigned_type_converter_impl(s,v);\
+   }\
+   INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER_T_ITER(T,char*)\
+   INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER_T_ITER(T,unsigned char*)\
+   INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER_T_ITER(T,std::string::iterator)\
+   INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER_T_ITER(T,std::string::const_iterator)
 
    INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER(short)
    INSTANTIATE_STRING_TO_SIGNED_NUMBER_CONVERTER(int)
@@ -5264,10 +5505,16 @@ namespace strtk
    INSTANTIATE_STRING_TO_UNSIGNED_NUMBER_CONVERTER(unsigned long)
 
    #define INSTANTIATE_SIGNED_NUMBER_TO_STRING(T)\
-   inline void number_to_string(T value, std::string& result) { details::signed_number_to_string_impl(value,result); }
+   inline void number_to_string(T value, std::string& result)\
+   {\
+      details::signed_number_to_string_impl(value,result);\
+   }
 
    #define INSTANTIATE_UNSIGNED_NUMBER_TO_STRING(T)\
-   inline void number_to_string(T value, std::string& result) { details::unsigned_number_to_string_impl(value,result); }
+   inline void number_to_string(T value, std::string& result)\
+   {\
+      details::unsigned_number_to_string_impl(value,result);\
+   }
 
    INSTANTIATE_SIGNED_NUMBER_TO_STRING(short)
    INSTANTIATE_SIGNED_NUMBER_TO_STRING(int)
@@ -5277,7 +5524,12 @@ namespace strtk
    INSTANTIATE_UNSIGNED_NUMBER_TO_STRING(unsigned long)
 
    #define INSTANTIATE_TYPE_TO_STRING(T)\
-   template<> inline std::string type_to_string(const T& v) { std::string result; number_to_string(v,result); return result; }
+   template<> inline std::string type_to_string(const T& v)\
+   {\
+      std::string result;\
+      number_to_string(v,result);\
+      return result;\
+   }
 
    INSTANTIATE_TYPE_TO_STRING(short)
    INSTANTIATE_TYPE_TO_STRING(int)
@@ -5287,7 +5539,11 @@ namespace strtk
    INSTANTIATE_TYPE_TO_STRING(unsigned long)
 
    #define INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(T)\
-   template<> bool string_to_type_converter(const std::string& s, hex_to_number_sink<T>& out) { out = s; return true; }
+   template<> bool string_to_type_converter(const std::string& s, hex_to_number_sink<T>& out)\
+   {\
+      out = s;\
+      return true;\
+   }
 
    INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(short)
    INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(int)
