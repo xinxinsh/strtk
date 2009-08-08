@@ -25,13 +25,14 @@
                 otherwise any output indicates test failures.
 */
 
-
+#include <cstddef>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <list>
+#include <cassert>
 
 #include "strtk.hpp"
 
