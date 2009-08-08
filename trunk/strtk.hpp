@@ -14,7 +14,6 @@
  *******************************************************************
 */
 
-
 #ifndef INCLUDE_STRTK_HPP
 #define INCLUDE_STRTK_HPP
 
@@ -25,12 +24,24 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <deque>
+#include <list>
 #include <algorithm>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
-#include <boost/random.hpp>
+
+#define ENABLE_RANDOM
+#ifdef ENABLE_RANDOM
+   // define a TR1 comptable random library header
+   #include <boost/random.hpp>
+#endif
+
+#define ENABLE_REGEX
+#ifdef ENABLE_REGEX
+   // define a TR1 comptable regex library header
+   #include <boost/regex.hpp>
+#endif
 
 namespace strtk
 {
@@ -1522,6 +1533,7 @@ namespace strtk
    {
       enum
       {
+         default_mode        = 0,
          compress_delimiters = 1,
          include_delimiters  = 2
       };
@@ -1534,7 +1546,7 @@ namespace strtk
                             const Iterator begin,
                             const Iterator end,
                             OutputIterator out,
-                            const std::size_t split_options = 0x00)
+                            const std::size_t split_options = split_options::default_mode)
    {
       if (0 == std::distance(begin,end)) return 0;
       Iterator it = begin;
@@ -1576,7 +1588,7 @@ namespace strtk
    inline std::size_t split(const char* delimiters,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = 0x00)
+                            const std::size_t split_options = split_options::default_mode)
    {
       return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_options);
    }
@@ -1585,7 +1597,7 @@ namespace strtk
    inline std::size_t split(const std::string& delimiters,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = 0x00)
+                            const std::size_t split_options = split_options::default_mode)
    {
       return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_options);
    }
@@ -1594,7 +1606,7 @@ namespace strtk
    inline std::size_t split(const std::string::value_type delimiter,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = 0x00)
+                            const std::size_t split_options = split_options::default_mode)
    {
       return split(single_delimiter_predicate<std::string::value_type>(delimiter),str.begin(),str.end(),out,split_options);
    }
@@ -1604,7 +1616,7 @@ namespace strtk
    inline std::size_t split(const DelimiterPredicate& delimiter,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = 0x00)
+                            const std::size_t split_options = split_options::default_mode)
    {
       return split(delimiter,str.begin(),str.end(),out,split_options);
    }
@@ -1617,7 +1629,7 @@ namespace strtk
                               const Iterator end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       if (0 == std::distance(begin,end)) return 0;
       Iterator it = begin;
@@ -1663,7 +1675,7 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       return split_n(multiple_char_delimiter_predicate(delimiters),
                      str.begin(), str.end(),
@@ -1677,7 +1689,7 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       return split_n(multiple_char_delimiter_predicate(delimiters),
                      str.begin(), str.end(),
@@ -1692,7 +1704,7 @@ namespace strtk
                               const std::string::const_iterator& end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       return split_n(multiple_char_delimiter_predicate(delimiters),
                      begin,end,
@@ -1707,7 +1719,7 @@ namespace strtk
                               const char* end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       return split_n(multiple_char_delimiter_predicate(delimiters),
                      begin,end,
@@ -1722,7 +1734,7 @@ namespace strtk
                               const unsigned char* end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       return split_n(multiple_char_delimiter_predicate(delimiters),
                      begin,end,
@@ -1736,7 +1748,7 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       return split_n(single_delimiter_predicate<std::string::value_type>(delimiter),
                      str.begin(),str.end(),
@@ -1751,7 +1763,7 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = 0x00)
+                              const std::size_t split_options = split_options::default_mode)
    {
       return split_n(delimiter,
                      str.begin(),str.end(),
@@ -1759,6 +1771,8 @@ namespace strtk
                      out,
                      split_options);
    }
+
+   #ifdef ENABLE_REGEX
 
    static const std::string uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
    static const std::string email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
@@ -1871,6 +1885,8 @@ namespace strtk
                            token_count,
                            out);
    }
+
+   #endif // ENABLE_REGEX
 
    template<const std::size_t offset_list_size>
    class offset_predicate
@@ -2898,7 +2914,7 @@ namespace strtk
          compute_block<block_size>(reinterpret_cast<unsigned char*>(itr),length,hash);
       }
 
-   } //details
+   } // namespace details
 
    template<typename Iterator>
    inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value)
@@ -2939,8 +2955,7 @@ namespace strtk
       {
       public:
          row_type(const itr_list_type& token_list)
-         : token_list_(&token_list),
-           reserve_size_(one_kilobyte)
+         : token_list_(&token_list)
          {}
 
          template<typename T>
@@ -2966,14 +2981,14 @@ namespace strtk
             return token_list_->size();
          }
 
-         inline std::size_t& reserve_size()
-         {
-            return reserve_size_;
-         }
-
          inline std::string as_string() const
          {
             return std::string(token_list_->begin()->first,token_list_->back().second);
+         }
+
+         inline void as_string(std::string& out) const
+         {
+            out.assign(token_list_->begin()->first,token_list_->back().second);
          }
 
          template<typename T1, typename T2,
@@ -2981,7 +2996,7 @@ namespace strtk
                   typename T5, typename T6,
                   typename T7, typename T8,
                   typename T9, typename T10 >
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5, const std::size_t& col6,
                                       const std::size_t& col7, const std::size_t& col8,
@@ -2989,16 +3004,17 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8, T9& t9, T10& t10) const
          {
-            process((*token_list_)[ col1], t1);
-            process((*token_list_)[ col2], t2);
-            process((*token_list_)[ col3], t3);
-            process((*token_list_)[ col4], t4);
-            process((*token_list_)[ col5], t5);
-            process((*token_list_)[ col6], t6);
-            process((*token_list_)[ col7], t7);
-            process((*token_list_)[ col8], t8);
-            process((*token_list_)[ col9], t9);
-            process((*token_list_)[col10],t10);
+            if(!process((*token_list_)[ col1], t1)) return false;
+            if(!process((*token_list_)[ col2], t2)) return false;
+            if(!process((*token_list_)[ col3], t3)) return false;
+            if(!process((*token_list_)[ col4], t4)) return false;
+            if(!process((*token_list_)[ col5], t5)) return false;
+            if(!process((*token_list_)[ col6], t6)) return false;
+            if(!process((*token_list_)[ col7], t7)) return false;
+            if(!process((*token_list_)[ col8], t8)) return false;
+            if(!process((*token_list_)[ col9], t9)) return false;
+            if(!process((*token_list_)[col10],t10)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
@@ -3006,7 +3022,7 @@ namespace strtk
                   typename T5, typename T6,
                   typename T7, typename T8,
                   typename T9 >
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5, const std::size_t& col6,
                                       const std::size_t& col7, const std::size_t& col8,
@@ -3014,121 +3030,129 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8, T9& t9) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
-            process((*token_list_)[col3],t3);
-            process((*token_list_)[col4],t4);
-            process((*token_list_)[col5],t5);
-            process((*token_list_)[col6],t6);
-            process((*token_list_)[col7],t7);
-            process((*token_list_)[col8],t8);
-            process((*token_list_)[col9],t9);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            if(!process((*token_list_)[col3],t3)) return false;
+            if(!process((*token_list_)[col4],t4)) return false;
+            if(!process((*token_list_)[col5],t5)) return false;
+            if(!process((*token_list_)[col6],t6)) return false;
+            if(!process((*token_list_)[col7],t7)) return false;
+            if(!process((*token_list_)[col8],t8)) return false;
+            if(!process((*token_list_)[col9],t9)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6,
                   typename T7, typename T8>
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5, const std::size_t& col6,
                                       const std::size_t& col7, const std::size_t& col8,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
-            process((*token_list_)[col3],t3);
-            process((*token_list_)[col4],t4);
-            process((*token_list_)[col5],t5);
-            process((*token_list_)[col6],t6);
-            process((*token_list_)[col7],t7);
-            process((*token_list_)[col8],t8);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            if(!process((*token_list_)[col3],t3)) return false;
+            if(!process((*token_list_)[col4],t4)) return false;
+            if(!process((*token_list_)[col5],t5)) return false;
+            if(!process((*token_list_)[col6],t6)) return false;
+            if(!process((*token_list_)[col7],t7)) return false;
+            if(!process((*token_list_)[col8],t8)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6, typename T7>
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5, const std::size_t& col6,
                                       const std::size_t& col7,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
-            process((*token_list_)[col3],t3);
-            process((*token_list_)[col4],t4);
-            process((*token_list_)[col5],t5);
-            process((*token_list_)[col6],t6);
-            process((*token_list_)[col7],t7);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            if(!process((*token_list_)[col3],t3)) return false;
+            if(!process((*token_list_)[col4],t4)) return false;
+            if(!process((*token_list_)[col5],t5)) return false;
+            if(!process((*token_list_)[col6],t6)) return false;
+            if(!process((*token_list_)[col7],t7)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6>
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5, const std::size_t& col6,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
-            process((*token_list_)[col3],t3);
-            process((*token_list_)[col4],t4);
-            process((*token_list_)[col5],t5);
-            process((*token_list_)[col6],t6);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            if(!process((*token_list_)[col3],t3)) return false;
+            if(!process((*token_list_)[col4],t4)) return false;
+            if(!process((*token_list_)[col5],t5)) return false;
+            if(!process((*token_list_)[col6],t6)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,typename T5>
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3, const std::size_t& col4,
                                       const std::size_t& col5,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
-            process((*token_list_)[col3],t3);
-            process((*token_list_)[col4],t4);
-            process((*token_list_)[col5],t5);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            if(!process((*token_list_)[col3],t3)) return false;
+            if(!process((*token_list_)[col4],t4)) return false;
+            if(!process((*token_list_)[col5],t5)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4>
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3, const std::size_t& col4,
                                       T1& t1, T2& t2, T3& t3, T4& t4) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
-            process((*token_list_)[col3],t3);
-            process((*token_list_)[col4],t4);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            if(!process((*token_list_)[col3],t3)) return false;
+            if(!process((*token_list_)[col4],t4)) return false;
+            return true;
          }
 
          template<typename T1, typename T2, typename T3>
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       const std::size_t& col3,
                                       T1& t1, T2& t2, T3& t3) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
-            process((*token_list_)[col3],t3);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            if(!process((*token_list_)[col3],t3)) return false;
+            return true;
          }
 
          template<typename T1, typename T2>
-         inline void parse_with_index(const std::size_t& col1, const std::size_t& col2,
+         inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       T1& t1, T2& t2) const
          {
-            process((*token_list_)[col1],t1);
-            process((*token_list_)[col2],t2);
+            if(!process((*token_list_)[col1],t1)) return false;
+            if(!process((*token_list_)[col2],t2)) return false;
+            return true;
          }
 
          template<typename T1>
-         inline void parse_with_index(const std::size_t& col, T1& t) const
+         inline bool parse_with_index(const std::size_t& col, T1& t) const
          {
-            process((*token_list_)[col],t);
+            return process((*token_list_)[col],t);
          }
 
          template<typename T1, typename T2,
@@ -3136,20 +3160,21 @@ namespace strtk
                   typename T5, typename T6,
                   typename T7, typename T8,
                   typename T9, typename T10 >
-         inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
+         inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9, T10& t10) const
          {
-            process((*token_list_)[0], t1);
-            process((*token_list_)[1], t2);
-            process((*token_list_)[2], t3);
-            process((*token_list_)[3], t4);
-            process((*token_list_)[4], t5);
-            process((*token_list_)[5], t6);
-            process((*token_list_)[6], t7);
-            process((*token_list_)[7], t8);
-            process((*token_list_)[8], t9);
-            process((*token_list_)[9],t10);
+            if(!process((*token_list_)[0], t1)) return false;
+            if(!process((*token_list_)[1], t2)) return false;
+            if(!process((*token_list_)[2], t3)) return false;
+            if(!process((*token_list_)[3], t4)) return false;
+            if(!process((*token_list_)[4], t5)) return false;
+            if(!process((*token_list_)[5], t6)) return false;
+            if(!process((*token_list_)[6], t7)) return false;
+            if(!process((*token_list_)[7], t8)) return false;
+            if(!process((*token_list_)[8], t9)) return false;
+            if(!process((*token_list_)[9],t10)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
@@ -3157,107 +3182,115 @@ namespace strtk
                   typename T5, typename T6,
                   typename T7, typename T8,
                   typename T9 >
-         inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
+         inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
-            process((*token_list_)[2],t3);
-            process((*token_list_)[3],t4);
-            process((*token_list_)[4],t5);
-            process((*token_list_)[5],t6);
-            process((*token_list_)[6],t7);
-            process((*token_list_)[7],t8);
-            process((*token_list_)[8],t9);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            if(!process((*token_list_)[2],t3)) return false;
+            if(!process((*token_list_)[3],t4)) return false;
+            if(!process((*token_list_)[4],t5)) return false;
+            if(!process((*token_list_)[5],t6)) return false;
+            if(!process((*token_list_)[6],t7)) return false;
+            if(!process((*token_list_)[7],t8)) return false;
+            if(!process((*token_list_)[8],t9)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6,
                   typename T7, typename T8>
-         inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
+         inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
-            process((*token_list_)[2],t3);
-            process((*token_list_)[3],t4);
-            process((*token_list_)[4],t5);
-            process((*token_list_)[5],t6);
-            process((*token_list_)[6],t7);
-            process((*token_list_)[7],t8);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            if(!process((*token_list_)[2],t3)) return false;
+            if(!process((*token_list_)[3],t4)) return false;
+            if(!process((*token_list_)[4],t5)) return false;
+            if(!process((*token_list_)[5],t6)) return false;
+            if(!process((*token_list_)[6],t7)) return false;
+            if(!process((*token_list_)[7],t8)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6, typename T7>
-         inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
+         inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
-            process((*token_list_)[2],t3);
-            process((*token_list_)[3],t4);
-            process((*token_list_)[4],t5);
-            process((*token_list_)[5],t6);
-            process((*token_list_)[6],t7);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            if(!process((*token_list_)[2],t3)) return false;
+            if(!process((*token_list_)[3],t4)) return false;
+            if(!process((*token_list_)[4],t5)) return false;
+            if(!process((*token_list_)[5],t6)) return false;
+            if(!process((*token_list_)[6],t7)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,
                   typename T5, typename T6>
-         inline void parse(T1& t1, T2& t2, T3& t3, T4& t4,
+         inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
-            process((*token_list_)[2],t3);
-            process((*token_list_)[3],t4);
-            process((*token_list_)[4],t5);
-            process((*token_list_)[5],t6);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            if(!process((*token_list_)[2],t3)) return false;
+            if(!process((*token_list_)[3],t4)) return false;
+            if(!process((*token_list_)[4],t5)) return false;
+            if(!process((*token_list_)[5],t6)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4,typename T5>
-         inline void parse(T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
+         inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
-            process((*token_list_)[2],t3);
-            process((*token_list_)[3],t4);
-            process((*token_list_)[4],t5);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            if(!process((*token_list_)[2],t3)) return false;
+            if(!process((*token_list_)[3],t4)) return false;
+            if(!process((*token_list_)[4],t5)) return false;
+            return true;
          }
 
          template<typename T1, typename T2,
                   typename T3, typename T4>
-         inline void parse(T1& t1, T2& t2, T3& t3, T4& t4) const
+         inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
-            process((*token_list_)[2],t3);
-            process((*token_list_)[3],t4);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            if(!process((*token_list_)[2],t3)) return false;
+            if(!process((*token_list_)[3],t4)) return false;
+            return true;
          }
 
          template<typename T1, typename T2, typename T3>
-         inline void parse(T1& t1, T2& t2, T3& t3) const
+         inline bool parse(T1& t1, T2& t2, T3& t3) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
-            process((*token_list_)[2],t3);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            if(!process((*token_list_)[2],t3)) return false;
+            return true;
          }
 
          template<typename T1, typename T2>
-         inline void parse(T1& t1, T2& t2) const
+         inline bool parse(T1& t1, T2& t2) const
          {
-            process((*token_list_)[0],t1);
-            process((*token_list_)[1],t2);
+            if(!process((*token_list_)[0],t1)) return false;
+            if(!process((*token_list_)[1],t2)) return false;
+            return true;
          }
 
          template<typename T1>
-         inline void parse(T1& t) const
+         inline bool parse(T1& t) const
          {
-            process((*token_list_)[0],t);
+            return process((*token_list_)[0],t);
          }
 
          template<typename T, typename OutputIterator>
@@ -3275,15 +3308,14 @@ namespace strtk
       private:
 
          template<typename T>
-         inline void process(const itr_list_type::value_type& range, T& t) const
+         inline bool process(const itr_list_type::value_type& range, T& t) const
          {
-            t = string_to_type_converter<T>(range.first,range.second);
+            return string_to_type_converter<T>(range.first,range.second,t);
          }
 
       private:
 
          const itr_list_type* token_list_;
-         std::size_t reserve_size_;
       };
 
       token_grid(const std::string& file_name,
@@ -3530,6 +3562,7 @@ namespace strtk
          buffer_size_ = 0;
          token_list_.clear();
          min_column_count_ = 0;
+         max_column_count_ = 0;
          state_ = false;
          file_name_ = "";
       }
@@ -4172,271 +4205,134 @@ namespace strtk
          return string_to_type_converter<T>((*it).first,(*it).second,t);
       }
 
+   } // namespace details
+
+   #define INSTANTIATE_PARSE(iterator_type)\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5,  typename T6,  typename T7, typename  T8,\
+            typename T9, typename T10, typename T11, typename T12>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,\
+                     T9& t9, T10& t10, T11& t11, T12& t12)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5,  typename T6,  typename T7, typename  T8,\
+            typename T9, typename T10, typename T11>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,\
+                     T9& t9, T10& t10, T11& t11)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5,  typename T6,  typename T7, typename  T8,\
+            typename T9, typename T10>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,\
+                     T9& t9, T10& t10)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5,  typename T6,  typename T7, typename  T8,\
+            typename T9>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,\
+                     T9& t9)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5,  typename T6,  typename T7, typename  T8>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5,  typename T6,  typename T7>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5,  T6&  t6,  T7&  t7)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5,  typename T6>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5,  T6&  t6)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4,\
+            typename T5>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,\
+                     T5& t5)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5);\
+   }\
+   template<typename T1,  typename T2,  typename T3, typename  T4>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4);\
+   }\
+   template<typename T1,  typename T2,  typename T3>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1, T2& t2, T3& t3)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2,t3);\
+   }\
+   template<typename T1, typename T2>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T1& t1,  T2&  t2)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t1,t2);\
+   }\
+   template<typename T>\
+   inline bool parse(const iterator_type begin,\
+                     const iterator_type end,\
+                     const std::string& delimiters,\
+                     T& t)\
+   {\
+      return details::parse_impl(begin,end,delimiters,t);\
    }
 
-   template<typename T1,  typename T2,  typename T3, typename  T4,
-            typename T5,  typename T6,  typename T7, typename  T8,
-            typename T9, typename T10, typename T11, typename T12>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,
-                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
-                     T9& t9, T10& t10, T11& t11, T12& t12)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
-   }
-
-   template<typename T1,  typename T2,  typename T3, typename T4,
-            typename T5,  typename T6,  typename T7, typename T8,
-            typename T9, typename T10, typename T11>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8,
-                     T9& t9, T10& t10, T11& t11)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7, typename T8,
-            typename T9, typename T10>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8,
-                     T9& t9, T10& t10)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7, typename T8,
-            typename T9>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8,
-                     T9& t9)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7, typename T8>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5);
-   }
-
-   template< typename T1, typename T2, typename T3, typename T4>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4);
-   }
-
-   template<typename T1, typename T2, typename T3>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3);
-   }
-
-   template<typename T1, typename T2>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2);
-   }
-
-   template<typename T>
-   inline bool parse(const char* begin,
-                     const char* end,
-                     const std::string& delimiters,
-                     T& t)
-   {
-      return details::parse_impl(begin,end,delimiters,t);
-   }
-
-   template<typename T1,  typename T2,  typename T3, typename  T4,
-            typename T5,  typename T6,  typename T7, typename  T8,
-            typename T9, typename T10, typename T11, typename T12>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1,  T2&  t2,  T3&  t3,  T4&  t4,
-                     T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
-                     T9& t9, T10& t10, T11& t11, T12& t12)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
-   }
-
-   template<typename T1,  typename T2,  typename T3, typename T4,
-            typename T5,  typename T6,  typename T7, typename T8,
-            typename T9, typename T10, typename T11>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8,
-                     T9& t9, T10& t10, T11& t11)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7, typename T8,
-            typename T9, typename T10>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8,
-                     T9& t9, T10& t10)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7, typename T8,
-            typename T9>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8,
-                     T9& t9)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7, typename T8>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7, T8& t8)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6, typename T7>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6, T7& t7)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6,t7);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5, T6& t6)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5,t6);
-   }
-
-   template<typename T1, typename T2, typename T3, typename T4,
-            typename T5>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4,
-                     T5& t5)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4,t5);
-   }
-
-   template< typename T1, typename T2, typename T3, typename T4>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3,t4);
-   }
-
-   template<typename T1, typename T2, typename T3>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2,t3);
-   }
-
-   template<typename T1, typename T2>
-   inline bool parse(const std::string::const_iterator begin,
-                     const std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2)
-   {
-      return details::parse_impl(begin,end,delimiters,t1,t2);
-   }
-
-   template<typename T>
-   inline bool parse(std::string::const_iterator begin,
-                     std::string::const_iterator end,
-                     const std::string& delimiters,
-                     T& t)
-   {
-      return details::parse_impl(begin,end,delimiters,t);
-   }
+   INSTANTIATE_PARSE(char*)
+   INSTANTIATE_PARSE(unsigned char*)
+   INSTANTIATE_PARSE(std::string::const_iterator)
+   INSTANTIATE_PARSE(std::string::iterator)
 
    template<typename T1,  typename T2,  typename T3, typename  T4,
             typename T5,  typename T6,  typename T7, typename  T8,
@@ -4447,7 +4343,7 @@ namespace strtk
                      T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
                      T9& t9, T10& t10, T11& t11, T12& t12)
    {
-      return details::parse_impl(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
    }
 
    template<typename T1,  typename T2,  typename T3, typename T4,
@@ -4459,7 +4355,7 @@ namespace strtk
                      T5& t5, T6& t6, T7& t7, T8& t8,
                      T9& t9, T10& t10, T11& t11)
    {
-      return details::parse_impl(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
+      return parse(data.c_str(),data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -4849,6 +4745,7 @@ namespace strtk
       return output;
    }
 
+   #ifdef ENABLE_RANDOM
    void generate_random_data(unsigned char* data, std::size_t length, unsigned int pre_gen_cnt = 0, unsigned int seed = 0xA5A5A5A5)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
@@ -4875,6 +4772,7 @@ namespace strtk
          (*x) = rnd();
       }
    }
+   #endif // ENABLE_RANDOM
 
    template <typename Iterator>
    bool next_combination(const Iterator first, Iterator k, const Iterator last)
@@ -5232,8 +5130,6 @@ namespace strtk
 
    }
 
-   // *** Specializations ***
-
    namespace details
    {
 
@@ -5416,7 +5312,8 @@ namespace strtk
       INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(unsigned char*)
       INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::iterator)
       INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
-   }
+
+   } // namespace details
 
    #define INSTANTIATE_STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(ITER_TYPE)\
    template<> inline std::string string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end)\
@@ -5551,6 +5448,17 @@ namespace strtk
    INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned short)
    INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned int)
    INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned long)
+
+   #define INSTANTIATE_PARSE_SEQUENCE_TYPE(Type)\
+   INSTANTIATE_PARSE(std::vector<Type>::iterator)\
+   INSTANTIATE_PARSE(std::vector<Type>::const_iterator)\
+   INSTANTIATE_PARSE(std::deque<Type>::iterator)\
+   INSTANTIATE_PARSE(std::deque<Type>::const_iterator)\
+   INSTANTIATE_PARSE(std::list<Type>::iterator)\
+   INSTANTIATE_PARSE(std::list<Type>::const_iterator)
+
+   INSTANTIATE_PARSE_SEQUENCE_TYPE(char)
+   INSTANTIATE_PARSE_SEQUENCE_TYPE(unsigned char)
 
 } // namespace strtk
 

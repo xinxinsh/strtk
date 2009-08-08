@@ -289,6 +289,7 @@ void split_example05()
 
 void split_regex_example()
 {
+   #ifdef ENABLE_REGEX
    std::string s = "(12)(345)(6789)(0ijkx)(yz)";
    std::list<std::string> token_list;
    strtk::split_regex("\\(.*?\\)",s,std::back_inserter(token_list));
@@ -299,6 +300,7 @@ void split_regex_example()
       ++it;
    }
    std::cout << std::endl;
+   #endif
 }
 
 void split_n_example01()
@@ -351,6 +353,7 @@ void split_n_example03()
 
 void split_regex_n_example()
 {
+   #ifdef ENABLE_REGEX
    std::string s = "(token1)(token2)(token3)(token4)(token5)";
    std::list<std::string> token_list;
    const std::size_t token_count = 4;
@@ -362,6 +365,7 @@ void split_regex_n_example()
       ++it;
    }
    std::cout << std::endl;
+   #endif
 }
 
 void offset_splitter_example01()
@@ -516,6 +520,7 @@ void remove_proceeding_example()
 
 void uri_extractor_example01()
 {
+   #ifdef ENABLE_REGEX
    std::string text = "someone@somewhere.com http://www.test.net any.one@any.where.com ftp://123.abcxyz.org";
    std::list<std::string> email_list;
    std::list<std::string> url_list;
@@ -526,10 +531,12 @@ void uri_extractor_example01()
    std::cout << std::endl << "urls: ";
    std::copy(url_list.begin(),url_list.end(),std::ostream_iterator<std::string>(std::cout," "));
    std::cout << std::endl;
+   #endif
 }
 
 void generate_random_example01()
 {
+   #ifdef ENABLE_RANDOM
    const std::size_t data_size = 10;
    unsigned char* data = new unsigned char[data_size];
    strtk::generate_random_data(data,data_size,1000000);
@@ -539,6 +546,7 @@ void generate_random_example01()
    std::cout << std::endl;
    delete [] data;
    delete [] hex_data;
+   #endif
 }
 
 void lexicographically_collate_example()
