@@ -287,6 +287,70 @@ void token_grid_test07()
    }
 }
 
+void token_grid_test08()
+{
+   std::string data;
+   data += "1.1,1.1,1.1,1.1,1.1,1.1\n"
+           "2.2,2.2,2.2,2.2,2.2,2.2\n"
+           "3.3,3.3,3.3,3.3,3.3,3.3\n"
+           "4.4,4.4,4.4,4.4,4.4,4.4\n"
+           "5.5,5.5,5.5,5.5,5.5,5.5\n"
+           "6.6,6.6,6.6,6.6,6.6,6.6\n"
+           "7.7,7.7,7.7,7.7,7.7,7.7\n";
+
+   strtk::token_grid grid(data,data.size(),",");
+
+   for(std::size_t r = 0; r < grid.row_count(); ++r)
+   {
+      double sum = 0.0;
+      if (grid.accumulate_row(r,sum))
+         std::cout << "sum(row["<< r <<"]) = " << sum << std::endl;
+            else
+         std::cout << "failed row["<< r <<"]" << std::endl;
+   }
+
+   for(std::size_t c = 0; c < grid.max_column_count(); ++c)
+   {
+      double sum = 0.0;
+      if (grid.accumulate_column(c,sum))
+         std::cout << "sum(col["<< c <<"]) = " << sum << std::endl;
+            else
+         std::cout << "failed col["<< c <<"]" << std::endl;
+   }
+}
+
+void token_grid_test09()
+{
+   std::string data;
+   data += "1.1,1.1,1.1,1.1,1.1,1.1\n"
+           "2.2,2.2,2.2,2.2,2.2,2.2\n"
+           "3.3,3.3,3.3,3.3,3.3,3.3\n"
+           "4.4,4.4,4.4,4.4,4.4,4.4\n"
+           "5.5,5.5,5.5,5.5,5.5,5.5\n"
+           "6.6,6.6,6.6,6.6,6.6,6.6\n"
+           "7.7,7.7,7.7,7.7,7.7,7.7\n";
+
+   strtk::token_grid grid(data,data.size(),",");
+
+   for(std::size_t r = 0; r < grid.row_count(); ++r)
+   {
+      std::string row = "";
+      if (grid.join_row(r,"|",row))
+         std::cout << "row["<< r <<"] = " << row << std::endl;
+            else
+         std::cout << "failed row["<< r <<"]" << std::endl;
+   }
+
+   for(std::size_t c = 0; c < grid.max_column_count(); ++c)
+   {
+      std::string col = "";
+      if (grid.join_column(c,"|",col))
+         std::cout << "col["<< c <<"] = " << col << std::endl;
+            else
+         std::cout << "failed col["<< c <<"]" << std::endl;
+   }
+}
+
 
 int main()
 {
@@ -297,5 +361,7 @@ int main()
    token_grid_test05();
    token_grid_test06();
    token_grid_test07();
+   token_grid_test08();
+   token_grid_test09();
    return 0;
 }
