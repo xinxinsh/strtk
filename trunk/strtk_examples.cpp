@@ -562,7 +562,7 @@ void lexicographically_collate_example()
    for(std::size_t i = 0; i < sizeof(str_list)/sizeof(std::string); ++i)
    {
       std::cout << str_list[i] << " --> ";
-      strtk::lexicographically_collate(str_list[i]);
+      strtk::lexicographically_canonicalize(str_list[i]);
       std::cout << str_list[i] << std::endl;
    };
 
@@ -570,7 +570,7 @@ void lexicographically_collate_example()
 
    std::copy(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int),std::ostream_iterator<unsigned int>(std::cout," "));
    std::cout << " --> ";
-   strtk::lexicographically_collate(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int));
+   strtk::lexicographically_canonicalize(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int));
    std::copy(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int),std::ostream_iterator<unsigned int>(std::cout," "));
    std::cout << std::endl;
 
@@ -583,7 +583,7 @@ void lexicographically_collate_example()
 
    std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout," "));
    std::cout << " --> ";
-   strtk::lexicographically_collate(int_list.begin(),int_list.end());
+   strtk::lexicographically_canonicalize(int_list.begin(),int_list.end());
    std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout," "));
    std::cout << std::endl;
 }

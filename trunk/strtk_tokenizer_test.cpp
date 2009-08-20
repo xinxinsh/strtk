@@ -44,7 +44,10 @@ bool test_tokenizer_split(const Predicate& p,
 {
    std::string result = "";
    std::vector< std::pair< std::string::const_iterator , std::string::const_iterator> > tok_list;
-   strtk::split(p,s,std::back_inserter(tok_list),compressed_delimiters);
+   strtk::split(p,
+                s,
+                std::back_inserter(tok_list),
+                (compressed_delimiters) ? strtk::split_options::compress_delimiters :  strtk::split_options::default_mode);
 
    for(std::size_t i = 0; i < tok_list.size(); ++i)
    {

@@ -33,13 +33,13 @@
 
 #define ENABLE_RANDOM
 #ifdef ENABLE_RANDOM
-   // define a TR1 comptable random library header
+   // define a TR1 compatible random library header
    #include <boost/random.hpp>
 #endif
 
 #define ENABLE_REGEX
 #ifdef ENABLE_REGEX
-   // define a TR1 comptable regex library header
+   // define a TR1 compatible regex library header
    #include <boost/regex.hpp>
 #endif
 
@@ -352,6 +352,20 @@ namespace strtk
       return it;
    }
 
+   template<typename Predicate, typename InputIterator>
+   inline bool range_only_contains(Predicate predicate, const InputIterator begin, const InputIterator end)
+   {
+      InputIterator it = begin;
+      while(end != it)
+      {
+         if (!predicate(*it++))
+         {
+            return false;
+         }
+      }
+      return true;
+   }
+
    template<typename T>
    struct single_delimiter_predicate
    {
@@ -458,7 +472,7 @@ namespace strtk
       template<typename Iterator>
       inline void setup_delimiter_table(const Iterator begin, const Iterator end)
       {
-         std::fill_n(delimiter_table_, table_size, 0x00);
+         std::memset(delimiter_table_,0x00,table_size);
          for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
       }
 
@@ -777,10 +791,10 @@ namespace strtk
       }
    }
 
-   void replace(const std::string& s,
-                const std::string& p,
-                const std::string& r,
-                std::string& n)
+   void replace_pattern(const std::string& s,
+                        const std::string& p,
+                        const std::string& r,
+                        std::string& n)
    {
       if ((p == r) || p.empty())
       {
@@ -828,10 +842,10 @@ namespace strtk
    }
 
    template<typename InputIterator, typename OutputIterator>
-   std::size_t replace(const InputIterator s_begin, const InputIterator s_end,
-                       const InputIterator p_begin, const InputIterator p_end,
-                       const InputIterator r_begin, const InputIterator r_end,
-                       OutputIterator out)
+   std::size_t replace_pattern(const InputIterator s_begin, const InputIterator s_end,
+                               const InputIterator p_begin, const InputIterator p_end,
+                               const InputIterator r_begin, const InputIterator r_end,
+                               OutputIterator out)
    {
       typedef typename std::iterator_traits<InputIterator>::value_type T;
 
@@ -1531,6 +1545,7 @@ namespace strtk
 
    namespace split_options
    {
+      typedef unsigned char type;
       enum
       {
          default_mode        = 0,
@@ -1546,39 +1561,41 @@ namespace strtk
                             const Iterator begin,
                             const Iterator end,
                             OutputIterator out,
-                            const std::size_t split_options = split_options::default_mode)
+                            const split_options::type split_option = split_options::default_mode)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it = begin;
-      Iterator prev = it;
       std::size_t match_count = 0;
-      while(end != it)
+      std::pair<Iterator,Iterator> range(begin,begin);
+      // range.first  -> prev
+      // range.second -> it
+      while(end != range.second)
       {
-        if(delimiter(*it))
+        if(delimiter(*range.second))
         {
-           if (split_options & split_options::include_delimiters)
+           if (split_option & split_options::include_delimiters)
            {
-              *(out++) = std::make_pair<Iterator,Iterator>(prev,++it);
-              if (split_options & split_options::compress_delimiters)
-                 while((end != (++it)) && delimiter(*it));
+              ++range.second;
+              *(out++) = range;
+              if (split_option & split_options::compress_delimiters)
+                 while((end != (++range.second)) && delimiter(*range.second));
            }
            else
            {
-              *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
-              if (split_options & split_options::compress_delimiters)
-                 while((end != (++it)) && delimiter(*it));
+              *(out++) = range;
+              if (split_option & split_options::compress_delimiters)
+                 while((end != (++range.second)) && delimiter(*range.second));
               else
-                 ++it;
+                 ++range.second;
            }
            ++match_count;
-           prev = it;
+           range.first = range.second;
         }
         else
-           ++it;
+           ++range.second;
       }
-      if ((prev != it) || delimiter(*(it - 1)))
+      if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
-         *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
+         *(out++) = range;
          ++match_count;
       }
       return match_count;
@@ -1588,27 +1605,27 @@ namespace strtk
    inline std::size_t split(const char* delimiters,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = split_options::default_mode)
+                            const split_options::type& split_option = split_options::default_mode)
    {
-      return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_options);
+      return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_option);
    }
 
    template<typename OutputIterator>
    inline std::size_t split(const std::string& delimiters,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = split_options::default_mode)
+                            const split_options::type& split_option = split_options::default_mode)
    {
-      return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_options);
+      return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_option);
    }
 
    template<typename OutputIterator>
    inline std::size_t split(const std::string::value_type delimiter,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = split_options::default_mode)
+                            const split_options::type& split_option = split_options::default_mode)
    {
-      return split(single_delimiter_predicate<std::string::value_type>(delimiter),str.begin(),str.end(),out,split_options);
+      return split(single_delimiter_predicate<std::string::value_type>(delimiter),str.begin(),str.end(),out,split_option);
    }
 
    template<typename DelimiterPredicate,
@@ -1616,9 +1633,9 @@ namespace strtk
    inline std::size_t split(const DelimiterPredicate& delimiter,
                             const std::string& str,
                             OutputIterator out,
-                            const std::size_t split_options = split_options::default_mode)
+                            const split_options::type& split_option = split_options::default_mode)
    {
-      return split(delimiter,str.begin(),str.end(),out,split_options);
+      return split(delimiter,str.begin(),str.end(),out,split_option);
    }
 
    template<typename DelimiterPredicate,
@@ -1629,42 +1646,44 @@ namespace strtk
                               const Iterator end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it = begin;
-      Iterator prev = it;
       std::size_t match_count = 0;
-      while(end != it)
+      std::pair<Iterator,Iterator> range(begin,begin);
+      // range.first  -> prev
+      // range.second -> it
+      while(end != range.second)
       {
-        if(delimiter(*it))
+        if(delimiter(*range.second))
         {
-           if (split_options & split_options::include_delimiters)
+           if (split_option & split_options::include_delimiters)
            {
-              *(out++) = std::make_pair<Iterator,Iterator>(prev,++it);
+              ++range.second;
+              *(out++) = range;
               if (++match_count >= token_count)
                  return match_count;
-              if (split_options & split_options::compress_delimiters)
-                 while((end != (++it)) && delimiter(*it));
+              if (split_option & split_options::compress_delimiters)
+                 while((end != (++range.second)) && delimiter(*range.second));
            }
            else
            {
-              *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
+              *(out++) = range;
               if (++match_count >= token_count)
                  return match_count;
-              if (split_options & split_options::compress_delimiters)
-                 while((end != (++it)) && delimiter(*it));
+              if (split_option & split_options::compress_delimiters)
+                 while((end != (++range.second)) && delimiter(*range.second));
               else
-                 ++it;
+                 ++range.second;
            }
-           prev = it;
+           range.first = range.second;
         }
         else
-           ++it;
+           ++range.second;
       }
-      if ((prev != it) || delimiter(*(it - 1)))
+      if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
-         *(out++) = std::make_pair<Iterator,Iterator>(prev,it);
+         *(out++) = range;
          ++match_count;
       }
       return match_count;
@@ -1675,13 +1694,13 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
       return split_n(multiple_char_delimiter_predicate(delimiters),
                      str.begin(), str.end(),
                      token_count,
                      out,
-                     split_options);
+                     split_option);
    }
 
    template<typename OutputIterator>
@@ -1689,13 +1708,20 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
-      return split_n(multiple_char_delimiter_predicate(delimiters),
-                     str.begin(), str.end(),
-                     token_count,
-                     out,
-                     split_options);
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        str.begin(), str.end(),
+                        token_count,
+                        out,
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        str.begin(), str.end(),
+                        token_count,
+                        out,
+                        split_option);
    }
 
    template<typename OutputIterator>
@@ -1704,13 +1730,20 @@ namespace strtk
                               const std::string::const_iterator& end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
-      return split_n(multiple_char_delimiter_predicate(delimiters),
-                     begin,end,
-                     token_count,
-                     out,
-                     split_options);
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        begin,end,
+                        token_count,
+                        out,
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        begin,end,
+                        token_count,
+                        out,
+                        split_option);
    }
 
    template<typename OutputIterator>
@@ -1719,13 +1752,20 @@ namespace strtk
                               const char* end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
-      return split_n(multiple_char_delimiter_predicate(delimiters),
-                     begin,end,
-                     token_count,
-                     out,
-                     split_options);
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        begin,end,
+                        token_count,
+                        out,
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        begin,end,
+                        token_count,
+                        out,
+                        split_option);
    }
 
    template<typename OutputIterator>
@@ -1734,13 +1774,20 @@ namespace strtk
                               const unsigned char* end,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
-      return split_n(multiple_char_delimiter_predicate(delimiters),
-                     begin,end,
-                     token_count,
-                     out,
-                     split_options);
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        begin,end,
+                        token_count,
+                        out,
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        begin,end,
+                        token_count,
+                        out,
+                        split_option);
    }
 
    template<typename OutputIterator>
@@ -1748,13 +1795,13 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
       return split_n(single_delimiter_predicate<std::string::value_type>(delimiter),
                      str.begin(),str.end(),
                      token_count,
                      out,
-                     split_options);
+                     split_option);
    }
 
    template<typename DelimiterPredicate,
@@ -1763,13 +1810,13 @@ namespace strtk
                               const std::string& str,
                               const std::size_t& token_count,
                               OutputIterator out,
-                              const std::size_t split_options = split_options::default_mode)
+                              const split_options::type& split_option = split_options::default_mode)
    {
       return split_n(delimiter,
                      str.begin(),str.end(),
                      token_count,
                      out,
-                     split_options);
+                     split_option);
    }
 
    #ifdef ENABLE_REGEX
@@ -2126,11 +2173,11 @@ namespace strtk
    }
 
    template<typename Iterator>
-   void lexicographically_collate(Iterator begin, Iterator end)
+   void lexicographically_canonicalize(Iterator begin, Iterator end)
    {
       typedef typename std::iterator_traits<Iterator>::value_type type;
-      typedef typename std::pair<Iterator,Iterator> ITER_TYPE;
-      typedef typename std::list<ITER_TYPE> itr_list_type;
+      typedef typename std::pair<Iterator,Iterator> iter_type;
+      typedef typename std::list<iter_type> itr_list_type;
       itr_list_type itr_list;
 
       type smallest = min_in_range(begin,end);
@@ -2183,9 +2230,9 @@ namespace strtk
       std::rotate(begin,(*itr_list.begin()).second,end);
    }
 
-   void lexicographically_collate(std::string& str)
+   void lexicographically_canonicalize(std::string& str)
    {
-      lexicographically_collate(const_cast<char*>(str.c_str()), const_cast<char*>(str.c_str() + str.size()));
+      lexicographically_canonicalize(const_cast<char*>(str.c_str()), const_cast<char*>(str.c_str() + str.size()));
    }
 
    inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
@@ -2851,7 +2898,7 @@ namespace strtk
 
       inline void compute_pod_hash(const unsigned int& data, unsigned int& hash)
       {
-         compute_pod_hash(static_cast<const int&>(data),hash);
+         compute_pod_hash(static_cast<int>(data),hash);
       }
 
       inline void compute_pod_hash(const double& data, unsigned int& hash)
@@ -3565,6 +3612,100 @@ namespace strtk
          max_column_count_ = 0;
          state_ = false;
          file_name_ = "";
+      }
+
+      template<typename T>
+      inline bool accumulate_row(const std::size_t& row, T& result) const
+      {
+         if (row >= token_list_.size())
+            return false;
+         itr_list_type::const_iterator itr = token_list_[row].begin();
+         itr_list_type::const_iterator end = token_list_[row].end();
+         T current_value = T();
+         while(end != itr)
+         {
+            if (string_to_type_converter<T>((*itr).first,(*itr).second,current_value))
+              result += current_value;
+            else
+               return false;
+            ++itr;
+         }
+         return true;
+      }
+
+      template<typename T>
+      inline bool accumulate_column(const std::size_t& col, T& result) const
+      {
+         if (col > max_column_count_)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin();
+         itr_list_list_type new_token_list;
+         T current_value = T();
+         while (token_list_.end() != it)
+         {
+            if (!(*it).empty())
+            {
+               if (string_to_type_converter<T> ((*it)[col].first, (*it)[col].second, current_value))
+                  result += current_value;
+               else
+                  return false;
+            }
+            ++it;
+         }
+         return true;
+      }
+
+      inline bool join_row(const std::size_t& row, const std::string& delimiter, std::string& result)
+      {
+         if (row >= token_list_.size())
+            return false;
+         itr_list_type::const_iterator itr = token_list_[row].begin();
+         itr_list_type::const_iterator end = token_list_[row].end();
+         result.reserve(std::distance(token_list_[row].front().first,
+                                      token_list_[row].back().second) +
+                        (delimiter.size() * token_list_[row].size()) +
+                        result.size());
+         bool appended = false;
+         while(end != itr)
+         {
+            if (!delimiter.empty() && appended)
+               result.append(delimiter);
+            appended = false;
+            if ((*itr).first != (*itr).second)
+            {
+               result.append((*itr).first,(*itr).second);
+               appended = true;
+            }
+            ++itr;
+         }
+         return true;
+      }
+
+      inline bool join_column(const std::size_t& col, const std::string& delimiter, std::string& result)
+      {
+         if (col > max_column_count_)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin();
+         itr_list_list_type new_token_list;
+         range_type range;
+         bool appended = false;
+         while (token_list_.end() != it)
+         {
+            if (!delimiter.empty() && appended)
+               result.append(delimiter);
+            appended = false;
+            if (!(*it).empty())
+            {
+               range = (*it)[col];
+               if (range.first != range.second)
+               {
+                  result.append(range.first,range.second);
+                  appended = true;
+               }
+            }
+            ++it;
+         }
+         return true;
       }
 
    private:
@@ -5024,18 +5165,37 @@ namespace strtk
    class hex_to_number_sink
    {
       // static_assert for T either int or unsigned int and alike (could use a concept)
+      class hex_value_check
+      {
+      public:
+         inline bool operator()(const unsigned char c) const
+         {
+            return (('0' <= c) && (c <= '9')) ||
+                   (('A' <= c) && (c <= 'F')) ||
+                   (('a' <= c) && (c <= 'f'));
+         }
+
+         inline bool operator()(const char c) const
+         {
+            return (*this)(static_cast<unsigned char>(c));
+         }
+      };
+
    public:
 
       hex_to_number_sink(T& t)
-      : t_(&t)
+      : valid_(false),
+        t_(&t)
       {}
 
       hex_to_number_sink(const hex_to_number_sink& hns)
-      :t_(hns.t_)
+      : valid_(hns.valid),
+        t_(hns.t_)
       {}
 
       inline hex_to_number_sink& operator=(const hex_to_number_sink& hns)
       {
+         valid_ = hns.valid_;
          t_ = hns.t_;
          return *this;
       }
@@ -5050,13 +5210,23 @@ namespace strtk
          const std::size_t buffer_size = 2 * sizeof(T);
          const std::size_t buffer_offset = ((s.size() - offset) % 2);
          char buffer[buffer_size] = { '0' };
+         if (!range_only_contains(hex_value_check(),s.c_str() + offset,s.c_str() + s.size()))
+         {
+            valid_ = false;
+            return *this;
+         }
          std::copy(s.c_str() + offset, s.c_str() + s.size(), buffer + buffer_offset);
          *t_ = 0;
-         strtk::convert_hex_to_bin(buffer,
-                                   buffer + (s.size() - offset) + buffer_offset,
-                                   reinterpret_cast<char*>(t_));
+         valid_= strtk::convert_hex_to_bin(buffer,
+                                           buffer + (s.size() - offset) + buffer_offset,
+                                           reinterpret_cast<char*>(t_));
          reverse_bytes();
          return *this;
+      }
+
+      bool valid() const
+      {
+         return valid_;
       }
 
    private:
@@ -5075,6 +5245,88 @@ namespace strtk
       }
 
    private:
+      bool valid_;
+      T* t_;
+   };
+
+   template<typename T>
+   class base64_to_number_sink
+   {
+      // static_assert for T either int or unsigned int and alike (could use a concept)
+   private:
+      class base64_value_check
+      {
+      public:
+         inline bool operator()(const unsigned char c) const
+         {
+            return (('0' <= c) && (c <= '9')) ||
+                   (('A' <= c) && (c <= 'Z')) ||
+                   (('a' <= c) && (c <= 'z')) ||
+                    ('+' == c) ||
+                    ('/' == c) ||
+                    ('=' == c);
+         }
+
+         inline bool operator()(const char c) const
+         {
+            return (*this)(static_cast<unsigned char>(c));
+         }
+      };
+
+   public:
+
+      base64_to_number_sink(T& t)
+      : valid_(false),
+        t_(&t)
+      {}
+
+      base64_to_number_sink(const base64_to_number_sink& bns)
+      : valid_(bns.valid),
+        t_(bns.t_)
+      {}
+
+      inline base64_to_number_sink& operator=(const base64_to_number_sink& bns)
+      {
+         valid_ = bns.valid_;
+         t_ = bns.t_;
+         return *this;
+      }
+
+      inline base64_to_number_sink& operator=(const std::string& s)
+      {
+         if (!range_only_contains(base64_value_check(),s.c_str(),s.c_str() + s.size()))
+         {
+            valid_ = false;
+            return *this;
+         }
+         *t_ = T(0);
+         strtk::convert_base64_to_bin(s.c_str(), s.c_str() + s.size(),reinterpret_cast<char*>(t_));
+         reverse_bytes();
+         return *this;
+      }
+
+      bool valid() const
+      {
+         return valid_;
+      }
+
+   private:
+
+      inline void reverse_bytes()
+      {
+         unsigned char* it1 = reinterpret_cast<unsigned char*>(t_);
+         unsigned char* it2 = it1 + (sizeof(T) - 1);
+         while(it1 < it2)
+         {
+            char tmp = *it1;
+                *it1 = *it2;
+                *it2 = tmp;
+            ++it1; --it2;
+         }
+      }
+
+   private:
+      bool valid_;
       T* t_;
    };
 
@@ -5435,19 +5687,24 @@ namespace strtk
    INSTANTIATE_TYPE_TO_STRING(unsigned int)
    INSTANTIATE_TYPE_TO_STRING(unsigned long)
 
-   #define INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(T)\
+   #define INSTANTIATE_STRING_TO_TYPE_HEX_AND_BASE64_TO_NUMBER_SINK(T)\
    template<> bool string_to_type_converter(const std::string& s, hex_to_number_sink<T>& out)\
    {\
       out = s;\
-      return true;\
+      return out.valid();\
+   }\
+   template<> bool string_to_type_converter(const std::string& s, base64_to_number_sink<T>& out)\
+   {\
+      out = s;\
+      return out.valid();\
    }
 
-   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(short)
-   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(int)
-   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(long)
-   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned short)
-   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned int)
-   INSTANTIATE_STRING_TO_TYPE_HEX_TO_NUMBER_SINK(unsigned long)
+   INSTANTIATE_STRING_TO_TYPE_HEX_AND_BASE64_TO_NUMBER_SINK(short)
+   INSTANTIATE_STRING_TO_TYPE_HEX_AND_BASE64_TO_NUMBER_SINK(int)
+   INSTANTIATE_STRING_TO_TYPE_HEX_AND_BASE64_TO_NUMBER_SINK(long)
+   INSTANTIATE_STRING_TO_TYPE_HEX_AND_BASE64_TO_NUMBER_SINK(unsigned short)
+   INSTANTIATE_STRING_TO_TYPE_HEX_AND_BASE64_TO_NUMBER_SINK(unsigned int)
+   INSTANTIATE_STRING_TO_TYPE_HEX_AND_BASE64_TO_NUMBER_SINK(unsigned long)
 
    #define INSTANTIATE_PARSE_SEQUENCE_TYPE(Type)\
    INSTANTIATE_PARSE(std::vector<Type>::iterator)\
