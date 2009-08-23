@@ -3682,6 +3682,28 @@ namespace strtk
          return true;
       }
 
+      template<typename T, typename Predicate>
+      inline bool accumulate_column(const std::size_t& col, Predicate p, T& result) const
+      {
+         if (col > max_column_count_)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin();
+         itr_list_list_type new_token_list;
+         T current_value = T();
+         while (token_list_.end() != it)
+         {
+            if (!(*it).empty() && p(row_type(*it)))
+            {
+               if (string_to_type_converter<T> ((*it)[col].first, (*it)[col].second, current_value))
+                  result += current_value;
+               else
+                  return false;
+            }
+            ++it;
+         }
+         return true;
+      }
+
       inline bool join_row(const std::size_t& row, const std::string& delimiter, std::string& result)
       {
          if (row >= token_list_.size())
@@ -3722,6 +3744,34 @@ namespace strtk
                result.append(delimiter);
             appended = false;
             if (!(*it).empty())
+            {
+               range = (*it)[col];
+               if (range.first != range.second)
+               {
+                  result.append(range.first,range.second);
+                  appended = true;
+               }
+            }
+            ++it;
+         }
+         return true;
+      }
+
+      template<typename Predicate>
+      inline bool join_column(const std::size_t& col, Predicate p, const std::string& delimiter, std::string& result)
+      {
+         if (col > max_column_count_)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin();
+         itr_list_list_type new_token_list;
+         range_type range;
+         bool appended = false;
+         while (token_list_.end() != it)
+         {
+            if (!delimiter.empty() && appended)
+               result.append(delimiter);
+            appended = false;
+            if (!(*it).empty() && p(row_type(*it)))
             {
                range = (*it)[col];
                if (range.first != range.second)
