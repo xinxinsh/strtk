@@ -386,9 +386,9 @@ void offset_splitter_example01()
 
 void offset_splitter_example02()
 {
-   std::string s = "09:10:11.123";
-   const int offset_list[] = {2,1,2,1,2,1,3};
-   const strtk::offset_predicate<7> os_p(offset_list);
+   std::string s = "091011123";
+   const int offset_list[] = {2,2,2,3};
+   const strtk::offset_predicate<4> os_p(offset_list);
    strtk::std_string::token_list_type token_list;
    strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
