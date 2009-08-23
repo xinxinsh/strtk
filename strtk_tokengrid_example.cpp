@@ -305,7 +305,7 @@ void token_grid_test08()
       double sum = 0.0;
       if (grid.accumulate_row(r,sum))
          std::cout << "sum(row["<< r <<"]) = " << sum << std::endl;
-            else
+      else
          std::cout << "failed row["<< r <<"]" << std::endl;
    }
 
@@ -314,7 +314,7 @@ void token_grid_test08()
       double sum = 0.0;
       if (grid.accumulate_column(c,sum))
          std::cout << "sum(col["<< c <<"]) = " << sum << std::endl;
-            else
+      else
          std::cout << "failed col["<< c <<"]" << std::endl;
    }
 }
@@ -337,7 +337,7 @@ void token_grid_test09()
       std::string row = "";
       if (grid.join_row(r,"|",row))
          std::cout << "row["<< r <<"] = " << row << std::endl;
-            else
+      else
          std::cout << "failed row["<< r <<"]" << std::endl;
    }
 
@@ -346,11 +346,56 @@ void token_grid_test09()
       std::string col = "";
       if (grid.join_column(c,"|",col))
          std::cout << "col["<< c <<"] = " << col << std::endl;
-            else
+      else
          std::cout << "failed col["<< c <<"]" << std::endl;
    }
 }
 
+class symbol_predicate
+{
+public:
+   symbol_predicate(const std::string& symbol)
+   : symbol_(symbol)
+   {}
+   bool operator()(const strtk::token_grid::row_type& row)
+   {
+      return symbol_ == row.get<std::string>(1);
+   }
+
+private:
+   std::string symbol_;
+};
+
+void token_grid_test10()
+{
+   std::string market_data;
+                 //Date,Symbol,Open,Close,High,Low,Volume
+   market_data += "20090701,GOOG,424.2000,418.9900,426.4000,418.1500,2310768\n"
+                  "20090701,MSFT,24.0500,24.0400,24.3000,23.9600,54915127\n"
+                  "20090702,GOOG,415.4100,408.4900,415.4100,406.8100,2517630\n"
+                  "20090702,MSFT,23.7600,23.3700,24.0400,23.2100,65427699\n"
+                  "20090703,GOOG,408.4900,408.4900,408.4900,408.4900,0\n"
+                  "20090703,MSFT,23.3700,23.3700,23.3700,23.3700,0\n"
+                  "20090706,GOOG,406.5000,409.6100,410.6400,401.6600,2262557\n"
+                  "20090706,MSFT,23.2100,23.2000,23.2800,22.8700,49207638\n"
+                  "20090707,GOOG,408.2400,396.6300,409.1900,395.9801,3260307\n"
+                  "20090707,MSFT,23.0800,22.5300,23.1400,22.4600,52842412\n"
+                  "20090708,GOOG,400.0000,402.4900,406.0000,398.0600,3441854\n"
+                  "20090708,MSFT,22.3100,22.5600,22.6900,2200000,73023306\n"
+                  "20090709,GOOG,406.1200,410.3900,414.4500,405.8000,3275816\n"
+                  "20090709,MSFT,22.6500,22.4400,22.8100,22.3700,46981174\n"
+                  "20090710,GOOG,409.5700,414.4000,417.3700,408.7000,2929559\n"
+                  "20090710,MSFT,22.1900,22.3900,22.5400,22.1500,43238698\n";
+
+   strtk::token_grid grid(market_data,market_data.size(),",");
+   std::size_t total_volume = 0;  //should be long long.
+
+   grid.accumulate_column(6,symbol_predicate("GOOG"),total_volume);
+   std::cout << "Total Volume (GOOG): " << total_volume << std::endl;
+
+   grid.accumulate_column(6,symbol_predicate("MSFT"),total_volume);
+   std::cout << "Total Volume (MSFT): " << total_volume << std::endl;
+}
 
 int main()
 {
@@ -363,5 +408,6 @@ int main()
    token_grid_test07();
    token_grid_test08();
    token_grid_test09();
+   token_grid_test10();
    return 0;
 }
