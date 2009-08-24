@@ -124,7 +124,7 @@ namespace strtk
       std::size_t line_count = 0;
       while(std::getline(stream,buffer))
       {
-         if(!function(buffer))
+         if (!function(buffer))
          {
             return line_count;
          }
@@ -141,7 +141,7 @@ namespace strtk
       std::size_t line_count = 0;
       while(std::getline(stream,buffer))
       {
-         if(!function(buffer))
+         if (!function(buffer))
          {
             return line_count;
          }
@@ -1109,7 +1109,7 @@ namespace strtk
 
             while (end_ != it_)
             {
-               if(predicate_(*it_))
+               if (predicate_(*it_))
                {
                   curr_tok_begin_ = prev_;
                   curr_tok_end_ = it_;
@@ -1595,7 +1595,7 @@ namespace strtk
       // range.second -> it
       while(end != range.second)
       {
-        if(delimiter(*range.second))
+        if (delimiter(*range.second))
         {
            if (split_option & split_options::include_delimiters)
            {
@@ -1680,7 +1680,7 @@ namespace strtk
       // range.second -> it
       while(end != range.second)
       {
-        if(delimiter(*range.second))
+        if (delimiter(*range.second))
         {
            if (split_option & split_options::include_delimiters)
            {
@@ -2136,7 +2136,7 @@ namespace strtk
       InputIterator prev = begin;
       while(end != it)
       {
-        if(delimiter(*it))
+        if (delimiter(*it))
         {
            ++token_count;
            if (!compress_delimiters)
@@ -2607,7 +2607,7 @@ namespace strtk
                                          const unsigned char* begin2, const unsigned char* end2,
                                          unsigned char* out)
    {
-      if(std::distance(begin1,end1) != std::distance(begin2,end2))
+      if (std::distance(begin1,end1) != std::distance(begin2,end2))
       {
          return false;
       }
@@ -3082,16 +3082,16 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8, T9& t9, T10& t10) const
          {
-            if(!process((*token_list_)[ col1], t1)) return false;
-            if(!process((*token_list_)[ col2], t2)) return false;
-            if(!process((*token_list_)[ col3], t3)) return false;
-            if(!process((*token_list_)[ col4], t4)) return false;
-            if(!process((*token_list_)[ col5], t5)) return false;
-            if(!process((*token_list_)[ col6], t6)) return false;
-            if(!process((*token_list_)[ col7], t7)) return false;
-            if(!process((*token_list_)[ col8], t8)) return false;
-            if(!process((*token_list_)[ col9], t9)) return false;
-            if(!process((*token_list_)[col10],t10)) return false;
+            if (!process((*token_list_)[ col1], t1)) return false;
+            if (!process((*token_list_)[ col2], t2)) return false;
+            if (!process((*token_list_)[ col3], t3)) return false;
+            if (!process((*token_list_)[ col4], t4)) return false;
+            if (!process((*token_list_)[ col5], t5)) return false;
+            if (!process((*token_list_)[ col6], t6)) return false;
+            if (!process((*token_list_)[ col7], t7)) return false;
+            if (!process((*token_list_)[ col8], t8)) return false;
+            if (!process((*token_list_)[ col9], t9)) return false;
+            if (!process((*token_list_)[col10],t10)) return false;
             return true;
          }
 
@@ -3108,15 +3108,15 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8, T9& t9) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
-            if(!process((*token_list_)[col3],t3)) return false;
-            if(!process((*token_list_)[col4],t4)) return false;
-            if(!process((*token_list_)[col5],t5)) return false;
-            if(!process((*token_list_)[col6],t6)) return false;
-            if(!process((*token_list_)[col7],t7)) return false;
-            if(!process((*token_list_)[col8],t8)) return false;
-            if(!process((*token_list_)[col9],t9)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col3],t3)) return false;
+            if (!process((*token_list_)[col4],t4)) return false;
+            if (!process((*token_list_)[col5],t5)) return false;
+            if (!process((*token_list_)[col6],t6)) return false;
+            if (!process((*token_list_)[col7],t7)) return false;
+            if (!process((*token_list_)[col8],t8)) return false;
+            if (!process((*token_list_)[col9],t9)) return false;
             return true;
          }
 
@@ -3131,14 +3131,14 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7, T8& t8) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
-            if(!process((*token_list_)[col3],t3)) return false;
-            if(!process((*token_list_)[col4],t4)) return false;
-            if(!process((*token_list_)[col5],t5)) return false;
-            if(!process((*token_list_)[col6],t6)) return false;
-            if(!process((*token_list_)[col7],t7)) return false;
-            if(!process((*token_list_)[col8],t8)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col3],t3)) return false;
+            if (!process((*token_list_)[col4],t4)) return false;
+            if (!process((*token_list_)[col5],t5)) return false;
+            if (!process((*token_list_)[col6],t6)) return false;
+            if (!process((*token_list_)[col7],t7)) return false;
+            if (!process((*token_list_)[col8],t8)) return false;
             return true;
          }
 
@@ -3152,13 +3152,13 @@ namespace strtk
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
                                       T7& t7) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
-            if(!process((*token_list_)[col3],t3)) return false;
-            if(!process((*token_list_)[col4],t4)) return false;
-            if(!process((*token_list_)[col5],t5)) return false;
-            if(!process((*token_list_)[col6],t6)) return false;
-            if(!process((*token_list_)[col7],t7)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col3],t3)) return false;
+            if (!process((*token_list_)[col4],t4)) return false;
+            if (!process((*token_list_)[col5],t5)) return false;
+            if (!process((*token_list_)[col6],t6)) return false;
+            if (!process((*token_list_)[col7],t7)) return false;
             return true;
          }
 
@@ -3170,12 +3170,12 @@ namespace strtk
                                       const std::size_t& col5, const std::size_t& col6,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
-            if(!process((*token_list_)[col3],t3)) return false;
-            if(!process((*token_list_)[col4],t4)) return false;
-            if(!process((*token_list_)[col5],t5)) return false;
-            if(!process((*token_list_)[col6],t6)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col3],t3)) return false;
+            if (!process((*token_list_)[col4],t4)) return false;
+            if (!process((*token_list_)[col5],t5)) return false;
+            if (!process((*token_list_)[col6],t6)) return false;
             return true;
          }
 
@@ -3186,11 +3186,11 @@ namespace strtk
                                       const std::size_t& col5,
                                       T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
-            if(!process((*token_list_)[col3],t3)) return false;
-            if(!process((*token_list_)[col4],t4)) return false;
-            if(!process((*token_list_)[col5],t5)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col3],t3)) return false;
+            if (!process((*token_list_)[col4],t4)) return false;
+            if (!process((*token_list_)[col5],t5)) return false;
             return true;
          }
 
@@ -3200,10 +3200,10 @@ namespace strtk
                                       const std::size_t& col3, const std::size_t& col4,
                                       T1& t1, T2& t2, T3& t3, T4& t4) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
-            if(!process((*token_list_)[col3],t3)) return false;
-            if(!process((*token_list_)[col4],t4)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col3],t3)) return false;
+            if (!process((*token_list_)[col4],t4)) return false;
             return true;
          }
 
@@ -3212,9 +3212,9 @@ namespace strtk
                                       const std::size_t& col3,
                                       T1& t1, T2& t2, T3& t3) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
-            if(!process((*token_list_)[col3],t3)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col3],t3)) return false;
             return true;
          }
 
@@ -3222,8 +3222,8 @@ namespace strtk
          inline bool parse_with_index(const std::size_t& col1, const std::size_t& col2,
                                       T1& t1, T2& t2) const
          {
-            if(!process((*token_list_)[col1],t1)) return false;
-            if(!process((*token_list_)[col2],t2)) return false;
+            if (!process((*token_list_)[col1],t1)) return false;
+            if (!process((*token_list_)[col2],t2)) return false;
             return true;
          }
 
@@ -3242,16 +3242,16 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9, T10& t10) const
          {
-            if(!process((*token_list_)[0], t1)) return false;
-            if(!process((*token_list_)[1], t2)) return false;
-            if(!process((*token_list_)[2], t3)) return false;
-            if(!process((*token_list_)[3], t4)) return false;
-            if(!process((*token_list_)[4], t5)) return false;
-            if(!process((*token_list_)[5], t6)) return false;
-            if(!process((*token_list_)[6], t7)) return false;
-            if(!process((*token_list_)[7], t8)) return false;
-            if(!process((*token_list_)[8], t9)) return false;
-            if(!process((*token_list_)[9],t10)) return false;
+            if (!process((*token_list_)[0], t1)) return false;
+            if (!process((*token_list_)[1], t2)) return false;
+            if (!process((*token_list_)[2], t3)) return false;
+            if (!process((*token_list_)[3], t4)) return false;
+            if (!process((*token_list_)[4], t5)) return false;
+            if (!process((*token_list_)[5], t6)) return false;
+            if (!process((*token_list_)[6], t7)) return false;
+            if (!process((*token_list_)[7], t8)) return false;
+            if (!process((*token_list_)[8], t9)) return false;
+            if (!process((*token_list_)[9],t10)) return false;
             return true;
          }
 
@@ -3264,15 +3264,15 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
-            if(!process((*token_list_)[2],t3)) return false;
-            if(!process((*token_list_)[3],t4)) return false;
-            if(!process((*token_list_)[4],t5)) return false;
-            if(!process((*token_list_)[5],t6)) return false;
-            if(!process((*token_list_)[6],t7)) return false;
-            if(!process((*token_list_)[7],t8)) return false;
-            if(!process((*token_list_)[8],t9)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[2],t3)) return false;
+            if (!process((*token_list_)[3],t4)) return false;
+            if (!process((*token_list_)[4],t5)) return false;
+            if (!process((*token_list_)[5],t6)) return false;
+            if (!process((*token_list_)[6],t7)) return false;
+            if (!process((*token_list_)[7],t8)) return false;
+            if (!process((*token_list_)[8],t9)) return false;
             return true;
          }
 
@@ -3283,14 +3283,14 @@ namespace strtk
          inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
-            if(!process((*token_list_)[2],t3)) return false;
-            if(!process((*token_list_)[3],t4)) return false;
-            if(!process((*token_list_)[4],t5)) return false;
-            if(!process((*token_list_)[5],t6)) return false;
-            if(!process((*token_list_)[6],t7)) return false;
-            if(!process((*token_list_)[7],t8)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[2],t3)) return false;
+            if (!process((*token_list_)[3],t4)) return false;
+            if (!process((*token_list_)[4],t5)) return false;
+            if (!process((*token_list_)[5],t6)) return false;
+            if (!process((*token_list_)[6],t7)) return false;
+            if (!process((*token_list_)[7],t8)) return false;
             return true;
          }
 
@@ -3300,13 +3300,13 @@ namespace strtk
          inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
-            if(!process((*token_list_)[2],t3)) return false;
-            if(!process((*token_list_)[3],t4)) return false;
-            if(!process((*token_list_)[4],t5)) return false;
-            if(!process((*token_list_)[5],t6)) return false;
-            if(!process((*token_list_)[6],t7)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[2],t3)) return false;
+            if (!process((*token_list_)[3],t4)) return false;
+            if (!process((*token_list_)[4],t5)) return false;
+            if (!process((*token_list_)[5],t6)) return false;
+            if (!process((*token_list_)[6],t7)) return false;
             return true;
          }
 
@@ -3316,12 +3316,12 @@ namespace strtk
          inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
-            if(!process((*token_list_)[2],t3)) return false;
-            if(!process((*token_list_)[3],t4)) return false;
-            if(!process((*token_list_)[4],t5)) return false;
-            if(!process((*token_list_)[5],t6)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[2],t3)) return false;
+            if (!process((*token_list_)[3],t4)) return false;
+            if (!process((*token_list_)[4],t5)) return false;
+            if (!process((*token_list_)[5],t6)) return false;
             return true;
          }
 
@@ -3329,11 +3329,11 @@ namespace strtk
                   typename T3, typename T4,typename T5>
          inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4, T5& t5) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
-            if(!process((*token_list_)[2],t3)) return false;
-            if(!process((*token_list_)[3],t4)) return false;
-            if(!process((*token_list_)[4],t5)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[2],t3)) return false;
+            if (!process((*token_list_)[3],t4)) return false;
+            if (!process((*token_list_)[4],t5)) return false;
             return true;
          }
 
@@ -3341,27 +3341,27 @@ namespace strtk
                   typename T3, typename T4>
          inline bool parse(T1& t1, T2& t2, T3& t3, T4& t4) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
-            if(!process((*token_list_)[2],t3)) return false;
-            if(!process((*token_list_)[3],t4)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[2],t3)) return false;
+            if (!process((*token_list_)[3],t4)) return false;
             return true;
          }
 
          template<typename T1, typename T2, typename T3>
          inline bool parse(T1& t1, T2& t2, T3& t3) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
-            if(!process((*token_list_)[2],t3)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[2],t3)) return false;
             return true;
          }
 
          template<typename T1, typename T2>
          inline bool parse(T1& t1, T2& t2) const
          {
-            if(!process((*token_list_)[0],t1)) return false;
-            if(!process((*token_list_)[1],t2)) return false;
+            if (!process((*token_list_)[0],t1)) return false;
+            if (!process((*token_list_)[1],t2)) return false;
             return true;
          }
 
@@ -4044,7 +4044,7 @@ namespace strtk
    {
       while (end != it)
       {
-         if(predicate(*it))
+         if (predicate(*it))
             ++it;
          else
             break;
@@ -4142,18 +4142,18 @@ namespace strtk
             return false;
          iterator_type_ptr it = token_list;
 
-         if(!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t10)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t11)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t12)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t10)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t11)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t12)) return false;
          return true;
       }
 
@@ -4175,17 +4175,17 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t10)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t11)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t10)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t11)) return false;
          return true;
       }
 
@@ -4207,16 +4207,16 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t10)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t10)) return false;
          return true;
       }
 
@@ -4238,15 +4238,15 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t7)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t8)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t9)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t7)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t8)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t9)) return false;
          return true;
       }
 
@@ -4266,14 +4266,14 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t7)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t8)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t7)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t8)) return false;
          return true;
       }
 
@@ -4293,13 +4293,13 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t7)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t7)) return false;
          return true;
       }
 
@@ -4319,12 +4319,12 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t6)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t6)) return false;
          return true;
       }
 
@@ -4344,11 +4344,11 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t5)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t5)) return false;
          return true;
       }
 
@@ -4366,10 +4366,10 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t4)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t4)) return false;
          return true;
       }
 
@@ -4387,9 +4387,9 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t3)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t3)) return false;
          return true;
       }
 
@@ -4406,8 +4406,8 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-         if(!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-         if(!string_to_type_converter((*it).first,(*it).second,t2)) return false;
+         if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
+         if (!string_to_type_converter((*it).first,(*it).second,t2)) return false;
          return true;
       }
 
@@ -4987,7 +4987,7 @@ namespace strtk
          it += sizeof(unsigned int);
          length -= sizeof(unsigned int);
       }
-      if(length > 0)
+      if (length > 0)
       {
          it -= (sizeof(unsigned int) - length);
          x = reinterpret_cast<unsigned int*>(it);
@@ -5188,12 +5188,12 @@ namespace strtk
                 template <class,class> class Sequence>
       inline bool write_from_external_sequence(const Sequence<T,Allocator>& sequence)
       {
-         if(!write(sequence.size()))
+         if (!write(sequence.size()))
             return false;
          typename Sequence<T,Allocator>::iterator it = sequence.begin();
          while(sequence.end() != it)
          {
-            if(!(*it).write(*this))
+            if (!(*it).write(*this))
                return false;
          }
          return true;
