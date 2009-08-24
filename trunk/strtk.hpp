@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <cctype>
 #include <cstring>
+#include <cerrno>
 #include <iterator>
 #include <limits>
 #include <iostream>
@@ -222,7 +223,8 @@ namespace strtk
    INSTANTIATE_STRING_TO_TYPE_CONVERTER(std::string::const_iterator)
 
    #define INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR_DECL(T,ITER_TYPE)\
-   template<> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end);
+   template<> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end);\
+   inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, T& t);
 
    #define INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_DECL(T)\
    template<> inline T string_to_type_converter(const std::string& s);\
@@ -240,6 +242,8 @@ namespace strtk
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_DECL(unsigned short)
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_DECL(unsigned int)
    INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_DECL(unsigned long)
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_DECL(float)
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_DECL(double)
 
    template<typename T>
    inline std::string type_to_string(const T& t)
@@ -5764,7 +5768,7 @@ namespace strtk
    inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
    {\
       return details::string_to_byte_converter_impl(begin,end,v);\
-   }\
+   }
 
    #define INSTANTIATE_STRING_TO_BYTE_CONVERTER(T)\
    inline bool string_to_type_converter(const std::string& s, T& v)\
@@ -5794,9 +5798,52 @@ namespace strtk
    inline bool string_to_type_converter(const std::string& s, bool& v)\
    {\
       return details::string_to_bool_converter_impl(s.c_str(),s.c_str() + s.size(),v);\
+   }\
+   INSTANTIATE_STRING_TO_BOOL_CONVERTER(0)
+
+
+   #define INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_ITER(T,ITER_TYPE)\
+   inline bool string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+   {\
+      std::size_t length = std::distance(begin,end);\
+      static const std::size_t buffer_size = 129;\
+      if (length >= buffer_size) return false;\
+      char buffer[buffer_size];\
+      char* endptr = buffer + length;\
+      std::memcpy(buffer,begin,length);\
+      v = static_cast<T>(strtod(buffer,&endptr));\
+      return (errno != ERANGE);\
    }
 
-   INSTANTIATE_STRING_TO_BOOL_CONVERTER(0)
+   INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_ITER(float,char*)
+   INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_ITER(float,unsigned char*)
+   INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_ITER(double,char*)
+   INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_ITER(double,unsigned char*)
+
+   #define INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_RETURN_ITR(T,ITER_TYPE)\
+   template<> inline T string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end)\
+   {\
+      T result = static_cast<T>(0);\
+      if (string_to_type_converter(begin,end,result))\
+         return result;\
+      else\
+         throw;\
+   }
+
+   #define INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_RETURN(T)\
+   template<> inline T string_to_type_converter(const std::string& s)\
+   {\
+      T result = static_cast<T>(0);\
+      if (string_to_type_converter(s,result))\
+         return result;\
+      else\
+         throw;\
+   }\
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,char*)\
+   INSTANTIATE_STRING_TO_NUMBER_CONVERTER_RETURN_ITR(T,unsigned char*)\
+
+   INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_RETURN(float)
+   INSTANTIATE_STRING_TO_DECIMAL_NUMBER_CONVERTER_RETURN(double)
 
    #define INSTANTIATE_SIGNED_NUMBER_TO_STRING(T)\
    inline void number_to_string(T value, std::string& result)\
