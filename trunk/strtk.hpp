@@ -211,8 +211,9 @@ namespace strtk
    }
 
    #define INSTANTIATE_STRING_TO_TYPE_CONVERTER(ITER_TYPE)\
-   template<typename T> inline T string_to_type_converter(const ITER_TYPE begin,\
-                                                          const ITER_TYPE end)\
+   template<typename T>\
+   inline T string_to_type_converter(const ITER_TYPE begin,\
+                                     const ITER_TYPE end)\
    {\
       return string_to_type_converter<T>(std::string(begin,end));\
    }
@@ -1339,6 +1340,8 @@ namespace strtk
    {
    public:
 
+      typedef typename Sequence::value_type T;
+
       explicit range_to_type_back_inserter_iterator(Sequence& sequence)
       : sequence_(sequence)
       {}
@@ -1356,15 +1359,21 @@ namespace strtk
          return *this;
       }
 
-      inline range_to_type_back_inserter_iterator& operator=(const std_string::tokenizer<std::string::value_type>::iterator_type& r)
+      template<typename Iterator>
+      inline range_to_type_back_inserter_iterator& operator=(const std::pair<Iterator,Iterator>& r)
       {
-         sequence_.push_back(string_to_type_converter<typename Sequence::value_type>(std::string(r.first,r.second)));
+         T t;
+         if (string_to_type_converter(r.first,r.second,t))
+            sequence_.push_back(t);
          return (*this);
       }
 
-      inline void operator()(const std_string::tokenizer<std::string::value_type>::iterator_type& r)
+      template<typename Iterator>
+      inline void operator()(const std::pair<Iterator,Iterator>& r)
       {
-         sequence_.push_back(string_to_type_converter<typename Sequence::value_type>(std::string(r.first,r.second)));
+         T t;
+         if (string_to_type_converter(r.first,r.second,t))
+            sequence_.push_back(t);
       }
 
       inline range_to_type_back_inserter_iterator& operator*()
@@ -1589,7 +1598,7 @@ namespace strtk
                             const split_options::type split_option = split_options::default_mode)
    {
       if (0 == std::distance(begin,end)) return 0;
-      std::size_t match_count = 0;
+      std::size_t token_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
       // range.first  -> prev
       // range.second -> it
@@ -1612,7 +1621,7 @@ namespace strtk
               else
                  ++range.second;
            }
-           ++match_count;
+           ++token_count;
            range.first = range.second;
         }
         else
@@ -1621,9 +1630,9 @@ namespace strtk
       if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
          *(out++) = range;
-         ++match_count;
+         ++token_count;
       }
-      return match_count;
+      return token_count;
    }
 
    template<typename OutputIterator>
@@ -1641,7 +1650,16 @@ namespace strtk
                             OutputIterator out,
                             const split_options::type& split_option = split_options::default_mode)
    {
-      return split(multiple_char_delimiter_predicate(delimiters),str.begin(),str.end(),out,split_option);
+      if (1 == delimiters.size())
+         return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                      str.begin(), str.end(),
+                      out,
+                      split_option);
+      else
+         return split(multiple_char_delimiter_predicate(delimiters),
+                      str.begin(), str.end(),
+                      out,
+                      split_option);
    }
 
    template<typename OutputIterator>
@@ -1650,7 +1668,10 @@ namespace strtk
                             OutputIterator out,
                             const split_options::type& split_option = split_options::default_mode)
    {
-      return split(single_delimiter_predicate<std::string::value_type>(delimiter),str.begin(),str.end(),out,split_option);
+      return split(single_delimiter_predicate<std::string::value_type>(delimiter),
+                   str.begin(), str.end(),
+                   out,
+                   split_option);
    }
 
    template<typename DelimiterPredicate,
@@ -1660,7 +1681,10 @@ namespace strtk
                             OutputIterator out,
                             const split_options::type& split_option = split_options::default_mode)
    {
-      return split(delimiter,str.begin(),str.end(),out,split_option);
+      return split(delimiter,
+                   str.begin(), str.end(),
+                   out,
+                   split_option);
    }
 
    template<typename DelimiterPredicate,
@@ -1749,71 +1773,33 @@ namespace strtk
                         split_option);
    }
 
-   template<typename OutputIterator>
-   inline std::size_t split_n(const std::string& delimiters,
-                              const std::string::const_iterator& begin,
-                              const std::string::const_iterator& end,
-                              const std::size_t& token_count,
-                              OutputIterator out,
-                              const split_options::type& split_option = split_options::default_mode)
-   {
-      if (1 == delimiters.size())
-         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin,end,
-                        token_count,
-                        out,
-                        split_option);
-      else
-         return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin,end,
-                        token_count,
-                        out,
-                        split_option);
+   #define INSTANTIATE_SPLIT_N(ITER_TYPE)\
+   template<typename OutputIterator>\
+   inline std::size_t split_n(const std::string& delimiters,\
+                              const ITER_TYPE begin,\
+                              const ITER_TYPE end,\
+                              const std::size_t& token_count,\
+                              OutputIterator out,\
+                              const split_options::type& split_option = split_options::default_mode)\
+   {\
+      if (1 == delimiters.size())\
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),\
+                        begin,end,\
+                        token_count,\
+                        out,\
+                        split_option);\
+      else\
+         return split_n(multiple_char_delimiter_predicate(delimiters),\
+                        begin,end,\
+                        token_count,\
+                        out,\
+                        split_option);\
    }
 
-   template<typename OutputIterator>
-   inline std::size_t split_n(const std::string& delimiters,
-                              const char* begin,
-                              const char* end,
-                              const std::size_t& token_count,
-                              OutputIterator out,
-                              const split_options::type& split_option = split_options::default_mode)
-   {
-      if (1 == delimiters.size())
-         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin,end,
-                        token_count,
-                        out,
-                        split_option);
-      else
-         return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin,end,
-                        token_count,
-                        out,
-                        split_option);
-   }
-
-   template<typename OutputIterator>
-   inline std::size_t split_n(const std::string& delimiters,
-                              const unsigned char* begin,
-                              const unsigned char* end,
-                              const std::size_t& token_count,
-                              OutputIterator out,
-                              const split_options::type& split_option = split_options::default_mode)
-   {
-      if (1 == delimiters.size())
-         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin,end,
-                        token_count,
-                        out,
-                        split_option);
-      else
-         return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin,end,
-                        token_count,
-                        out,
-                        split_option);
-   }
+   INSTANTIATE_SPLIT_N(char*)
+   INSTANTIATE_SPLIT_N(unsigned char*)
+   INSTANTIATE_SPLIT_N(std::string::iterator&)
+   INSTANTIATE_SPLIT_N(std::string::const_iterator&)
 
    template<typename OutputIterator>
    inline std::size_t split_n(const std::string::value_type delimiter,
@@ -2128,27 +2114,35 @@ namespace strtk
    inline std::size_t count_tokens(const InputIterator begin,
                                    const InputIterator end,
                                    const DelimiterPredicate& delimiter,
-                                   const bool compress_delimiters = false)
+                                   const split_options::type& split_option = split_options::default_mode)
    {
       if (0 == std::distance(begin,end)) return 0;
       std::size_t token_count = 0;
-      InputIterator it = begin;
-      InputIterator prev = begin;
-      while(end != it)
+      std::pair<InputIterator,InputIterator> range(begin,begin);
+      while(end != range.second)
       {
-        if (delimiter(*it))
+        if (delimiter(*range.second))
         {
-           ++token_count;
-           if (!compress_delimiters)
-              ++it;
+           if (split_option & split_options::include_delimiters)
+           {
+              ++range.second;
+              if (split_option & split_options::compress_delimiters)
+                 while((end != (++range.second)) && delimiter(*range.second));
+           }
            else
-              while(((++it) != end) && delimiter(*it));
-           prev = it;
+           {
+              if (split_option & split_options::compress_delimiters)
+                 while((end != (++range.second)) && delimiter(*range.second));
+              else
+                 ++range.second;
+           }
+           ++token_count;
+           range.first = range.second;
         }
         else
-           ++it;
+           ++range.second;
       }
-      if (prev != it)
+      if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
          ++token_count;
       }
@@ -4549,6 +4543,26 @@ namespace strtk
                      T& t)\
    {\
       return details::parse_impl(begin,end,delimiters,t);\
+   }\
+   template <typename T,\
+             class Allocator,\
+             template <class,class> class Sequence>\
+   inline std::size_t parse_into_sequence(const iterator_type begin,\
+                                          const iterator_type end,\
+                                          const std::string& delimiters,\
+                                          Sequence<T,Allocator>& sequence,\
+                                          const split_options::type& split_option = split_options::compress_delimiters)\
+   {\
+      if (1 == delimiters.size())\
+         return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),\
+                      begin, end,\
+                      range_to_type_back_inserter(sequence),\
+                      split_option);\
+      else\
+         return split(strtk::multiple_char_delimiter_predicate(delimiters),\
+                      begin, end,\
+                      range_to_type_back_inserter(sequence),\
+                      split_option);\
    }
 
    INSTANTIATE_PARSE(char*)
@@ -4679,33 +4693,13 @@ namespace strtk
    template <typename T,
              class Allocator,
              template <class,class> class Sequence>
-   inline std::size_t parse_into_sequence(const std::string::const_iterator& begin,
-                                          const std::string::const_iterator& end,
-                                          const std::string& delimiters,
-                                          Sequence<T,Allocator>& sequence)
-   {
-      if ((0 == std::distance(begin,end)) || delimiters.empty()) return 0;
-      std_string::token_list_type token_list;
-      std::size_t token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                      begin,end,
-                                      std::back_inserter(token_list));
-      std_string::token_list_type::iterator it = token_list.begin();
-      while(token_list.end() != it)
-      {
-         sequence.push_back(string_to_type_converter<T>(std::string((*it).first,(*it).second)));
-         ++it;
-      }
-      return token_count;
-   }
-
-   template <typename T,
-             class Allocator,
-             template <class,class> class Sequence>
    inline std::size_t parse_into_sequence(const std::string& data,
                                           const std::string& delimiters,
                                           Sequence<T,Allocator>& sequence)
    {
-      return parse_into_sequence(data.begin(),data.end(),delimiters,sequence);
+      return parse_into_sequence(data.c_str(), data.c_str() + data.size(),
+                                 delimiters,
+                                 sequence);
    }
 
    template<typename T1, typename T2, typename  T3, typename  T4,
@@ -5016,11 +5010,11 @@ namespace strtk
          if (*--i1 < *i2)
          {
             Iterator j = k;
-            while(!(*i1 < *j)) j++;
+            while(!(*i1 < *j)) ++j;
             std::iter_swap(i1,j);
-            i1++;
-            j++;
-            i2=k;
+            ++i1;
+            ++j;
+            i2 = k;
             std::rotate(i1,j,last);
             while(last != j)
             {
@@ -5208,7 +5202,7 @@ namespace strtk
       template<typename T>
       inline bool write_pod(const T& data)
       {
-         const std::size_t data_length = sizeof(T);
+         static const std::size_t data_length = sizeof(T);
          if ((data_length + to_be_written_buffer_size_) > buffer_length_)
          {
             return false;
@@ -5223,7 +5217,7 @@ namespace strtk
       template<typename T>
       inline bool read_pod(T& data)
       {
-         const std::size_t data_length = sizeof(T);
+         static const std::size_t data_length = sizeof(T);
          if ((data_length + read_buffer_size_) > buffer_length_)
          {
             return false;
@@ -5625,7 +5619,8 @@ namespace strtk
       }
 
       #define INSTANTIATE_STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(ITER_TYPE)\
-      template<typename T> inline bool string_to_signed_type_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+      template<typename T>\
+      inline bool string_to_signed_type_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
       {\
          return string_to_signed_type_converter_impl_itr(begin,end,v);\
       }
@@ -5636,7 +5631,8 @@ namespace strtk
       INSTANTIATE_STRING_TO_SIGNED_TYPE_CONVERTER_IMPL(std::string::const_iterator)
 
       #define INSTANTIATE_STRING_TO_UNSIGNED_TYPE_CONVERTER_IMPL(ITER_TYPE)\
-      template<typename T> inline bool string_to_unsigned_type_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+      template<typename T>\
+      inline bool string_to_unsigned_type_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
       {\
          return string_to_unsigned_type_converter_impl_itr(begin,end,v);\
       }
@@ -5656,7 +5652,8 @@ namespace strtk
       }
 
       #define INSTANTIATE_STRING_TO_BYTE_CONVERTER_IMPL(ITER_TYPE)\
-      template<typename T> inline bool string_to_byte_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
+      template<typename T>\
+      inline bool string_to_byte_converter_impl(const ITER_TYPE begin, const ITER_TYPE end, T& v)\
       {\
          return string_to_byte_converter_impl_itr(begin,end,v);\
       }
