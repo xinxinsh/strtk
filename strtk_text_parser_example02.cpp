@@ -53,7 +53,10 @@ public:
      tokenizer_(tmp_,p_,true),
      filter_(reinterpret_cast<const std::string*>(not_of_interest_list),
              reinterpret_cast<const std::string*>(not_of_interest_list + list_size),
-             strtk::range_to_type_back_inserter_iterator<Container>(c_),true,false){}
+             strtk::range_to_type_back_inserter(c_),
+             true,
+             false)
+   {}
 
    parse_line(const parse_line& pl)
    : c_(pl.c_),
