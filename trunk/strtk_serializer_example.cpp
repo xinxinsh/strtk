@@ -232,6 +232,36 @@ bool test03(char* buffer, const unsigned int buffer_size)
    return true;
 }
 
+
+bool test04(char* buffer, const unsigned int buffer_size)
+{
+   strtk::serializer s(buffer,buffer_size);
+   s.clear();
+
+   std::deque<unsigned int> lst;
+   const unsigned int max_count = 100;
+   for(unsigned int i = 0; i < max_count; lst.push_back(i++));
+
+   s.write_from_external_sequence(lst);
+
+   lst.clear();
+   s.reset();
+
+   s.read_into_external_sequence(lst);
+
+   for(unsigned int i = 0; i < max_count; ++i)
+   {
+      if (lst[i] != i)
+      {
+         std::cout << "failure at index: " << i << std::endl;
+         return false;
+      }
+   }
+   return true;
+}
+
+
+
 int main()
 {
    static const std::size_t max_buffer_size = 64 * strtk::one_kilobyte; // 64KB

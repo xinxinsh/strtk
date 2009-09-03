@@ -5075,16 +5075,18 @@ namespace strtk
       template<typename T> inline bool operator >> (T& output) { return read (output); }
       template<typename T> inline bool operator << (T& output) { return write(output); }
 
-      inline bool read(char& output)           { return read_pod(output); }
-      inline bool read(short& output)          { return read_pod(output); }
-      inline bool read(unsigned short& output) { return read_pod(output); }
-      inline bool read(int& output)            { return read_pod(output); }
-      inline bool read(unsigned int& output)   { return read_pod(output); }
-      inline bool read(long& output)           { return read_pod(output); }
-      inline bool read(unsigned long& output)  { return read_pod(output); }
-      inline bool read(float& output)          { return read_pod(output); }
-      inline bool read(double& output)         { return read_pod(output); }
-      inline bool read(bool& output)           { return read_pod(output); }
+      template<typename T>
+      inline bool read(T&              output) { return output.read(*this); }
+      inline bool read(char&           output) { return read_pod(output);   }
+      inline bool read(short&          output) { return read_pod(output);   }
+      inline bool read(unsigned short& output) { return read_pod(output);   }
+      inline bool read(int&            output) { return read_pod(output);   }
+      inline bool read(unsigned int&   output) { return read_pod(output);   }
+      inline bool read(long&           output) { return read_pod(output);   }
+      inline bool read(unsigned long&  output) { return read_pod(output);   }
+      inline bool read(float&          output) { return read_pod(output);   }
+      inline bool read(double&         output) { return read_pod(output);   }
+      inline bool read(bool&           output) { return read_pod(output);   }
 
       inline bool read(std::string& output)
       {
@@ -5105,16 +5107,18 @@ namespace strtk
          return true;
       }
 
-      inline bool write(const char&           input) { return write_pod(input); }
-      inline bool write(const short&          input) { return write_pod(input); }
-      inline bool write(const unsigned short& input) { return write_pod(input); }
-      inline bool write(const int&            input) { return write_pod(input); }
-      inline bool write(const unsigned int&   input) { return write_pod(input); }
-      inline bool write(const long&           input) { return write_pod(input); }
-      inline bool write(const unsigned long&  input) { return write_pod(input); }
-      inline bool write(const float&          input) { return write_pod(input); }
-      inline bool write(const double&         input) { return write_pod(input); }
-      inline bool write(const bool&           input) { return write_pod(input); }
+      template<typename T>
+      inline bool write(const T&              input) { return input.write(*this); }
+      inline bool write(const char&           input) { return write_pod(input);   }
+      inline bool write(const short&          input) { return write_pod(input);   }
+      inline bool write(const unsigned short& input) { return write_pod(input);   }
+      inline bool write(const int&            input) { return write_pod(input);   }
+      inline bool write(const unsigned int&   input) { return write_pod(input);   }
+      inline bool write(const long&           input) { return write_pod(input);   }
+      inline bool write(const unsigned long&  input) { return write_pod(input);   }
+      inline bool write(const float&          input) { return write_pod(input);   }
+      inline bool write(const double&         input) { return write_pod(input);   }
+      inline bool write(const bool&           input) { return write_pod(input);   }
 
       inline bool write(const std::string& input)
       {
@@ -5170,7 +5174,7 @@ namespace strtk
          T t;
          for(std::size_t i = 0; i < list_size; ++i)
          {
-            if (!t.read(*this))
+            if (!read(t))
                return false;
             sequence.push_back(t);
          }
@@ -5182,12 +5186,12 @@ namespace strtk
                 template <class,class> class Sequence>
       inline bool write_from_external_sequence(const Sequence<T,Allocator>& sequence)
       {
-         if (!write(sequence.size()))
+         if (!write(static_cast<unsigned int>(sequence.size())))
             return false;
-         typename Sequence<T,Allocator>::iterator it = sequence.begin();
+         typename Sequence<T,Allocator>::const_iterator it = sequence.begin();
          while(sequence.end() != it)
          {
-            if (!(*it).write(*this))
+            if (!write(*it))
                return false;
          }
          return true;
