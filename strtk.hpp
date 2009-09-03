@@ -5191,7 +5191,7 @@ namespace strtk
          typename Sequence<T,Allocator>::const_iterator it = sequence.begin();
          while(sequence.end() != it)
          {
-            if (!write(*it))
+            if (!write(*it++))
                return false;
          }
          return true;
