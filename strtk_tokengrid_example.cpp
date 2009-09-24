@@ -18,14 +18,13 @@
 
 /*
    Description: This example aims to demonstrate the usage patterns
-                and functionality of the Token Grid class.
-                The example test cases construct a string that
-                represents a token grid - It should be noted the
-                class can just as easily use a text file as input.
-                The examples range from determining sums and averages
-                of rows and columns of numeric values, iterating down
-                columns, outputting rows/columns in specific orderings
-                etc.
+                and functionality of the Token Grid class. The example
+                test cases construct a string that represents a token
+                grid - It should be noted the class can just as easily
+                use a text file as input. The examples range from
+                determining sums and averages of rows and columns of
+                numeric values, iterating down columns, outputting
+                rows/columns in specific orderings etc.
 */
 
 
@@ -351,7 +350,7 @@ void token_grid_test09()
    }
 }
 
-class symbol_predicate
+struct symbol_predicate
 {
 public:
    symbol_predicate(const std::string& symbol)
@@ -361,7 +360,6 @@ public:
    {
       return symbol_ == row.get<std::string>(1);
    }
-
 private:
    std::string symbol_;
 };
@@ -370,31 +368,131 @@ void token_grid_test10()
 {
    std::string market_data;
                  //Date,Symbol,Open,Close,High,Low,Volume
-   market_data += "20090701,GOOG,424.2000,418.9900,426.4000,418.1500,2310768\n"
-                  "20090701,MSFT,24.0500,24.0400,24.3000,23.9600,54915127\n"
-                  "20090702,GOOG,415.4100,408.4900,415.4100,406.8100,2517630\n"
-                  "20090702,MSFT,23.7600,23.3700,24.0400,23.2100,65427699\n"
-                  "20090703,GOOG,408.4900,408.4900,408.4900,408.4900,0\n"
-                  "20090703,MSFT,23.3700,23.3700,23.3700,23.3700,0\n"
-                  "20090706,GOOG,406.5000,409.6100,410.6400,401.6600,2262557\n"
-                  "20090706,MSFT,23.2100,23.2000,23.2800,22.8700,49207638\n"
-                  "20090707,GOOG,408.2400,396.6300,409.1900,395.9801,3260307\n"
-                  "20090707,MSFT,23.0800,22.5300,23.1400,22.4600,52842412\n"
-                  "20090708,GOOG,400.0000,402.4900,406.0000,398.0600,3441854\n"
-                  "20090708,MSFT,22.3100,22.5600,22.6900,2200000,73023306\n"
-                  "20090709,GOOG,406.1200,410.3900,414.4500,405.8000,3275816\n"
-                  "20090709,MSFT,22.6500,22.4400,22.8100,22.3700,46981174\n"
-                  "20090710,GOOG,409.5700,414.4000,417.3700,408.7000,2929559\n"
-                  "20090710,MSFT,22.1900,22.3900,22.5400,22.1500,43238698\n";
+   market_data = "20090701,GOOG,424.2000,418.9900,426.4000,418.1500,2310768\n"
+                 "20090701,MSFT,24.0500,24.0400,24.3000,23.9600,54915127\n"
+                 "20090702,GOOG,415.4100,408.4900,415.4100,406.8100,2517630\n"
+                 "20090702,MSFT,23.7600,23.3700,24.0400,23.2100,65427699\n"
+                 "20090703,GOOG,408.4900,408.4900,408.4900,408.4900,0\n"
+                 "20090703,MSFT,23.3700,23.3700,23.3700,23.3700,0\n"
+                 "20090706,GOOG,406.5000,409.6100,410.6400,401.6600,2262557\n"
+                 "20090706,MSFT,23.2100,23.2000,23.2800,22.8700,49207638\n"
+                 "20090707,GOOG,408.2400,396.6300,409.1900,395.9801,3260307\n"
+                 "20090707,MSFT,23.0800,22.5300,23.1400,22.4600,52842412\n"
+                 "20090708,GOOG,400.0000,402.4900,406.0000,398.0600,3441854\n"
+                 "20090708,MSFT,22.3100,22.5600,22.6900,2200000,73023306\n"
+                 "20090709,GOOG,406.1200,410.3900,414.4500,405.8000,3275816\n"
+                 "20090709,MSFT,22.6500,22.4400,22.8100,22.3700,46981174\n"
+                 "20090710,GOOG,409.5700,414.4000,417.3700,408.7000,2929559\n"
+                 "20090710,MSFT,22.1900,22.3900,22.5400,22.1500,43238698\n";
+
+   static const std::size_t volume_column = 6;
 
    strtk::token_grid grid(market_data,market_data.size(),",");
    std::size_t total_volume = 0;  //should be long long.
 
-   grid.accumulate_column(6,symbol_predicate("GOOG"),total_volume);
+   grid.accumulate_column(volume_column,symbol_predicate("GOOG"),total_volume);
    std::cout << "Total Volume (GOOG): " << total_volume << std::endl;
 
-   grid.accumulate_column(6,symbol_predicate("MSFT"),total_volume);
+   grid.accumulate_column(volume_column,symbol_predicate("MSFT"),total_volume);
    std::cout << "Total Volume (MSFT): " << total_volume << std::endl;
+}
+
+void token_grid_test11()
+{
+   std::string data = "1.1,2.1,3.1,4.1,5.1,6.1,7.1\n"
+                      "1.2,2.2,3.2,4.2,5.2,6.2,7.2\n"
+                      "1.3,2.3,3.3,4.3,5.3,6.3,7.3\n"
+                      "1.4,2.4,3.4,4.4,5.4,6.4,7.4\n"
+                      "1.5,2.5,3.5,4.5,5.5,6.5,7.5\n"
+                      "1.6,2.6,3.6,4.6,5.6,6.6,7.6\n"
+                      "1.7,2.7,3.7,4.7,5.7,6.7,7.7\n";
+
+   strtk::token_grid grid(data,data.size(),",");
+
+   for(std::size_t r = 0; r < grid.row_count(); ++r)
+   {
+      if ((0 < r) && (r < grid.row_count() - 1))
+      {
+         strtk::token_grid::row_type row = grid.row(r);
+         const strtk::token_grid::row_type& next = row.next_row();
+         const strtk::token_grid::row_type& prev = row.prev_row();
+
+         for(std::size_t c = 0; c < row.size(); c++)
+         {
+            double average = (row.get<double>(c) + next.get<double>(c) + prev.get<double>(c)) / 3.0;
+            std::cout << average << "\t";
+         }
+      }
+      else
+         std::cout << strtk::replicate(grid.max_column_count(),"N/A\t");
+      std::cout << std::endl;
+   }
+}
+
+class summarizer
+{
+public:
+
+   static const std::size_t tick_time_column = 0;
+   static const std::size_t tick_value_column = 1;
+
+   summarizer(std::deque<double>& sum_value)
+   : next_tick_time_(0),
+     sum_value_(sum_value)
+   {}
+
+   bool operator()(const strtk::token_grid::row_type& row)
+   {
+      if (row.get<std::size_t>(tick_time_column) >= next_tick_time_)
+      {
+         next_tick_time_ = row.get<std::size_t>(tick_time_column) + 3;
+         return true;
+      }
+      else
+         return false;
+   }
+
+   bool operator()(const strtk::token_grid& grid,
+                   const strtk::token_grid::row_range_type& range)
+   {
+      double bucket_sum = 0.0;
+      if(!grid.accumulate_column(tick_value_column,bucket_sum,range))
+      {
+         std::cout << "failed to accumulate!" << std::endl;
+         return false;
+      }
+      else
+         sum_value_.push_back(bucket_sum);
+      return true;
+   }
+
+private:
+
+   summarizer& operator=(const summarizer&);
+
+   std::size_t next_tick_time_;
+   std::deque<double>& sum_value_;
+};
+
+void token_grid_test12()
+{
+                      //time index, value
+   std::string data = "10000,123.456\n"
+                      "10001,612.345\n"
+                      "10002,561.234\n"
+                      "10003,456.123\n"
+                      "10004,345.612\n"
+                      "10005,234.561\n"
+                      "10006,123.456\n";
+
+   strtk::token_grid grid(data,data.size(),",");
+   std::deque<double> sum_value;
+   summarizer s(sum_value);
+   grid.sequential_partition(s,s);
+   for(std::size_t i = 0; i < sum_value.size(); ++i)
+   {
+      std::cout << "bucket[" << i << "] = " << sum_value[i] << std::endl;
+   }
 }
 
 int main()
@@ -409,5 +507,7 @@ int main()
    token_grid_test08();
    token_grid_test09();
    token_grid_test10();
+   token_grid_test11();
+   token_grid_test12();
    return 0;
 }
