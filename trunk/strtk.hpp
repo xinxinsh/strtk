@@ -37,12 +37,14 @@
 #ifdef ENABLE_RANDOM
    // define a TR1 compatible random library header
    #include <boost/random.hpp>
+   //#include <random>
 #endif
 
 #define ENABLE_REGEX
 #ifdef ENABLE_REGEX
    // define a TR1 compatible regex library header
    #include <boost/regex.hpp>
+   //#include <regex>
 #endif
 
 namespace strtk
@@ -58,7 +60,7 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenizer::iterator it = tokenizer.begin();
-      while(tokenizer.end() != it)
+      while (tokenizer.end() != it)
       {
          function(*it);
          ++it;
@@ -73,7 +75,7 @@ namespace strtk
       std::string buffer;
       buffer.reserve(one_kilobyte);
       std::size_t line_count = 0;
-      while(std::getline(stream,buffer))
+      while (std::getline(stream,buffer))
       {
          function(buffer);
          ++line_count;
@@ -87,7 +89,7 @@ namespace strtk
       std::string buffer;
       buffer.reserve(one_kilobyte);
       std::size_t line_count = 0;
-      while(std::getline(stream,buffer))
+      while (std::getline(stream,buffer))
       {
          function(buffer);
          if (n == ++line_count)
@@ -122,7 +124,7 @@ namespace strtk
       std::string buffer;
       buffer.reserve(one_kilobyte);
       std::size_t line_count = 0;
-      while(std::getline(stream,buffer))
+      while (std::getline(stream,buffer))
       {
          if (!function(buffer))
          {
@@ -139,7 +141,7 @@ namespace strtk
       std::string buffer;
       buffer.reserve(one_kilobyte);
       std::size_t line_count = 0;
-      while(std::getline(stream,buffer))
+      while (std::getline(stream,buffer))
       {
          if (!function(buffer))
          {
@@ -268,7 +270,7 @@ namespace strtk
      std::string buffer;
      buffer.reserve(one_kilobyte);
      std::size_t line_count = 0;
-     while(std::getline(stream,buffer))
+     while (std::getline(stream,buffer))
      {
         ++line_count;
         sequence.push_back(string_to_type_converter<T>(buffer));
@@ -301,7 +303,7 @@ namespace strtk
      typename Sequence<T,Allocator>::const_iterator it = sequence.begin();
      if (!delimiter.empty())
      {
-        while(sequence.end() != it)
+        while (sequence.end() != it)
         {
            stream << *it++ << delimiter;
            ++count;
@@ -309,7 +311,7 @@ namespace strtk
      }
      else
      {
-        while(sequence.end() != it)
+        while (sequence.end() != it)
         {
            stream << *it++;
            ++count;
@@ -338,7 +340,7 @@ namespace strtk
                        OutputIterator out)
    {
       InputIterator it = begin;
-      while(end != it)
+      while (end != it)
       {
          if (predicate(*it))
          {
@@ -354,7 +356,7 @@ namespace strtk
                                    OutputIterator out)
    {
       InputIterator it = begin;
-      while(end != it)
+      while (end != it)
       {
          if (!predicate(*it))
             break;
@@ -369,7 +371,7 @@ namespace strtk
                                    OutputIterator out)
    {
       InputIterator it = begin;
-      while(end != it)
+      while (end != it)
       {
          if (predicate(*it))
             break;
@@ -382,7 +384,7 @@ namespace strtk
    inline bool range_only_contains(Predicate predicate, const InputIterator begin, const InputIterator end)
    {
       InputIterator it = begin;
-      while(end != it)
+      while (end != it)
       {
          if (!predicate(*it++))
          {
@@ -513,9 +515,9 @@ namespace strtk
       Iterator it1 = begin;
       Iterator it2 = begin;
       std::size_t removal_count = 0;
-      while(it1 != end)
+      while (it1 != end)
       {
-         while((end != it1) && !predicate(*it1))
+         while ((end != it1) && !predicate(*it1))
          {
             if (it1 != it2)
             {
@@ -524,7 +526,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((end != it1) && predicate(*it1))
+         while ((end != it1) && predicate(*it1))
          {
             ++it1;
             ++removal_count;
@@ -562,9 +564,9 @@ namespace strtk
       Iterator it2 = (begin + 1);
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
-      while(it1 != end)
+      while (it1 != end)
       {
-         while((end != it1) && (!predicate(*it1) || !predicate(prev)))
+         while ((end != it1) && (!predicate(*it1) || !predicate(prev)))
          {
             if (it1 != it2)
             {
@@ -574,7 +576,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((end != it1) && predicate(*it1))
+         while ((end != it1) && predicate(*it1))
          {
             ++it1;
             ++removal_count;
@@ -640,9 +642,9 @@ namespace strtk
       Iterator it2 = (begin + 1);
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
-      while(it1 != end)
+      while (it1 != end)
       {
-         while((end != it1) && (prev != (*it1)))
+         while ((end != it1) && (prev != (*it1)))
          {
             if (it1 != it2)
             {
@@ -652,7 +654,7 @@ namespace strtk
             ++it1;
             ++it2;
          }
-         while((end != it1) && (prev == (*it1)))
+         while ((end != it1) && (prev == (*it1)))
          {
             ++it1;
             ++removal_count;
@@ -681,7 +683,7 @@ namespace strtk
          return 0;
       Iterator it = begin + (length - 1);
       std::size_t removal_count = 0;
-      while((begin != it) && predicate(*it))
+      while ((begin != it) && predicate(*it))
       {
          it--;
          removal_count++;
@@ -747,7 +749,7 @@ namespace strtk
          return 0;
       Iterator it = begin;
       std::size_t removal_count = 0;
-      while((end != it) && predicate(*it))
+      while ((end != it) && predicate(*it))
       {
          it++;
          removal_count++;
@@ -811,7 +813,7 @@ namespace strtk
                        const Iterator begin,
                        const Iterator end)
    {
-      for(Iterator it = begin; end != it; ++it)
+      for (Iterator it = begin; end != it; ++it)
       {
          if (c1 == *it) *it = c2;
       }
@@ -864,7 +866,7 @@ namespace strtk
          prev_pos = pos;
          --count;
       }
-      while(s.end() != sit) (*nit++) = (*sit++);
+      while (s.end() != sit) (*nit++) = (*sit++);
    }
 
    template<typename InputIterator, typename OutputIterator>
@@ -897,7 +899,7 @@ namespace strtk
 
       InputIterator temp_s_it = s_it;
 
-      while(s_end != s_it)
+      while (s_end != s_it)
       {
          /*
             Need to replace the following search code with
@@ -907,7 +909,7 @@ namespace strtk
          bool found = true;
          p_it = p_begin;
          temp_s_it = s_it;
-         while((p_end != p_it) && (s_end != temp_s_it))
+         while ((p_end != p_it) && (s_end != temp_s_it))
          {
             if (*(temp_s_it++) != *(p_it++))
             {
@@ -938,7 +940,7 @@ namespace strtk
          p_it = p_begin;
          bool found = true;
          InputIterator pattern_start = temp_s_it;
-         while((p_end != p_it) && (s_end != temp_s_it))
+         while ((p_end != p_it) && (s_end != temp_s_it))
          {
             if (*(temp_s_it++) != *(p_it++))
             {
@@ -1040,7 +1042,7 @@ namespace strtk
       }
       std::string::const_iterator it1 = begin1;
       std::string::const_iterator it2 = begin2;
-      while(end1 != it1)
+      while (end1 != it1)
       {
          //if (std::toupper(*it1, std::locale::classic()) != std::toupper(*it2, std::locale::classic()))
          if (std::toupper(*it1) != std::toupper(*it2))
@@ -1061,7 +1063,7 @@ namespace strtk
    template<typename Iterator>
    inline bool imatch(const std::string& s, const Iterator begin, const Iterator end)
    {
-      for(const std::string* it = begin; end != it; ++it)
+      for (const std::string* it = begin; end != it; ++it)
       {
          if (imatch(s,*it))
          {
@@ -1115,7 +1117,7 @@ namespace strtk
                   curr_tok_begin_ = prev_;
                   curr_tok_end_ = it_;
                   if (compress_delimiters_)
-                     while((end_ != ++it_) && predicate_(*it_));
+                     while ((end_ != ++it_) && predicate_(*it_));
                   else
                      ++it_;
                   return *this;
@@ -1151,7 +1153,7 @@ namespace strtk
 
          inline tokenizer_iterator& operator+=(const int inc)
          {
-            for(int i = 0; i < inc; ++i) ++(*this);
+            for (int i = 0; i < inc; ++i) ++(*this);
             return *this;
          }
 
@@ -1602,7 +1604,7 @@ namespace strtk
       std::pair<Iterator,Iterator> range(begin,begin);
       // range.first  -> prev
       // range.second -> it
-      while(end != range.second)
+      while (end != range.second)
       {
         if (delimiter(*range.second))
         {
@@ -1611,13 +1613,13 @@ namespace strtk
               ++range.second;
               *(out++) = range;
               if (split_option & split_options::compress_delimiters)
-                 while((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second));
            }
            else
            {
               *(out++) = range;
               if (split_option & split_options::compress_delimiters)
-                 while((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second));
               else
                  ++range.second;
            }
@@ -1702,7 +1704,7 @@ namespace strtk
       std::pair<Iterator,Iterator> range(begin,begin);
       // range.first  -> prev
       // range.second -> it
-      while(end != range.second)
+      while (end != range.second)
       {
         if (delimiter(*range.second))
         {
@@ -1713,7 +1715,7 @@ namespace strtk
               if (++match_count >= token_count)
                  return match_count;
               if (split_option & split_options::compress_delimiters)
-                 while((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second));
            }
            else
            {
@@ -1721,7 +1723,7 @@ namespace strtk
               if (++match_count >= token_count)
                  return match_count;
               if (split_option & split_options::compress_delimiters)
-                 while((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second));
               else
                  ++range.second;
            }
@@ -1847,7 +1849,7 @@ namespace strtk
       std::string token;
       token.reserve(one_kilobyte);
       std::size_t match_count = 0;
-      while(it_end != it)
+      while (it_end != it)
       {
          token.assign((*it)[0].first,(*it)[0].second);
          *(out++) = token;
@@ -1895,7 +1897,7 @@ namespace strtk
       std::string token;
       token.reserve(one_kilobyte);
       std::size_t match_count = 0;
-      while(it_end != it)
+      while (it_end != it)
       {
          token.assign((*it)[0].first,(*it)[0].second);
          *(out++) = token;
@@ -2119,7 +2121,7 @@ namespace strtk
       if (0 == std::distance(begin,end)) return 0;
       std::size_t token_count = 0;
       std::pair<InputIterator,InputIterator> range(begin,begin);
-      while(end != range.second)
+      while (end != range.second)
       {
         if (delimiter(*range.second))
         {
@@ -2127,12 +2129,12 @@ namespace strtk
            {
               ++range.second;
               if (split_option & split_options::compress_delimiters)
-                 while((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second));
            }
            else
            {
               if (split_option & split_options::compress_delimiters)
-                 while((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second));
               else
                  ++range.second;
            }
@@ -2156,7 +2158,7 @@ namespace strtk
       InputIterator prev = begin;
       InputIterator it = begin;
       std::size_t count = 0;
-      while(end != ++it)
+      while (end != ++it)
       {
          if (*prev == *it)
             ++count;
@@ -2171,7 +2173,7 @@ namespace strtk
    {
       typename std::iterator_traits<InputIterator>::value_type smallest = *begin;
       InputIterator it = begin;
-      while(end != ++it)
+      while (end != ++it)
       {
          if (*it < smallest)
             smallest = *it;
@@ -2184,7 +2186,7 @@ namespace strtk
    {
       typename std::iterator_traits<InputIterator>::value_type greatest = *begin;
       InputIterator it = begin;
-      while(end != ++it)
+      while (end != ++it)
       {
          if (*it > greatest)
             greatest = *it;
@@ -2202,15 +2204,15 @@ namespace strtk
 
       type smallest = min_in_range(begin,end);
 
-      for(Iterator it = begin; it != end; ++it)
+      for (Iterator it = begin; it != end; ++it)
       {
          if (*it == smallest) itr_list.push_back(std::make_pair(it,it));
       }
 
-      while(itr_list.size() > 1)
+      while (itr_list.size() > 1)
       {
          typename itr_list_type::iterator it = itr_list.begin();
-         while(itr_list.end() != it)
+         while (itr_list.end() != it)
          {
             ++(*it).first;
             if (end == (*it).first)
@@ -2221,7 +2223,7 @@ namespace strtk
 
          smallest = *(*itr_list.begin()).first;
 
-         for(it = (++itr_list.begin()); it != itr_list.end(); ++it)
+         for (it = (++itr_list.begin()); it != itr_list.end(); ++it)
          {
             if (*(*it).first < smallest)
             {
@@ -2230,7 +2232,7 @@ namespace strtk
          }
 
          it = itr_list.begin();
-         while(itr_list.end() != it)
+         while (itr_list.end() != it)
          {
            if (*(*it).first != smallest)
               it = itr_list.erase(it);
@@ -2239,7 +2241,7 @@ namespace strtk
          }
 
          it = itr_list.begin();
-         while(itr_list.end() != it)
+         while (itr_list.end() != it)
          {
             if (end == (*it).first)
                it = itr_list.erase(it);
@@ -2263,7 +2265,7 @@ namespace strtk
                                                              '8','9','A','B','C','D','E','F'
                                                             };
 
-      for(const unsigned char* it = begin; end != it; ++it)
+      for (const unsigned char* it = begin; end != it; ++it)
       {
          *(out++) = hex_symbol[((*it) >> 0x04) & 0x0F];
          *(out++) = hex_symbol[ (*it)          & 0x0F];
@@ -2324,7 +2326,7 @@ namespace strtk
                                                             };
 
       const unsigned char* it = begin;
-      while(end != it)
+      while (end != it)
       {
          (*out)  = static_cast<unsigned char>(hex_to_bin[*(it++)] << 4);
          (*out) |= static_cast<unsigned char>(hex_to_bin[*(it++)]     );
@@ -2361,7 +2363,7 @@ namespace strtk
       const std::size_t length = std::distance(begin,end);
       std::size_t rounds = length / 3;
       const unsigned char* it = begin;
-      for(std::size_t i = 0; i < rounds; ++i)
+      for (std::size_t i = 0; i < rounds; ++i)
       {
          unsigned int block  = *(it++) << 16;
                       block |= *(it++) <<  8;
@@ -2456,7 +2458,7 @@ namespace strtk
       std::size_t length = std::distance(begin,(it + 1));
       std::size_t rounds = length / 4;
       it = begin;
-      for(std::size_t i = 0; i < rounds; ++i)
+      for (std::size_t i = 0; i < rounds; ++i)
       {
          unsigned int block  = base64_to_bin[*(it++)] << 18;
                       block |= base64_to_bin[*(it++)] << 12;
@@ -2544,7 +2546,7 @@ namespace strtk
                                                                        0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E  // 0xF8 - 0xFF
                                                                     };
       unsigned char* it = begin;
-      while(end != it)
+      while (end != it)
       {
          (*it) = printable_char_table[static_cast<unsigned int>((*it))];
          ++it;
@@ -2562,7 +2564,7 @@ namespace strtk
       std::transform(begin,end,begin,::toupper);
       /*
       unsigned char* it = begin;
-      while(end != it)
+      while (end != it)
       {
          //(*it) = std::toupper((*it), std::locale::classic());
          (*it) = static_cast<unsigned char>(::toupper(static_cast<int>(*it)));
@@ -2582,7 +2584,7 @@ namespace strtk
       std::transform(begin,end,begin,::tolower);
       /*
       unsigned char* it = begin;
-      while(end != it)
+      while (end != it)
       {
          //(*it) = std::tolower((*it), std::locale::classic());
          (*it) = static_cast<unsigned char>(::tolower(static_cast<int>(*it)));
@@ -2645,7 +2647,7 @@ namespace strtk
 
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
-      while(end1 != it1)
+      while (end1 != it1)
       {
          *(reinterpret_cast<unsigned short*>(out))  = (interleave_table[*(it2++)] << 1);
          *(reinterpret_cast<unsigned short*>(out)) |=  interleave_table[*(it1++)];
@@ -2692,10 +2694,10 @@ namespace strtk
    {
       typedef typename interleave_ary<n>::type type;
       const type diff = static_cast<type>(n - 1);
-      for(type i = static_cast<type>(0); i < static_cast<type>(256); ++i)
+      for (type i = static_cast<type>(0); i < static_cast<type>(256); ++i)
       {
          table[i] = 0x00;
-         for(type j = static_cast<type>(0); j < static_cast<type>(8); ++j)
+         for (type j = static_cast<type>(0); j < static_cast<type>(8); ++j)
          {
             table[i] |= (i & (1 << j)) << (j * diff);
          }
@@ -2714,9 +2716,9 @@ namespace strtk
 
       switch(operation)
       {
-         case bitwise_operation::eAND : while(it1 != end1) { *(out++) = *(it1++) & *(it2++); } return;
-         case bitwise_operation::eOR  : while(it1 != end1) { *(out++) = *(it1++) | *(it2++); } return;
-         case bitwise_operation::eXOR : while(it1 != end1) { *(out++) = *(it1++) ^ *(it2++); } return;
+         case bitwise_operation::eAND : while (it1 != end1) { *(out++) = *(it1++) & *(it2++); } return;
+         case bitwise_operation::eOR  : while (it1 != end1) { *(out++) = *(it1++) | *(it2++); } return;
+         case bitwise_operation::eXOR : while (it1 != end1) { *(out++) = *(it1++) ^ *(it2++); } return;
       }
    }
 
@@ -2796,7 +2798,7 @@ namespace strtk
    {
       std::size_t count = 0;
       const unsigned char* it1 = begin;
-      while(end != it1)
+      while (end != it1)
       {
          count += high_bit_count(*it1++);
       }
@@ -2870,7 +2872,7 @@ namespace strtk
       std::size_t distance = 0;
       const unsigned char* it1 = begin1;
       const unsigned char* it2 = begin2;
-      while(end1 != it1)
+      while (end1 != it1)
       {
          distance += high_bit_count(static_cast<unsigned char>(((*it1++) ^ (*it2++)) & 0xFF));
       }
@@ -2952,9 +2954,9 @@ namespace strtk
       template<std::size_t block_size, typename Iterator>
       inline void compute_block(Iterator itr, std::size_t& length, unsigned int& hash)
       {
-         while(length >= block_size)
+         while (length >= block_size)
          {
-            for(std::size_t i = 0; i < block_size; ++i, ++itr)
+            for (std::size_t i = 0; i < block_size; ++i, ++itr)
             {
                compute_pod_hash((*itr),hash);
             }
@@ -2965,9 +2967,9 @@ namespace strtk
       template<std::size_t block_size>
       inline void compute_block(unsigned char* itr, std::size_t& length, unsigned int& hash)
       {
-         while(length >= block_size)
+         while (length >= block_size)
          {
-            for(std::size_t i = 0; i < block_size; ++i, ++itr)
+            for (std::size_t i = 0; i < block_size; ++i, ++itr)
             {
                compute_pod_hash((*itr),hash);
             }
@@ -3017,19 +3019,57 @@ namespace strtk
       typedef std::pair<unsigned char*, unsigned char*> range_type;
       typedef std::deque<range_type> itr_list_type;
       typedef std::deque<itr_list_type> itr_list_list_type;
+      typedef std::pair<std::size_t,std::size_t> row_range_type;
 
       class row_type
       {
+      private:
+         typedef std::pair<bool,row_type*> row_pair_type;
+
       public:
+
          row_type(const itr_list_type& token_list)
-         : token_list_(&token_list)
+         : index_(std::numeric_limits<std::size_t>::max()),
+           row_list_(0),
+           token_list_(&token_list),
+           next_row_(false,0),
+           prev_row_(false,0)
          {}
+
+         row_type(const std::size_t& index,
+                  const itr_list_list_type& row_list)
+         : index_(index),
+           row_list_(&row_list),
+           token_list_(&(*row_list_)[index_]),
+           next_row_(index < (row_list.size() - 1),0),
+           prev_row_(index > 0,0)
+         {}
+
+        ~row_type()
+         {
+           if (next_row_.second) { delete next_row_.second; }
+           if (prev_row_.second) { delete prev_row_.second; }
+         }
 
          template<typename T>
          inline T operator[](const std::size_t& index) const
          {
             itr_list_type::value_type curr_range = (*token_list_)[index];
             return string_to_type_converter<T>(curr_range.first,curr_range.second);
+         }
+
+         inline const row_type& next_row() const
+         {
+            if (next_row_.first && (0 == next_row_.second))
+               next_row_.second = new row_type(index_ + 1,*row_list_);
+            return *next_row_.second;
+         }
+
+         inline const row_type& prev_row() const
+         {
+            if (prev_row_.first && (0 == prev_row_.second))
+               prev_row_.second = new row_type(index_ - 1,*row_list_);
+            return *prev_row_.second;
          }
 
          template<typename T>
@@ -3041,6 +3081,11 @@ namespace strtk
          inline range_type token(const std::size_t& index) const
          {
             return (*token_list_)[index];
+         }
+
+         inline std::size_t index() const
+         {
+            return index_;
          }
 
          inline std::size_t size() const
@@ -3369,7 +3414,7 @@ namespace strtk
          inline void parse(OutputIterator out) const
          {
             itr_list_type::iterator it = const_cast<itr_list_type*>(token_list_)->begin();
-            while(token_list_->end() != it)
+            while (token_list_->end() != it)
             {
                itr_list_type::value_type& range = *it;
                *(out++) = string_to_type_converter<T>(range.first,range.second);
@@ -3387,7 +3432,13 @@ namespace strtk
 
       private:
 
+         row_type& operator=(const row_type&);
+
+         const std::size_t index_;
+         const itr_list_list_type* row_list_;
          const itr_list_type* token_list_;
+         mutable row_pair_type next_row_;
+         mutable row_pair_type prev_row_;
       };
 
       token_grid(const std::string& file_name,
@@ -3477,14 +3528,19 @@ namespace strtk
 
       inline row_type row(const unsigned int& row_index) const
       {
-         return row_type(token_list_[row_index]);
+         return row_type(row_index,token_list_);
+      }
+
+      inline row_range_type all_rows() const
+      {
+         return row_range_type(0,token_list_.size());
       }
 
       template<typename OutputIterator>
       inline void extract_column(const std::size_t& index, OutputIterator out)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             process_column((*it++)[index],out);
          }
@@ -3497,7 +3553,7 @@ namespace strtk
                                  OutputIterator2 out2)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
@@ -3514,7 +3570,7 @@ namespace strtk
                                  OutputIterator3 out3)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
@@ -3535,7 +3591,7 @@ namespace strtk
                                  OutputIterator4 out4)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
@@ -3560,7 +3616,7 @@ namespace strtk
                                  OutputIterator5 out5)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
@@ -3580,7 +3636,7 @@ namespace strtk
       inline void remove_row_if(Predicate p)
       {
          itr_list_list_type::iterator it = token_list_.begin();
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             if (!it->empty() && p(it->front().first,it->back().second))
             {
@@ -3595,7 +3651,7 @@ namespace strtk
       {
          itr_list_list_type::iterator it = token_list_.begin();
          itr_list_list_type new_token_list;
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             if (it->size() == column_count)
             {
@@ -3613,7 +3669,7 @@ namespace strtk
       {
          itr_list_list_type::iterator it = token_list_.begin();
          itr_list_list_type new_token_list;
-         while(token_list_.end() != it)
+         while (token_list_.end() != it)
          {
             std::size_t column_count = it->size();
             if ((min_column_count <= column_count) && (column_count <= max_column_count))
@@ -3647,7 +3703,7 @@ namespace strtk
          itr_list_type::const_iterator itr = token_list_[row].begin();
          itr_list_type::const_iterator end = token_list_[row].end();
          T current_value = T();
-         while(end != itr)
+         while (end != itr)
          {
             if (string_to_type_converter<T>((*itr).first,(*itr).second,current_value))
               result += current_value;
@@ -3659,16 +3715,59 @@ namespace strtk
       }
 
       template<typename T>
-      inline bool accumulate_column(const std::size_t& col, T& result) const
+      inline bool accumulate_column(const std::size_t& col,
+                                    T& result,
+                                    const row_range_type& range) const
       {
          if (col > max_column_count_)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin();
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          itr_list_list_type new_token_list;
          T current_value = T();
-         while (token_list_.end() != it)
+         while (end != it)
          {
             if (!(*it).empty())
+            {
+               if (string_to_type_converter<T> ((*it)[col].first, (*it)[col].second, current_value))
+                  result += current_value;
+               else
+                  return false;
+            }
+            ++it;
+         }
+         return true;
+      }
+
+      template<typename T>
+      inline bool accumulate_column(const std::size_t& col, T& result) const
+      {
+         return accumulate_column(col,result,all_rows());
+      }
+
+      template<typename T, typename Predicate>
+      inline bool accumulate_column(const std::size_t& col,
+                                    Predicate p,
+                                    T& result,
+                                    const row_range_type& range) const
+      {
+         if (col > max_column_count_)
+            return false;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         itr_list_list_type new_token_list;
+         T current_value = T();
+         while (end != it)
+         {
+            if (!(*it).empty() && p(row_type(*it)))
             {
                if (string_to_type_converter<T> ((*it)[col].first, (*it)[col].second, current_value))
                   result += current_value;
@@ -3683,23 +3782,7 @@ namespace strtk
       template<typename T, typename Predicate>
       inline bool accumulate_column(const std::size_t& col, Predicate p, T& result) const
       {
-         if (col > max_column_count_)
-            return false;
-         itr_list_list_type::const_iterator it = token_list_.begin();
-         itr_list_list_type new_token_list;
-         T current_value = T();
-         while (token_list_.end() != it)
-         {
-            if (!(*it).empty() && p(row_type(*it)))
-            {
-               if (string_to_type_converter<T> ((*it)[col].first, (*it)[col].second, current_value))
-                  result += current_value;
-               else
-                  return false;
-            }
-            ++it;
-         }
-         return true;
+         return accumulate_column(col,p,result,all_rows());
       }
 
       inline bool join_row(const std::size_t& row, const std::string& delimiter, std::string& result)
@@ -3713,7 +3796,7 @@ namespace strtk
                         (delimiter.size() * token_list_[row].size()) +
                         result.size());
          bool appended = false;
-         while(end != itr)
+         while (end != itr)
          {
             if (!delimiter.empty() && appended)
                result.append(delimiter);
@@ -3783,6 +3866,49 @@ namespace strtk
          return true;
       }
 
+      template<typename TransitionPredicate, typename Function>
+      inline bool sequential_partition(TransitionPredicate p,
+                                       Function f,
+                                       const row_range_type& range)
+      {
+
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first >= range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         row_range_type r(range.first,range.first);
+         for(std::size_t i = range.first; i < range.second; ++i, ++it)
+         {
+            if (p(row_type(*it)))
+            {
+               if(r.first != r.second)
+               {
+                  r.second = i;
+                  if (!f(*this,r))
+                     return false;
+               }
+               r.first = r.second;
+            }
+            else
+               r.second = i;
+         }
+
+         if(r.first != range.second)
+         {
+            r.second = range.second;
+            if (!f(*this,r))
+               return false;
+         }
+         return true;
+      }
+
+      template<typename TransitionPredicate, typename Function>
+      inline bool sequential_partition(TransitionPredicate p, Function f)
+      {
+         return sequential_partition(p,f,all_rows());
+      }
+
    private:
 
       token_grid(const token_grid& tg);
@@ -3817,7 +3943,7 @@ namespace strtk
          min_column_count_ = std::numeric_limits<std::size_t>::max();
          max_column_count_ = std::numeric_limits<std::size_t>::min();
 
-         for(itr_list_type::iterator it = str_list.begin(); str_list.end() != it; ++it)
+         for (itr_list_type::iterator it = str_list.begin(); str_list.end() != it; ++it)
          {
             if (0 == std::distance(it->first,it->second))
                continue;
@@ -3976,7 +4102,7 @@ namespace strtk
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
       {
-         for(const std::string* it = begin_; end_ != it; ++it)
+         for (const std::string* it = begin_; end_ != it; ++it)
          {
             if ((case_insensitive_ &&
                (imatch((*it).begin(),(*it).end(),range.first,range.second))) ||
@@ -3998,7 +4124,7 @@ namespace strtk
 
       inline void operator() (const std::string& s) const
       {
-         for(const std::string* it = begin_; end_ != it; ++it)
+         for (const std::string* it = begin_; end_ != it; ++it)
          {
             if ((case_insensitive_ &&
                (imatch((*it).begin(),(*it).end(),s.begin(),s.end()))) ||
@@ -4032,9 +4158,9 @@ namespace strtk
 
    template<typename MatchPredicate,
             typename Iterator>
-   inline void skip_while_matching(Iterator& it,
-                                   const Iterator& end,
-                                   const MatchPredicate& predicate)
+   inline void inc_while_matching(Iterator& it,
+                                  const Iterator& end,
+                                  const MatchPredicate& predicate)
    {
       while (end != it)
       {
@@ -4886,7 +5012,7 @@ namespace strtk
                     const InputIterator end)
    {
       InputIterator it = begin;
-      while(end != it)
+      while (end != it)
       {
          output += type_to_string(*it);
          if (end == (++it))
@@ -4915,7 +5041,7 @@ namespace strtk
    {
       InputIterator it = begin;
       bool first_time = true;
-      while(end != it)
+      while (end != it)
       {
          if (predicate(*it))
          {
@@ -4947,7 +5073,7 @@ namespace strtk
    {
       if (0 == count) return;
       output.reserve(output.size() + (str.size() * count));
-      for(std::size_t i = 0; i < count; ++i)
+      for (std::size_t i = 0; i < count; ++i)
       {
          output.append(str);
       }
@@ -4970,7 +5096,7 @@ namespace strtk
       if (pre_gen_cnt > 0)
       {
          unsigned int r = 0x00;
-         for(unsigned int i = 0; i < pre_gen_cnt; r = rnd(), ++i);
+         for (unsigned int i = 0; i < pre_gen_cnt; r = rnd(), ++i);
       }
       unsigned char* it = data;
       unsigned int* x = 0;
@@ -5010,13 +5136,13 @@ namespace strtk
          if (*--i1 < *i2)
          {
             Iterator j = k;
-            while(!(*i1 < *j)) ++j;
+            while (!(*i1 < *j)) ++j;
             std::iter_swap(i1,j);
             ++i1;
             ++j;
             i2 = k;
             std::rotate(i1,j,last);
-            while(last != j)
+            while (last != j)
             {
                ++j;
                ++i2;
@@ -5172,7 +5298,7 @@ namespace strtk
          if (!read(list_size))
             return false;
          T t;
-         for(std::size_t i = 0; i < list_size; ++i)
+         for (std::size_t i = 0; i < list_size; ++i)
          {
             if (!read(t))
                return false;
@@ -5189,7 +5315,7 @@ namespace strtk
          if (!write(static_cast<unsigned int>(sequence.size())))
             return false;
          typename Sequence<T,Allocator>::const_iterator it = sequence.begin();
-         while(sequence.end() != it)
+         while (sequence.end() != it)
          {
             if (!write(*it++))
                return false;
@@ -5314,7 +5440,7 @@ namespace strtk
       {
          unsigned char* it1 = reinterpret_cast<unsigned char*>(t_);
          unsigned char* it2 = it1 + (sizeof(T) - 1);
-         while(it1 < it2)
+         while (it1 < it2)
          {
             char tmp = *it1;
                 *it1 = *it2;
@@ -5395,7 +5521,7 @@ namespace strtk
       {
          unsigned char* it1 = reinterpret_cast<unsigned char*>(t_);
          unsigned char* it2 = it1 + (sizeof(T) - 1);
-         while(it1 < it2)
+         while (it1 < it2)
          {
             char tmp = *it1;
                 *it1 = *it2;
@@ -5517,7 +5643,7 @@ namespace strtk
          }
          if (end == it)
             return false;
-         while(end != it)
+         while (end != it)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*it++)]);
             if (0xFF == digit)
@@ -5546,7 +5672,7 @@ namespace strtk
             ++it;
          if (end == it)
             return false;
-         while(end != it)
+         while (end != it)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*it++)]);
             if (0xFF == digit)
@@ -5582,12 +5708,12 @@ namespace strtk
             value /= 10;
             *(it++) = digit[(tmp_value - value * 10)];
          }
-         while(value);
+         while (value);
          if (negative) *(it++) = '-';
          result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
          it = const_cast<char*>(result.c_str());
          char* it2 = it + (result.size() - 1);
-         while(it < it2)
+         while (it < it2)
          {
             char tmp = *it;
             *it = *it2;
@@ -5609,11 +5735,11 @@ namespace strtk
             value /= 10;
             *(it++) = digit[(tmp_value - value * 10)];
          }
-         while(value);
+         while (value);
          result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
          it = const_cast<char*>(result.c_str());
          char* it2 = it + (result.size() - 1);
-         while(it < it2)
+         while (it < it2)
          {
             char tmp = *it;
             *it = *it2;
