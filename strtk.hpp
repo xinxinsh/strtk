@@ -4689,6 +4689,29 @@ namespace strtk
                       begin, end,\
                       range_to_type_back_inserter(sequence),\
                       split_option);\
+   }\
+   template <typename T,\
+             class Allocator,\
+             template <class,class> class Sequence>\
+   inline std::size_t parse_into_sequence_n(const iterator_type begin,\
+                                            const iterator_type end,\
+                                            const std::string& delimiters,\
+                                            const std::size_t& n,\
+                                            Sequence<T,Allocator>& sequence,\
+                                            const split_options::type& split_option = split_options::compress_delimiters)\
+   {\
+      if (1 == delimiters.size())\
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),\
+                        begin, end,\
+                        n,\
+                        range_to_type_back_inserter(sequence),\
+                        split_option);\
+      else\
+         return split_n(strtk::multiple_char_delimiter_predicate(delimiters),\
+                        begin, end,\
+                        n,\
+                        range_to_type_back_inserter(sequence),\
+                        split_option);\
    }
 
    INSTANTIATE_PARSE(char*)
@@ -4826,6 +4849,20 @@ namespace strtk
       return parse_into_sequence(data.c_str(), data.c_str() + data.size(),
                                  delimiters,
                                  sequence);
+   }
+
+   template <typename T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::size_t parse_into_sequence_n(const std::string& data,
+                                            const std::string& delimiters,
+                                            const std::size_t& n,
+                                            Sequence<T,Allocator>& sequence)
+   {
+      return parse_into_sequence_n(data.c_str(), data.c_str() + data.size(),
+                                   delimiters,
+                                   n,
+                                   sequence);
    }
 
    template<typename T1, typename T2, typename  T3, typename  T4,
