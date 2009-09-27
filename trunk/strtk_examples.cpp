@@ -470,6 +470,25 @@ void parse_example02()
    std::cout << std::endl;
 }
 
+void parse_example03()
+{
+   std::string int_string    = "0,1,2,3,4,5,6,7,8,9";
+   std::string double_string = "0.0,1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9";
+
+   std::vector<int> int_list;
+   std::deque<double> double_list;
+
+   static const std::size_t n = 4;
+
+   strtk::parse_into_sequence_n(int_string,",",n,int_list);
+   strtk::parse_into_sequence_n(double_string,",",n,double_list);
+
+   std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout,"\t"));
+   std::cout << std::endl;
+   std::copy(double_list.begin(),double_list.end(),std::ostream_iterator<double>(std::cout,"\t"));
+   std::cout << std::endl;
+}
+
 void remove_inplace_example01()
 {
    std::string s = "aa abb cdd  ee fg";
@@ -680,6 +699,7 @@ int main()
    construct_example();
    parse_example01();
    parse_example02();
+   parse_example03();
    remove_inplace_example01();
    remove_consecutives_example01();
    remove_consecutives_example02();
