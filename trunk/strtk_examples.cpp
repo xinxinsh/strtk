@@ -668,6 +668,19 @@ void combination_example()
    while (strtk::next_combination(s.begin(),s.begin() + set_size,s.end()));
 }
 
+void typename_example()
+{
+   std::cout << strtk::type_name<char>           () << std::endl;
+   std::cout << strtk::type_name<unsigned char>  () << std::endl;
+   std::cout << strtk::type_name<short>          () << std::endl;
+   std::cout << strtk::type_name<int>            () << std::endl;
+   std::cout << strtk::type_name<long>           () << std::endl;
+   std::cout << strtk::type_name<unsigned short> () << std::endl;
+   std::cout << strtk::type_name<unsigned int>   () << std::endl;
+   std::cout << strtk::type_name<unsigned long>  () << std::endl;
+   std::cout << strtk::type_name<std::string>    () << std::endl;
+}
+
 int main()
 {
    tokenizer_example01();
@@ -712,5 +725,6 @@ int main()
    hash_example();
    join_example();
    combination_example();
+   typename_example();
    return 0;
 }
