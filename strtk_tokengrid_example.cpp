@@ -131,29 +131,36 @@ void token_grid_test03()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   grid.extract_column(0,strtk::back_inserter_with_valuetype(lst0));
+   grid.extract_column(grid.all_rows(),0,strtk::back_inserter_with_valuetype(lst0));
    output_containter(lst0); std::cout << std::endl;
    lst0.clear();
 
-   grid.extract_column(0,1,strtk::back_inserter_with_valuetype(lst0),
-                           strtk::back_inserter_with_valuetype(lst1));
+   grid.extract_column(grid.all_rows(),
+                        0,1,
+                        strtk::back_inserter_with_valuetype(lst0),
+                        strtk::back_inserter_with_valuetype(lst1));
    output_containter(lst0); std::cout << std::endl;
    output_containter(lst1); std::cout << std::endl;
    lst0.clear(); lst1.clear();
 
-   grid.extract_column(0,1,2,strtk::back_inserter_with_valuetype(lst0),
-                             strtk::back_inserter_with_valuetype(lst1),
-                             strtk::back_inserter_with_valuetype(lst2));
+   grid.extract_column(grid.all_rows(),
+                       0,1,2,
+                       strtk::back_inserter_with_valuetype(lst0),
+                       strtk::back_inserter_with_valuetype(lst1),
+                       strtk::back_inserter_with_valuetype(lst2));
    output_containter(lst0); std::cout << std::endl;
    output_containter(lst1); std::cout << std::endl;
    output_containter(lst2); std::cout << std::endl;
    lst0.clear(); lst1.clear();
    lst2.clear();
 
-   grid.extract_column(0,1,2,3,strtk::back_inserter_with_valuetype(lst0),
-                               strtk::back_inserter_with_valuetype(lst1),
-                               strtk::back_inserter_with_valuetype(lst2),
-                               strtk::back_inserter_with_valuetype(lst3));
+   grid.extract_column(grid.all_rows(),
+                       0,1,2,3,
+                       strtk::back_inserter_with_valuetype(lst0),
+                       strtk::back_inserter_with_valuetype(lst1),
+                       strtk::back_inserter_with_valuetype(lst2),
+                       strtk::back_inserter_with_valuetype(lst3));
+
    output_containter(lst0); std::cout << std::endl;
    output_containter(lst1); std::cout << std::endl;
    output_containter(lst2); std::cout << std::endl;
@@ -161,11 +168,13 @@ void token_grid_test03()
    lst0.clear(); lst1.clear();
    lst2.clear(); lst3.clear();
 
-   grid.extract_column(0,1,2,3,4,strtk::back_inserter_with_valuetype(lst0),
-                                 strtk::back_inserter_with_valuetype(lst1),
-                                 strtk::back_inserter_with_valuetype(lst2),
-                                 strtk::back_inserter_with_valuetype(lst3),
-                                 strtk::back_inserter_with_valuetype(lst4));
+   grid.extract_column(grid.all_rows(),
+                       0,1,2,3,4,
+                       strtk::back_inserter_with_valuetype(lst0),
+                       strtk::back_inserter_with_valuetype(lst1),
+                       strtk::back_inserter_with_valuetype(lst2),
+                       strtk::back_inserter_with_valuetype(lst3),
+                       strtk::back_inserter_with_valuetype(lst4));
    output_containter(lst0); std::cout << std::endl;
    output_containter(lst1); std::cout << std::endl;
    output_containter(lst2); std::cout << std::endl;
@@ -456,7 +465,7 @@ public:
                    const strtk::token_grid::row_range_type& range)
    {
       double bucket_sum = 0.0;
-      if(!grid.accumulate_column(tick_value_column,bucket_sum,range))
+      if(!grid.accumulate_column(tick_value_column,range,bucket_sum))
       {
          std::cout << "failed to accumulate!" << std::endl;
          return false;

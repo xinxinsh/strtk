@@ -3537,51 +3537,90 @@ namespace strtk
       }
 
       template<typename OutputIterator>
-      inline void extract_column(const std::size_t& index, OutputIterator out)
+      inline bool extract_column(const row_range_type& range,
+                                 const std::size_t& index,
+                                 OutputIterator out)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
-         while (token_list_.end() != it)
+         if (index > max_column_count_)
+            return false;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         while (end != it)
          {
             process_column((*it++)[index],out);
          }
+         return true;
+      }
+
+      template<typename OutputIterator>
+      inline bool extract_column(const std::size_t& index,
+                                 OutputIterator out)
+      {
+         return extract_column(all_rows(),index,out);
       }
 
       template<typename OutputIterator1, typename OutputIterator2>
-      inline void extract_column(const std::size_t& index1,
+      inline bool extract_column(const row_range_type& range,
+                                 const std::size_t& index1,
                                  const std::size_t& index2,
                                  OutputIterator1 out1,
                                  OutputIterator2 out2)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
-         while (token_list_.end() != it)
+         if ((index1 > max_column_count_) ||
+             (index2 > max_column_count_))
+            return false;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         while (end != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
             ++it;
          }
+         return true;
       }
 
       template<typename OutputIterator1, typename OutputIterator2, typename OutputIterator3>
-      inline void extract_column(const std::size_t& index1,
+      inline bool extract_column(const row_range_type& range,
+                                 const std::size_t& index1,
                                  const std::size_t& index2,
                                  const std::size_t& index3,
                                  OutputIterator1 out1,
                                  OutputIterator2 out2,
                                  OutputIterator3 out3)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
-         while (token_list_.end() != it)
+         if ((index1 > max_column_count_) ||
+             (index2 > max_column_count_) ||
+             (index3 > max_column_count_))
+            return false;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         while (end != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
             process_column((*it)[index3],out3);
             ++it;
          }
+         return true;
       }
 
       template<typename OutputIterator1, typename OutputIterator2,
                typename OutputIterator3, typename OutputIterator4>
-      inline void extract_column(const std::size_t& index1,
+      inline bool extract_column(const row_range_type& range,
+                                 const std::size_t& index1,
                                  const std::size_t& index2,
                                  const std::size_t& index3,
                                  const std::size_t& index4,
@@ -3590,8 +3629,18 @@ namespace strtk
                                  OutputIterator3 out3,
                                  OutputIterator4 out4)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
-         while (token_list_.end() != it)
+         if ((index1 > max_column_count_) ||
+             (index2 > max_column_count_) ||
+             (index3 > max_column_count_) ||
+             (index4 > max_column_count_))
+            return false;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         while (end != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
@@ -3599,12 +3648,14 @@ namespace strtk
             process_column((*it)[index4],out4);
             ++it;
          }
+         return true;
       }
 
       template<typename OutputIterator1, typename OutputIterator2,
                typename OutputIterator3, typename OutputIterator4,
                typename OutputIterator5>
-      inline void extract_column(const std::size_t& index1,
+      inline bool extract_column(const row_range_type& range,
+                                 const std::size_t& index1,
                                  const std::size_t& index2,
                                  const std::size_t& index3,
                                  const std::size_t& index4,
@@ -3615,8 +3666,19 @@ namespace strtk
                                  OutputIterator4 out4,
                                  OutputIterator5 out5)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
-         while (token_list_.end() != it)
+         if ((index1 > max_column_count_) ||
+             (index2 > max_column_count_) ||
+             (index3 > max_column_count_) ||
+             (index4 > max_column_count_) ||
+             (index5 > max_column_count_))
+            return false;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         while (end != it)
          {
             process_column((*it)[index1],out1);
             process_column((*it)[index2],out2);
@@ -3625,6 +3687,7 @@ namespace strtk
             process_column((*it)[index5],out5);
             ++it;
          }
+         return true;
       }
 
       inline void remove_row(const std::size_t& index)
@@ -3633,10 +3696,15 @@ namespace strtk
       }
 
       template<typename Predicate>
-      inline void remove_row_if(Predicate p)
+      inline bool remove_row_if(const row_range_type& range, Predicate p)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
-         while (token_list_.end() != it)
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         while (end != it)
          {
             if (!it->empty() && p(it->front().first,it->back().second))
             {
@@ -3645,6 +3713,13 @@ namespace strtk
             else
               ++it;
          }
+         return true;
+      }
+
+      template<typename Predicate>
+      inline void remove_row_if(Predicate p)
+      {
+         return remove_row_if(all_rows(),p);
       }
 
       inline void enforce_column_count(const std::size_t& column_count)
@@ -3716,8 +3791,8 @@ namespace strtk
 
       template<typename T>
       inline bool accumulate_column(const std::size_t& col,
-                                    T& result,
-                                    const row_range_type& range) const
+                                    const row_range_type& range,
+                                    T& result) const
       {
          if (col > max_column_count_)
             return false;
@@ -3727,7 +3802,6 @@ namespace strtk
             return false;
          itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         itr_list_list_type new_token_list;
          T current_value = T();
          while (end != it)
          {
@@ -3746,14 +3820,14 @@ namespace strtk
       template<typename T>
       inline bool accumulate_column(const std::size_t& col, T& result) const
       {
-         return accumulate_column(col,result,all_rows());
+         return accumulate_column(col,all_rows(),result);
       }
 
       template<typename T, typename Predicate>
       inline bool accumulate_column(const std::size_t& col,
+                                    const row_range_type& range,
                                     Predicate p,
-                                    T& result,
-                                    const row_range_type& range) const
+                                    T& result) const
       {
          if (col > max_column_count_)
             return false;
@@ -3763,7 +3837,6 @@ namespace strtk
             return false;
          itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         itr_list_list_type new_token_list;
          T current_value = T();
          while (end != it)
          {
@@ -3780,9 +3853,11 @@ namespace strtk
       }
 
       template<typename T, typename Predicate>
-      inline bool accumulate_column(const std::size_t& col, Predicate p, T& result) const
+      inline bool accumulate_column(const std::size_t& col,
+                                    Predicate p,
+                                    T& result) const
       {
-         return accumulate_column(col,p,result,all_rows());
+         return accumulate_column(col,all_rows(),p,result);
       }
 
       inline bool join_row(const std::size_t& row, const std::string& delimiter, std::string& result)
@@ -3811,15 +3886,22 @@ namespace strtk
          return true;
       }
 
-      inline bool join_column(const std::size_t& col, const std::string& delimiter, std::string& result)
+      inline bool join_column(const std::size_t& col,
+                              const row_range_type& row_range,
+                              const std::string& delimiter,
+                              std::string& result)
       {
          if (col > max_column_count_)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin();
-         itr_list_list_type new_token_list;
+         if ((row_range.first > token_list_.size()) || (row_range.second > token_list_.size()))
+            return false;
+         if (row_range.first > row_range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + row_range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + row_range.second;
          range_type range;
          bool appended = false;
-         while (token_list_.end() != it)
+         while (end != it)
          {
             if (!delimiter.empty() && appended)
                result.append(delimiter);
@@ -3838,16 +3920,30 @@ namespace strtk
          return true;
       }
 
+      inline bool join_column(const std::size_t& col,
+                              const std::string& delimiter,
+                              std::string& result)
+      {
+         return join_column(col,all_rows(),delimiter,result);
+      }
+
       template<typename Predicate>
-      inline bool join_column(const std::size_t& col, Predicate p, const std::string& delimiter, std::string& result)
+      inline bool join_column(const std::size_t& col,
+                              const row_range_type& range,
+                              Predicate p,
+                              const std::string& delimiter,
+                              std::string& result)
       {
          if (col > max_column_count_)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin();
-         itr_list_list_type new_token_list;
-         range_type range;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          bool appended = false;
-         while (token_list_.end() != it)
+         while (end != it)
          {
             if (!delimiter.empty() && appended)
                result.append(delimiter);
@@ -3866,10 +3962,19 @@ namespace strtk
          return true;
       }
 
+      template<typename Predicate>
+      inline bool join_column(const std::size_t& col,
+                              Predicate p,
+                              const std::string& delimiter,
+                              std::string& result)
+      {
+         return join_column(col,all_rows(),p,delimiter,result);
+      }
+
       template<typename TransitionPredicate, typename Function>
-      inline bool sequential_partition(TransitionPredicate p,
-                                       Function f,
-                                       const row_range_type& range)
+      inline bool sequential_partition(const row_range_type& range,
+                                       TransitionPredicate p,
+                                       Function f)
       {
 
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
@@ -3906,7 +4011,7 @@ namespace strtk
       template<typename TransitionPredicate, typename Function>
       inline bool sequential_partition(TransitionPredicate p, Function f)
       {
-         return sequential_partition(p,f,all_rows());
+         return sequential_partition(all_rows(),p,f);
       }
 
    private:
@@ -5621,8 +5726,19 @@ namespace strtk
       {
          result = (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }
-
    }
+
+   template <typename T>
+               inline std::string type_name                 () { static std::string s("unknown");        return s; }
+   template <> inline std::string type_name<char>           () { static std::string s("char");           return s; }
+   template <> inline std::string type_name<unsigned char>  () { static std::string s("unsigned char");  return s; }
+   template <> inline std::string type_name<short>          () { static std::string s("short");          return s; }
+   template <> inline std::string type_name<int>            () { static std::string s("int");            return s; }
+   template <> inline std::string type_name<long>           () { static std::string s("long");           return s; }
+   template <> inline std::string type_name<unsigned short> () { static std::string s("unsigned short"); return s; }
+   template <> inline std::string type_name<unsigned int>   () { static std::string s("unsigned int");   return s; }
+   template <> inline std::string type_name<unsigned long>  () { static std::string s("unsigned long");  return s; }
+   template <> inline std::string type_name<std::string>    () { static std::string s("std::string");    return s; }
 
    namespace details
    {
