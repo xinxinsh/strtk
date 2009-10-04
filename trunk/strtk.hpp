@@ -851,7 +851,7 @@ namespace strtk
 
       pos = 0;
       std::size_t prev_pos = 0;
-      std::string::iterator sit = const_cast<std::string&>(s).begin();
+      std::string::const_iterator sit = const_cast<std::string&>(s).begin();
       std::string::iterator nit = n.begin();
 
       while ((0 < count) && (std::string::npos != (pos = s.find(p,pos))))
@@ -866,7 +866,10 @@ namespace strtk
          prev_pos = pos;
          --count;
       }
-      while (s.end() != sit) (*nit++) = (*sit++);
+      if (s.end() != sit)
+      {
+         std::copy(sit,s.end(),nit);
+      }
    }
 
    template<typename InputIterator, typename OutputIterator>
@@ -5728,18 +5731,6 @@ namespace strtk
       }
    }
 
-   template <typename T>
-               inline std::string type_name                 () { static std::string s("unknown");        return s; }
-   template <> inline std::string type_name<char>           () { static std::string s("char");           return s; }
-   template <> inline std::string type_name<unsigned char>  () { static std::string s("unsigned char");  return s; }
-   template <> inline std::string type_name<short>          () { static std::string s("short");          return s; }
-   template <> inline std::string type_name<int>            () { static std::string s("int");            return s; }
-   template <> inline std::string type_name<long>           () { static std::string s("long");           return s; }
-   template <> inline std::string type_name<unsigned short> () { static std::string s("unsigned short"); return s; }
-   template <> inline std::string type_name<unsigned int>   () { static std::string s("unsigned int");   return s; }
-   template <> inline std::string type_name<unsigned long>  () { static std::string s("unsigned long");  return s; }
-   template <> inline std::string type_name<std::string>    () { static std::string s("std::string");    return s; }
-
    namespace details
    {
 
@@ -5955,7 +5946,52 @@ namespace strtk
          return true;
       }
 
+      template <typename T>
+      inline std::string type_name()
+      {
+         static std::string s("unknown");
+         return s;
+      }
+
+      #define INSTANTIATE_TYPE_NAME(Type)\
+      template <> inline std::string type_name<Type>() { static std::string s(#Type); return s; }
+
+      INSTANTIATE_TYPE_NAME(char)
+      INSTANTIATE_TYPE_NAME(unsigned char)
+      INSTANTIATE_TYPE_NAME(short)
+      INSTANTIATE_TYPE_NAME(int)
+      INSTANTIATE_TYPE_NAME(long)
+      INSTANTIATE_TYPE_NAME(unsigned short)
+      INSTANTIATE_TYPE_NAME(unsigned int)
+      INSTANTIATE_TYPE_NAME(unsigned long)
+      INSTANTIATE_TYPE_NAME(double)
+      INSTANTIATE_TYPE_NAME(std::string)
+
+      template <typename T>
+      inline std::string type_name(const T&)
+      {
+         return details::type_name<T>();
+      }
+
    } // namespace details
+
+   template <typename T>
+   inline std::string type_name(const T&)
+   {
+      return details::type_name<T>();
+   }
+
+   #define INSTANTIATE_SEQUENCE_TYPE_NAME(TYPE)\
+   template <typename T, class Allocator>\
+   inline std::string type_name(const TYPE<T,Allocator>&)\
+   {\
+      static std::string s = std::string(#TYPE) + std::string("<" + details::type_name<T>() + ">");\
+      return s;\
+   }
+
+   INSTANTIATE_SEQUENCE_TYPE_NAME(std::vector)
+   INSTANTIATE_SEQUENCE_TYPE_NAME(std::deque)
+   INSTANTIATE_SEQUENCE_TYPE_NAME(std::list)
 
    #define INSTANTIATE_STRING_TO_TYPE_CONVERTER_FOR_STD_STRING_RETURN(ITER_TYPE)\
    template<> inline std::string string_to_type_converter(const ITER_TYPE begin, const ITER_TYPE end)\

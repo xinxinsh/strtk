@@ -474,10 +474,66 @@ bool test_construct_and_parse()
    return true;
 }
 
+bool test_replace_pattern()
+{
+   typedef std::pair<std::string,std::string> sp_type;
+   static const sp_type test[] = {
+                                   sp_type(   "a" ,   "x"),
+                                   sp_type(  "ab" ,  "xy"),
+                                   sp_type( "abc" , "xyz"),
+                                   sp_type(   "a" ,  "xy"),
+                                   sp_type(   "b" ,  "xy"),
+                                   sp_type(   "c" ,  "xy"),
+                                   sp_type(  "ab" ,   "x"),
+                                   sp_type(  "bc" ,   "x"),
+                                   sp_type(  "ca" ,   "x"),
+                                   sp_type(  "ab" , "xyz"),
+                                   sp_type(  "bc" , "xyz"),
+                                   sp_type(  "ca" , "xyz"),
+                                   sp_type( "abc" ,   "x"),
+                                   sp_type( "bca" ,   "x"),
+                                   sp_type( "cab" ,   "x"),
+                                   sp_type("abca" ,   "x"),
+                                   sp_type("bcab" ,   "x"),
+                                   sp_type("cabc" ,   "x"),
+                                   sp_type( "abc" ,    ""),
+                                   sp_type( "ijk" , "mno")
+                                 };
+
+   static const std::string base[] = {
+                                       "",
+                                       "abcabcabcabcabc",
+                                       "yyabcabcabcabcabc",
+                                       "yyabcabcabcabcabckkk",
+                                       "yyabcabcabcabcabckkk",
+                                       "yabctabcabctabcabtckk",
+                                       "xyzxyzxyzxyzxyzxyzxyzxyz"
+                                       "abc"
+                                     };
+   std::string result;
+   for(std::size_t i = 0; i < sizeof(test)/sizeof(sp_type); ++i)
+   {
+      for(std::size_t j = 0; j < sizeof(base)/sizeof(std::string); ++j)
+      {
+         strtk::replace_pattern(base[j],test[i].first,test[i].second,result);
+         if (test[i].first != test[i].second)
+         {
+            if (std::string::npos != result.find(test[i].first))
+            {
+               std::cout << "replace_pattern: s[" << base[j] << "] p[" << test[i].first << "] r[" << test[i].second << "]" << std::endl;
+               return false;
+            }
+         }
+      }
+   }
+   return true;
+}
+
 int main()
 {
    test_split_and_tokenizer();
    assert(test_empty_filter_itr());
    assert(test_construct_and_parse());
+   assert(test_replace_pattern());
    return 0;
 }
