@@ -442,8 +442,11 @@ class summarizer
 {
 public:
 
-   static const std::size_t tick_time_column = 0;
-   static const std::size_t tick_value_column = 1;
+   enum column_index
+   {
+      tick_time_column = 0,
+      tick_value_column = 1
+   };
 
    summarizer(std::deque<double>& sum_value)
    : next_tick_time_(0),

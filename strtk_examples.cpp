@@ -670,15 +670,36 @@ void combination_example()
 
 void typename_example()
 {
-   std::cout << strtk::type_name<char>           () << std::endl;
-   std::cout << strtk::type_name<unsigned char>  () << std::endl;
-   std::cout << strtk::type_name<short>          () << std::endl;
-   std::cout << strtk::type_name<int>            () << std::endl;
-   std::cout << strtk::type_name<long>           () << std::endl;
-   std::cout << strtk::type_name<unsigned short> () << std::endl;
-   std::cout << strtk::type_name<unsigned int>   () << std::endl;
-   std::cout << strtk::type_name<unsigned long>  () << std::endl;
-   std::cout << strtk::type_name<std::string>    () << std::endl;
+   char           t0;
+   unsigned char  t1;
+   short          t2;
+   int            t3;
+   long           t4;
+   unsigned short t5;
+   unsigned int   t6;
+   unsigned long  t7;
+   std::string    t8;
+
+   std::cout << strtk::type_name(t0) << std::endl;
+   std::cout << strtk::type_name(t1) << std::endl;
+   std::cout << strtk::type_name(t2) << std::endl;
+   std::cout << strtk::type_name(t3) << std::endl;
+   std::cout << strtk::type_name(t4) << std::endl;
+   std::cout << strtk::type_name(t5) << std::endl;
+   std::cout << strtk::type_name(t6) << std::endl;
+   std::cout << strtk::type_name(t7) << std::endl;
+   std::cout << strtk::type_name(t8) << std::endl;
+
+   std::vector<unsigned int> vui;
+   std::vector<std::string> vs;
+
+   std::deque<double> dd;
+   std::deque<std::string> ds;
+
+   std::cout << strtk::type_name(vui) << std::endl;
+   std::cout << strtk::type_name(vs)  << std::endl;
+   std::cout << strtk::type_name(dd)  << std::endl;
+   std::cout << strtk::type_name(ds)  << std::endl;
 }
 
 int main()
