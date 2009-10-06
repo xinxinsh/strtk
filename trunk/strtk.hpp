@@ -824,48 +824,49 @@ namespace strtk
                         const std::string& r,
                         std::string& n)
    {
-      if ((p == r) || p.empty())
+      if (p.empty() || (p == r))
       {
          n.assign(s);
          return;
       }
 
-      std::size_t new_size = s.size();
-      int inc = static_cast<int>(r.size()) - static_cast<int>(p.size());
+      std::size_t p_size = p.size();
+      std::size_t r_size = r.size();
+      int inc = static_cast<int>(r_size) - static_cast<int>(p_size);
       std::size_t pos = 0;
-      std::size_t count = 0;
+      std::vector<std::size_t> delta_list;
+      delta_list.reserve(std::min<std::size_t>(32,(s.size() / p.size()) + 1));
       while (std::string::npos != (pos = s.find(p,pos)))
       {
-         pos += p.size();
-         new_size += inc;
-         ++count;
+         delta_list.push_back(pos);
+         pos += p_size;
       }
 
-      if (0 == count)
+      if (delta_list.empty())
       {
          n.assign(s);
          return;
       }
 
-      n.resize(new_size, 0x00);
-
-      pos = 0;
-      std::size_t prev_pos = 0;
-      std::string::const_iterator sit = const_cast<std::string&>(s).begin();
+      n.resize(delta_list.size() * inc + s.size(), 0x00);
+      std::string::const_iterator sit = s.begin();
       std::string::iterator nit = n.begin();
+      const std::size_t delta_list_size = delta_list.size();
+      std::size_t i = 0;
+      std::size_t delta = delta_list[0];
 
-      while ((0 < count) && (std::string::npos != (pos = s.find(p,pos))))
+      for(;;)
       {
-         std::size_t diff = pos - prev_pos;
-         std::copy(sit,sit + diff,nit);
-         nit += diff;
+         std::copy(sit,sit + delta,nit);
+         sit += p_size + delta;
+         nit += delta;
          std::copy(r.begin(),r.end(),nit);
-         nit += r.size();
-         pos += p.size();
-         sit += pos - prev_pos;
-         prev_pos = pos;
-         --count;
+         nit += r_size;
+         if (++i >= delta_list_size)
+            break;
+         delta =  delta_list[i] - (delta_list[i - 1] + p_size);
       }
+
       if (s.end() != sit)
       {
          std::copy(sit,s.end(),nit);
@@ -5298,6 +5299,81 @@ namespace strtk
       }
       std::rotate(first,k,last);
       return false;
+   }
+
+   template<typename Iterator, typename Function>
+   void for_each_permutation(Iterator begin, Iterator end, Function function)
+   {
+      do
+      {
+         function(begin,end);
+      }
+      while(std::next_permutation(begin,end));
+   }
+
+   template<typename Iterator, typename Function>
+   bool for_each_permutation_conditional(Iterator begin, Iterator end, Function function)
+   {
+      do
+      {
+         if(!function(begin,end))
+            return false;
+      }
+      while(std::next_permutation(begin,end));
+      return true;
+   }
+
+   template<typename Iterator, typename Function>
+   void for_each_combination(Iterator begin, Iterator end, std::size_t size, Function function)
+   {
+      do
+      {
+         function(begin,begin + size);
+      }
+      while(next_combination(begin,begin + size, end));
+   }
+
+   template<typename Iterator, typename Function>
+   bool for_each_combination_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
+   {
+      do
+      {
+         if(!function(begin,begin + size))
+            return false;
+      }
+      while(next_combination(begin,begin + size, end));
+      return true;
+   }
+
+   template<typename Iterator, typename Function>
+   void for_each_combutation(Iterator begin, Iterator end, std::size_t size, Function function)
+   {
+      // for each permutation of each combination
+      do
+      {
+         do
+         {
+            function(begin,begin + size);
+         }
+         while(std::next_permutation(begin,begin + size));
+      }
+      while(next_combination(begin,begin + size, end));
+   }
+
+   template<typename Iterator, typename Function>
+   bool for_each_combutation_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
+   {
+      do
+      {
+         do
+         {
+            if(!function(begin,begin + size))
+               return false;
+         }
+         while(std::next_permutation(begin,begin + size));
+      }
+      while(next_combination(begin,begin + size, end));
+      return true;
    }
 
    class serializer
