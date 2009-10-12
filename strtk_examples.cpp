@@ -568,6 +568,52 @@ void generate_random_example01()
    #endif
 }
 
+void random_permutation_example()
+{
+   #ifdef ENABLE_RANDOM
+   std::vector<std::size_t> lst;
+   for(std::size_t i = 0; i < 10; lst.push_back(i++));
+
+   const std::size_t seed[] = {
+                               0x390e348f, 0x2884d0f5, 0x18aeb587, 0x31f9038c, 0x2ab63848,
+                               0x2f48e5fa, 0x1ce7c0d3, 0x15b67855, 0x158bf6b8, 0x02fccd04,
+                               0x070fc0fc, 0x201061f4, 0x35a1da56, 0x262b86ed, 0x06b60e56,
+                               0x2cffbcb1, 0x3b6f0edb, 0x04aa3850, 0x0fb38915, 0x05fb18f7,
+                               0x1a300acf, 0x0e99e22d, 0x222e195f, 0x1e54bacf, 0x35a9284c
+                              };
+
+   for(std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
+   {
+      strtk::random_permutation(lst.begin(),lst.end(),
+                                std::ostream_iterator<std::size_t>(std::cout,"\t"),seed[i]);
+      std::cout << std::endl;
+   }
+   #endif
+}
+
+void random_combination_example()
+{
+   #ifdef ENABLE_RANDOM
+
+   std::size_t seed[] = {
+                           0x390e348f, 0x2884d0f5, 0x18aeb587, 0x31f9038c, 0x2ab63848,
+                           0x2f48e5fa, 0x1ce7c0d3, 0x15b67855, 0x158bf6b8, 0x02fccd04
+                        };
+
+   std::vector<std::size_t> lst;
+   for(std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); lst.push_back(i++));
+
+   for(std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
+   {
+      strtk::random_combination(lst.begin(),lst.end(),
+                                i + 1,
+                                std::ostream_iterator<std::size_t>(std::cout,"\t"),seed[i]);
+      std::cout << std::endl;
+   }
+   #endif
+}
+
+
 void lexicographically_collate_example()
 {
    std::string str_list[] = {
@@ -742,6 +788,8 @@ int main()
    remove_proceeding_example();
    uri_extractor_example01();
    generate_random_example01();
+   random_permutation_example();
+   random_combination_example();
    lexicographically_collate_example();
    hash_example();
    join_example();
