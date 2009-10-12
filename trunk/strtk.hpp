@@ -2898,6 +2898,31 @@ namespace strtk
                               str2.c_str(),str2.c_str() + str2.size());
    }
 
+   template<typename Iterator>
+   inline std::size_t hamming_distance_elementwise(Iterator begin1, Iterator end1,
+                                                   Iterator begin2, Iterator end2)
+   {
+      if (std::distance(begin1,end1) != std::distance(begin2,end2))
+      {
+         return std::numeric_limits<std::size_t>::max();
+      }
+      std::size_t distance = 0;
+      Iterator it1 = begin1;
+      Iterator it2 = begin2;
+      while (end1 != it1)
+      {
+         if (*it1 != *it2)
+            ++distance;
+      }
+      return distance;
+   }
+
+   inline std::size_t hamming_distance_elementwise(const std::string& str1, const std::string& str2)
+   {
+      return hamming_distance_elementwise(str1.c_str(),str1.c_str() + str1.size(),
+                                          str2.c_str(),str2.c_str() + str2.size());
+   }
+
    namespace details
    {
 
@@ -3024,6 +3049,31 @@ namespace strtk
       typedef std::deque<range_type> itr_list_type;
       typedef std::deque<itr_list_type> itr_list_list_type;
       typedef std::pair<std::size_t,std::size_t> row_range_type;
+
+      struct options
+      {
+         options()
+         : split_row_option(split_options::compress_delimiters),
+           split_column_option(split_options::compress_delimiters),
+           row_delimiters("\n\r"),
+           column_delimiters(",|;\t")
+         {}
+
+         options(split_options::type sro,
+                 split_options::type sco,
+                 const std::string& rd,
+                 const std::string& cd)
+         : split_row_option(sro),
+           split_column_option(sco),
+           row_delimiters(rd),
+           column_delimiters(cd)
+         {}
+
+         split_options::type split_row_option;
+         split_options::type split_column_option;
+         std::string row_delimiters;
+         std::string column_delimiters;
+      };
 
       class row_type
       {
@@ -3446,15 +3496,68 @@ namespace strtk
       };
 
       token_grid(const std::string& file_name,
-            const std::string& column_delimiters = ",|;\t",
-            const std::string& row_delimiters = "\n\r")
+                 const token_grid::options& options)
       : file_name_(file_name),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
         buffer_(0),
         buffer_size_(0),
         min_column_count_(0),
         max_column_count_(0),
+        options_(options),
+        load_from_file_(true),
+        state_(load())
+      {}
+
+      token_grid(const unsigned char* input_buffer,
+                 const std::size_t& input_buffer_size,
+                 const token_grid::options& options)
+      : file_name_(""),
+        buffer_(const_cast<unsigned char*>(input_buffer)),
+        buffer_size_(input_buffer_size),
+        min_column_count_(0),
+        max_column_count_(0),
+        options_(options),
+        load_from_file_(false),
+        state_(load())
+      {}
+
+      token_grid(const char* input_buffer,
+                 const std::size_t& input_buffer_size,
+                 const token_grid::options& options)
+      : file_name_(""),
+        buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer))),
+        buffer_size_(input_buffer_size),
+        min_column_count_(0),
+        max_column_count_(0),
+        options_(options),
+        load_from_file_(false),
+        state_(load())
+      {}
+
+      token_grid(const std::string& input_buffer,
+                 const std::size_t& input_buffer_size,
+                 const token_grid::options& options)
+      : file_name_(""),
+        buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer.c_str()))),
+        buffer_size_(input_buffer_size),
+        min_column_count_(0),
+        max_column_count_(0),
+        options_(options),
+        load_from_file_(false),
+        state_(load())
+      {}
+
+      token_grid(const std::string& file_name,
+                 const std::string& column_delimiters = ",|;\t",
+                 const std::string& row_delimiters = "\n\r")
+      : file_name_(file_name),
+        buffer_(0),
+        buffer_size_(0),
+        min_column_count_(0),
+        max_column_count_(0),
+        options_(split_options::compress_delimiters,
+                 split_options::compress_delimiters,
+                 row_delimiters,
+                 column_delimiters),
         load_from_file_(true),
         state_(load())
       {}
@@ -3464,12 +3567,14 @@ namespace strtk
                  const std::string& column_delimiters = ",|;\t",
                  const std::string& row_delimiters = "\n\r")
       : file_name_(""),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
         buffer_(const_cast<unsigned char*>(input_buffer)),
         buffer_size_(input_buffer_size),
         min_column_count_(0),
         max_column_count_(0),
+        options_(split_options::compress_delimiters,
+                 split_options::compress_delimiters,
+                 row_delimiters,
+                 column_delimiters),
         load_from_file_(false),
         state_(load())
       {}
@@ -3479,12 +3584,14 @@ namespace strtk
                  const std::string& column_delimiters = ",|;\t",
                  const std::string& row_delimiters = "\n\r")
       : file_name_(""),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
         buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer))),
         buffer_size_(input_buffer_size),
         min_column_count_(0),
         max_column_count_(0),
+        options_(split_options::compress_delimiters,
+                 split_options::compress_delimiters,
+                 row_delimiters,
+                 column_delimiters),
         load_from_file_(false),
         state_(load())
       {}
@@ -3494,12 +3601,14 @@ namespace strtk
                  const std::string& column_delimiters = ",;|\t",
                  const std::string& row_delimiters = "\n\r")
       : file_name_(""),
-        column_delimiters_(column_delimiters),
-        row_delimiters_(row_delimiters),
         buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer.c_str()))),
         buffer_size_(input_buffer_size),
         min_column_count_(0),
         max_column_count_(0),
+        options_(split_options::compress_delimiters,
+                 split_options::compress_delimiters,
+                 row_delimiters,
+                 column_delimiters),
         load_from_file_(false),
         state_(load())
       {}
@@ -3762,9 +3871,10 @@ namespace strtk
          max_column_count_ = max_column_count;
       }
 
-      inline void clear()
+      inline void clear(const bool force_delete_buffer = false)
       {
-         delete[] buffer_;
+         if (load_from_file_ || force_delete_buffer)
+            delete[] buffer_;
          buffer_ = 0;
          buffer_size_ = 0;
          token_list_.clear();
@@ -4018,6 +4128,11 @@ namespace strtk
          return sequential_partition(all_rows(),p,f);
       }
 
+      static token_grid::options default_options()
+      {
+         return token_grid::options();
+      }
+
    private:
 
       token_grid(const token_grid& tg);
@@ -4025,34 +4140,22 @@ namespace strtk
 
       bool load()
       {
-         if (load_from_file_)
-         {
-            std::ifstream stream(file_name_.c_str(),std::ios::binary);
-            if (!stream)
-               return false;
-            stream.seekg (0,std::ios::end);
-            buffer_size_ = stream.tellg();
-            if (0 == buffer_size_)
-               return false;
-            stream.seekg (0,std::ios::beg);
-            buffer_ = new unsigned char[buffer_size_ + 1]; // an extra char for end iterator;
-            stream.read(reinterpret_cast<char*>(buffer_),static_cast<std::streamsize>(buffer_size_));
-            stream.close();
-         }
+         if (load_from_file_ && !load_buffer_from_file())
+            return false;
 
-         itr_list_type str_list;
-         multiple_char_delimiter_predicate text_newline_predicate(row_delimiters_);
+         itr_list_type row_list;
+         multiple_char_delimiter_predicate text_newline_predicate(options_.row_delimiters);
          split(text_newline_predicate,
                buffer_, buffer_ + buffer_size_,
-               std::back_inserter(str_list),
-               split_options::compress_delimiters);
+               std::back_inserter(row_list),
+               options_.split_row_option);
 
-         multiple_char_delimiter_predicate token_predicate(column_delimiters_);
+         multiple_char_delimiter_predicate token_predicate(options_.column_delimiters);
 
          min_column_count_ = std::numeric_limits<std::size_t>::max();
          max_column_count_ = std::numeric_limits<std::size_t>::min();
 
-         for (itr_list_type::iterator it = str_list.begin(); str_list.end() != it; ++it)
+         for (itr_list_type::iterator it = row_list.begin(); row_list.end() != it; ++it)
          {
             if (0 == std::distance(it->first,it->second))
                continue;
@@ -4061,7 +4164,7 @@ namespace strtk
                   it->first,
                   it->second,
                   std::back_inserter(current_token_list),
-                  split_options::compress_delimiters);
+                  options_.split_column_option);
             if (!current_token_list.empty())
             {
                token_list_.push_back(current_token_list);
@@ -4069,6 +4172,22 @@ namespace strtk
                max_column_count_ = std::max(max_column_count_,current_token_list.size());
             }
          }
+         return true;
+      }
+
+      bool load_buffer_from_file()
+      {
+         std::ifstream stream(file_name_.c_str(),std::ios::binary);
+         if (!stream)
+            return false;
+         stream.seekg (0,std::ios::end);
+         buffer_size_ = stream.tellg();
+         if (0 == buffer_size_)
+            return false;
+         stream.seekg (0,std::ios::beg);
+         buffer_ = new unsigned char[buffer_size_];
+         stream.read(reinterpret_cast<char*>(buffer_),static_cast<std::streamsize>(buffer_size_));
+         stream.close(); // scope should handle this.
          return true;
       }
 
@@ -4083,12 +4202,11 @@ namespace strtk
 
       itr_list_list_type token_list_;
       std::string file_name_;
-      std::string column_delimiters_;
-      std::string row_delimiters_;
       unsigned char* buffer_;
       std::size_t buffer_size_;
       std::size_t min_column_count_;
       std::size_t max_column_count_;
+      options options_;
       bool load_from_file_;
       bool state_;
    };
@@ -4370,7 +4488,6 @@ namespace strtk
          if (token_count != split_n(delimiters,begin,end,token_count,token_list))
             return false;
          iterator_type_ptr it = token_list;
-
          if (!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
          if (!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
          if (!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
@@ -5260,6 +5377,73 @@ namespace strtk
          (*x) = rnd();
       }
    }
+
+   template <typename Iterator,
+             typename RandomNumberGenerator,
+             typename OutputIterator>
+   void random_permutation(Iterator begin, Iterator end,
+                           RandomNumberGenerator& rng,
+                           OutputIterator out)
+   {
+      const std::size_t size = std::distance(begin,end);
+      if (rng.max() < size) return;
+      std::deque<std::size_t> index;
+      for(std::size_t i = 0; i < size; index.push_back(i++));
+      while(!index.empty())
+      {
+         std::size_t idx = static_cast<std::size_t>((index.size() * (rng() / (rng.max() + 1.0))));
+         *(out++) = *(begin + index[idx]);
+         index.erase(index.begin() + idx);
+      }
+   }
+
+   template <typename Iterator,
+             typename OutputIterator>
+   void random_permutation(Iterator begin,
+                           Iterator end,
+                           OutputIterator out,
+                           const std::size_t seed = 0xA5A5A5A5)
+   {
+      boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
+      boost::uniform_int<std::size_t> dist(0,std::numeric_limits<std::size_t>::max());
+      boost::variate_generator<boost::mt19937&, boost::uniform_int<std::size_t> > rnd(rng,dist);
+      random_permutation(begin,end,rnd,out);
+   }
+
+   template <typename Iterator,
+             typename RandomNumberGenerator,
+             typename OutputIterator>
+   bool random_combination(Iterator begin, Iterator end,
+                           std::size_t set_size,
+                           RandomNumberGenerator& rng,
+                           OutputIterator out)
+   {
+      const std::size_t size = std::distance(begin,end);
+      if ((size < set_size) || (rng.max() < size)) return false;
+      std::deque<std::size_t> index;
+      for(std::size_t i = 0; i < size; index.push_back(i++));
+      while(set_size)
+      {
+         std::size_t idx = static_cast<std::size_t>((index.size() * (rng() / (rng.max() + 1.0))));
+         *(out++) = *(begin + index[idx]);
+         index.erase(index.begin() + idx);
+         --set_size;
+      }
+      return true;
+   }
+
+   template <typename Iterator,
+             typename OutputIterator>
+   void random_combination(Iterator begin, Iterator end,
+                           const std::size_t& set_size,
+                           OutputIterator out,
+                           const std::size_t seed = 0xA5A5A5A5)
+   {
+      boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
+      boost::uniform_int<std::size_t> dist(0,std::numeric_limits<std::size_t>::max());
+      boost::variate_generator<boost::mt19937&, boost::uniform_int<std::size_t> > rnd(rng,dist);
+      random_combination(begin,end,set_size,rnd,out);
+   }
    #endif // ENABLE_RANDOM
 
    template <typename Iterator>
@@ -5330,7 +5514,7 @@ namespace strtk
       {
          function(begin,begin + size);
       }
-      while(next_combination(begin,begin + size, end));
+      while(next_combination(begin,begin + size,end));
    }
 
    template<typename Iterator, typename Function>
@@ -5341,7 +5525,7 @@ namespace strtk
          if(!function(begin,begin + size))
             return false;
       }
-      while(next_combination(begin,begin + size, end));
+      while(next_combination(begin,begin + size,end));
       return true;
    }
 
@@ -5357,7 +5541,7 @@ namespace strtk
          }
          while(std::next_permutation(begin,begin + size));
       }
-      while(next_combination(begin,begin + size, end));
+      while(next_combination(begin,begin + size,end));
    }
 
    template<typename Iterator, typename Function>
@@ -5372,7 +5556,7 @@ namespace strtk
          }
          while(std::next_permutation(begin,begin + size));
       }
-      while(next_combination(begin,begin + size, end));
+      while(next_combination(begin,begin + size,end));
       return true;
    }
 
@@ -5401,20 +5585,20 @@ namespace strtk
          return (0 == buffer_length_) || (0 == original_buffer_) || (0 == buffer_);
       }
 
-      void reset()
+      inline void reset()
       {
          to_be_written_buffer_size_ = 0;
          read_buffer_size_ = 0;
          buffer_ = original_buffer_;
       }
 
-      void clear()
+      inline void clear()
       {
          reset();
          std::memset(buffer_,0x00,buffer_length_);
       }
 
-      std::size_t length() const
+      inline std::size_t length() const
       {
          return to_be_written_buffer_size_;
       }
