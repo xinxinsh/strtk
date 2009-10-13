@@ -4101,7 +4101,7 @@ namespace strtk
          {
             if (p(row_type(*it)))
             {
-               if(r.first != r.second)
+               if (r.first != r.second)
                {
                   r.second = i;
                   if (!f(*this,r))
@@ -4113,7 +4113,7 @@ namespace strtk
                r.second = i;
          }
 
-         if(r.first != range.second)
+         if (r.first != range.second)
          {
             r.second = range.second;
             if (!f(*this,r))
@@ -5500,7 +5500,7 @@ namespace strtk
    {
       do
       {
-         if(!function(begin,end))
+         if (!function(begin,end))
             return false;
       }
       while(std::next_permutation(begin,end));
@@ -5522,7 +5522,7 @@ namespace strtk
    {
       do
       {
-         if(!function(begin,begin + size))
+         if (!function(begin,begin + size))
             return false;
       }
       while(next_combination(begin,begin + size,end));
@@ -5551,7 +5551,7 @@ namespace strtk
       {
          do
          {
-            if(!function(begin,begin + size))
+            if (!function(begin,begin + size))
                return false;
          }
          while(std::next_permutation(begin,begin + size));
