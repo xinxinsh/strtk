@@ -217,7 +217,7 @@ namespace strtk
    }
 
    template<typename Iterator, typename T>
-   inline bool string_to_type_converter(Iterator begin, Iterator end, T& t)
+   inline bool string_to_type_converter(const Iterator begin, const Iterator end, T& t)
    {
       typedef typename details::is_valid_iterator<Iterator>::type itr_type;
       typename details::supported_conversion_to_type<T>::type type;
@@ -225,7 +225,7 @@ namespace strtk
    }
 
    template<typename T, typename Iterator>
-   inline T string_to_type_converter(Iterator begin, Iterator end)
+   inline T string_to_type_converter(const Iterator begin, const Iterator end)
    {
       typedef typename details::is_valid_iterator<Iterator>::type itr_type;
       typename details::supported_conversion_to_type<T>::type type;
@@ -2899,8 +2899,8 @@ namespace strtk
    }
 
    template<typename Iterator>
-   inline std::size_t hamming_distance_elementwise(Iterator begin1, Iterator end1,
-                                                   Iterator begin2, Iterator end2)
+   inline std::size_t hamming_distance_elementwise(const Iterator begin1, const Iterator end1,
+                                                   const Iterator begin2, const Iterator end2)
    {
       if (std::distance(begin1,end1) != std::distance(begin2,end2))
       {
@@ -5155,7 +5155,8 @@ namespace strtk
    }
 
    template<typename InputIterator>
-   inline void join(std::string& output, const std::string& delimiter,
+   inline void join(std::string& output,
+                    const std::string& delimiter,
                     const InputIterator begin,
                     const InputIterator end)
    {
@@ -5170,6 +5171,16 @@ namespace strtk
       }
    }
 
+   template <typename T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline void join(std::string& output,
+                    const std::string& delimiter,
+                    Sequence<T,Allocator>& sequence)
+   {
+      join(output,delimiter,sequence.begin(),sequence.end());
+   }
+
    template<typename InputIterator>
    inline std::string join(const std::string& delimiter,
                            const InputIterator begin,
@@ -5178,6 +5189,15 @@ namespace strtk
       std::string output;
       join(output,delimiter,begin,end);
       return output;
+   }
+
+   template <typename T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::string join(const std::string& delimiter,
+                           Sequence<T,Allocator>& sequence)
+   {
+      return join(delimiter,sequence.begin(),sequence.end());
    }
 
    template<typename InputIterator, typename Predicate>
@@ -5204,6 +5224,18 @@ namespace strtk
       }
    }
 
+   template <typename T,
+             typename Predicate,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline void join_if(std::string& output,
+                       const std::string& delimiter,
+                       Predicate predicate,
+                       Sequence<T,Allocator>& sequence)
+   {
+      join(output,delimiter,predicate,sequence.begin(),sequence.end());
+   }
+
    template<typename InputIterator, typename Predicate>
    inline std::string join_if(const std::string& delimiter,
                               Predicate predicate,
@@ -5213,6 +5245,17 @@ namespace strtk
       std::string output;
       join_if(output,delimiter,predicate,begin,end);
       return output;
+   }
+
+   template <typename T,
+             typename Predicate,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline std::string join_if(const std::string& delimiter,
+                              Predicate predicate,
+                              Sequence<T,Allocator>& sequence)
+   {
+      return join(delimiter,predicate,sequence.begin(),sequence.end());
    }
 
    inline void replicate(const std::size_t& count,
@@ -5235,8 +5278,67 @@ namespace strtk
       return output;
    }
 
+   template<typename T>
+   struct interval_inserter
+   {
+      typedef typename T type;
+
+      interval_inserter(const std::size_t& interval, const T& t)
+      : count_(0),
+        interval_(interval),
+        t_(t)
+      {}
+
+      inline bool operator()(const type&)
+      {
+         if (++count_ == interval_)
+         {
+            count_ = 0;
+            return true;
+         }
+         else
+            return false;
+      }
+
+      inline T operator()()
+      {
+         return t_;
+      }
+
+      private:
+      std::size_t count_;
+      std::size_t interval_;
+      T t_;
+   };
+
+   template<typename Inserter,
+            typename InputIterator,
+            typename OutputIterator>
+   inline std::size_t inserter(Inserter ins,
+                               const InputIterator begin, const InputIterator end,
+                               OutputIterator out)
+   {
+      std::size_t size = 0;
+      InputIterator it = begin;
+      while(end != it)
+      {
+         *out++ = *it;
+         if (ins(*it++))
+         {
+            *out++ = ins();
+            size += 2;
+         }
+         else
+            ++size;
+      }
+      return size;
+   }
+
    #ifdef ENABLE_RANDOM
-   void generate_random_data(unsigned char* data, std::size_t length, unsigned int pre_gen_cnt = 0, unsigned int seed = magic_seed)
+   void generate_random_data(unsigned char* data, 
+                             std::size_t length, 
+                             unsigned int pre_gen_cnt = 0, 
+                             unsigned int seed = magic_seed)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       boost::uniform_int<unsigned int> dist(std::numeric_limits<unsigned int>::min(),std::numeric_limits<unsigned int>::max());
@@ -5266,7 +5368,7 @@ namespace strtk
    template <typename Iterator,
              typename RandomNumberGenerator,
              typename OutputIterator>
-   void random_permutation(Iterator begin, Iterator end,
+   void random_permutation(const Iterator begin, const Iterator end,
                            RandomNumberGenerator& rng,
                            OutputIterator out)
    {
@@ -5284,8 +5386,7 @@ namespace strtk
 
    template <typename Iterator,
              typename OutputIterator>
-   void random_permutation(Iterator begin,
-                           Iterator end,
+   void random_permutation(const Iterator begin, const Iterator end,
                            OutputIterator out,
                            const std::size_t seed = magic_seed)
    {
@@ -5298,7 +5399,7 @@ namespace strtk
    template <typename Iterator,
              typename RandomNumberGenerator,
              typename OutputIterator>
-   bool random_combination(Iterator begin, Iterator end,
+   bool random_combination(const Iterator begin, const Iterator end,
                            std::size_t set_size,
                            RandomNumberGenerator& rng,
                            OutputIterator out)
@@ -5319,7 +5420,7 @@ namespace strtk
 
    template <typename Iterator,
              typename OutputIterator>
-   void random_combination(Iterator begin, Iterator end,
+   void random_combination(const Iterator begin, const Iterator end,
                            const std::size_t& set_size,
                            OutputIterator out,
                            const std::size_t seed = magic_seed)
@@ -6014,7 +6115,7 @@ namespace strtk
       register_sequence_iterator_type(std::deque)
 
       template<typename Iterator, typename T, typename Tag>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, T& t, not_supported_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, not_supported_type_tag)
       {
          try
          {
@@ -6028,14 +6129,14 @@ namespace strtk
       }
 
       template<typename Iterator>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, std::string& t, not_supported_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, std::string& t, not_supported_type_tag)
       {
          t.assign(begin,end);
          return true;
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, T& t, unsigned_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, unsigned_type_tag)
       {
          if (0 == std::distance(begin,end))
             return false;
@@ -6056,7 +6157,7 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, T& t, signed_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, signed_type_tag)
       {
          if (0 == std::distance(begin,end))
             return false;
@@ -6084,7 +6185,7 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, T& t, real_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, real_type_tag)
       {
          std::size_t length = std::distance(begin,end);
          static const std::size_t buffer_size = 96;
@@ -6097,7 +6198,7 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, T& t, byte_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, byte_type_tag)
       {
          if (1 != std::distance(begin,end))
             return false;
@@ -6106,7 +6207,7 @@ namespace strtk
       }
 
       template<typename Iterator>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, bool& t, bool_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, bool& t, bool_type_tag)
       {
          if (1 != std::distance(begin,end))
             return false;
@@ -6115,14 +6216,14 @@ namespace strtk
       }
 
       template<typename Iterator, typename HexSinkType>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, HexSinkType& t, hex_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, HexSinkType& t, hex_type_tag)
       {
          t = std::pair<Iterator,Iterator>(begin,end);
          return t.valid();
       }
 
       template<typename Iterator, typename Base64SinkType>
-      inline bool string_to_type_converter_impl(Iterator begin, Iterator end, Base64SinkType& t, base64_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, Base64SinkType& t, base64_type_tag)
       {
          t = std::pair<Iterator,Iterator>(begin,end);
          return t.valid();
