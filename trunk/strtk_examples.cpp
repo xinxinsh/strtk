@@ -575,11 +575,11 @@ void random_permutation_example()
    for(std::size_t i = 0; i < 10; lst.push_back(i++));
 
    const std::size_t seed[] = {
-                               0x390e348f, 0x2884d0f5, 0x18aeb587, 0x31f9038c, 0x2ab63848,
-                               0x2f48e5fa, 0x1ce7c0d3, 0x15b67855, 0x158bf6b8, 0x02fccd04,
-                               0x070fc0fc, 0x201061f4, 0x35a1da56, 0x262b86ed, 0x06b60e56,
-                               0x2cffbcb1, 0x3b6f0edb, 0x04aa3850, 0x0fb38915, 0x05fb18f7,
-                               0x1a300acf, 0x0e99e22d, 0x222e195f, 0x1e54bacf, 0x35a9284c
+                               0x390E348F, 0x2884D0F5, 0x18AEB587, 0x31F9038C, 0x2AB63848,
+                               0x2F48E5FA, 0x1CE7C0D3, 0x15B67855, 0x158BF6B8, 0x02FCCD04,
+                               0x070FC0FC, 0x201061F4, 0x35A1DA56, 0x262B86ED, 0x06B60E56,
+                               0x2CFFBCB1, 0x3B6F0EDB, 0x04AA3850, 0x0FB38915, 0x05FB18F7,
+                               0x1A300ACF, 0x0E99E22D, 0x222E195F, 0x1E54BACF, 0x35A9284C
                               };
 
    for(std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
@@ -596,8 +596,8 @@ void random_combination_example()
    #ifdef ENABLE_RANDOM
 
    std::size_t seed[] = {
-                           0x390e348f, 0x2884d0f5, 0x18aeb587, 0x31f9038c, 0x2ab63848,
-                           0x2f48e5fa, 0x1ce7c0d3, 0x15b67855, 0x158bf6b8, 0x02fccd04
+                           0x390E348F, 0x2884D0F5, 0x18AEB587, 0x31F9038C, 0x2AB63848,
+                           0x2F48E5FA, 0x1CE7C0D3, 0x15B67855, 0x158BF6B8, 0x02FCCD04
                         };
 
    std::vector<std::size_t> lst;
@@ -700,6 +700,26 @@ void join_example()
    std::cout << "Size greater than 5: " << strtk::join_if(",", strtk::size_greater_than<5>(), str_list,str_list + str_list_size) << std::endl;
 }
 
+void inserter_example()
+{
+   const std::string base = "The Quick Brown Fox Jumps Over The Lazy Dog";
+   std::string str;
+   std::string str_output;
+   strtk::replicate(5,base,str);
+   strtk::inserter(strtk::interval_inserter<std::string::value_type>(base.size(),'\n'),
+                   str.begin(),str.end(),
+                   std::back_inserter(str_output));
+   std::cout << str_output << std::endl;
+
+   const std::size_t i[] = {1,2,3,4,5,6,7,8,9,10,11,12};
+   const std::size_t size_i = sizeof(i) / sizeof(std::size_t);
+   std::deque<std::size_t> int_output;
+   strtk::inserter(strtk::interval_inserter<std::size_t>(3,666),
+                   i,i + size_i,
+                   std::back_inserter(int_output));
+   std::cout << strtk::join(" ",int_output) << std::endl;
+}
+
 void combination_example()
 {
    std::string s = "abcde";
@@ -707,9 +727,7 @@ void combination_example()
    std::size_t combination_index = 0;
    do
    {
-      std::cout << combination_index++ << "\t";
-      std::copy(s.begin(),s.begin() + set_size,std::ostream_iterator<std::string::value_type>(std::cout,""));
-      std::cout << std::endl;
+      std::cout << combination_index++ << "\t" << s.substr(0,set_size) << std::endl;
    }
    while (strtk::next_combination(s.begin(),s.begin() + set_size,s.end()));
 }
@@ -793,6 +811,7 @@ int main()
    lexicographically_collate_example();
    hash_example();
    join_example();
+   inserter_example();
    combination_example();
    typename_example();
    return 0;
