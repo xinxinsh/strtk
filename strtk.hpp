@@ -5335,9 +5335,9 @@ namespace strtk
    }
 
    #ifdef ENABLE_RANDOM
-   void generate_random_data(unsigned char* data, 
-                             std::size_t length, 
-                             unsigned int pre_gen_cnt = 0, 
+   void generate_random_data(unsigned char* data,
+                             std::size_t length,
+                             unsigned int pre_gen_cnt = 0,
                              unsigned int seed = magic_seed)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
