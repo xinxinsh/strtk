@@ -6360,6 +6360,413 @@ namespace strtk
       return s;\
    }
 
+   namespace fileio
+   {
+
+      inline bool file_exists(const std::string& file_name)
+      {
+         std::ifstream file(file_name.c_str(), std::ios::binary);
+         return ((!file) ? false : true);
+      }
+
+      inline std::size_t file_size(const std::string& file_name)
+      {
+         std::ifstream file(file_name.c_str(),std::ios::binary);
+         if (!file) return 0;
+         file.seekg (0, std::ios::end);
+         return file.tellg();
+      }
+
+      inline bool load_file(const std::string& file_name, char* buffer, std::size_t buffer_size)
+      {
+         std::ifstream in_stream(file_name.c_str(),std::ios::binary);
+         if (!in_stream) return false;
+         in_stream.read(buffer,static_cast<std::streamsize>(buffer_size));
+         in_stream.close();
+         return true;
+      }
+
+      inline bool load_file(const std::string& file_name, std::string& buffer)
+      {
+         buffer.resize(file_size(file_name));
+         return load_file(file_name,const_cast<char*>(buffer.c_str()),buffer.size());
+      }
+
+      inline bool write_file(const std::string& file_name, char* buffer, const std::size_t& buffer_size)
+      {
+         std::ofstream out_stream(file_name.c_str(),std::ios::binary);
+         if (!out_stream) return false;
+         out_stream.write(buffer,static_cast<std::streamsize>(buffer_size));
+         out_stream.close();
+         return true;
+      }
+
+      inline bool write_file(const std::string& file_name, const std::string& buffer)
+      {
+         return write_file(file_name,const_cast<char*>(buffer.c_str()),buffer.size());
+      }
+
+      inline bool copy_file(const std::string& src_file_name, const std::string& dest_file_name)
+      {
+         std::ifstream src_file(src_file_name.c_str(),std::ios::binary);
+         std::ofstream dest_file(dest_file_name.c_str(),std::ios::binary);
+         if (!src_file) return false;
+         if (!dest_file) return false;
+
+         const std::size_t block_size = 4 * one_kilobyte;
+         char buffer[block_size];
+
+         std::size_t remaining_bytes = file_size(src_file_name);
+
+         while(remaining_bytes >= block_size)
+         {
+            src_file.read(&buffer[0],static_cast<std::streamsize>(block_size));
+            dest_file.write(&buffer[0],static_cast<std::streamsize>(block_size));
+            remaining_bytes -= block_size;
+         }
+
+         if (remaining_bytes > 0)
+         {
+            src_file.read(&buffer[0],static_cast<std::streamsize>(remaining_bytes));
+            dest_file.write(&buffer[0],static_cast<std::streamsize>(remaining_bytes));
+            remaining_bytes = 0;
+         }
+         src_file.close();
+         dest_file.close();
+         return true;
+      }
+
+      inline bool concatenate(const std::string& file_name1,
+                              const std::string& file_name2,
+                              const std::string& output_file_name)
+      {
+         std::ifstream file1(file_name1.c_str(),std::ios::binary);
+         std::ifstream file2(file_name2.c_str(),std::ios::binary);
+         std::ofstream out_file(output_file_name.c_str(),std::ios::binary);
+
+         if (!file1 || !file2 || !out_file) return false;
+
+         const std::size_t block_size = 4 * one_kilobyte;
+         char buffer[block_size];
+         unsigned int round = 0;
+         std::size_t remaining_bytes = 0;
+
+         while(round < 2)
+         {
+            std::ifstream& input_stream = ((round == 0) ? file1 : file2);
+            remaining_bytes = ((round == 0) ? file_size(file_name1) : file_size(file_name2));
+
+            while(remaining_bytes >= block_size)
+            {
+               input_stream.read(&buffer[0],static_cast<std::streamsize>(block_size));
+               out_file.write(&buffer[0],static_cast<std::streamsize>(block_size));
+               remaining_bytes -= block_size;
+            }
+
+            if (remaining_bytes > 0)
+            {
+               input_stream.read(&buffer[0],static_cast<std::streamsize>(remaining_bytes));
+               out_file.write(&buffer[0],static_cast<std::streamsize>(remaining_bytes));
+               remaining_bytes = 0;
+            }
+            input_stream.close();
+            ++round;
+         }
+         out_file.close();
+         return true;
+      }
+
+      inline bool files_identical(const std::string& file_name1, const std::string& file_name2)
+      {
+         std::ifstream file1(file_name1.c_str(),std::ios::binary);
+         std::ifstream file2(file_name2.c_str(),std::ios::binary);
+         if (!file1) return false;
+         if (!file2) return false;
+         if (file_size(file_name1) != file_size(file_name2)) return false;
+
+         const std::size_t block_size = 4 * one_kilobyte;
+         char buffer1[block_size];
+         char buffer2[block_size];
+
+         std::size_t remaining_bytes = file_size(file_name1);
+
+         while(remaining_bytes >= block_size)
+         {
+            file1.read(&buffer1[0],static_cast<std::streamsize>(block_size));
+            file2.read(&buffer2[0],static_cast<std::streamsize>(block_size));
+            for(std::size_t i = 0; i < block_size; ++i)
+            {
+               if (buffer1[i] != buffer2[i])
+               {
+                  return false;
+               }
+            }
+            remaining_bytes -= block_size;
+         }
+
+         if (remaining_bytes > 0)
+         {
+            file1.read(&buffer1[0],static_cast<std::streamsize>(remaining_bytes));
+            file2.read(&buffer2[0],static_cast<std::streamsize>(remaining_bytes));
+            for(std::size_t i = 0; i < remaining_bytes; ++i)
+            {
+               if (buffer1[i] != buffer2[i])
+               {
+                  return false;
+               }
+            }
+            remaining_bytes = 0;
+         }
+
+         file1.close();
+         file2.close();
+
+         return true;
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8,
+                typename T9, typename T10>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3, T4& t4,
+                           T5& t5, T6& t6, T7& t7, T8& t8,
+                           T9& t9, T10& t10)
+      {
+         read_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8,t9);
+         read_pod(stream,t10);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8,
+                typename T9>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3, T4& t4,
+                           T5& t5, T6& t6, T7& t7, T8& t8,
+                           T9& t9)
+      {
+         read_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8);
+         read_pod(stream,t9);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3, T4& t4,
+                           T5& t5, T6& t6, T7& t7, T8& t8)
+      {
+         read_pod(stream,t1,t2,t3,t4,t5,t6,t7);
+         read_pod(stream,t8);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3, T4& t4,
+                           T5& t5, T6& t6, T7& t7)
+      {
+         read_pod(stream,t1,t2,t3,t4,t5,t6);
+         read_pod(stream,t7);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3, T4& t4,
+                           T5& t5, T6& t6)
+      {
+         read_pod(stream,t1,t2,t3,t4,t5);
+         read_pod(stream,t6);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3, T4& t4,
+                           T5& t5)
+      {
+         read_pod(stream,t1,t2,t3,t4);
+         read_pod(stream,t5);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3, T4& t4)
+      {
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
+      }
+
+      template< typename T1, typename T2, typename T3>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2, T3& t3)
+      {
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+      }
+
+      template< typename T1, typename T2>
+      inline void read_pod(std::ifstream& stream,
+                           T1& t1, T2& t2)
+      {
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+      }
+
+      template< typename T>
+      inline void read_pod(std::ifstream& stream, T& t)
+      {
+         stream.read(reinterpret_cast<char*>(&t),sizeof(T));
+      }
+
+      template< typename T>
+      inline void read_pod(std::ifstream& stream, T t[], const std::size_t length)
+      {
+         stream.read(reinterpret_cast<char*>(&t[0]),sizeof(T) * length);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8,
+                typename T9, typename T10>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                            const T5& t5, const T6& t6, const T7& t7, const T8& t8,
+                            const T9& t9, const T10& t10)
+      {
+         write_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8,t9);
+         write_pod(stream,t10);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8,
+                typename T9>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                            const T5& t5, const T6& t6, const T7& t7, const T8& t8,
+                            const T9& t9)
+      {
+         write_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8);
+         write_pod(stream,t9);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                            const T5& t5, const T6& t6, const T7& t7, const T8& t8)
+      {
+         write_pod(stream,t1,t2,t3,t4,t5,t6,t7);
+         write_pod(stream,t8);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                            const T5& t5, const T6& t6, const T7& t7)
+      {
+         write_pod(stream,t1,t2,t3,t4,t5,t6);
+         write_pod(stream,t7);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                            const T5& t5, const T6& t6)
+      {
+         write_pod(stream,t1,t2,t3,t4,t5);
+         write_pod(stream,t6);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4,
+                typename T5>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                            const T5& t5)
+      {
+         write_pod(stream,t1,t2,t3,t4);
+         write_pod(stream,t5);
+      }
+
+      template< typename T1, typename T2, typename T3, typename T4>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3, const T4& t4)
+      {
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
+      }
+
+      template< typename T1, typename T2, typename T3>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2, const T3& t3)
+      {
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+      }
+
+      template< typename T1, typename T2>
+      inline void write_pod(std::ofstream& stream,
+                            const T1& t1, const T2& t2)
+      {
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+      }
+
+      template<typename T>
+      inline void write_pod(std::ofstream& stream, const T& t)
+      {
+         stream.write(reinterpret_cast<char*>(&const_cast<T&>(t)),static_cast<std::streamsize>(sizeof(T)));
+      }
+
+      template< typename T>
+      inline void write_pod(std::ofstream& stream, T t[], const std::size_t length)
+      {
+         stream.write(reinterpret_cast<char*>(&t[0]),static_cast<std::streamsize>(sizeof(T) * length));
+      }
+
+      inline bool read_at_offset(std::ifstream& stream,
+                                 const std::size_t& offset,
+                                 char* buffer,
+                                 const std::size_t& buffer_size)
+      {
+         if (!stream) return false;
+         stream.seekg(offset,std::ios_base::beg);
+         if (stream.fail()) return false;
+         stream.read(buffer,buffer_size);
+         if (stream.fail()) return false;
+         stream.close();
+         return true;
+      }
+
+      inline bool read_at_offset(const std::string& file_name,
+                                 const std::size_t& offset,
+                                 char* buffer,
+                                 const std::size_t& buffer_size)
+      {
+         std::ifstream stream(file_name.c_str(), std::ios::in | std::ios::binary);
+         if (!stream) return false;
+         return read_at_offset(stream,offset,buffer,buffer_size);
+      }
+
+      inline bool read_at_offset(const std::string& file_name,
+                                 const std::size_t& offset,
+                                 std::string& buffer,
+                                 const std::size_t& buffer_size)
+      {
+         std::ifstream stream(file_name.c_str(), std::ios::in | std::ios::binary);
+         if (!stream) return false;
+         buffer.resize(buffer_size);
+         return read_at_offset(stream,offset,const_cast<char*>(buffer.c_str()),buffer_size);
+      }
+
+   } // namespace fileio
+
 } // namespace strtk
 
 #endif
