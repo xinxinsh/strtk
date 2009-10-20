@@ -5281,7 +5281,7 @@ namespace strtk
    template<typename T>
    struct interval_inserter
    {
-      typedef typename T type;
+      typedef T type;
 
       interval_inserter(const std::size_t& interval, const T& t)
       : count_(0),
