@@ -38,6 +38,7 @@ BUILD_LIST+=strtk_hexview
 BUILD_LIST+=strtk_converters_example
 BUILD_LIST+=strtk_tokengrid_example
 BUILD_LIST+=strtk_serializer_example
+BUILD_LIST+=strtk_randomizer
 
 all: $(BUILD_LIST)
 
@@ -71,6 +72,9 @@ strtk_tokengrid_example : strtk_tokengrid_example.cpp strtk.hpp
 strtk_serializer_example : strtk_serializer_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_serializer_example strtk_serializer_example.cpp $(LINKER_OPT)
 
+strtk_randomizer : strtk_randomizer.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_randomizer strtk_randomizer.cpp $(LINKER_OPT)
+
 strip_bin :
 	strip -s strtk_tokenizer_cmp
 	strip -s strtk_examples
@@ -82,6 +86,20 @@ strip_bin :
 	strip -s strtk_converters_example
 	strip -s strtk_tokengrid_example
 	strip -s strtk_serializer_example
+	strip -s strtk_randomizer
+
+valgrind_check :
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_cmp
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_examples
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_keyvalue_example
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_text_parser_example01
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_text_parser_example02
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_test
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_hexview
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_converters_example
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokengrid_example
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_serializer_example
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_randomizer
 
 clean:
 	rm -f core *.o *.bak *stackdump *#

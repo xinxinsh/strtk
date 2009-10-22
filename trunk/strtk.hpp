@@ -71,7 +71,7 @@ namespace strtk
    }
 
    template<class Function>
-   inline std::size_t for_each_line(std::ifstream& stream, Function function)
+   inline std::size_t for_each_line(std::istream& stream, Function function)
    {
       std::string buffer;
       buffer.reserve(one_kilobyte);
@@ -85,7 +85,7 @@ namespace strtk
    }
 
    template<class Function>
-   inline std::size_t for_each_line_n(std::ifstream& stream, const std::size_t& n, Function function)
+   inline std::size_t for_each_line_n(std::istream& stream, const std::size_t& n, Function function)
    {
       std::string buffer;
       buffer.reserve(one_kilobyte);
@@ -120,7 +120,7 @@ namespace strtk
    }
 
    template<class Function>
-   inline std::size_t for_each_line_conditional(std::ifstream& stream, Function function)
+   inline std::size_t for_each_line_conditional(std::istream& stream, Function function)
    {
       std::string buffer;
       buffer.reserve(one_kilobyte);
@@ -137,7 +137,7 @@ namespace strtk
    }
 
    template<class Function>
-   inline std::size_t for_each_line_n_conditional(std::ifstream& stream, const std::size_t& n, Function function)
+   inline std::size_t for_each_line_n_conditional(std::istream& stream, const std::size_t& n, Function function)
    {
       std::string buffer;
       buffer.reserve(one_kilobyte);
@@ -268,7 +268,7 @@ namespace strtk
    template <typename T,
              class Allocator,
              template <class,class> class Sequence>
-   inline std::size_t load_from_text_file(std::ifstream& stream,
+   inline std::size_t load_from_text_file(std::istream& stream,
                                           Sequence<T,Allocator>& sequence)
    {
      if (!stream) return 0;
@@ -299,7 +299,7 @@ namespace strtk
    template <typename T,
              class Allocator,
              template <class,class> class Sequence>
-   inline std::size_t write_to_text_file(std::ofstream& stream,
+   inline std::size_t write_to_text_file(std::ostream& stream,
                                          const Sequence<T,Allocator>& sequence,
                                          const std::string& delimiter = "")
    {
@@ -745,9 +745,9 @@ namespace strtk
    }
 
    template<typename Iterator, class Predicate>
-   inline std::size_t remove_proceeding(Predicate predicate,
-                                        Iterator begin,
-                                        Iterator end)
+   inline std::size_t remove_leading(Predicate predicate,
+                                     Iterator begin,
+                                     Iterator end)
    {
       std::size_t length = std::distance(begin,end);
       if (0 == length)
@@ -763,38 +763,38 @@ namespace strtk
       return removal_count;
    }
 
-   inline void remove_proceeding(const std::string::value_type c, std::string& s)
+   inline void remove_leading(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_proceeding(single_delimiter_predicate<std::string::value_type>(c),
-                                                    s.begin(),
-                                                    s.end());
+      std::size_t removal_count = remove_leading(single_delimiter_predicate<std::string::value_type>(c),
+                                                 s.begin(),
+                                                 s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
       }
    }
 
-   inline void remove_proceeding(const std::string& rem_chars, std::string& s)
+   inline void remove_leading(const std::string& rem_chars, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_proceeding(multiple_char_delimiter_predicate(rem_chars),
-                                                    s.begin(),
-                                                    s.end());
+      std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(rem_chars),
+                                                 s.begin(),
+                                                 s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
       }
    }
 
-   inline void remove_proceeding(const char* rem_chars, std::string& s)
+   inline void remove_leading(const char* rem_chars, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_proceeding(multiple_char_delimiter_predicate(
-                                                    rem_chars,
-                                                    rem_chars + strnlen(rem_chars,256)),
-                                                    s.begin(),
-                                                    s.end());
+      std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(
+                                                 rem_chars,
+                                                 rem_chars + strnlen(rem_chars,256)),
+                                                 s.begin(),
+                                                 s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -802,10 +802,10 @@ namespace strtk
    }
 
    template<class Predicate>
-   inline void remove_proceeding(Predicate predicate, std::string& s)
+   inline void remove_leading(Predicate predicate, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_proceeding(predicate,s.begin(),s.end());
+      std::size_t removal_count = remove_leading(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -4786,11 +4786,11 @@ namespace strtk
              typename T,
              class Allocator,
              template <class,class> class Sequence>
-   inline std::size_t parse_into_sequence(const InputIterator begin,
-                                          const InputIterator end,
-                                          const std::string& delimiters,
-                                          Sequence<T,Allocator>& sequence,
-                                          const split_options::type& split_option = split_options::compress_delimiters)
+   inline std::size_t parse(const InputIterator begin,
+                            const InputIterator end,
+                            const std::string& delimiters,
+                            Sequence<T,Allocator>& sequence,
+                            const split_options::type& split_option = split_options::compress_delimiters)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
@@ -4809,12 +4809,12 @@ namespace strtk
              typename T,
              class Allocator,
              template <class,class> class Sequence>
-   inline std::size_t parse_into_sequence_n(const InputIterator begin,
-                                            const InputIterator end,
-                                            const std::string& delimiters,
-                                            const std::size_t& n,
-                                            Sequence<T,Allocator>& sequence,
-                                            const split_options::type& split_option = split_options::compress_delimiters)
+   inline std::size_t parse_n(const InputIterator begin,
+                              const InputIterator end,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              Sequence<T,Allocator>& sequence,
+                              const split_options::type& split_option = split_options::compress_delimiters)
    {
       if (1 == delimiters.size())
          return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
@@ -4953,27 +4953,27 @@ namespace strtk
    template <typename T,
              class Allocator,
              template <class,class> class Sequence>
-   inline std::size_t parse_into_sequence(const std::string& data,
-                                          const std::string& delimiters,
-                                          Sequence<T,Allocator>& sequence)
+   inline std::size_t parse(const std::string& data,
+                            const std::string& delimiters,
+                             Sequence<T,Allocator>& sequence)
    {
-      return parse_into_sequence(data.c_str(), data.c_str() + data.size(),
-                                 delimiters,
-                                 sequence);
+      return parse(data.c_str(), data.c_str() + data.size(),
+                   delimiters,
+                   sequence);
    }
 
    template <typename T,
              class Allocator,
              template <class,class> class Sequence>
-   inline std::size_t parse_into_sequence_n(const std::string& data,
-                                            const std::string& delimiters,
-                                            const std::size_t& n,
-                                            Sequence<T,Allocator>& sequence)
+   inline std::size_t parse_n(const std::string& data,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              Sequence<T,Allocator>& sequence)
    {
-      return parse_into_sequence_n(data.c_str(), data.c_str() + data.size(),
-                                   delimiters,
-                                   n,
-                                   sequence);
+      return parse_n(data.c_str(), data.c_str() + data.size(),
+                     delimiters,
+                     n,
+                     sequence);
    }
 
    template<typename T1, typename T2, typename  T3, typename  T4,
