@@ -461,8 +461,8 @@ void parse_example02()
    std::vector<int> int_list;
    std::deque<double> double_list;
 
-   strtk::parse_into_sequence(int_string,",",int_list);
-   strtk::parse_into_sequence(double_string,",",double_list);
+   strtk::parse(int_string,",",int_list);
+   strtk::parse(double_string,",",double_list);
 
    std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout,"\t"));
    std::cout << std::endl;
@@ -480,8 +480,8 @@ void parse_example03()
 
    static const std::size_t n = 4;
 
-   strtk::parse_into_sequence_n(int_string,",",n,int_list);
-   strtk::parse_into_sequence_n(double_string,",",n,double_list);
+   strtk::parse_n(int_string,",",n,int_list);
+   strtk::parse_n(double_string,",",n,double_list);
 
    std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout,"\t"));
    std::cout << std::endl;
@@ -533,7 +533,7 @@ void remove_proceeding_example()
 {
    std::string s = "_ ,  The quick brown fox jumps over the lazy dog";
    std::cout << "Before: ["<< s << "]" << std::endl;
-   strtk::remove_proceeding(" _,",s);
+   strtk::remove_leading(" _,",s);
    std::cout << "After:  ["<< s << "]" << std::endl;
 }
 
