@@ -1,3 +1,29 @@
+/*
+ *******************************************************************
+ *                       String Tool Kit Library                   *
+ *                                                                 *
+ * Randomizer                                                      *
+ * Author: Arash Partow (2002-2009)                                *
+ * URL: http://www.partow.net/programming/strtk/index.html         *
+ *                                                                 *
+ * Copyright notice:                                               *
+ * Free use of the String Tool Kit Library is permitted under the  *
+ * guidelines and in accordance with the most current version of   *
+ * the Common Public License.                                      *
+ * http://www.opensource.org/licenses/cpl1.0.php                   *
+ *                                                                 *
+ *******************************************************************
+*/
+
+
+/*
+   Description: This example demonstrates the use of the random
+                permutation routine. Input is taken either from
+                stdin or a user specified file. The input is then
+                randomly permuted and passed to stdout.
+*/
+
+
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -12,11 +38,11 @@ int main(int argc, char* argv[])
 
    switch (argc)
    {
-      case 1 : strtk::load_from_text_file(std::cin,str_lst);
-               break;
+      case 1  : strtk::load_from_text_file(std::cin,str_lst);
+                break;
 
-      case 2 : strtk::load_from_text_file(argv[1],str_lst);
-               break;
+      case 2  : strtk::load_from_text_file(argv[1],str_lst);
+                break;
 
       default :
                {
