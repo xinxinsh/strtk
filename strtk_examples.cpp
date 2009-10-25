@@ -41,7 +41,7 @@ void tokenizer_example02()
    std::string s = "abc.123 xyz?789";
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
    strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate,true);
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate >::type::iterator it = tokenizer.begin();
+   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
