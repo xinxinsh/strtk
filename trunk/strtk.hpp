@@ -1039,18 +1039,22 @@ namespace strtk
          ? : Zero or one match
       */
       return match(wild_card.c_str(),wild_card.c_str() + wild_card.size(),
-                   str.c_str(),str.c_str() + str.size(),'*','?');
+                   str.c_str(),str.c_str() + str.size(),
+                   '*',
+                   '?');
    }
 
-   inline bool imatch(const std::string::const_iterator begin1, const std::string::const_iterator end1,
-                      const std::string::const_iterator begin2, const std::string::const_iterator end2)
+   template<typename InputIterator>
+   inline bool imatch(const InputIterator begin1, const InputIterator end1,
+                      const InputIterator begin2, const InputIterator end2)
    {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (std::distance(begin1,end1) != std::distance(begin2,end2))
       {
          return false;
       }
-      std::string::const_iterator it1 = begin1;
-      std::string::const_iterator it2 = begin2;
+      InputIterator it1 = begin1;
+      InputIterator it2 = begin2;
       while (end1 != it1)
       {
          //if (std::toupper(*it1, std::locale::classic()) != std::toupper(*it2, std::locale::classic()))
@@ -6762,7 +6766,10 @@ namespace strtk
          std::ifstream stream(file_name.c_str(), std::ios::in | std::ios::binary);
          if (!stream) return false;
          buffer.resize(buffer_size);
-         return read_at_offset(stream,offset,const_cast<char*>(buffer.c_str()),buffer_size);
+         return read_at_offset(stream,
+                               offset,
+                               const_cast<char*>(buffer.c_str()),
+                               buffer_size);
       }
 
    } // namespace fileio
