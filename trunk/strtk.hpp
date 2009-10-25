@@ -5338,6 +5338,26 @@ namespace strtk
       return size;
    }
 
+   template <typename Iterator, typename T>
+   void iota(Iterator begin, Iterator end, T value)
+   {
+      Iterator it = begin;
+      while(end != it)
+      {
+         *(it++) = value++;
+      }
+   }
+
+   template<typename OutputIterator, typename T>
+   void iota(const std::size_t count, T value, OutputIterator out)
+   {
+      while(count)
+      {
+         *out++ = value++;
+         --count;
+      }
+   }
+
    #ifdef ENABLE_RANDOM
    void generate_random_data(unsigned char* data,
                              std::size_t length,
@@ -5475,7 +5495,7 @@ namespace strtk
       return false;
    }
 
-   template<typename Iterator, typename Function>
+   template<typename Iterator, class Function>
    void for_each_permutation(Iterator begin, Iterator end, Function function)
    {
       do
@@ -5485,7 +5505,7 @@ namespace strtk
       while(std::next_permutation(begin,end));
    }
 
-   template<typename Iterator, typename Function>
+   template<typename Iterator, class Function>
    bool for_each_permutation_conditional(Iterator begin, Iterator end, Function function)
    {
       do
@@ -5497,7 +5517,7 @@ namespace strtk
       return true;
    }
 
-   template<typename Iterator, typename Function>
+   template<typename Iterator, class Function>
    void for_each_combination(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       do
@@ -5507,7 +5527,7 @@ namespace strtk
       while(next_combination(begin,begin + size,end));
    }
 
-   template<typename Iterator, typename Function>
+   template<typename Iterator, class Function>
    bool for_each_combination_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       do
@@ -5519,7 +5539,7 @@ namespace strtk
       return true;
    }
 
-   template<typename Iterator, typename Function>
+   template<typename Iterator, class Function>
    void for_each_combutation(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       // for each permutation of each combination
@@ -5534,7 +5554,7 @@ namespace strtk
       while(next_combination(begin,begin + size,end));
    }
 
-   template<typename Iterator, typename Function>
+   template<typename Iterator, class Function>
    bool for_each_combutation_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       do
