@@ -529,7 +529,7 @@ void remove_trailing_example()
    std::cout << "After:  ["<< s << "]" << std::endl;
 }
 
-void remove_proceeding_example()
+void remove_leading_example()
 {
    std::string s = "_ ,  The quick brown fox jumps over the lazy dog";
    std::cout << "Before: ["<< s << "]" << std::endl;
@@ -766,6 +766,17 @@ void typename_example()
    std::cout << strtk::type_name(ds)  << std::endl;
 }
 
+void iota_example()
+{
+   std::deque<int> ilst;
+
+   strtk::iota(ilst,10,1);
+   std::cout << strtk::join(" ",ilst) << std::endl;
+
+   strtk::iota(ilst,100);
+   std::cout << strtk::join(" ",ilst) << std::endl;
+}
+
 int main()
 {
    tokenizer_example01();
@@ -803,7 +814,7 @@ int main()
    remove_consecutives_example02();
    remove_consecutives_example03();
    remove_trailing_example();
-   remove_proceeding_example();
+   remove_leading_example();
    uri_extractor_example01();
    generate_random_example01();
    random_permutation_example();
@@ -814,5 +825,6 @@ int main()
    inserter_example();
    combination_example();
    typename_example();
+   iota_example();
    return 0;
 }

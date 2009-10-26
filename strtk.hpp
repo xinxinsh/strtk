@@ -5348,14 +5348,34 @@ namespace strtk
       }
    }
 
+   template<typename T,
+            typename Allocator,
+            template<class, class> class Sequence>
+   void iota(Sequence<T,Allocator>& sequence, std::size_t count, T value)
+   {
+      while(count)
+      {
+         sequence.push_back(value++);
+         --count;
+      }
+   }
+
    template<typename OutputIterator, typename T>
-   void iota(const std::size_t count, T value, OutputIterator out)
+   void iota(std::size_t count, T value, OutputIterator out)
    {
       while(count)
       {
          *out++ = value++;
          --count;
       }
+   }
+
+   template<typename T,
+            typename Allocator,
+            template<class, class> class Sequence>
+   void iota(Sequence<T,Allocator>& sequence, T value)
+   {
+      iota(sequence.begin(),sequence.end(),value);
    }
 
    #ifdef ENABLE_RANDOM
