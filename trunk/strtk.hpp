@@ -565,8 +565,8 @@ namespace strtk
                                                   Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it1 = (begin + 1);
-      Iterator it2 = (begin + 1);
+      Iterator it1 = begin; ++it1;
+      Iterator it2 = begin; ++it2;
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
       while (it1 != end)
@@ -643,8 +643,8 @@ namespace strtk
    inline std::size_t remove_consecutives_inplace(Iterator begin, Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it1 = (begin + 1);
-      Iterator it2 = (begin + 1);
+      Iterator it1 = begin; ++it1;
+      Iterator it2 = begin; ++it2;
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
       while (it1 != end)
@@ -1086,12 +1086,21 @@ namespace strtk
       return false;
    }
 
+   template<class Allocator,
+            template<class,class> class Sequence>
+   inline bool imatch(const std::string& s, const Sequence<Allocator,std::string>& sequence)
+   {
+      return imatch(s,sequence.begin(),sequence.end());
+   }
+
    template<typename Iterator, typename DelimiterPredicate>
    class tokenizer
    {
    private:
 
-      template<typename Iterartor, typename Predicate, typename T = std::pair<Iterator,Iterator> >
+      template<typename Iterartor,
+               typename Predicate,
+               typename T = std::pair<Iterator,Iterator> >
       class tokenizer_iterator : public std::iterator<std::forward_iterator_tag, T>
       {
       protected:
@@ -1417,7 +1426,11 @@ namespace strtk
    }
 
    template<class Sequence>
-   class back_inserter_with_valuetype_iterator : public std::iterator<std::output_iterator_tag, typename Sequence::value_type, void,void, void>
+   class back_inserter_with_valuetype_iterator : public std::iterator<std::output_iterator_tag,
+                                                                      typename Sequence::value_type,
+                                                                      void,
+                                                                      void,
+                                                                      void>
    {
    public:
 
@@ -3154,6 +3167,12 @@ namespace strtk
          inline std::size_t raw_length() const
          {
             return std::distance(token_list_->begin()->first,token_list_->back().second);
+         }
+
+         inline std::size_t raw_length(const std::size_t& column_index) const
+         {
+            const itr_list_type::value_type& range = (*token_list_)[column_index];
+            return std::distance(range.first,range.second);
          }
 
          inline std::string as_string() const
@@ -5373,9 +5392,58 @@ namespace strtk
    template<typename T,
             typename Allocator,
             template<class, class> class Sequence>
-   void iota(Sequence<T,Allocator>& sequence, T value)
+   void iota(Sequence<T,Allocator>& sequence, const T& value)
    {
       iota(sequence.begin(),sequence.end(),value);
+   }
+
+   template<typename InputIterator, typename OutputIterator>
+   void cut(const std::size_t& r0, const std::size_t& r1,
+            const InputIterator begin, InputIterator end,
+            OutputIterator out)
+   {
+      // static assert: InputIterator must be of type std::string
+      InputIterator it = begin;
+      while (end != it)
+      {
+         std::string& s = *it++;
+         if (s.size() < r0)
+            continue;
+         (*out++) = s.substr(r0,std::min(r1,s.size()) - r0);
+      }
+   }
+
+   template<typename Allocator,
+            template<class, class> class Sequence,
+            typename OutputIterator>
+   void cut(const std::size_t& r0, const std::size_t& r1,
+            const Sequence<std::string, Allocator>& sequence,
+            OutputIterator out)
+   {
+      cut(r0,r1,sequence.begin(),sequence.end(),out);
+   }
+
+   template<typename Iterator>
+   void cut_inplace(const std::size_t& r0, const std::size_t& r1,
+                    const Iterator begin, const Iterator end)
+   {
+      // static assert: InputIterator must be of type std::string
+      Iterator it = begin;
+      while (end != it)
+      {
+         std::string& s = *it;
+         if (s.size() < r0)
+            continue;
+         (*it++) = s.substr(r0,std::min(r1,s.size()) - r0);
+      }
+   }
+
+   template<typename Allocator,
+            template<class, class> class Sequence>
+   void cut(const std::size_t& r0, const std::size_t& r1,
+            const Sequence<std::string, Allocator>& sequence)
+   {
+      cut(r0,r1,sequence.begin(),sequence.end());
    }
 
    #ifdef ENABLE_RANDOM
