@@ -21,6 +21,7 @@
 #include <cctype>
 #include <cstring>
 #include <cerrno>
+#include <cmath>
 #include <iterator>
 #include <limits>
 #include <iostream>
@@ -31,7 +32,10 @@
 #include <list>
 #include <algorithm>
 
-#include <boost/lexical_cast.hpp>
+#define ENABLE_LEXICAL_CAST
+#ifdef ENABLE_LEXICAL_CAST
+   #include <boost/lexical_cast.hpp>
+#endif
 
 #define ENABLE_RANDOM
 #ifdef ENABLE_RANDOM
@@ -60,11 +64,11 @@ namespace strtk
    {
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
-      typename Tokenizer::iterator it = tokenizer.begin();
-      while (tokenizer.end() != it)
+      typename Tokenizer::iterator itr = tokenizer.begin();
+      while (tokenizer.end() != itr)
       {
-         function(*it);
-         ++it;
+         function(*itr);
+         ++itr;
          ++token_count;
       }
       return token_count;
@@ -305,20 +309,20 @@ namespace strtk
    {
      if (!stream) return 0;
      std::size_t count = 0;
-     typename Sequence<T,Allocator>::const_iterator it = sequence.begin();
+     typename Sequence<T,Allocator>::const_iterator itr = sequence.begin();
      if (!delimiter.empty())
      {
-        while (sequence.end() != it)
+        while (sequence.end() != itr)
         {
-           stream << *it++ << delimiter;
+           stream << *itr++ << delimiter;
            ++count;
         }
      }
      else
      {
-        while (sequence.end() != it)
+        while (sequence.end() != itr)
         {
-           stream << *it++;
+           stream << *itr++;
            ++count;
         }
      }
@@ -344,14 +348,14 @@ namespace strtk
                        const InputIterator begin, const InputIterator end,
                        OutputIterator out)
    {
-      InputIterator it = begin;
-      while (end != it)
+      InputIterator itr = begin;
+      while (end != itr)
       {
-         if (predicate(*it))
+         if (predicate(*itr))
          {
-            *(out++)= *it;
+            *(out++)= *itr;
          }
-         ++it;
+         ++itr;
       }
    }
 
@@ -360,14 +364,14 @@ namespace strtk
                                    const InputIterator begin, const InputIterator end,
                                    OutputIterator out)
    {
-      InputIterator it = begin;
-      while (end != it)
+      InputIterator itr = begin;
+      while (end != itr)
       {
-         if (!predicate(*it))
+         if (!predicate(*itr))
             break;
-         *(out++)= *(it++);
+         *(out++)= *(itr++);
       }
-      return it;
+      return itr;
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
@@ -375,23 +379,23 @@ namespace strtk
                                    const InputIterator begin, const InputIterator end,
                                    OutputIterator out)
    {
-      InputIterator it = begin;
-      while (end != it)
+      InputIterator itr = begin;
+      while (end != itr)
       {
-         if (predicate(*it))
+         if (predicate(*itr))
             break;
-         *(out++)= *(it++);
+         *(out++)= *(itr++);
       }
-      return it;
+      return itr;
    }
 
    template<typename Predicate, typename InputIterator>
    inline bool range_only_contains(Predicate predicate, const InputIterator begin, const InputIterator end)
    {
-      InputIterator it = begin;
-      while (end != it)
+      InputIterator itr = begin;
+      while (end != itr)
       {
-         if (!predicate(*it++))
+         if (!predicate(*itr++))
          {
             return false;
          }
@@ -476,8 +480,6 @@ namespace strtk
    {
    public:
 
-      typedef unsigned char value_type;
-
       template<typename Iterator>
       multiple_char_delimiter_predicate(const Iterator begin,const Iterator end)
       {
@@ -491,7 +493,7 @@ namespace strtk
 
       inline bool operator()(const unsigned char& c) const
       {
-         return (1 == delimiter_table_[c]);
+         return (delimiter_table_[c]);
       }
 
       inline bool operator()(const char& c) const
@@ -505,11 +507,14 @@ namespace strtk
       template<typename Iterator>
       inline void setup_delimiter_table(const Iterator begin, const Iterator end)
       {
-         std::memset(delimiter_table_,0x00,table_size);
-         for (Iterator it = begin; it != end; ++it) delimiter_table_[static_cast<unsigned char>(*it)] = 1;
+         std::fill_n(delimiter_table_,table_size,false);
+         for (Iterator itr = begin; itr != end; ++itr)
+         {
+            delimiter_table_[static_cast<unsigned char>(*itr)] = true;
+         }
       }
 
-      value_type delimiter_table_[table_size];
+      bool delimiter_table_[table_size];
    };
 
    template<typename Iterator, class Predicate>
@@ -517,27 +522,36 @@ namespace strtk
                                      Iterator begin,
                                      Iterator end)
    {
-      Iterator it1 = begin;
-      Iterator it2 = begin;
+      Iterator itr1 = begin;
+      Iterator itr2 = begin;
       std::size_t removal_count = 0;
-      while (it1 != end)
+      while (itr1 != end)
       {
-         while ((end != it1) && !predicate(*it1))
+         while ((end != itr1) && !predicate(*itr1))
          {
-            if (it1 != it2)
+            if (itr1 != itr2)
             {
-               *it2 = *it1;
+               *itr2 = *itr1;
             }
-            ++it1;
-            ++it2;
+            ++itr1;
+            ++itr2;
          }
-         while ((end != it1) && predicate(*it1))
+         while ((end != itr1) && predicate(*itr1))
          {
-            ++it1;
+            ++itr1;
             ++removal_count;
          }
       }
       return removal_count;
+   }
+
+   template<typename T,
+            class Allocator,
+            template<class,class> class Sequence>
+   inline void remove_inplace(Sequence<T,Allocator>& sequence)
+   {
+      std::size_t removal_count = remove_inplace(sequence.begin(),sequence.end());
+      sequence.resize(sequence.size() - removal_count);
    }
 
    inline void remove_inplace(const std::string::value_type c, std::string& s)
@@ -565,25 +579,25 @@ namespace strtk
                                                   Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it1 = begin; ++it1;
-      Iterator it2 = begin; ++it2;
+      Iterator itr1 = begin; ++itr1;
+      Iterator itr2 = begin; ++itr2;
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
-      while (it1 != end)
+      while (itr1 != end)
       {
-         while ((end != it1) && (!predicate(*it1) || !predicate(prev)))
+         while ((end != itr1) && (!predicate(*itr1) || !predicate(prev)))
          {
-            if (it1 != it2)
+            if (itr1 != itr2)
             {
-               *it2 = *it1;
+               *itr2 = *itr1;
             }
-            prev = *it1;
-            ++it1;
-            ++it2;
+            prev = *itr1;
+            ++itr1;
+            ++itr2;
          }
-         while ((end != it1) && predicate(*it1))
+         while ((end != itr1) && predicate(*itr1))
          {
-            ++it1;
+            ++itr1;
             ++removal_count;
          }
       }
@@ -643,29 +657,38 @@ namespace strtk
    inline std::size_t remove_consecutives_inplace(Iterator begin, Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator it1 = begin; ++it1;
-      Iterator it2 = begin; ++it2;
+      Iterator itr1 = begin; ++itr1;
+      Iterator itr2 = begin; ++itr2;
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
-      while (it1 != end)
+      while (itr1 != end)
       {
-         while ((end != it1) && (prev != (*it1)))
+         while ((end != itr1) && (prev != (*itr1)))
          {
-            if (it1 != it2)
+            if (itr1 != itr2)
             {
-               *it2 = *it1;
+               *itr2 = *itr1;
             }
-            prev = *it1;
-            ++it1;
-            ++it2;
+            prev = *itr1;
+            ++itr1;
+            ++itr2;
          }
-         while ((end != it1) && (prev == (*it1)))
+         while ((end != itr1) && (prev == (*itr1)))
          {
-            ++it1;
+            ++itr1;
             ++removal_count;
          }
       }
       return removal_count;
+   }
+
+   template<typename T,
+            class Allocator,
+            template<class,class> class Sequence>
+   inline void remove_consecutives_inplace(Sequence<T,Allocator>& sequence)
+   {
+      std::size_t removal_count = remove_consecutives_inplace(sequence.begin(),sequence.end());
+      sequence.resize(sequence.size() - removal_count);
    }
 
    inline void remove_consecutives_inplace(std::string& s)
@@ -686,11 +709,11 @@ namespace strtk
       std::size_t length = std::distance(begin,end);
       if (0 == length)
          return 0;
-      Iterator it = begin + (length - 1);
+      Iterator itr = begin + (length - 1);
       std::size_t removal_count = 0;
-      while ((begin != it) && predicate(*it))
+      while ((begin != itr) && predicate(*itr))
       {
-         it--;
+         itr--;
          removal_count++;
       }
       return removal_count;
@@ -724,7 +747,7 @@ namespace strtk
    {
       std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(
                                                   rem_chars,
-                                                  rem_chars + strnlen(rem_chars,256)),
+                                                  rem_chars + ::strnlen(rem_chars,256)),
                                                   s.begin(),
                                                   s.end());
       if (removal_count > 0)
@@ -752,14 +775,14 @@ namespace strtk
       std::size_t length = std::distance(begin,end);
       if (0 == length)
          return 0;
-      Iterator it = begin;
+      Iterator itr = begin;
       std::size_t removal_count = 0;
-      while ((end != it) && predicate(*it))
+      while ((end != itr) && predicate(*itr))
       {
-         it++;
+         itr++;
          removal_count++;
       }
-      std::copy(it,end,begin);
+      std::copy(itr,end,begin);
       return removal_count;
    }
 
@@ -792,7 +815,7 @@ namespace strtk
       if (s.empty()) return;
       std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(
                                                  rem_chars,
-                                                 rem_chars + strnlen(rem_chars,256)),
+                                                 rem_chars + ::strnlen(rem_chars,256)),
                                                  s.begin(),
                                                  s.end());
       if (removal_count > 0)
@@ -818,9 +841,9 @@ namespace strtk
                        const Iterator begin,
                        const Iterator end)
    {
-      for (Iterator it = begin; end != it; ++it)
+      for (Iterator itr = begin; end != itr; ++itr)
       {
-         if (c1 == *it) *it = c2;
+         if (c1 == *itr) *itr = c2;
       }
    }
 
@@ -1014,7 +1037,7 @@ namespace strtk
                return true;
             }
             m_it = p_it;
-            c_it = d_it + 1;
+            std::advance((c_it = d_it),1);
          }
          else if (((*p_it) == (*d_it)) || (zero_or_one == (*p_it)))
          {
@@ -1053,17 +1076,17 @@ namespace strtk
       {
          return false;
       }
-      InputIterator it1 = begin1;
-      InputIterator it2 = begin2;
-      while (end1 != it1)
+      InputIterator itr1 = begin1;
+      InputIterator itr2 = begin2;
+      while (end1 != itr1)
       {
-         //if (std::toupper(*it1, std::locale::classic()) != std::toupper(*it2, std::locale::classic()))
-         if (std::toupper(*it1) != std::toupper(*it2))
+         //if (std::toupper(*itr1, std::locale::classic()) != std::toupper(*it2, std::locale::classic()))
+         if (std::toupper(*itr1) != std::toupper(*itr2))
          {
             return false;
          }
-         ++it1;
-         ++it2;
+         ++itr1;
+         ++itr2;
       }
       return true;
    }
@@ -1076,9 +1099,9 @@ namespace strtk
    template<typename Iterator>
    inline bool imatch(const std::string& s, const Iterator begin, const Iterator end)
    {
-      for (const std::string* it = begin; end != it; ++it)
+      for (const std::string* itr = begin; end != itr; ++itr)
       {
-         if (imatch(s,*it))
+         if (imatch(s,*itr))
          {
             return true;
          }
@@ -1114,7 +1137,7 @@ namespace strtk
                                    const Predicate& predicate,
                                    const bool compress_delimiters = false)
          : predicate_(predicate),
-           it_(begin),
+           itr_(begin),
            end_(end),
            prev_(begin),
            curr_tok_begin_(end_),
@@ -1127,40 +1150,40 @@ namespace strtk
 
          inline tokenizer_iterator& operator++()
          {
-            if (end_ != it_)
+            if (end_ != itr_)
             {
-               prev_ = it_;
+               prev_ = itr_;
             }
 
-            while (end_ != it_)
+            while (end_ != itr_)
             {
-               if (predicate_(*it_))
+               if (predicate_(*itr_))
                {
                   curr_tok_begin_ = prev_;
-                  curr_tok_end_ = it_;
+                  curr_tok_end_ = itr_;
                   if (compress_delimiters_)
-                     while ((end_ != ++it_) && predicate_(*it_));
+                     while ((end_ != ++itr_) && predicate_(*itr_));
                   else
-                     ++it_;
+                     ++itr_;
                   return *this;
                }
                else
-                 ++it_;
+                 ++itr_;
             }
 
-            if (prev_ != it_)
+            if (prev_ != itr_)
             {
-               curr_tok_end_ = it_;
+               curr_tok_end_ = itr_;
                if (!last_token_)
                {
-                  if (predicate_(*(it_ - 1)))
-                     curr_tok_begin_ = it_;
+                  if (predicate_(*(itr_ - 1)))
+                     curr_tok_begin_ = itr_;
                   else
                      curr_tok_begin_ = prev_;
                   last_token_ = true;
                }
                else
-                  prev_ = it_;
+                  prev_ = itr_;
             }
 
             return *this;
@@ -1186,26 +1209,26 @@ namespace strtk
 
          inline bool operator==(const tokenizer_iterator& it) const
          {
-            return (it_   == it.it_  ) &&
+            return (itr_  == it.itr_ ) &&
                    (prev_ == it.prev_) &&
                    (end_  == it.end_ );
          }
 
-         inline bool operator!=(const tokenizer_iterator& it) const
+         inline bool operator!=(const tokenizer_iterator& itr) const
          {
-            return !this->operator==(it);
+            return !this->operator==(itr);
          }
 
-         inline tokenizer_iterator& operator=(const tokenizer_iterator& it)
+         inline tokenizer_iterator& operator=(const tokenizer_iterator& itr)
          {
-            if (this != &it)
+            if (this != &itr)
             {
-               it_             = it.it_;
-               end_            = it.end_;
-               prev_           = it.prev_;
-               curr_tok_begin_ = it.curr_tok_begin_;
-               curr_tok_end_   = it.curr_tok_end_;
-               last_token_     = it.last_token_;
+               itr_            = itr.itr_;
+               end_            = itr.end_;
+               prev_           = itr.prev_;
+               curr_tok_begin_ = itr.curr_tok_begin_;
+               curr_tok_end_   = itr.curr_tok_end_;
+               last_token_     = itr.last_token_;
             }
             return *this;
          }
@@ -1217,7 +1240,7 @@ namespace strtk
 
       protected:
          const Predicate& predicate_;
-         iterator it_;
+         iterator itr_;
          iterator end_;
          iterator prev_;
          iterator curr_tok_begin_;
@@ -1865,16 +1888,16 @@ namespace strtk
                                   const InputIterator end,
                                   OutputIterator out)
    {
-      boost::sregex_iterator it(begin,end,delimiter_expression);
+      boost::sregex_iterator itr(begin,end,delimiter_expression);
       boost::sregex_iterator it_end;
       std::string token;
       token.reserve(one_kilobyte);
       std::size_t match_count = 0;
-      while (it_end != it)
+      while (it_end != itr)
       {
-         token.assign((*it)[0].first,(*it)[0].second);
+         token.assign((*itr)[0].first,(*itr)[0].second);
          *(out++) = token;
-         ++it;
+         ++itr;
          ++match_count;
       }
       return match_count;
@@ -1913,16 +1936,16 @@ namespace strtk
                                     const std::size_t& token_count,
                                     OutputIterator out)
    {
-      boost::sregex_iterator it(begin,end,delimiter_expression);
+      boost::sregex_iterator itr(begin,end,delimiter_expression);
       boost::sregex_iterator it_end;
       std::string token;
       token.reserve(one_kilobyte);
       std::size_t match_count = 0;
-      while (it_end != it)
+      while (it_end != itr)
       {
-         token.assign((*it)[0].first,(*it)[0].second);
+         token.assign((*itr)[0].first,(*itr)[0].second);
          *(out++) = token;
-         ++it;
+         ++itr;
          if (++match_count >= token_count)
             return match_count;
       }
@@ -2177,14 +2200,14 @@ namespace strtk
    {
       if (std::distance(begin,end) < 2) return 0;
       InputIterator prev = begin;
-      InputIterator it = begin;
+      InputIterator itr = begin;
       std::size_t count = 0;
-      while (end != ++it)
+      while (end != ++itr)
       {
-         if (*prev == *it)
+         if (*prev == *itr)
             ++count;
          else
-            prev = it;
+            prev = itr;
       }
       return count;
    }
@@ -2193,11 +2216,11 @@ namespace strtk
    inline typename std::iterator_traits<InputIterator>::value_type min_in_range(const InputIterator begin, const InputIterator end)
    {
       typename std::iterator_traits<InputIterator>::value_type smallest = *begin;
-      InputIterator it = begin;
-      while (end != ++it)
+      InputIterator itr = begin;
+      while (end != ++itr)
       {
-         if (*it < smallest)
-            smallest = *it;
+         if (*itr < smallest)
+            smallest = *itr;
       }
       return smallest;
    }
@@ -2206,13 +2229,59 @@ namespace strtk
    inline typename std::iterator_traits<InputIterator>::value_type max_in_range(const InputIterator begin, const InputIterator end)
    {
       typename std::iterator_traits<InputIterator>::value_type greatest = *begin;
-      InputIterator it = begin;
-      while (end != ++it)
+      InputIterator itr = begin;
+      while (end != ++itr)
       {
-         if (*it > greatest)
-            greatest = *it;
+         if (*itr > greatest)
+            greatest = *itr;
       }
       return greatest;
+   }
+
+   template<typename T,
+            class Allocator,
+            template<class,class> class Sequence>
+   inline T min_in_sequence(const Sequence<T,Allocator>& sequence)
+   {
+      return min_in_range(sequence.begin(),sequence.end());
+
+   }
+
+   template<typename T,
+            class Allocator,
+            template<class,class> class Sequence>
+   inline T max_in_sequence(const Sequence<T,Allocator>& sequence)
+   {
+      return max_in_range(sequence.begin(),sequence.end());
+   }
+
+   template<typename InputIterator>
+   inline void min_max_in_range(const InputIterator begin, const InputIterator end,
+                                typename std::iterator_traits<InputIterator>::value_type& min_value,
+                                typename std::iterator_traits<InputIterator>::value_type& max_value)
+   {
+      min_value = *begin;
+      max_value = *begin;
+      InputIterator itr = begin;
+      while (end != ++itr)
+      {
+         if (*itr < min_value)
+            min_value = *itr;
+         else if (*itr > max_value)
+            max_value = *itr;
+      }
+   }
+
+   template<typename T,
+            class Allocator,
+            template<class,class> class Sequence>
+   inline void min_max_in_sequence(const Sequence<T,Allocator>& sequence,
+                                   typename Sequence<T,Allocator>::value_type& min_value,
+                                   typename Sequence<T,Allocator>::value_type& max_value)
+   {
+      min_max_in_range(sequence.begin(),sequence.end(),
+                       min_value,
+                       max_value);
    }
 
    template<typename Iterator>
@@ -2225,49 +2294,49 @@ namespace strtk
 
       type smallest = min_in_range(begin,end);
 
-      for (Iterator it = begin; it != end; ++it)
+      for (Iterator itr = begin; itr != end; ++itr)
       {
-         if (*it == smallest) itr_list.push_back(std::make_pair(it,it));
+         if (*itr == smallest) itr_list.push_back(std::make_pair(itr,itr));
       }
 
       while (itr_list.size() > 1)
       {
-         typename itr_list_type::iterator it = itr_list.begin();
-         while (itr_list.end() != it)
+         typename itr_list_type::iterator itr = itr_list.begin();
+         while (itr_list.end() != itr)
          {
-            ++(*it).first;
-            if (end == (*it).first)
-               it = itr_list.erase(it);
+            ++(*itr).first;
+            if (end == (*itr).first)
+               itr = itr_list.erase(itr);
             else
-               ++it;
+               ++itr;
          }
 
          smallest = *(*itr_list.begin()).first;
 
-         for (it = (++itr_list.begin()); it != itr_list.end(); ++it)
+         for (itr = (++itr_list.begin()); itr != itr_list.end(); ++itr)
          {
-            if (*(*it).first < smallest)
+            if (*(*itr).first < smallest)
             {
-               smallest = *(*it).first;
+               smallest = *(*itr).first;
             }
          }
 
-         it = itr_list.begin();
-         while (itr_list.end() != it)
+         itr = itr_list.begin();
+         while (itr_list.end() != itr)
          {
-           if (*(*it).first != smallest)
-              it = itr_list.erase(it);
+           if (*(*itr).first != smallest)
+              itr = itr_list.erase(itr);
            else
-              ++it;
+              ++itr;
          }
 
-         it = itr_list.begin();
-         while (itr_list.end() != it)
+         itr = itr_list.begin();
+         while (itr_list.end() != itr)
          {
-            if (end == (*it).first)
-               it = itr_list.erase(it);
+            if (end == (*itr).first)
+               itr = itr_list.erase(itr);
             else
-               ++it;
+               ++itr;
          }
       }
       std::rotate(begin,(*itr_list.begin()).second,end);
@@ -2278,6 +2347,14 @@ namespace strtk
       lexicographically_canonicalize(const_cast<char*>(str.c_str()), const_cast<char*>(str.c_str() + str.size()));
    }
 
+   template<typename T,
+            class Allocator,
+            template<class,class> class Sequence>
+   void lexicographically_canonicalize(Sequence<T,Allocator>& sequence)
+   {
+      lexicographically_canonicalize(sequence.begin(),sequence.end());
+   }
+
    inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       static const std::size_t symbol_count = 16;
@@ -2286,10 +2363,10 @@ namespace strtk
                                                              '8','9','A','B','C','D','E','F'
                                                             };
 
-      for (const unsigned char* it = begin; end != it; ++it)
+      for (const unsigned char* itr = begin; end != itr; ++itr)
       {
-         *(out++) = hex_symbol[((*it) >> 0x04) & 0x0F];
-         *(out++) = hex_symbol[ (*it)          & 0x0F];
+         *(out++) = hex_symbol[((*itr) >> 0x04) & 0x0F];
+         *(out++) = hex_symbol[ (*itr)          & 0x0F];
       }
    }
 
@@ -2346,11 +2423,11 @@ namespace strtk
                                                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  // 0xF8 - 0xFF
                                                             };
 
-      const unsigned char* it = begin;
-      while (end != it)
+      const unsigned char* itr = begin;
+      while (end != itr)
       {
-         (*out)  = static_cast<unsigned char>(hex_to_bin[*(it++)] << 4);
-         (*out) |= static_cast<unsigned char>(hex_to_bin[*(it++)]     );
+         (*out)  = static_cast<unsigned char>(hex_to_bin[*(itr++)] << 4);
+         (*out) |= static_cast<unsigned char>(hex_to_bin[*(itr++)]     );
          ++out;
       }
       return true;
@@ -2383,12 +2460,12 @@ namespace strtk
 
       const std::size_t length = std::distance(begin,end);
       std::size_t rounds = length / 3;
-      const unsigned char* it = begin;
+      const unsigned char* itr = begin;
       for (std::size_t i = 0; i < rounds; ++i)
       {
-         unsigned int block  = *(it++) << 16;
-                      block |= *(it++) <<  8;
-                      block |= *(it++)      ;
+         unsigned int block  = *(itr++) << 16;
+                      block |= *(itr++) <<  8;
+                      block |= *(itr++)      ;
          *(out++) = bin_to_base64[( block >> 18 ) & 0x3F];
          *(out++) = bin_to_base64[( block >> 12 ) & 0x3F];
          *(out++) = bin_to_base64[( block >>  6 ) & 0x3F];
@@ -2400,7 +2477,7 @@ namespace strtk
          switch(rounds)
          {
             case 1 : {
-                       unsigned int block  = (unsigned char) (*it) << 16;
+                       unsigned int block  = (unsigned char) (*itr) << 16;
                        *(out++) = bin_to_base64[( block >> 18 ) & 0x3F];
                        *(out++) = bin_to_base64[( block >> 12 ) & 0x3F];
                        *(out++) = '=';
@@ -2409,8 +2486,8 @@ namespace strtk
                      break;
 
             case 2 : {
-                        unsigned int block  = *(it++) << 16;
-                                     block |= *(it++) <<  8;
+                        unsigned int block  = *(itr++) << 16;
+                                     block |= *(itr++) <<  8;
                         *(out++) = bin_to_base64[( block >> 18 ) & 0x3F];
                         *(out++) = bin_to_base64[( block >> 12 ) & 0x3F];
                         *(out++) = bin_to_base64[( block >>  6 ) & 0x3F];
@@ -2474,17 +2551,15 @@ namespace strtk
                                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // 0xF8 - 0xFF
                                                               };
 
-      const unsigned char* it = (end - 1);
-      while (('=' == *it) && (begin != it)) --it;
-      std::size_t length = std::distance(begin,(it + 1));
+      std::size_t length = std::distance(begin,end);
       std::size_t rounds = length / 4;
-      it = begin;
+      const unsigned char* itr = begin;
       for (std::size_t i = 0; i < rounds; ++i)
       {
-         unsigned int block  = base64_to_bin[*(it++)] << 18;
-                      block |= base64_to_bin[*(it++)] << 12;
-                      block |= base64_to_bin[*(it++)] <<  6;
-                      block |= base64_to_bin[*(it++)];
+         unsigned int block  = base64_to_bin[*(itr++)] << 18;
+                      block |= base64_to_bin[*(itr++)] << 12;
+                      block |= base64_to_bin[*(itr++)] <<  6;
+                      block |= base64_to_bin[*(itr++)];
 
          *(out++) = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
          *(out++) = static_cast<unsigned char>(( block >>  8 ) & 0xFF);
@@ -2496,16 +2571,16 @@ namespace strtk
          switch(rounds)
          {
             case 2 : {
-                        unsigned int block  = base64_to_bin[*(it++)] << 18;
-                                     block |= base64_to_bin[*(it++)] << 12;
+                        unsigned int block  = base64_to_bin[*(itr++)] << 18;
+                                     block |= base64_to_bin[*(itr++)] << 12;
                         *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
                      }
                      break;
 
             case 3 : {
-                        unsigned int block  = base64_to_bin[*(it++)] << 18;
-                                     block |= base64_to_bin[*(it++)] << 12;
-                                     block |= base64_to_bin[*(it++)] <<  6;
+                        unsigned int block  = base64_to_bin[*(itr++)] << 18;
+                                     block |= base64_to_bin[*(itr++)] << 12;
+                                     block |= base64_to_bin[*(itr++)] <<  6;
                         *(out++) = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
                         *(out  ) = static_cast<unsigned char>(( block >>  8 ) & 0xFF);
                      }
@@ -2566,11 +2641,11 @@ namespace strtk
                                                                        0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xF0 - 0xF7
                                                                        0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E  // 0xF8 - 0xFF
                                                                     };
-      unsigned char* it = begin;
-      while (end != it)
+      unsigned char* itr = begin;
+      while (end != itr)
       {
-         (*it) = printable_char_table[static_cast<unsigned int>((*it))];
-         ++it;
+         (*itr) = printable_char_table[static_cast<unsigned int>((*itr))];
+         ++itr;
       }
    }
 
@@ -2584,12 +2659,12 @@ namespace strtk
    {
       std::transform(begin,end,begin,::toupper);
       /*
-      unsigned char* it = begin;
-      while (end != it)
+      unsigned char* itr = begin;
+      while (end != itr)
       {
-         //(*it) = std::toupper((*it), std::locale::classic());
-         (*it) = static_cast<unsigned char>(::toupper(static_cast<int>(*it)));
-         ++it;
+         //(*itr) = std::toupper((*itr), std::locale::classic());
+         (*itr) = static_cast<unsigned char>(::toupper(static_cast<int>(*itr)));
+         ++itr;
       }
       */
    }
@@ -2604,12 +2679,12 @@ namespace strtk
    {
       std::transform(begin,end,begin,::tolower);
       /*
-      unsigned char* it = begin;
-      while (end != it)
+      unsigned char* itr = begin;
+      while (end != itr)
       {
-         //(*it) = std::tolower((*it), std::locale::classic());
-         (*it) = static_cast<unsigned char>(::tolower(static_cast<int>(*it)));
-         ++it;
+         //(*itr) = std::tolower((*itr), std::locale::classic());
+         (*itr) = static_cast<unsigned char>(::tolower(static_cast<int>(*itr)));
+         ++itr;
       }
       */
    }
@@ -2666,12 +2741,12 @@ namespace strtk
                                     0x5540, 0x5541, 0x5544, 0x5545, 0x5550, 0x5551, 0x5554, 0x5555  // 0xF8 - 0xFF
                                   };
 
-      const unsigned char* it1 = begin1;
-      const unsigned char* it2 = begin2;
-      while (end1 != it1)
+      const unsigned char* itr1 = begin1;
+      const unsigned char* itr2 = begin2;
+      while (end1 != itr1)
       {
-         *(reinterpret_cast<unsigned short*>(out))  = (interleave_table[*(it2++)] << 1);
-         *(reinterpret_cast<unsigned short*>(out)) |=  interleave_table[*(it1++)];
+         *(reinterpret_cast<unsigned short*>(out))  = (interleave_table[*(itr2++)] << 1);
+         *(reinterpret_cast<unsigned short*>(out)) |=  interleave_table[*(itr1++)];
          out += 2;
       }
       return true;
@@ -2732,14 +2807,14 @@ namespace strtk
                                  const unsigned char* begin2,
                                  unsigned char* out)
    {
-      const unsigned char* it1 = begin1;
-      const unsigned char* it2 = begin2;
+      const unsigned char* itr1 = begin1;
+      const unsigned char* itr2 = begin2;
 
       switch(operation)
       {
-         case bitwise_operation::eAND : while (it1 != end1) { *(out++) = *(it1++) & *(it2++); } return;
-         case bitwise_operation::eOR  : while (it1 != end1) { *(out++) = *(it1++) | *(it2++); } return;
-         case bitwise_operation::eXOR : while (it1 != end1) { *(out++) = *(it1++) ^ *(it2++); } return;
+         case bitwise_operation::eAND : while (itr1 != end1) { *(out++) = *(itr1++) & *(itr2++); } return;
+         case bitwise_operation::eOR  : while (itr1 != end1) { *(out++) = *(itr1++) | *(itr2++); } return;
+         case bitwise_operation::eXOR : while (itr1 != end1) { *(out++) = *(itr1++) ^ *(itr2++); } return;
       }
    }
 
@@ -2818,10 +2893,10 @@ namespace strtk
    inline std::size_t high_bit_count(const unsigned char* begin, const unsigned char* end)
    {
       std::size_t count = 0;
-      const unsigned char* it1 = begin;
-      while (end != it1)
+      const unsigned char* itr = begin;
+      while (end != itr)
       {
-         count += high_bit_count(*it1++);
+         count += high_bit_count(*itr++);
       }
       return count;
    }
@@ -2891,11 +2966,11 @@ namespace strtk
          return std::numeric_limits<std::size_t>::max();
       }
       std::size_t distance = 0;
-      const unsigned char* it1 = begin1;
-      const unsigned char* it2 = begin2;
-      while (end1 != it1)
+      const unsigned char* itr1 = begin1;
+      const unsigned char* itr2 = begin2;
+      while (end1 != itr1)
       {
-         distance += high_bit_count(static_cast<unsigned char>(((*it1++) ^ (*it2++)) & 0xFF));
+         distance += high_bit_count(static_cast<unsigned char>(((*itr1++) ^ (*itr2++)) & 0xFF));
       }
       return distance;
    }
@@ -2924,11 +2999,11 @@ namespace strtk
          return std::numeric_limits<std::size_t>::max();
       }
       std::size_t distance = 0;
-      Iterator it1 = begin1;
-      Iterator it2 = begin2;
-      while (end1 != it1)
+      Iterator itr1 = begin1;
+      Iterator itr2 = begin2;
+      while (end1 != itr1)
       {
-         if (*it1 != *it2)
+         if (*itr1 != *itr2)
             ++distance;
       }
       return distance;
@@ -2957,11 +3032,11 @@ namespace strtk
 
       inline void compute_pod_hash(const int& data, unsigned int& hash)
       {
-         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
+         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
       }
 
       inline void compute_pod_hash(const unsigned int& data, unsigned int& hash)
@@ -2971,29 +3046,29 @@ namespace strtk
 
       inline void compute_pod_hash(const double& data, unsigned int& hash)
       {
-         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[4] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[5] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[6] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[7] ^ (hash >> 5)));
+         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
       }
 
       /*
       inline void compute_pod_hash(const long long& data, unsigned int& hash)
       {
-         const unsigned char* it = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  it[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[3] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[4] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[5] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  it[6] * (hash >> 3));
-         hash ^= ~((hash << 11) + (it[7] ^ (hash >> 5)));
+         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
       }
       */
 
@@ -3066,6 +3141,7 @@ namespace strtk
       typedef std::deque<range_type> itr_list_type;
       typedef std::deque<itr_list_type> itr_list_list_type;
       typedef std::pair<std::size_t,std::size_t> row_range_type;
+      typedef std::pair<std::size_t,std::size_t> col_range_type;
 
       struct options
       {
@@ -3490,13 +3566,35 @@ namespace strtk
          template<typename T, typename OutputIterator>
          inline void parse(OutputIterator out) const
          {
-            itr_list_type::iterator it = const_cast<itr_list_type*>(token_list_)->begin();
-            while (token_list_->end() != it)
+            itr_list_type::iterator itr = const_cast<itr_list_type*>(token_list_)->begin();
+            while (token_list_->end() != itr)
             {
-               itr_list_type::value_type& range = *it;
+               itr_list_type::value_type& range = *itr++;
                *(out++) = string_to_type_converter<T>(range.first,range.second);
-               ++it;
             }
+         }
+
+         template<typename T, typename OutputIterator>
+         inline void parse_checked(OutputIterator out) const
+         {
+            T value;
+            itr_list_type::iterator itr = const_cast<itr_list_type*>(token_list_)->begin();
+            while (token_list_->end() != itr)
+            {
+               itr_list_type::value_type& range = *itr++;
+               if(string_to_type_converter(range.first,range.second,value))
+               {
+                  *(out++) = value;
+               }
+            }
+         }
+
+         template<typename T,
+                  class Allocator,
+                  template<class,class> class Sequence>
+         inline void parse_checked(Sequence<T,Allocator>& sequence)
+         {
+            parse_checked<T>(std::back_inserter(sequence));
          }
 
       private:
@@ -3673,6 +3771,47 @@ namespace strtk
       }
 
       template<typename OutputIterator>
+      inline bool extract_column_checked(const row_range_type& range,
+                                         const std::size_t& index,
+                                         OutputIterator out)
+      {
+         if (index > max_column_count_)
+            return false;
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return false;
+         if (range.first > range.second)
+            return false;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         while (end != itr)
+         {
+            if (index < (*itr).size())
+            {
+               process_column_checked((*itr++)[index],out);
+            }
+            else
+               ++itr;
+         }
+         return true;
+      }
+
+      template<typename OutputIterator>
+      inline bool extract_column_checked(const std::size_t& index,
+                                         OutputIterator out)
+      {
+         return extract_column_checked(all_rows(),index,out);
+      }
+
+      template<typename T,
+               class Allocator,
+               template<class,class> class Sequence>
+      inline void extract_column_checked(const std::size_t& index,
+                                          Sequence<T,Allocator>& sequence)
+      {
+         extract_column_checked(index,back_inserter_with_valuetype(sequence));
+      }
+
+      template<typename OutputIterator>
       inline bool extract_column(const row_range_type& range,
                                  const std::size_t& index,
                                  OutputIterator out)
@@ -3683,11 +3822,11 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         while (end != it)
+         while (end != itr)
          {
-            process_column((*it++)[index],out);
+            process_column((*itr++)[index],out);
          }
          return true;
       }
@@ -3713,13 +3852,13 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         while (end != it)
+         while (end != itr)
          {
-            process_column((*it)[index1],out1);
-            process_column((*it)[index2],out2);
-            ++it;
+            process_column((*itr)[index1],out1);
+            process_column((*itr)[index2],out2);
+            ++itr;
          }
          return true;
       }
@@ -3741,14 +3880,14 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         while (end != it)
+         while (end != itr)
          {
-            process_column((*it)[index1],out1);
-            process_column((*it)[index2],out2);
-            process_column((*it)[index3],out3);
-            ++it;
+            process_column((*itr)[index1],out1);
+            process_column((*itr)[index2],out2);
+            process_column((*itr)[index3],out3);
+            ++itr;
          }
          return true;
       }
@@ -3774,15 +3913,15 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         while (end != it)
+         while (end != itr)
          {
-            process_column((*it)[index1],out1);
-            process_column((*it)[index2],out2);
-            process_column((*it)[index3],out3);
-            process_column((*it)[index4],out4);
-            ++it;
+            process_column((*itr)[index1],out1);
+            process_column((*itr)[index2],out2);
+            process_column((*itr)[index3],out3);
+            process_column((*itr)[index4],out4);
+            ++itr;
          }
          return true;
       }
@@ -3812,16 +3951,16 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         while (end != it)
+         while (end != itr)
          {
-            process_column((*it)[index1],out1);
-            process_column((*it)[index2],out2);
-            process_column((*it)[index3],out3);
-            process_column((*it)[index4],out4);
-            process_column((*it)[index5],out5);
-            ++it;
+            process_column((*itr)[index1],out1);
+            process_column((*itr)[index2],out2);
+            process_column((*itr)[index3],out3);
+            process_column((*itr)[index4],out4);
+            process_column((*itr)[index5],out5);
+            ++itr;
          }
          return true;
       }
@@ -3838,16 +3977,16 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
-         while (end != it)
+         while (end != itr)
          {
-            if (!it->empty() && p(it->front().first,it->back().second))
+            if (!itr->empty() && p(itr->front().first,itr->back().second))
             {
-               it = token_list_.erase(it);
+               itr = token_list_.erase(itr);
             }
             else
-              ++it;
+              ++itr;
          }
          return true;
       }
@@ -3860,15 +3999,15 @@ namespace strtk
 
       inline void enforce_column_count(const std::size_t& column_count)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
+         itr_list_list_type::iterator itr = token_list_.begin();
          itr_list_list_type new_token_list;
-         while (token_list_.end() != it)
+         while (token_list_.end() != itr)
          {
-            if (it->size() == column_count)
+            if (itr->size() == column_count)
             {
-               new_token_list.push_back(*it);
+               new_token_list.push_back(*itr);
             }
-            ++it;
+            ++itr;
          }
          token_list_.swap(new_token_list);
          min_column_count_ = column_count;
@@ -3878,16 +4017,16 @@ namespace strtk
       inline void enforce_min_max_column_count(const std::size_t& min_column_count,
                                                const std::size_t& max_column_count)
       {
-         itr_list_list_type::iterator it = token_list_.begin();
+         itr_list_list_type::iterator itr = token_list_.begin();
          itr_list_list_type new_token_list;
-         while (token_list_.end() != it)
+         while (token_list_.end() != itr)
          {
-            std::size_t column_count = it->size();
+            std::size_t column_count = itr->size();
             if ((min_column_count <= column_count) && (column_count <= max_column_count))
             {
-               new_token_list.push_back(*it);
+               new_token_list.push_back(*itr);
             }
-            ++it;
+            ++itr;
          }
          token_list_.swap(new_token_list);
          min_column_count_ = min_column_count;
@@ -3937,19 +4076,19 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          T current_value = T();
-         while (end != it)
+         while (end != itr)
          {
-            if (!(*it).empty())
+            if (!(*itr).empty())
             {
-               if (string_to_type_converter((*it)[col].first, (*it)[col].second, current_value))
+               if (string_to_type_converter((*itr)[col].first, (*itr)[col].second, current_value))
                   result += current_value;
                else
                   return false;
             }
-            ++it;
+            ++itr;
          }
          return true;
       }
@@ -3972,19 +4111,19 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          T current_value = T();
-         while (end != it)
+         while (end != itr)
          {
-            if (!(*it).empty() && p(row_type(*it)))
+            if (!(*itr).empty() && p(row_type(*itr)))
             {
-               if (string_to_type_converter((*it)[col].first, (*it)[col].second, current_value))
+               if (string_to_type_converter((*itr)[col].first, (*itr)[col].second, current_value))
                   result += current_value;
                else
                   return false;
             }
-            ++it;
+            ++itr;
          }
          return true;
       }
@@ -4034,25 +4173,25 @@ namespace strtk
             return false;
          if (row_range.first > row_range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + row_range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + row_range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + row_range.second;
          range_type range;
          bool appended = false;
-         while (end != it)
+         while (end != itr)
          {
             if (!delimiter.empty() && appended)
                result.append(delimiter);
             appended = false;
-            if (!(*it).empty())
+            if (!(*itr).empty())
             {
-               range = (*it)[col];
+               range = (*itr)[col];
                if (range.first != range.second)
                {
                   result.append(range.first,range.second);
                   appended = true;
                }
             }
-            ++it;
+            ++itr;
          }
          return true;
       }
@@ -4077,24 +4216,24 @@ namespace strtk
             return false;
          if (range.first > range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          bool appended = false;
-         while (end != it)
+         while (end != itr)
          {
             if (!delimiter.empty() && appended)
                result.append(delimiter);
             appended = false;
-            if (!(*it).empty() && p(row_type(*it)))
+            if (!(*itr).empty() && p(row_type(*itr)))
             {
-               range = (*it)[col];
+               range = (*itr)[col];
                if (range.first != range.second)
                {
                   result.append(range.first,range.second);
                   appended = true;
                }
             }
-            ++it;
+            ++itr;
          }
          return true;
       }
@@ -4118,11 +4257,11 @@ namespace strtk
             return false;
          if (range.first >= range.second)
             return false;
-         itr_list_list_type::const_iterator it = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          row_range_type r(range.first,range.first);
-         for(std::size_t i = range.first; i < range.second; ++i, ++it)
+         for(std::size_t i = range.first; i < range.second; ++i, ++itr)
          {
-            if (p(row_type(*it)))
+            if (p(row_type(*itr)))
             {
                if (r.first != r.second)
                {
@@ -4178,14 +4317,14 @@ namespace strtk
          min_column_count_ = std::numeric_limits<std::size_t>::max();
          max_column_count_ = std::numeric_limits<std::size_t>::min();
 
-         for (itr_list_type::iterator it = row_list.begin(); row_list.end() != it; ++it)
+         for (itr_list_type::iterator itr = row_list.begin(); row_list.end() != itr; ++itr)
          {
-            if (0 == std::distance(it->first,it->second))
+            if (0 == std::distance(itr->first,itr->second))
                continue;
             itr_list_type current_token_list;
             split(token_predicate,
-                  it->first,
-                  it->second,
+                  itr->first,
+                  itr->second,
                   std::back_inserter(current_token_list),
                   options_.split_column_option);
             if (!current_token_list.empty())
@@ -4219,6 +4358,17 @@ namespace strtk
       {
          typedef typename std::iterator_traits<OutputIterator>::value_type output_type;
          *(out++) = string_to_type_converter<output_type>(range.first,range.second);
+      }
+
+      template<typename OutputIterator>
+      inline void process_column_checked(const itr_list_type::value_type& range, OutputIterator out) const
+      {
+         typedef typename std::iterator_traits<OutputIterator>::value_type output_type;
+         output_type value;
+         if(string_to_type_converter(range.first,range.second,value))
+         {
+            *(out++) = value;
+         }
       }
 
    private:
@@ -4352,11 +4502,11 @@ namespace strtk
       template<typename Iterator>
       inline void operator() (const std::pair<Iterator,Iterator>& range) const
       {
-         for (const std::string* it = begin_; end_ != it; ++it)
+         for (const std::string* itr = begin_; end_ != itr; ++itr)
          {
             if ((case_insensitive_ &&
-               (imatch((*it).begin(),(*it).end(),range.first,range.second))) ||
-               (!case_insensitive_ && std::equal((*it).begin(),(*it).end(),range.first)))
+               (imatch((*itr).begin(),(*itr).end(),range.first,range.second))) ||
+               (!case_insensitive_ && std::equal((*itr).begin(),(*itr).end(),range.first)))
             {
                if (allow_through_on_match_)
                {
@@ -4374,11 +4524,11 @@ namespace strtk
 
       inline void operator() (const std::string& s) const
       {
-         for (const std::string* it = begin_; end_ != it; ++it)
+         for (const std::string* itr = begin_; end_ != itr; ++itr)
          {
             if ((case_insensitive_ &&
-               (imatch((*it).begin(),(*it).end(),s.begin(),s.end()))) ||
-               (!case_insensitive_ && std::equal((*it).begin(),(*it).end(),s.begin())))
+               (imatch((*itr).begin(),(*itr).end(),s.begin(),s.end()))) ||
+               (!case_insensitive_ && std::equal((*itr).begin(),(*itr).end(),s.begin())))
             {
                if (allow_through_on_match_)
                {
@@ -4408,14 +4558,14 @@ namespace strtk
 
    template<typename MatchPredicate,
             typename Iterator>
-   inline void inc_while_matching(Iterator& it,
+   inline void inc_while_matching(Iterator& itr,
                                   const Iterator& end,
                                   const MatchPredicate& predicate)
    {
-      while (end != it)
+      while (end != itr)
       {
-         if (predicate(*it))
-            ++it;
+         if (predicate(*itr))
+            ++itr;
          else
             break;
       }
@@ -4508,19 +4658,19 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t10)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t11)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t12)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t11)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t12)) return false;
       return true;
    }
 
@@ -4542,18 +4692,18 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t10)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t11)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t11)) return false;
       return true;
    }
 
@@ -4575,17 +4725,17 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second, t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t5)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t6)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t7)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t8)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second, t9)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t10)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false;
       return true;
    }
 
@@ -4607,16 +4757,16 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t7)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t8)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t9)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t9)) return false;
       return true;
    }
 
@@ -4636,15 +4786,15 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t7)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t8)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false;
       return true;
    }
 
@@ -4664,14 +4814,14 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t6)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t7)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false;
       return true;
    }
 
@@ -4691,13 +4841,13 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t5)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t6)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false;
       return true;
    }
 
@@ -4717,12 +4867,12 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t4)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t5)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false;
       return true;
    }
 
@@ -4740,11 +4890,11 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t3)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t4)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false;
       return true;
    }
 
@@ -4762,10 +4912,10 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t3)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false;
       return true;
    }
 
@@ -4782,9 +4932,9 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      if (!string_to_type_converter((*it).first,(*it).second,t1)) return false; ++it;
-      if (!string_to_type_converter((*it).first,(*it).second,t2)) return false;
+      iterator_type_ptr itr = token_list;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false;
       return true;
    }
 
@@ -4801,8 +4951,8 @@ namespace strtk
       iterator_type token_list[token_count];
       if (token_count != split_n(delimiters,begin,end,token_count,token_list))
          return false;
-      iterator_type_ptr it = token_list;
-      return string_to_type_converter((*it).first,(*it).second,t);
+      iterator_type_ptr itr = token_list;
+      return string_to_type_converter((*itr).first,(*itr).second,t);
    }
 
    template <typename InputIterator,
@@ -5183,11 +5333,11 @@ namespace strtk
                     const InputIterator begin,
                     const InputIterator end)
    {
-      InputIterator it = begin;
-      while (end != it)
+      InputIterator itr = begin;
+      while (end != itr)
       {
-         output += type_to_string(*it);
-         if (end == (++it))
+         output += type_to_string(*itr);
+         if (end == (++itr))
             break;
          else
             output += delimiter;
@@ -5230,19 +5380,19 @@ namespace strtk
                        const InputIterator begin,
                        const InputIterator end)
    {
-      InputIterator it = begin;
+      InputIterator itr = begin;
       bool first_time = true;
-      while (end != it)
+      while (end != itr)
       {
-         if (predicate(*it))
+         if (predicate(*itr))
          {
             if (!first_time)
                output += delimiter;
             else
                first_time = false;
-            output += type_to_string(*it);
+            output += type_to_string(*itr);
          }
-         if (end == (++it))
+         if (end == (++itr))
             break;
       }
    }
@@ -5342,11 +5492,11 @@ namespace strtk
                                OutputIterator out)
    {
       std::size_t size = 0;
-      InputIterator it = begin;
-      while(end != it)
+      InputIterator itr = begin;
+      while(end != itr)
       {
-         *out++ = *it;
-         if (ins(*it++))
+         *out++ = *itr;
+         if (ins(*itr++))
          {
             *out++ = ins();
             size += 2;
@@ -5360,10 +5510,10 @@ namespace strtk
    template <typename Iterator, typename T>
    void iota(Iterator begin, Iterator end, T value)
    {
-      Iterator it = begin;
-      while(end != it)
+      Iterator itr = begin;
+      while(end != itr)
       {
-         *(it++) = value++;
+         *(itr++) = value++;
       }
    }
 
@@ -5403,10 +5553,10 @@ namespace strtk
             OutputIterator out)
    {
       // static assert: InputIterator must be of type std::string
-      InputIterator it = begin;
-      while (end != it)
+      InputIterator itr = begin;
+      while (end != itr)
       {
-         std::string& s = *it++;
+         std::string& s = *itr++;
          if (s.size() < r0)
             continue;
          (*out++) = s.substr(r0,std::min(r1,s.size()) - r0);
@@ -5428,13 +5578,13 @@ namespace strtk
                     const Iterator begin, const Iterator end)
    {
       // static assert: InputIterator must be of type std::string
-      Iterator it = begin;
-      while (end != it)
+      Iterator itr = begin;
+      while (end != itr)
       {
-         std::string& s = *it;
+         std::string& s = *itr;
          if (s.size() < r0)
             continue;
-         (*it++) = s.substr(r0,std::min(r1,s.size()) - r0);
+         (*itr++) = s.substr(r0,std::min(r1,s.size()) - r0);
       }
    }
 
@@ -5460,19 +5610,19 @@ namespace strtk
          unsigned int r = 0x00;
          for (unsigned int i = 0; i < pre_gen_cnt; r = rnd(), ++i);
       }
-      unsigned char* it = data;
+      unsigned char* itr = data;
       unsigned int* x = 0;
       while (length >= sizeof(unsigned int))
       {
-         x = reinterpret_cast<unsigned int*>(it);
+         x = reinterpret_cast<unsigned int*>(itr);
          (*x) = rnd();
-         it += sizeof(unsigned int);
+         itr += sizeof(unsigned int);
          length -= sizeof(unsigned int);
       }
       if (length > 0)
       {
-         it -= (sizeof(unsigned int) - length);
-         x = reinterpret_cast<unsigned int*>(it);
+         itr -= (sizeof(unsigned int) - length);
+         x = reinterpret_cast<unsigned int*>(itr);
          (*x) = rnd();
       }
    }
@@ -5550,32 +5700,32 @@ namespace strtk
       /* Credits: Mark Nelson http://marknelson.us */
       if ((first == last) || (first == k) || (last == k))
          return false;
-      Iterator i1 = first;
-      Iterator i2 = last;
-      ++i1;
-      if (last == i1)
+      Iterator itr1 = first;
+      Iterator itr2 = last;
+      ++itr1;
+      if (last == itr1)
          return false;
-      i1 = last;
-      --i1;
-      i1 = k;
-      --i2;
-      while (first != i1)
+      itr1 = last;
+      --itr1;
+      itr1 = k;
+      --itr2;
+      while (first != itr1)
       {
-         if (*--i1 < *i2)
+         if (*--itr1 < *itr2)
          {
             Iterator j = k;
-            while (!(*i1 < *j)) ++j;
-            std::iter_swap(i1,j);
-            ++i1;
+            while (!(*itr1 < *j)) ++j;
+            std::iter_swap(itr1,j);
+            ++itr1;
             ++j;
-            i2 = k;
-            std::rotate(i1,j,last);
+            itr2 = k;
+            std::rotate(itr1,j,last);
             while (last != j)
             {
                ++j;
-               ++i2;
+               ++itr2;
             }
-            std::rotate(k,i2,last);
+            std::rotate(k,itr2,last);
             return true;
          }
       }
@@ -5817,10 +5967,10 @@ namespace strtk
       {
          if (!write(static_cast<unsigned int>(sequence.size())))
             return false;
-         typename Sequence<T,Allocator>::const_iterator it = sequence.begin();
-         while (sequence.end() != it)
+         typename Sequence<T,Allocator>::const_iterator itr = sequence.begin();
+         while (sequence.end() != itr)
          {
-            if (!write(*it++))
+            if (!write(*itr++))
                return false;
          }
          return true;
@@ -5948,14 +6098,13 @@ namespace strtk
 
       inline void reverse_bytes()
       {
-         unsigned char* it1 = reinterpret_cast<unsigned char*>(t_);
-         unsigned char* it2 = it1 + (sizeof(T) - 1);
-         while (it1 < it2)
+         unsigned char* itr1 = reinterpret_cast<unsigned char*>(t_);
+         unsigned char* itr2 = itr1 + (sizeof(T) - 1);
+         while (itr1 < itr2)
          {
-            char tmp = *it1;
-                *it1 = *it2;
-                *it2 = tmp;
-            ++it1; --it2;
+            std::swap(*itr1,*itr2);
+            ++itr1;
+            --itr2;
          }
       }
 
@@ -6043,14 +6192,13 @@ namespace strtk
 
       inline void reverse_bytes()
       {
-         unsigned char* it1 = reinterpret_cast<unsigned char*>(t_);
-         unsigned char* it2 = it1 + (sizeof(T) - 1);
-         while (it1 < it2)
+         unsigned char* itr1 = reinterpret_cast<unsigned char*>(t_);
+         unsigned char* itr2 = itr1 + (sizeof(T) - 1);
+         while (itr1 < itr2)
          {
-            char tmp = *it1;
-                *it1 = *it2;
-                *it2 = tmp;
-            ++it1; --it2;
+            std::swap(*itr1,*itr2);
+            ++itr1;
+            --itr2;
          }
       }
 
@@ -6149,7 +6297,7 @@ namespace strtk
                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // 0xF8 - 0xFF
                                                              };
 
-      static const unsigned char digit[10] = {
+      static const unsigned char digitr[10] = {
                                                '0','1','2','3','4',
                                                '5','6','7','8','9'
                                              };
@@ -6229,15 +6377,19 @@ namespace strtk
       template<typename Iterator, typename T, typename Tag>
       inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, not_supported_type_tag)
       {
-         try
-         {
-            t = boost::lexical_cast<T>(std::string(begin,end));
-         }
-         catch(boost::bad_lexical_cast&)
-         {
+         #ifdef ENABLE_LEXICAL_CAST
+            try
+            {
+               t = boost::lexical_cast<T>(std::string(begin,end));
+            }
+            catch(boost::bad_lexical_cast&)
+            {
+               return false;
+            }
+            return true;
+         #else
             return false;
-         }
-         return true;
+         #endif
       }
 
       template<typename Iterator>
@@ -6253,14 +6405,14 @@ namespace strtk
          if (0 == std::distance(begin,end))
             return false;
          t = 0;
-         Iterator it = begin;
-         if ('+' == *it)
-            ++it;
-         if (end == it)
+         Iterator itr = begin;
+         if ('+' == *itr)
+            ++itr;
+         if (end == itr)
             return false;
-         while (end != it)
+         while (end != itr)
          {
-            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*it++)]);
+            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
             if (0xFF == digit)
                return false;
             t = (10 * t) + digit;
@@ -6274,20 +6426,20 @@ namespace strtk
          if (0 == std::distance(begin,end))
             return false;
          t = 0;
-         Iterator it = begin;
+         Iterator itr = begin;
          bool negative = false;
-         if ('+' == *it)
-            ++it;
-         else if ('-' == *it)
+         if ('+' == *itr)
+            ++itr;
+         else if ('-' == *itr)
          {
-            ++it;
+            ++itr;
             negative = true;
          }
-         if (end == it)
+         if (end == itr)
             return false;
-         while (end != it)
+         while (end != itr)
          {
-            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*it++)]);
+            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
             if (0xFF == digit)
                return false;
             t = (10 * t) + digit;
@@ -6306,7 +6458,7 @@ namespace strtk
          char* endptr = buffer + length;
          std::memcpy(buffer,begin,length);
          t = static_cast<T>(strtod(buffer,&endptr));
-         return (errno != ERANGE);
+         return (0 == errno);
       }
 
       template<typename Iterator, typename T>
@@ -6344,15 +6496,19 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(const T& t, std::string& s, not_supported_type_tag)
       {
-         try
-         {
-            s = boost::lexical_cast<std::string>(t);
-         }
-         catch(boost::bad_lexical_cast&)
-         {
+         #ifdef ENABLE_LEXICAL_CAST
+            try
+            {
+               s = boost::lexical_cast<std::string>(t);
+            }
+            catch(boost::bad_lexical_cast&)
+            {
+               return false;
+            }
+            return true;
+         #else
             return false;
-         }
-         return true;
+         #endif
       }
 
       template<typename T>
@@ -6360,24 +6516,23 @@ namespace strtk
       {
          if (result.size() < (3 * sizeof(value) + 1))
             result.resize(3 * sizeof(value) + 1);
-         char* it = const_cast<char*>(result.c_str());
+         char* itr = const_cast<char*>(result.c_str());
          unsigned int tmp_value = value;
          do
          {
             tmp_value = value;
             value /= 10;
-            *(it++) = digit[(tmp_value - value * 10)];
+            *(itr++) = digitr[(tmp_value - value * 10)];
          }
          while (value);
-         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
-         it = const_cast<char*>(result.c_str());
-         char* it2 = it + (result.size() - 1);
-         while (it < it2)
+         result.resize(std::distance(result.c_str(),const_cast<const char*>(itr)));
+         itr = const_cast<char*>(result.c_str());
+         char* itr2 = itr + (result.size() - 1);
+         while (itr < itr2)
          {
-            char tmp = *it;
-            *it = *it2;
-            *it2 = tmp;
-            ++it; --it2;
+            std::swap(*itr,*itr2);
+            ++itr;
+            --itr2;
          }
          return true;
       }
@@ -6387,7 +6542,7 @@ namespace strtk
       {
          if (result.size() < (3 * sizeof(value) + 1))
             result.resize(3 * sizeof(value) + 1);
-         char* it = const_cast<char*>(result.c_str());
+         char* itr = const_cast<char*>(result.c_str());
          bool negative = (value < 0);
          value = static_cast<T>(std::abs(value));
          int tmp_value = value;
@@ -6395,19 +6550,18 @@ namespace strtk
          {
             tmp_value = value;
             value /= 10;
-            *(it++) = digit[tmp_value - value * 10];
+            *(itr++) = digitr[tmp_value - value * 10];
          }
          while (value);
-         if (negative) *(it++) = '-';
-         result.resize(std::distance(result.c_str(),const_cast<const char*>(it)));
-         it = const_cast<char*>(result.c_str());
-         char* it2 = it + (result.size() - 1);
-         while (it < it2)
+         if (negative) *(itr++) = '-';
+         result.resize(std::distance(result.c_str(),const_cast<const char*>(itr)));
+         itr = const_cast<char*>(result.c_str());
+         char* itr2 = itr + (result.size() - 1);
+         while (itr < itr2)
          {
-            char tmp = *it;
-            *it = *it2;
-            *it2 = tmp;
-            ++it; --it2;
+            std::swap(*itr,*itr2);
+            ++itr;
+            --itr2;
          }
          return true;
       }
