@@ -722,7 +722,7 @@ void inserter_example()
 
 void combination_example()
 {
-   std::string s = "abcde";
+   std::string s = "abcdefg";
    std::size_t set_size = s.size() - 1;
    std::size_t combination_index = 0;
    do

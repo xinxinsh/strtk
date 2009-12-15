@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 
       default :
                {
-                  std::cout << "usage: randomizer <file name>" << std::endl;
+                  std::cout << "usage: strtk_randomizer <file name>" << std::endl;
                   std::cout << "usage: cat data.txt | randomizer" << std::endl;
                   return 1;
                }
@@ -54,9 +54,11 @@ int main(int argc, char* argv[])
 
    if (!str_lst.empty())
    {
+      #ifdef ENABLE_RANDOM
       strtk::random_permutation(str_lst.begin(),str_lst.end(),
                                 std::ostream_iterator<std::string>(std::cout,"\n"),
                                 static_cast<std::size_t>(::time(0)));
+      #endif
    }
    return 0;
 }
