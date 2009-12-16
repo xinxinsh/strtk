@@ -847,10 +847,10 @@ namespace strtk
       }
    }
 
-   void replace_pattern(const std::string& s,
-                        const std::string& p,
-                        const std::string& r,
-                        std::string& n)
+   inline void replace_pattern(const std::string& s,
+                               const std::string& p,
+                               const std::string& r,
+                               std::string& n)
    {
       if (p.empty() || (p == r))
       {
@@ -2285,7 +2285,7 @@ namespace strtk
    }
 
    template<typename Iterator>
-   void lexicographically_canonicalize(Iterator begin, Iterator end)
+   inline void lexicographically_canonicalize(Iterator begin, Iterator end)
    {
       typedef typename std::iterator_traits<Iterator>::value_type type;
       typedef typename std::pair<Iterator,Iterator> iter_type;
@@ -2342,7 +2342,7 @@ namespace strtk
       std::rotate(begin,(*itr_list.begin()).second,end);
    }
 
-   void lexicographically_canonicalize(std::string& str)
+   inline void lexicographically_canonicalize(std::string& str)
    {
       lexicographically_canonicalize(const_cast<char*>(str.c_str()), const_cast<char*>(str.c_str() + str.size()));
    }
@@ -2350,7 +2350,7 @@ namespace strtk
    template<typename T,
             class Allocator,
             template<class,class> class Sequence>
-   void lexicographically_canonicalize(Sequence<T,Allocator>& sequence)
+   inline void lexicographically_canonicalize(Sequence<T,Allocator>& sequence)
    {
       lexicographically_canonicalize(sequence.begin(),sequence.end());
    }
@@ -2649,13 +2649,13 @@ namespace strtk
       }
    }
 
-   void convert_to_printable_chars(std::string& str)
+   inline void convert_to_printable_chars(std::string& str)
    {
       convert_to_printable_chars(reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str())),
                                  reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str() + str.size())));
    }
 
-   void convert_to_uppercase(unsigned char* begin, unsigned char* end)
+   inline void convert_to_uppercase(unsigned char* begin, unsigned char* end)
    {
       std::transform(begin,end,begin,::toupper);
       /*
@@ -2669,13 +2669,13 @@ namespace strtk
       */
    }
 
-   void convert_to_uppercase(std::string& str)
+   inline void convert_to_uppercase(std::string& str)
    {
       convert_to_uppercase(reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str())),
                            reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str() + str.size())));
    }
 
-   void convert_to_lowercase(unsigned char* begin, unsigned char* end)
+   inline void convert_to_lowercase(unsigned char* begin, unsigned char* end)
    {
       std::transform(begin,end,begin,::tolower);
       /*
@@ -2689,7 +2689,7 @@ namespace strtk
       */
    }
 
-   void convert_to_lowercase(std::string& str)
+   inline void convert_to_lowercase(std::string& str)
    {
       convert_to_lowercase(reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str())),
                            reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str() + str.size())));
@@ -4406,7 +4406,7 @@ namespace strtk
       }
 
       template<typename T>
-      void operator()(const T& t) const
+      inline void operator()(const T& t) const
       {
          sequence_.push_back(t);
       }
@@ -5508,7 +5508,7 @@ namespace strtk
    }
 
    template <typename Iterator, typename T>
-   void iota(Iterator begin, Iterator end, T value)
+   inline void iota(Iterator begin, Iterator end, T value)
    {
       Iterator itr = begin;
       while(end != itr)
@@ -5520,7 +5520,7 @@ namespace strtk
    template<typename T,
             typename Allocator,
             template<class, class> class Sequence>
-   void iota(Sequence<T,Allocator>& sequence, std::size_t count, T value)
+   inline void iota(Sequence<T,Allocator>& sequence, std::size_t count, T value)
    {
       while(count)
       {
@@ -5530,7 +5530,7 @@ namespace strtk
    }
 
    template<typename OutputIterator, typename T>
-   void iota(std::size_t count, T value, OutputIterator out)
+   inline void iota(std::size_t count, T value, OutputIterator out)
    {
       while(count)
       {
@@ -5542,15 +5542,15 @@ namespace strtk
    template<typename T,
             typename Allocator,
             template<class, class> class Sequence>
-   void iota(Sequence<T,Allocator>& sequence, const T& value)
+   inline void iota(Sequence<T,Allocator>& sequence, const T& value)
    {
       iota(sequence.begin(),sequence.end(),value);
    }
 
    template<typename InputIterator, typename OutputIterator>
-   void cut(const std::size_t& r0, const std::size_t& r1,
-            const InputIterator begin, InputIterator end,
-            OutputIterator out)
+   inline void cut(const std::size_t& r0, const std::size_t& r1,
+                   const InputIterator begin, InputIterator end,
+                   OutputIterator out)
    {
       // static assert: InputIterator must be of type std::string
       InputIterator itr = begin;
@@ -5566,16 +5566,16 @@ namespace strtk
    template<typename Allocator,
             template<class, class> class Sequence,
             typename OutputIterator>
-   void cut(const std::size_t& r0, const std::size_t& r1,
-            const Sequence<std::string, Allocator>& sequence,
-            OutputIterator out)
+   inline void cut(const std::size_t& r0, const std::size_t& r1,
+                   const Sequence<std::string, Allocator>& sequence,
+                   OutputIterator out)
    {
       cut(r0,r1,sequence.begin(),sequence.end(),out);
    }
 
    template<typename Iterator>
-   void cut_inplace(const std::size_t& r0, const std::size_t& r1,
-                    const Iterator begin, const Iterator end)
+   inline void cut_inplace(const std::size_t& r0, const std::size_t& r1,
+                           const Iterator begin, const Iterator end)
    {
       // static assert: InputIterator must be of type std::string
       Iterator itr = begin;
@@ -5590,17 +5590,17 @@ namespace strtk
 
    template<typename Allocator,
             template<class, class> class Sequence>
-   void cut(const std::size_t& r0, const std::size_t& r1,
-            const Sequence<std::string, Allocator>& sequence)
+   inline void cut(const std::size_t& r0, const std::size_t& r1,
+                   const Sequence<std::string, Allocator>& sequence)
    {
       cut(r0,r1,sequence.begin(),sequence.end());
    }
 
    #ifdef ENABLE_RANDOM
-   void generate_random_data(unsigned char* data,
-                             std::size_t length,
-                             unsigned int pre_gen_cnt = 0,
-                             unsigned int seed = magic_seed)
+   inline void generate_random_data(unsigned char* data,
+                                    std::size_t length,
+                                    unsigned int pre_gen_cnt = 0,
+                                    unsigned int seed = magic_seed)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       boost::uniform_int<unsigned int> dist(std::numeric_limits<unsigned int>::min(),std::numeric_limits<unsigned int>::max());
@@ -5630,9 +5630,9 @@ namespace strtk
    template <typename Iterator,
              typename RandomNumberGenerator,
              typename OutputIterator>
-   void random_permutation(const Iterator begin, const Iterator end,
-                           RandomNumberGenerator& rng,
-                           OutputIterator out)
+   inline void random_permutation(const Iterator begin, const Iterator end,
+                                  RandomNumberGenerator& rng,
+                                  OutputIterator out)
    {
       const std::size_t size = std::distance(begin,end);
       if (rng.max() < size) return;
@@ -5648,9 +5648,9 @@ namespace strtk
 
    template <typename Iterator,
              typename OutputIterator>
-   void random_permutation(const Iterator begin, const Iterator end,
-                           OutputIterator out,
-                           const std::size_t seed = magic_seed)
+   inline void random_permutation(const Iterator begin, const Iterator end,
+                                  OutputIterator out,
+                                  const std::size_t seed = magic_seed)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       boost::uniform_int<std::size_t> dist(0,std::numeric_limits<std::size_t>::max());
@@ -5661,10 +5661,10 @@ namespace strtk
    template <typename Iterator,
              typename RandomNumberGenerator,
              typename OutputIterator>
-   bool random_combination(const Iterator begin, const Iterator end,
-                           std::size_t set_size,
-                           RandomNumberGenerator& rng,
-                           OutputIterator out)
+   inline bool random_combination(const Iterator begin, const Iterator end,
+                                  std::size_t set_size,
+                                  RandomNumberGenerator& rng,
+                                  OutputIterator out)
    {
       const std::size_t size = std::distance(begin,end);
       if ((size < set_size) || (rng.max() < size)) return false;
@@ -5682,10 +5682,10 @@ namespace strtk
 
    template <typename Iterator,
              typename OutputIterator>
-   void random_combination(const Iterator begin, const Iterator end,
-                           const std::size_t& set_size,
-                           OutputIterator out,
-                           const std::size_t seed = magic_seed)
+   inline void random_combination(const Iterator begin, const Iterator end,
+                                  const std::size_t& set_size,
+                                  OutputIterator out,
+                                  const std::size_t seed = magic_seed)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       boost::uniform_int<std::size_t> dist(0,std::numeric_limits<std::size_t>::max());
@@ -5695,7 +5695,7 @@ namespace strtk
    #endif // ENABLE_RANDOM
 
    template <typename Iterator>
-   bool next_combination(const Iterator first, Iterator k, const Iterator last)
+   inline bool next_combination(const Iterator first, Iterator k, const Iterator last)
    {
       /* Credits: Mark Nelson http://marknelson.us */
       if ((first == last) || (first == k) || (last == k))
@@ -5734,7 +5734,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   void for_each_permutation(Iterator begin, Iterator end, Function function)
+   inline void for_each_permutation(Iterator begin, Iterator end, Function function)
    {
       do
       {
@@ -5744,7 +5744,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   bool for_each_permutation_conditional(Iterator begin, Iterator end, Function function)
+   inline bool for_each_permutation_conditional(Iterator begin, Iterator end, Function function)
    {
       do
       {
@@ -5756,7 +5756,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   void for_each_combination(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline void for_each_combination(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       do
       {
@@ -5766,7 +5766,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   bool for_each_combination_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline bool for_each_combination_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       do
       {
@@ -5778,7 +5778,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   void for_each_combutation(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline void for_each_combutation(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       // for each permutation of each combination
       do
@@ -5793,7 +5793,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   bool for_each_combutation_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline bool for_each_combutation_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
    {
       do
       {
@@ -6089,7 +6089,7 @@ namespace strtk
          return this->operator =(std::make_pair(s.c_str(),s.c_str() + s.size()));
       }
 
-      bool valid() const
+      inline bool valid() const
       {
          return valid_;
       }
@@ -6183,7 +6183,7 @@ namespace strtk
          return *this;
       }
 
-      bool valid() const
+      inline bool valid() const
       {
          return valid_;
       }
@@ -6247,12 +6247,12 @@ namespace strtk
          return left_align(width,pad,type_to_string(t));
       }
 
-      std::string remaining_string(const std::size_t& index, const std::string& str)
+      inline std::string remaining_string(const std::size_t& index, const std::string& str)
       {
          return (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }
 
-      void remaining_string(const std::size_t& index, const std::string& str, std::string& result)
+      inline void remaining_string(const std::size_t& index, const std::string& str, std::string& result)
       {
          result = (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }
