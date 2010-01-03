@@ -568,6 +568,26 @@ void generate_random_example01()
    #endif
 }
 
+void generate_random_example02()
+{
+   std::deque<int> rnd_int_list;
+   strtk::generate_random_values<int>(5,-5,+5,rnd_int_list);
+
+   std::vector<unsigned int> rnd_uint_list;
+   strtk::generate_random_values<unsigned int>(5,0,10,rnd_uint_list);
+
+   std::list<double> rnd_double_list;
+   strtk::generate_random_values<double>(5,-1.0,+1.0,rnd_double_list);
+
+   std::vector<float> rnd_float_list;
+   strtk::generate_random_values<float>(5,-0.5f,+0.5f,rnd_float_list);
+
+   std::cout << strtk::join(" ",rnd_int_list) << std::endl;
+   std::cout << strtk::join(" ",rnd_uint_list) << std::endl;
+   std::cout << strtk::join(" ",rnd_double_list) << std::endl;
+   std::cout << strtk::join(" ",rnd_float_list) << std::endl;
+}
+
 void random_permutation_example()
 {
    #ifdef ENABLE_RANDOM
@@ -817,6 +837,7 @@ int main()
    remove_leading_example();
    uri_extractor_example01();
    generate_random_example01();
+   generate_random_example02();
    random_permutation_example();
    random_combination_example();
    lexicographically_collate_example();
