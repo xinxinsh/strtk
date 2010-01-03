@@ -5730,7 +5730,7 @@ namespace strtk
              typename OutputIterator>
    inline void random_permutation(const Iterator begin, const Iterator end,
                                   OutputIterator out,
-                                  const std::size_t& seed = magic_seed
+                                  const std::size_t& seed = magic_seed,
                                   const std::size_t& pregen = 0)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
