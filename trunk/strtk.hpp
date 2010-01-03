@@ -713,8 +713,8 @@ namespace strtk
       std::size_t removal_count = 0;
       while ((begin != itr) && predicate(*itr))
       {
-         itr--;
-         removal_count++;
+         --itr;
+         ++removal_count;
       }
       return removal_count;
    }
@@ -779,8 +779,8 @@ namespace strtk
       std::size_t removal_count = 0;
       while ((end != itr) && predicate(*itr))
       {
-         itr++;
-         removal_count++;
+         ++itr;
+         ++removal_count;
       }
       std::copy(itr,end,begin);
       return removal_count;
@@ -5627,6 +5627,86 @@ namespace strtk
       }
    }
 
+   namespace details
+   {
+      struct rand_int_type_tag {};
+      struct rand_real_type_tag {};
+
+      template<typename T> struct supported_random_type {};
+
+      #define register_rand_int_type_tag(T)\
+      template<> struct supported_random_type<T> { typedef rand_int_type_tag type;  enum { value = true }; };
+
+      #define register_rand_real_type_tag(T)\
+      template<> struct supported_random_type<T> { typedef rand_real_type_tag type;  enum { value = true }; };
+
+      register_rand_int_type_tag(short)
+      register_rand_int_type_tag(int)
+      register_rand_int_type_tag(long)
+      register_rand_int_type_tag(unsigned short)
+      register_rand_int_type_tag(unsigned int)
+      register_rand_int_type_tag(unsigned long)
+
+      register_rand_real_type_tag(float)
+      register_rand_real_type_tag(double)
+      register_rand_real_type_tag(long double)
+
+      template<typename T, typename OutputIterator, typename RandomNumberGenerator>
+      inline void generate_random_values_impl(const std::size_t& count,
+                                              const T& min,
+                                              const T& max,
+                                              OutputIterator out,
+                                              RandomNumberGenerator& rng,
+                                              rand_int_type_tag)
+      {
+         using namespace boost;
+         variate_generator<RandomNumberGenerator&,uniform_int<T> > rnd(rng,uniform_int<T>(min,max));
+         for(std::size_t i = 0; i < count; ++i, out++ = rnd());
+      }
+
+      template<typename T, typename OutputIterator, typename RandomNumberGenerator>
+      inline void generate_random_values_impl(const std::size_t& count,
+                                              const T& min,
+                                              const T& max,
+                                              OutputIterator out,
+                                              RandomNumberGenerator& rng,
+                                              rand_real_type_tag)
+      {
+         using namespace boost;
+         variate_generator<RandomNumberGenerator&, uniform_real<T> > rnd(rng,uniform_real<T>(min,max));
+         for(std::size_t i = 0; i < count; ++i, out++ = rnd());
+      }
+
+   }
+
+   template<typename T, typename OutputIterator>
+   inline void generate_random_values(const std::size_t& count,
+                                      const T& min,
+                                      const T& max,
+                                      OutputIterator out,
+                                      const std::size_t& seed = magic_seed,
+                                      const std::size_t& pregen = 0)
+   {
+      details::supported_random_type<T>::type type;
+      boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
+      for(std::size_t i = 0; i++ < pregen; rng());
+      generate_random_values_impl(count,min,max,out,rng,type);
+   }
+
+   template<typename T, class Allocator, template<class, class> class Sequence>
+   inline void generate_random_values(const std::size_t& count,
+                                      const T& min,
+                                      const T& max,
+                                      Sequence<T,Allocator>& sequence,
+                                      const std::size_t& seed = magic_seed,
+                                      const std::size_t& pregen = 0)
+   {
+      details::supported_random_type<T>::type type;
+      boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
+      for(std::size_t i = 0; i++ < pregen; rng());
+      generate_random_values_impl(count,min,max,std::back_inserter(sequence),rng,type);
+   }
+
    template <typename Iterator,
              typename RandomNumberGenerator,
              typename OutputIterator>
@@ -5635,12 +5715,12 @@ namespace strtk
                                   OutputIterator out)
    {
       const std::size_t size = std::distance(begin,end);
-      if (rng.max() < size) return;
+      if ((rng. min() < 0.0) || (rng.max() > 1.0)) return;
       std::deque<std::size_t> index;
       for(std::size_t i = 0; i < size; index.push_back(i++));
       while(!index.empty())
       {
-         std::size_t idx = static_cast<std::size_t>((index.size() * (rng() / (rng.max() + 1.0))));
+         std::size_t idx = static_cast<std::size_t>(index.size() * rng());
          *(out++) = *(begin + index[idx]);
          index.erase(index.begin() + idx);
       }
@@ -5650,11 +5730,13 @@ namespace strtk
              typename OutputIterator>
    inline void random_permutation(const Iterator begin, const Iterator end,
                                   OutputIterator out,
-                                  const std::size_t seed = magic_seed)
+                                  const std::size_t& seed = magic_seed
+                                  const std::size_t& pregen = 0)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      boost::uniform_int<std::size_t> dist(0,std::numeric_limits<std::size_t>::max());
-      boost::variate_generator<boost::mt19937&, boost::uniform_int<std::size_t> > rnd(rng,dist);
+      for(std::size_t i = 0; i++ < pregen; rng());
+      boost::uniform_real<double> dist(0.0,1.0);
+      boost::variate_generator<boost::mt19937&, boost::uniform_real<double> > rnd(rng,dist);
       random_permutation(begin,end,rnd,out);
    }
 
@@ -5667,12 +5749,12 @@ namespace strtk
                                   OutputIterator out)
    {
       const std::size_t size = std::distance(begin,end);
-      if ((size < set_size) || (rng.max() < size)) return false;
+      if ((size < set_size) || (rng. min() < 0.0) || (rng.max() > 1.0)) return false;
       std::deque<std::size_t> index;
       for(std::size_t i = 0; i < size; index.push_back(i++));
       while(set_size)
       {
-         std::size_t idx = static_cast<std::size_t>((index.size() * (rng() / (rng.max() + 1.0))));
+         std::size_t idx = static_cast<std::size_t>(index.size() * rng());
          *(out++) = *(begin + index[idx]);
          index.erase(index.begin() + idx);
          --set_size;
@@ -5685,11 +5767,13 @@ namespace strtk
    inline void random_combination(const Iterator begin, const Iterator end,
                                   const std::size_t& set_size,
                                   OutputIterator out,
-                                  const std::size_t seed = magic_seed)
+                                  const std::size_t& seed = magic_seed,
+                                  const std::size_t& pregen = 0)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      boost::uniform_int<std::size_t> dist(0,std::numeric_limits<std::size_t>::max());
-      boost::variate_generator<boost::mt19937&, boost::uniform_int<std::size_t> > rnd(rng,dist);
+      for(std::size_t i = 0; i++ < pregen; rng());
+      boost::uniform_real<double> dist(0.0,1.0);
+      boost::variate_generator<boost::mt19937&, boost::uniform_real<double> > rnd(rng,dist);
       random_combination(begin,end,set_size,rnd,out);
    }
    #endif // ENABLE_RANDOM
@@ -6602,6 +6686,7 @@ namespace strtk
       register_type_name(unsigned int)
       register_type_name(unsigned long)
       register_type_name(double)
+      register_type_name(float)
       register_type_name(std::string)
 
       template <typename T>
