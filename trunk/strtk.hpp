@@ -2213,7 +2213,7 @@ namespace strtk
    }
 
    template<typename InputIterator>
-   inline typename std::iterator_traits<InputIterator>::value_type min_in_range(const InputIterator begin, const InputIterator end)
+   inline typename std::iterator_traits<InputIterator>::value_type min_of_range(const InputIterator begin, const InputIterator end)
    {
       typename std::iterator_traits<InputIterator>::value_type smallest = *begin;
       InputIterator itr = begin;
@@ -2226,7 +2226,7 @@ namespace strtk
    }
 
    template<typename InputIterator>
-   inline typename std::iterator_traits<InputIterator>::value_type max_in_range(const InputIterator begin, const InputIterator end)
+   inline typename std::iterator_traits<InputIterator>::value_type max_of_range(const InputIterator begin, const InputIterator end)
    {
       typename std::iterator_traits<InputIterator>::value_type greatest = *begin;
       InputIterator itr = begin;
@@ -2241,22 +2241,22 @@ namespace strtk
    template<typename T,
             class Allocator,
             template<class,class> class Sequence>
-   inline T min_in_sequence(const Sequence<T,Allocator>& sequence)
+   inline T min_of_sequence(const Sequence<T,Allocator>& sequence)
    {
-      return min_in_range(sequence.begin(),sequence.end());
+      return min_of_range(sequence.begin(),sequence.end());
 
    }
 
    template<typename T,
             class Allocator,
             template<class,class> class Sequence>
-   inline T max_in_sequence(const Sequence<T,Allocator>& sequence)
+   inline T max_of_sequence(const Sequence<T,Allocator>& sequence)
    {
-      return max_in_range(sequence.begin(),sequence.end());
+      return max_of_range(sequence.begin(),sequence.end());
    }
 
    template<typename InputIterator>
-   inline void min_max_in_range(const InputIterator begin, const InputIterator end,
+   inline void min_max_of_range(const InputIterator begin, const InputIterator end,
                                 typename std::iterator_traits<InputIterator>::value_type& min_value,
                                 typename std::iterator_traits<InputIterator>::value_type& max_value)
    {
@@ -2275,11 +2275,11 @@ namespace strtk
    template<typename T,
             class Allocator,
             template<class,class> class Sequence>
-   inline void min_max_in_sequence(const Sequence<T,Allocator>& sequence,
+   inline void min_max_of_sequence(const Sequence<T,Allocator>& sequence,
                                    typename Sequence<T,Allocator>::value_type& min_value,
                                    typename Sequence<T,Allocator>::value_type& max_value)
    {
-      min_max_in_range(sequence.begin(),sequence.end(),
+      min_max_of_range(sequence.begin(),sequence.end(),
                        min_value,
                        max_value);
    }
@@ -2292,7 +2292,7 @@ namespace strtk
       typedef typename std::list<iter_type> itr_list_type;
       itr_list_type itr_list;
 
-      type smallest = min_in_range(begin,end);
+      type smallest = min_of_range(begin,end);
 
       for (Iterator itr = begin; itr != end; ++itr)
       {
