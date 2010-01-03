@@ -2380,7 +2380,9 @@ namespace strtk
    inline void convert_bin_to_hex(const std::string& binary_data, std::string& output)
    {
       output.resize(binary_data.size() * 2);
-      convert_bin_to_hex(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+      convert_bin_to_hex(binary_data.c_str(),
+                         binary_data.c_str() + binary_data.size(),
+                         const_cast<char*>(output.c_str()));
    }
 
    inline bool convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
@@ -2509,7 +2511,9 @@ namespace strtk
    inline void convert_bin_to_base64(const std::string& binary_data, std::string& output)
    {
       output.resize(std::max<std::size_t>(4,binary_data.size() << 1));
-      std::size_t resize = convert_bin_to_base64(binary_data.c_str(),binary_data.c_str() + binary_data.size(),const_cast<char*>(output.c_str()));
+      std::size_t resize = convert_bin_to_base64(binary_data.c_str(),
+                                                 binary_data.c_str() + binary_data.size(),
+                                                 const_cast<char*>(output.c_str()));
       output.resize(resize);
    }
 
@@ -5659,6 +5663,7 @@ namespace strtk
                                               RandomNumberGenerator& rng,
                                               rand_int_type_tag)
       {
+         // Note: The implied range will be: [min,max]
          using namespace boost;
          variate_generator<RandomNumberGenerator&,uniform_int<T> > rnd(rng,uniform_int<T>(min,max));
          for(std::size_t i = 0; i < count; ++i, out++ = rnd());
@@ -5672,6 +5677,7 @@ namespace strtk
                                               RandomNumberGenerator& rng,
                                               rand_real_type_tag)
       {
+         // Note: The implied range will be: [min,max)
          using namespace boost;
          variate_generator<RandomNumberGenerator&, uniform_real<T> > rnd(rng,uniform_real<T>(min,max));
          for(std::size_t i = 0; i < count; ++i, out++ = rnd());
