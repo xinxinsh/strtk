@@ -5693,7 +5693,7 @@ namespace strtk
                                       const std::size_t& seed = magic_seed,
                                       const std::size_t& pregen = 0)
    {
-      details::supported_random_type<T>::type type;
+      typename details::supported_random_type<T>::type type;
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       for(std::size_t i = 0; i++ < pregen; rng());
       generate_random_values_impl(count,min,max,out,rng,type);
@@ -5707,7 +5707,7 @@ namespace strtk
                                       const std::size_t& seed = magic_seed,
                                       const std::size_t& pregen = 0)
    {
-      details::supported_random_type<T>::type type;
+      typename details::supported_random_type<T>::type type;
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       for(std::size_t i = 0; i++ < pregen; rng());
       generate_random_values_impl(count,min,max,std::back_inserter(sequence),rng,type);
