@@ -26,11 +26,11 @@
 #include <limits>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <deque>
 #include <list>
-#include <algorithm>
 
 #define ENABLE_LEXICAL_CAST
 #ifdef ENABLE_LEXICAL_CAST
