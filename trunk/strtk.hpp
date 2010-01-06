@@ -2,7 +2,7 @@
  *******************************************************************
  *                       String Tool Kit Library                   *
  *                                                                 *
- * Author: Arash Partow (2002-2009)                                *
+ * Author: Arash Partow (2002-2010)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *
@@ -6698,7 +6698,7 @@ namespace strtk
       template <typename T>
       inline std::string type_name(const T&)
       {
-         return details::type_name<T>();
+         return type_name<T>();
       }
 
    } // namespace details
@@ -6709,13 +6709,18 @@ namespace strtk
       return details::type_name<T>();
    }
 
-   #define INSTANTIATE_SEQUENCE_TYPE_NAME(TYPE)\
+   #define register_sequence_type_name(Type)\
    template <typename T, class Allocator>\
-   inline std::string type_name(const TYPE<T,Allocator>&)\
+   inline std::string type_name(const Type<T,Allocator>&)\
    {\
-      static std::string s = std::string(#TYPE) + std::string("<" + details::type_name<T>() + ">");\
+      static std::string s = std::string(#Type) + std::string("<" + details::type_name<T>() + ">");\
       return s;\
    }
+
+   register_sequence_type_name(std::vector)
+   register_sequence_type_name(std::deque)
+   register_sequence_type_name(std::list)
+
 
    namespace fileio
    {

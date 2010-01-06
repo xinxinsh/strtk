@@ -2,8 +2,8 @@
  *******************************************************************
  *                       String Tool Kit Library                   *
  *                                                                 *
- * Examples                                                        *
- * Author: Arash Partow (2002-2009)                                *
+ * String Tollkit Library Examples                                 *
+ * Author: Arash Partow (2002-2010)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
  * Copyright notice:                                               *
@@ -780,10 +780,16 @@ void typename_example()
    std::deque<double> dd;
    std::deque<std::string> ds;
 
+   std::list<double> lf;
+   std::list<std::string> ls;
+
+
    std::cout << strtk::type_name(vui) << std::endl;
    std::cout << strtk::type_name(vs)  << std::endl;
    std::cout << strtk::type_name(dd)  << std::endl;
    std::cout << strtk::type_name(ds)  << std::endl;
+   std::cout << strtk::type_name(lf)  << std::endl;
+   std::cout << strtk::type_name(ls)  << std::endl;
 }
 
 void iota_example()
