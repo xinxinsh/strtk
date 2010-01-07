@@ -39,6 +39,7 @@ BUILD_LIST+=strtk_converters_example
 BUILD_LIST+=strtk_tokengrid_example
 BUILD_LIST+=strtk_serializer_example
 BUILD_LIST+=strtk_randomizer
+BUILD_LIST+=strtk_random_line
 BUILD_LIST+=strtk_numstats
 
 all: $(BUILD_LIST)
@@ -76,6 +77,9 @@ strtk_serializer_example : strtk_serializer_example.cpp strtk.hpp
 strtk_randomizer : strtk_randomizer.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_randomizer strtk_randomizer.cpp $(LINKER_OPT)
 
+strtk_random_line : strtk_random_line.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_random_line strtk_random_line.cpp $(LINKER_OPT)
+
 strtk_numstats : strtk_numstats.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_numstats strtk_numstats.cpp $(LINKER_OPT)
 
@@ -92,6 +96,7 @@ strip_bin :
 	strip -s strtk_tokengrid_example
 	strip -s strtk_serializer_example
 	strip -s strtk_randomizer
+	strip -s strtk_random_line
 	strip -s strtk_numstats
 
 valgrind_check :
@@ -105,6 +110,7 @@ valgrind_check :
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_converters_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokengrid_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_serializer_example
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_randomizer
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_randomizer
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_numstats
 

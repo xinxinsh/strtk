@@ -5685,6 +5685,30 @@ namespace strtk
 
    }
 
+   class uniform_real_rng
+   {
+      typedef boost::mt19937 rng_type;
+      typedef boost::variate_generator<rng_type, boost::uniform_real<double> > variate_type;
+
+   public:
+      uniform_real_rng(const std::size_t& seed = magic_seed,
+                       std::size_t pregen = 0)
+      : rng_(static_cast<rng_type::result_type>(seed)),
+        rnd_(rng_,boost::uniform_real<double>(0.0,1.0))
+   {
+      while(pregen--) rng_();
+   }
+
+   inline double operator()()
+   {
+      return rnd_();
+   }
+
+   private:
+      rng_type rng_;
+      variate_type rnd_;
+   };
+
    template<typename T, typename OutputIterator>
    inline void generate_random_values(const std::size_t& count,
                                       const T& min,
