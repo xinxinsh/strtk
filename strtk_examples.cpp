@@ -19,7 +19,10 @@
 #include <iostream>
 #include <string>
 #include <iterator>
+#include <vector>
+#include <deque>
 #include <list>
+#include <set>
 #include "strtk.hpp"
 
 void tokenizer_example01()
@@ -87,9 +90,7 @@ void tokenizer_example05()
    strtk::tokenizer< unsigned int*,strtk::single_delimiter_predicate<unsigned int> >::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
-      std::cout << "[";
-      std::copy((*it).first,(*it).second,std::ostream_iterator<unsigned int>(std::cout," "));
-      std::cout << "]";
+      std::cout << "[" << strtk::join(" ",(*it).first,(*it).second) << "]";
       ++it;
    }
    std::cout << std::endl;
@@ -105,9 +106,7 @@ void tokenizer_example06()
    strtk::tokenizer< unsigned int*,strtk::multiple_delimiter_predicate<unsigned int> >::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
-      std::cout << "[";
-      std::copy((*it).first,(*it).second,std::ostream_iterator<unsigned int>(std::cout," "));
-      std::cout << "]";
+      std::cout << "[" << strtk::join(" ",(*it).first,(*it).second) << "]";
       ++it;
    }
    std::cout << std::endl;
@@ -122,9 +121,7 @@ void tokenizer_example07()
    strtk::tokenizer< double*,strtk::single_delimiter_predicate<double> >::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
-      std::cout << "[";
-      std::copy((*it).first,(*it).second,std::ostream_iterator<double>(std::cout," "));
-      std::cout << "]";
+      std::cout << "[" << strtk::join(" ",(*it).first,(*it).second) << "]";
       ++it;
    }
    std::cout << std::endl;
@@ -140,9 +137,7 @@ void tokenizer_example08()
    strtk::tokenizer< double*,strtk::multiple_delimiter_predicate<double> >::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
-      std::cout << "[";
-      std::copy((*it).first,(*it).second,std::ostream_iterator<double>(std::cout," "));
-      std::cout << "]";
+      std::cout << "[" << strtk::join(" ",(*it).first,(*it).second) << "]";
       ++it;
    }
    std::cout << std::endl;
@@ -153,8 +148,9 @@ void tokenizer_example09()
    std::string s = "abc|123|xyz|789";
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate);
-   strtk::std_string::token_list_type token_list;
-   std::copy(tokenizer.begin(),tokenizer.end(),std::back_inserter(token_list));
+   std::deque<std::string> token_list;
+   std::copy(tokenizer.begin(),tokenizer.end(),strtk::range_to_type_back_inserter(token_list));
+   std::cout << strtk::join("\t",token_list) << std::endl;
 }
 
 void tokenizer_example10()
@@ -182,11 +178,9 @@ void tokenizer_example11()
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate);
    strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type::iterator it = tokenizer.begin();
-
    std::list<int> token_list;
    std::copy(tokenizer.begin(),tokenizer.end(),strtk::range_to_type_back_inserter(token_list));
-   std::copy(token_list.begin(),token_list.end(),std::ostream_iterator<int>(std::cout,"\t"));
-   std::cout << std::endl;
+   std::cout << strtk::join("\t",token_list) << std::endl;
 }
 
 void tokenizer_example12()
@@ -293,13 +287,7 @@ void split_regex_example()
    std::string s = "(12)(345)(6789)(0ijkx)(yz)";
    std::list<std::string> token_list;
    strtk::split_regex("\\(.*?\\)",s,std::back_inserter(token_list));
-   std::list<std::string>::iterator it = token_list.begin();
-   while(it != token_list.end())
-   {
-      std::cout << "[" << (*it) << "]\t";
-      ++it;
-   }
-   std::cout << std::endl;
+   std::cout << strtk::join("\t",token_list) << std::endl;
    #endif
 }
 
@@ -358,13 +346,7 @@ void split_regex_n_example()
    std::list<std::string> token_list;
    const std::size_t token_count = 4;
    strtk::split_regex_n("\\(.*?\\)",s,token_count,std::back_inserter(token_list));
-   std::list<std::string>::iterator it = token_list.begin();
-   while(it != token_list.end())
-   {
-      std::cout << "[" << (*it) << "]\t";
-      ++it;
-   }
-   std::cout << std::endl;
+   std::cout << strtk::join("\t",token_list) << std::endl;
    #endif
 }
 
@@ -457,17 +439,23 @@ void parse_example02()
 {
    std::string int_string    = "0,1,2,3,4,5,6,7,8,9";
    std::string double_string = "0.0,1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9";
+   std::string string_string = "ab,cde,fghi,jklmn,opqrst,uvwxyz1,234567890";
+   std::string float_string  = "1.9f,2.8f,3.7f,4.6f,5.5f,6.4f,7.3f,8.2f,9.1f,0.0f";
 
    std::vector<int> int_list;
    std::deque<double> double_list;
+   std::list<std::string> string_list;
+   std::set<float> float_list;
 
    strtk::parse(int_string,",",int_list);
    strtk::parse(double_string,",",double_list);
+   strtk::parse(string_string,",",string_list);
+   strtk::parse(float_string,",",float_list);
 
-   std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout,"\t"));
-   std::cout << std::endl;
-   std::copy(double_list.begin(),double_list.end(),std::ostream_iterator<double>(std::cout,"\t"));
-   std::cout << std::endl;
+   std::cout << strtk::join("\t",int_list) << std::endl;
+   std::cout << strtk::join("\t",double_list) << std::endl;
+   std::cout << strtk::join("\t",string_list) << std::endl;
+   std::cout << strtk::join("\t",float_list) << std::endl;
 }
 
 void parse_example03()
@@ -483,10 +471,8 @@ void parse_example03()
    strtk::parse_n(int_string,",",n,int_list);
    strtk::parse_n(double_string,",",n,double_list);
 
-   std::copy(int_list.begin(),int_list.end(),std::ostream_iterator<int>(std::cout,"\t"));
-   std::cout << std::endl;
-   std::copy(double_list.begin(),double_list.end(),std::ostream_iterator<double>(std::cout,"\t"));
-   std::cout << std::endl;
+   std::cout << strtk::join("\t",int_list) << std::endl;
+   std::cout << strtk::join("\t",double_list) << std::endl;
 }
 
 void remove_inplace_example01()
@@ -545,11 +531,8 @@ void uri_extractor_example01()
    std::list<std::string> url_list;
    strtk::split_regex(strtk::email_expression,text,std::back_inserter(email_list));
    strtk::split_regex(strtk::uri_expression,text,std::back_inserter(url_list));
-   std::cout << "emails: ";
-   std::copy(email_list.begin(),email_list.end(),std::ostream_iterator<std::string>(std::cout," "));
-   std::cout << std::endl << "urls: ";
-   std::copy(url_list.begin(),url_list.end(),std::ostream_iterator<std::string>(std::cout," "));
-   std::cout << std::endl;
+   std::cout << "emails: " << strtk::join(" ",email_list) << std::endl;
+   std::cout << "urls: " << strtk::join(" ",url_list) << std::endl;
    #endif
 }
 
@@ -783,6 +766,9 @@ void typename_example()
    std::list<double> lf;
    std::list<std::string> ls;
 
+   std::set<double> sf;
+   std::set<std::string> ss;
+
 
    std::cout << strtk::type_name(vui) << std::endl;
    std::cout << strtk::type_name(vs)  << std::endl;
@@ -790,6 +776,8 @@ void typename_example()
    std::cout << strtk::type_name(ds)  << std::endl;
    std::cout << strtk::type_name(lf)  << std::endl;
    std::cout << strtk::type_name(ls)  << std::endl;
+   std::cout << strtk::type_name(sf)  << std::endl;
+   std::cout << strtk::type_name(ss)  << std::endl;
 }
 
 void iota_example()
@@ -801,6 +789,21 @@ void iota_example()
 
    strtk::iota(ilst,100);
    std::cout << strtk::join(" ",ilst) << std::endl;
+}
+
+void bracketize_example()
+{
+   std::string int_data = "1,2,3,4,5,6,7,8,9,10";
+   std::string string_data = "the quick brown fox jumps over the lazy dog";
+
+   std::set<int> int_list;
+   std::deque<std::string> string_list;
+
+   strtk::parse(int_data,",",int_list);
+   strtk::parse(string_data," ",string_list);
+
+   std::cout << strtk::bracketize("{","}",int_list) << std::endl;
+   std::cout << strtk::bracketize("<",">",string_list) << std::endl;
 }
 
 int main()
@@ -853,5 +856,6 @@ int main()
    combination_example();
    typename_example();
    iota_example();
+   bracketize_example();
    return 0;
 }
