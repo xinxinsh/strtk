@@ -36,7 +36,7 @@
 
 #include "strtk.hpp"
 
-/*
+
 template<typename Predicate>
 bool test_tokenizer_split(const Predicate& p,
                           const std::string& s,
@@ -101,13 +101,13 @@ void test_split_and_tokenizer()
       std::string input;
       std::string output;
    };
-   */
+
 
    /*
       Test IO 1 and 2 : Single and Multi predicate tokenizing
       Test IO 3 and 4 : Single and Multi predicate compressed delimiter tokenizing
    */
-/*
+
    const std::size_t test_count = 40;
    const test_pairs test_input_output1[test_count]
      = {
@@ -324,11 +324,12 @@ void test_split_and_tokenizer()
 bool test_empty_filter_itr()
 {
    std::string s = "a||c";
-   typedef std::vector< std::pair<std::string::const_iterator,std::string::const_iterator> > str_list;
+   typedef strtk::std_string::token_vector_type str_list;
    str_list sl;
    strtk::single_delimiter_predicate<std::string::value_type> p('|');
-   strtk::std_string::tokenizer< strtk::single_delimiter_predicate<std::string::value_type> >::type tok(s,p,true);
-   if (2 == for_each_token(s,tok,strtk::filter_non_empty_range< strtk::add_to_sequence<str_list> >(strtk::add_to_sequence<str_list>(sl))))
+   strtk::std_string::tokenizer<>::type tok(s,p,true);
+
+   if (2 == for_each_token(s,tok,strtk::filter_non_empty_range< std::back_insert_iterator<str_list> >(std::back_inserter(sl))))
       return true;
    else
    {
@@ -336,7 +337,7 @@ bool test_empty_filter_itr()
       return false;
    }
 }
-*/
+
 struct data_block
 {
    std::string    d1;
@@ -476,7 +477,7 @@ bool test_construct_and_parse()
 
    return true;
 }
-/*
+
 bool test_replace_pattern()
 {
    typedef std::pair<std::string,std::string> sp_type;
@@ -531,12 +532,12 @@ bool test_replace_pattern()
    }
    return true;
 }
-*/
+
 int main()
 {
-   //test_split_and_tokenizer();
-   //assert(test_empty_filter_itr());
+   test_split_and_tokenizer();
+   assert(test_empty_filter_itr());
    assert(test_construct_and_parse());
-   //assert(test_replace_pattern());
+   assert(test_replace_pattern());
    return 0;
 }
