@@ -2346,8 +2346,6 @@ namespace strtk
       std::size_t length = 0;
       if (0 == (length = std::distance(begin,end))) return 0;
       std::pair<InputIterator,InputIterator> range(begin,begin);
-      //prev -> range.first
-      //it -> range.second
       std::size_t match_count = 0;
       int offset_length = 0;
       std::size_t increment_amount = 0;
@@ -4639,37 +4637,6 @@ namespace strtk
       bool state_;
    };
 
-   template<typename Sequence>
-   struct add_to_sequence
-   {
-   public:
-      add_to_sequence(Sequence& sequence)
-      : sequence_(sequence)
-      {}
-
-      add_to_sequence(const add_to_sequence<Sequence>& ats)
-      : sequence_(ats.sequence_)
-      {}
-
-      add_to_sequence<Sequence>& operator=(const add_to_sequence<Sequence>& ats)
-      {
-         if (this != &ats)
-         {
-            this->sequence_ = ats.sequence_;
-         }
-         return *this;
-      }
-
-      template<typename T>
-      inline void operator()(const T& t) const
-      {
-         sequence_.push_back(t);
-      }
-
-   private:
-      Sequence& sequence_;
-   };
-
    template<typename T>
    inline bool convert_string_range(const std::pair<std::string::const_iterator,std::string::const_iterator> range, T& t)
    {
@@ -4678,25 +4645,25 @@ namespace strtk
       return true;
    }
 
-   template<class OutputPredicate>
+   template<class OutputIterator>
    struct filter_non_empty_range
    {
    public:
-      filter_non_empty_range(OutputPredicate predicate)
-      : predicate_(predicate)
+      filter_non_empty_range(OutputIterator out)
+      : out_(out)
       {}
 
       template<typename Iterator>
-      inline void operator() (const std::pair<Iterator,Iterator>& range) const
+      inline void operator() (const std::pair<Iterator,Iterator>& range)
       {
          if (range.first != range.second)
          {
-            predicate_(range);
+            *out_++ = range;
          }
       }
 
    private:
-      OutputPredicate predicate_;
+      OutputIterator out_;
    };
 
    template<typename OutputPredicate>
@@ -5981,7 +5948,7 @@ namespace strtk
 
    template<typename T,
             typename Allocator,
-            template<class, class> class Sequence>
+            template<class,class> class Sequence>
    inline void iota(Sequence<T,Allocator>& sequence, std::size_t count, T value)
    {
       while(count)
@@ -5993,9 +5960,8 @@ namespace strtk
 
    template<typename T,
             typename Comparator,
-            typename Allocator,
-            template<class, class, class> class Sequence>
-   inline void iota(Sequence<T,Comparator,Allocator>& set, std::size_t count, T value)
+            typename Allocator>
+   inline void iota(std::set<T,Comparator,Allocator>& set, std::size_t count, T value)
    {
       while(count)
       {
@@ -6016,7 +5982,7 @@ namespace strtk
 
    template<typename T,
             typename Allocator,
-            template<class, class> class Sequence>
+            template<class,class> class Sequence>
    inline void iota(Sequence<T,Allocator>& sequence, const T& value)
    {
       iota(sequence.begin(),sequence.end(),value);
@@ -6047,7 +6013,7 @@ namespace strtk
    }
 
    template<typename Allocator,
-            template<class, class> class Sequence,
+            template<class,class> class Sequence,
             typename OutputIterator>
    inline void cut(const std::size_t& r0, const std::size_t& r1,
                    const Sequence<std::string, Allocator>& sequence,
@@ -6072,7 +6038,7 @@ namespace strtk
    }
 
    template<typename Allocator,
-            template<class, class> class Sequence>
+            template<class,class> class Sequence>
    inline void cut(const std::size_t& r0, const std::size_t& r1,
                    const Sequence<std::string, Allocator>& sequence)
    {
@@ -6153,7 +6119,7 @@ namespace strtk
          // Note: The implied range will be: [min,max]
          using namespace boost;
          variate_generator<RandomNumberGenerator&,uniform_int<T> > rnd(rng,uniform_int<T>(min,max));
-         for(std::size_t i = 0; i < count; ++i, out++ = rnd());
+         for(std::size_t i = 0; i < count; ++i, *out++ = rnd());
       }
 
       template<typename T, typename OutputIterator, typename RandomNumberGenerator>
@@ -6167,7 +6133,7 @@ namespace strtk
          // Note: The implied range will be: [min,max)
          using namespace boost;
          variate_generator<RandomNumberGenerator&, uniform_real<T> > rnd(rng,uniform_real<T>(min,max));
-         for(std::size_t i = 0; i < count; ++i, out++ = rnd());
+         for(std::size_t i = 0; i < count; ++i, *out++ = rnd());
       }
 
    }
@@ -6210,7 +6176,7 @@ namespace strtk
       generate_random_values_impl(count,min,max,out,rng,type);
    }
 
-   template<typename T, class Allocator, template<class, class> class Sequence>
+   template<typename T, class Allocator, template<class,class> class Sequence>
    inline void generate_random_values(const std::size_t& count,
                                       const T& min,
                                       const T& max,
