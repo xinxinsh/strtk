@@ -31,6 +31,7 @@
 #include <vector>
 #include <deque>
 #include <list>
+#include <set>
 
 #define ENABLE_LEXICAL_CAST
 #ifdef ENABLE_LEXICAL_CAST
@@ -288,6 +289,24 @@ namespace strtk
    }
 
    template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t load_from_text_file(std::istream& stream,
+                                          std::set<T,Comparator,Allocator>& set)
+   {
+     if (!stream) return 0;
+     std::string buffer;
+     buffer.reserve(one_kilobyte);
+     std::size_t line_count = 0;
+     while (std::getline(stream,buffer))
+     {
+        ++line_count;
+        set.insert(string_to_type_converter<T>(buffer));
+     }
+     return line_count;
+   }
+
+   template <typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t load_from_text_file(const std::string& file_name,
@@ -298,6 +317,19 @@ namespace strtk
         return 0;
      else
         return load_from_text_file(stream,sequence);
+   }
+
+   template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t load_from_text_file(const std::string& file_name,
+                                          std::set<T,Comparator,Allocator>& set)
+   {
+     std::ifstream stream(file_name.c_str());
+     if (!stream)
+        return 0;
+     else
+        return load_from_text_file(stream,set);
    }
 
    template <typename T,
@@ -330,6 +362,35 @@ namespace strtk
    }
 
    template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t write_to_text_file(std::ostream& stream,
+                                         const std::set<T,Comparator,Allocator>& set,
+                                         const std::string& delimiter = "")
+   {
+     if (!stream) return 0;
+     std::size_t count = 0;
+     typename std::set<T,Comparator,Allocator>::const_iterator itr = set.begin();
+     if (!delimiter.empty())
+     {
+        while (set.end() != itr)
+        {
+           stream << *itr++ << delimiter;
+           ++count;
+        }
+     }
+     else
+     {
+        while (set.end() != itr)
+        {
+           stream << *itr++;
+           ++count;
+        }
+     }
+     return count;
+   }
+
+   template <typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t write_to_text_file(const std::string& file_name,
@@ -341,6 +402,20 @@ namespace strtk
         return 0;
      else
         return write_to_text_file(stream,sequence,delimiter);
+   }
+
+   template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t write_to_text_file(const std::string& file_name,
+                                         const std::set<T,Comparator,Allocator>& set,
+                                         const std::string& delimiter = "")
+   {
+     std::ofstream stream(file_name.c_str());
+     if (!stream)
+        return 0;
+     else
+        return write_to_text_file(stream,set,delimiter);
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
@@ -1111,9 +1186,16 @@ namespace strtk
 
    template<class Allocator,
             template<class,class> class Sequence>
-   inline bool imatch(const std::string& s, const Sequence<Allocator,std::string>& sequence)
+   inline bool imatch(const std::string& s, const Sequence<std::string,Allocator>& sequence)
    {
       return imatch(s,sequence.begin(),sequence.end());
+   }
+
+   template<class Comparator,
+            class Allocator>
+   inline bool imatch(const std::string& s, const std::set<std::string,Comparator,Allocator>& set)
+   {
+      return imatch(s,set.begin(),set.end());
    }
 
    template<typename Iterator, typename DelimiterPredicate>
@@ -1448,6 +1530,73 @@ namespace strtk
       return (range_to_type_back_inserter_iterator<Sequence>(sequence));
    }
 
+   template <typename Set>
+   class range_to_type_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
+   {
+   public:
+
+      typedef typename Set::value_type T;
+
+      explicit range_to_type_inserter_iterator(Set& set)
+      : set_(set)
+      {}
+
+      range_to_type_inserter_iterator(const range_to_type_inserter_iterator& it)
+      : set_(it.set_)
+      {}
+
+      inline range_to_type_inserter_iterator& operator=(const range_to_type_inserter_iterator& it)
+      {
+         if (this != &it)
+         {
+            this->set_ = it.set_;
+         }
+         return *this;
+      }
+
+      template<typename Iterator>
+      inline range_to_type_inserter_iterator& operator=(const std::pair<Iterator,Iterator>& r)
+      {
+         T t;
+         if (string_to_type_converter(r.first,r.second,t))
+            set_.insert(t);
+         return (*this);
+      }
+
+      template<typename Iterator>
+      inline void operator()(const std::pair<Iterator,Iterator>& r)
+      {
+         T t;
+         if (string_to_type_converter(r.first,r.second,t))
+            set_.insert(t);
+      }
+
+      inline range_to_type_inserter_iterator& operator*()
+      {
+         return (*this);
+      }
+
+      inline range_to_type_inserter_iterator& operator++()
+      {
+         return (*this);
+      }
+
+      inline range_to_type_inserter_iterator operator++(int)
+      {
+         return (*this);
+      }
+
+   private:
+      Set& set_;
+   };
+
+
+   template <typename Set>
+   inline range_to_type_inserter_iterator<Set> range_to_type_inserter(Set& set)
+   {
+      return (range_to_type_inserter_iterator<Set>(set));
+   }
+
    template<class Sequence>
    class back_inserter_with_valuetype_iterator : public std::iterator<std::output_iterator_tag,
                                                                       typename Sequence::value_type,
@@ -1508,6 +1657,68 @@ namespace strtk
    inline back_inserter_with_valuetype_iterator<Sequence> back_inserter_with_valuetype(Sequence& sequence_)
    {
       return (back_inserter_with_valuetype_iterator<Sequence>(sequence_));
+   }
+
+   template<class Set>
+   class inserter_with_valuetype_iterator : public std::iterator<std::output_iterator_tag,
+                                                                      typename Set::value_type,
+                                                                      void,
+                                                                      void,
+                                                                      void>
+   {
+   public:
+
+      explicit inserter_with_valuetype_iterator(Set& set)
+      : set_(set)
+      {}
+
+      inserter_with_valuetype_iterator(const inserter_with_valuetype_iterator& it)
+      : set_(it.set_)
+      {}
+
+      inline inserter_with_valuetype_iterator& operator=(const inserter_with_valuetype_iterator& it)
+      {
+         if (this != &it)
+         {
+            this->set_ = it.set_;
+         }
+         return *this;
+      }
+
+      inline inserter_with_valuetype_iterator& operator=(const typename Set::value_type& v)
+      {
+         set_.insert(v);
+         return (*this);
+      }
+
+      inline void operator()(const typename Set::value_type& v)
+      {
+         set_.insert(v);
+      }
+
+      inline inserter_with_valuetype_iterator& operator*()
+      {
+         return (*this);
+      }
+
+      inline inserter_with_valuetype_iterator& operator++()
+      {
+         return (*this);
+      }
+
+      inline inserter_with_valuetype_iterator operator++(int)
+      {
+         return (*this);
+      }
+
+   private:
+      Set& set_;
+   };
+
+   template<class Set>
+   inline inserter_with_valuetype_iterator<Set> inserter_with_valuetype(Set& set_)
+   {
+      return (inserter_with_valuetype_iterator<Set>(set_));
    }
 
    template<typename T>
@@ -1651,8 +1862,6 @@ namespace strtk
       if (0 == std::distance(begin,end)) return 0;
       std::size_t token_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
-      // range.first  -> prev
-      // range.second -> it
       while (end != range.second)
       {
         if (delimiter(*range.second))
@@ -1751,8 +1960,6 @@ namespace strtk
       if (0 == std::distance(begin,end)) return 0;
       std::size_t match_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
-      // range.first  -> prev
-      // range.second -> it
       while (end != range.second)
       {
         if (delimiter(*range.second))
@@ -2241,18 +2448,34 @@ namespace strtk
    template<typename T,
             class Allocator,
             template<class,class> class Sequence>
-   inline T min_of_sequence(const Sequence<T,Allocator>& sequence)
+   inline T min_of_cont(const Sequence<T,Allocator>& sequence)
    {
       return min_of_range(sequence.begin(),sequence.end());
 
    }
 
    template<typename T,
+            class Comparator,
+            class Allocator>
+   inline T min_of_cont(const std::set<T,Comparator,Allocator>& set)
+   {
+      return (*set.begin());
+   }
+
+   template<typename T,
             class Allocator,
             template<class,class> class Sequence>
-   inline T max_of_sequence(const Sequence<T,Allocator>& sequence)
+   inline T max_of_cont(const Sequence<T,Allocator>& sequence)
    {
       return max_of_range(sequence.begin(),sequence.end());
+   }
+
+   template<typename T,
+            class Comparator,
+            class Allocator>
+   inline T max_of_cont(const std::set<T,Comparator,Allocator>& set)
+   {
+      return (*set.rbegin());
    }
 
    template<typename InputIterator>
@@ -2275,13 +2498,24 @@ namespace strtk
    template<typename T,
             class Allocator,
             template<class,class> class Sequence>
-   inline void min_max_of_sequence(const Sequence<T,Allocator>& sequence,
-                                   typename Sequence<T,Allocator>::value_type& min_value,
-                                   typename Sequence<T,Allocator>::value_type& max_value)
+   inline void min_max_of_cont(const Sequence<T,Allocator>& sequence,
+                               T& min_value,
+                               T& max_value)
    {
       min_max_of_range(sequence.begin(),sequence.end(),
                        min_value,
                        max_value);
+   }
+
+   template<typename T,
+            class Comparator,
+            class Allocator>
+   inline void min_max_of_cont(const std::set<T,Comparator,Allocator>& set,
+                               T& min_value,
+                               T& max_value)
+   {
+      min_value = (*set.begin());
+      max_value = (*set.rbegin());
    }
 
    template<typename Iterator>
@@ -3601,6 +3835,14 @@ namespace strtk
             parse_checked<T>(std::back_inserter(sequence));
          }
 
+         template<typename T,
+                  class Comparator,
+                  class Allocator>
+         inline void parse_checked(std::set<T,Comparator,Allocator>& set)
+         {
+            parse_checked<T>(std::inserter(set,set.end()));
+         }
+
       private:
 
          template<typename T>
@@ -3813,6 +4055,15 @@ namespace strtk
                                           Sequence<T,Allocator>& sequence)
       {
          extract_column_checked(index,back_inserter_with_valuetype(sequence));
+      }
+
+      template<typename T,
+               class Comparator,
+               class Allocator>
+      inline void extract_column_checked(const std::size_t& index,
+                                         std::set<T,Comparator,Allocator>& set)
+      {
+         extract_column_checked(index,inserter_with_valuetype(set));
       }
 
       template<typename OutputIterator>
@@ -4592,6 +4843,14 @@ namespace strtk
          return length == sequence.size();
       }
 
+      template <typename T,
+                class Comparator,
+                class Allocator>
+      inline bool operator()(const std::set<T,Comparator,Allocator>& set)
+      {
+         return length == set.size();
+      }
+
       inline bool operator()(const std::string& str)
       {
          return length == str.size();
@@ -4615,6 +4874,14 @@ namespace strtk
          return sequence.size() < length;
       }
 
+      template <typename T,
+                class Comparator,
+                class Allocator>
+      inline bool operator()(const std::set<T,Comparator,Allocator>& set)
+      {
+         return set.size() < length;
+      }
+
       inline bool operator()(const std::string& str)
       {
          return str.size() < length;
@@ -4636,6 +4903,14 @@ namespace strtk
       inline bool operator()(const Sequence<T,Allocator>& sequence)
       {
          return sequence.size() > length;
+      }
+
+      template <typename T,
+                class Comparator,
+                class Allocator>
+      inline bool operator()(const std::set<T,Comparator,Allocator>& set)
+      {
+         return set.size() > length;
       }
 
       inline bool operator()(const std::string& str)
@@ -4984,6 +5259,29 @@ namespace strtk
 
    template <typename InputIterator,
              typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t parse(const InputIterator begin,
+                            const InputIterator end,
+                            const std::string& delimiters,
+                            std::set<T,Comparator,Allocator>& set,
+                            const split_options::type& split_option = split_options::compress_delimiters)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (1 == delimiters.size())
+         return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                      begin, end,
+                      range_to_type_inserter(set),
+                      split_option);
+      else
+         return split(strtk::multiple_char_delimiter_predicate(delimiters),
+                      begin, end,
+                      range_to_type_inserter(set),
+                      split_option);
+   }
+
+   template <typename InputIterator,
+             typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t parse_n(const InputIterator begin,
@@ -5004,6 +5302,31 @@ namespace strtk
                         begin, end,
                         n,
                         range_to_type_back_inserter(sequence),
+                        split_option);
+   }
+
+   template <typename InputIterator,
+             typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t parse_n(const InputIterator begin,
+                              const InputIterator end,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              std::set<T,Comparator,Allocator>& set,
+                              const split_options::type& split_option = split_options::compress_delimiters)
+   {
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        begin, end,
+                        n,
+                        range_to_type_inserter(set),
+                        split_option);
+      else
+         return split_n(strtk::multiple_char_delimiter_predicate(delimiters),
+                        begin, end,
+                        n,
+                        range_to_type_inserter(set),
                         split_option);
    }
 
@@ -5140,6 +5463,18 @@ namespace strtk
    }
 
    template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t parse(const std::string& data,
+                            const std::string& delimiters,
+                             std::set<T,Comparator,Allocator>& set)
+   {
+      return parse(data.c_str(), data.c_str() + data.size(),
+                   delimiters,
+                   set);
+   }
+
+   template <typename T,
              class Allocator,
              template <class,class> class Sequence>
    inline std::size_t parse_n(const std::string& data,
@@ -5151,6 +5486,20 @@ namespace strtk
                      delimiters,
                      n,
                      sequence);
+   }
+
+   template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::size_t parse_n(const std::string& data,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              std::set<T,Comparator,Allocator>& set)
+   {
+      return parse_n(data.c_str(), data.c_str() + data.size(),
+                     delimiters,
+                     n,
+                     set);
    }
 
    template<typename T1, typename T2, typename  T3, typename  T4,
@@ -5358,6 +5707,16 @@ namespace strtk
       join(output,delimiter,sequence.begin(),sequence.end());
    }
 
+   template <typename T,
+             class Comparator,
+             class Allocator>
+   inline void join(std::string& output,
+                    const std::string& delimiter,
+                    std::set<T,Comparator,Allocator>& set)
+   {
+      join(output,delimiter,set.begin(),set.end());
+   }
+
    template<typename InputIterator>
    inline std::string join(const std::string& delimiter,
                            const InputIterator begin,
@@ -5375,6 +5734,15 @@ namespace strtk
                            Sequence<T,Allocator>& sequence)
    {
       return join(delimiter,sequence.begin(),sequence.end());
+   }
+
+   template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::string join(const std::string& delimiter,
+                           std::set<T,Comparator,Allocator>& set)
+   {
+      return join(delimiter,set.begin(),set.end());
    }
 
    template<typename InputIterator, typename Predicate>
@@ -5413,6 +5781,18 @@ namespace strtk
       join(output,delimiter,predicate,sequence.begin(),sequence.end());
    }
 
+   template <typename T,
+             typename Predicate,
+             typename Comparator,
+             class Allocator>
+   inline void join_if(std::string& output,
+                       const std::string& delimiter,
+                       Predicate predicate,
+                       std::set<T,Comparator,Allocator>& set)
+   {
+      join(output,delimiter,predicate,set.begin(),set.end());
+   }
+
    template<typename InputIterator, typename Predicate>
    inline std::string join_if(const std::string& delimiter,
                               Predicate predicate,
@@ -5435,6 +5815,17 @@ namespace strtk
       return join(delimiter,predicate,sequence.begin(),sequence.end());
    }
 
+   template <typename T,
+             typename Predicate,
+             class Comparator,
+             class Allocator>
+   inline std::string join_if(const std::string& delimiter,
+                              Predicate predicate,
+                              std::set<T,Comparator,Allocator>& set)
+   {
+      return join(delimiter,predicate,set.begin(),set.end());
+   }
+
    inline void replicate(const std::size_t& count,
                          const std::string& str,
                          std::string& output)
@@ -5453,6 +5844,73 @@ namespace strtk
       std::string output;
       replicate(count,str,output);
       return output;
+   }
+
+   template<typename InputIterator>
+   inline void bracketize(std::string& output,
+                          const std::string& pre,
+                          const std::string& post,
+                          const InputIterator begin,
+                          const InputIterator end)
+   {
+      InputIterator itr = begin;
+      while (end != itr)
+      {
+         output += (pre + type_to_string(*itr++) + post);
+      }
+   }
+
+   template <typename T,
+             class Allocator,
+             template <class,class> class Sequence>
+   inline void bracketize(std::string& output,
+                          const std::string& pre,
+                          const std::string& post,
+                          Sequence<T,Allocator>& sequence)
+   {
+      bracketize(output,pre,post,sequence.begin(),sequence.end());
+   }
+
+   template <typename T,
+             class Comparator,
+             class Allocator>
+   inline void bracketize(std::string& output,
+                          const std::string& pre,
+                          const std::string& post,
+                          std::set<T,Comparator,Allocator>& set)
+   {
+      bracketize(output,pre,post,set.begin(),set.end());
+   }
+
+   template<typename InputIterator>
+   inline std::string bracketize(const std::string& pre,
+                                 const std::string& post,
+                                 const InputIterator begin,
+                                 const InputIterator end)
+   {
+      std::string output;
+      bracketize(output,pre,post,begin,end);
+      return output;
+   }
+
+   template <typename T,
+            class Allocator,
+            template <class,class> class Sequence>
+   inline std::string bracketize(const std::string& pre,
+                                 const std::string& post,
+                                 Sequence<T,Allocator>& sequence)
+   {
+      return bracketize(pre,post,sequence.begin(),sequence.end());
+   }
+
+   template <typename T,
+             class Comparator,
+             class Allocator>
+   inline std::string bracketize(const std::string& pre,
+                                 const std::string& post,
+                                 std::set<T,Comparator,Allocator>& set)
+   {
+      return bracketize(pre,post,set.begin(),set.end());
    }
 
    template<typename T>
@@ -5533,6 +5991,19 @@ namespace strtk
       }
    }
 
+   template<typename T,
+            typename Comparator,
+            typename Allocator,
+            template<class, class, class> class Sequence>
+   inline void iota(Sequence<T,Comparator,Allocator>& set, std::size_t count, T value)
+   {
+      while(count)
+      {
+         set.insert(value++);
+         --count;
+      }
+   }
+
    template<typename OutputIterator, typename T>
    inline void iota(std::size_t count, T value, OutputIterator out)
    {
@@ -5549,6 +6020,14 @@ namespace strtk
    inline void iota(Sequence<T,Allocator>& sequence, const T& value)
    {
       iota(sequence.begin(),sequence.end(),value);
+   }
+
+   template<typename T,
+            typename Comparator,
+            typename Allocator>
+   inline void iota(std::set<T,Comparator,Allocator>& set, const T& value)
+   {
+      iota(set.begin(),set.end(),value);
    }
 
    template<typename InputIterator, typename OutputIterator>
@@ -5598,6 +6077,14 @@ namespace strtk
                    const Sequence<std::string, Allocator>& sequence)
    {
       cut(r0,r1,sequence.begin(),sequence.end());
+   }
+
+   template<typename Comparator,
+            typename Allocator>
+   inline void cut(const std::size_t& r0, const std::size_t& r1,
+                   const std::set<std::string, Comparator, Allocator>& set)
+   {
+      cut(r0,r1,set.begin(),set.end());
    }
 
    #ifdef ENABLE_RANDOM
@@ -6075,6 +6562,24 @@ namespace strtk
       }
 
       template <typename T,
+                class Comparator,
+                class Allocator>
+      inline bool read_into_external_sequence(std::set<T,Comparator,Allocator>& set)
+      {
+         std::size_t list_size = 0;
+         if (!read(list_size))
+            return false;
+         T t;
+         for (std::size_t i = 0; i < list_size; ++i)
+         {
+            if (!read(t))
+               return false;
+            set.insert(t);
+         }
+         return true;
+      }
+
+      template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
       inline bool write_from_external_sequence(const Sequence<T,Allocator>& sequence)
@@ -6083,6 +6588,22 @@ namespace strtk
             return false;
          typename Sequence<T,Allocator>::const_iterator itr = sequence.begin();
          while (sequence.end() != itr)
+         {
+            if (!write(*itr++))
+               return false;
+         }
+         return true;
+      }
+
+      template <typename T,
+                class Comparator,
+                class Allocator>
+      inline bool write_from_external_sequence(const std::set<T,Comparator,Allocator>& set)
+      {
+         if (!write(static_cast<unsigned int>(set.size())))
+            return false;
+         typename std::set<T,Comparator,Allocator>::const_iterator itr = set.begin();
+         while (set.end() != itr)
          {
             if (!write(*itr++))
                return false;
@@ -6741,10 +7262,18 @@ namespace strtk
       return s;\
    }
 
+   #define register_set_type_name(Type)\
+   template <typename T, class Comparator, class Allocator>\
+   inline std::string type_name(const Type<T,Comparator,Allocator>&)\
+   {\
+      static std::string s = std::string(#Type) + std::string("<" + details::type_name<T>() + ">");\
+      return s;\
+   }
+
    register_sequence_type_name(std::vector)
    register_sequence_type_name(std::deque)
    register_sequence_type_name(std::list)
-
+   register_set_type_name(std::set)
 
    namespace fileio
    {

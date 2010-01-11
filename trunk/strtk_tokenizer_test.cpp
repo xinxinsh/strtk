@@ -36,6 +36,7 @@
 
 #include "strtk.hpp"
 
+/*
 template<typename Predicate>
 bool test_tokenizer_split(const Predicate& p,
                           const std::string& s,
@@ -100,12 +101,13 @@ void test_split_and_tokenizer()
       std::string input;
       std::string output;
    };
+   */
 
    /*
       Test IO 1 and 2 : Single and Multi predicate tokenizing
       Test IO 3 and 4 : Single and Multi predicate compressed delimiter tokenizing
    */
-
+/*
    const std::size_t test_count = 40;
    const test_pairs test_input_output1[test_count]
      = {
@@ -334,7 +336,7 @@ bool test_empty_filter_itr()
       return false;
    }
 }
-
+*/
 struct data_block
 {
    std::string    d1;
@@ -382,6 +384,7 @@ struct data_block
    }
 
 };
+
 
 bool test_construct_and_parse()
 {
@@ -473,7 +476,7 @@ bool test_construct_and_parse()
 
    return true;
 }
-
+/*
 bool test_replace_pattern()
 {
    typedef std::pair<std::string,std::string> sp_type;
@@ -528,12 +531,12 @@ bool test_replace_pattern()
    }
    return true;
 }
-
+*/
 int main()
 {
-   test_split_and_tokenizer();
-   assert(test_empty_filter_itr());
+   //test_split_and_tokenizer();
+   //assert(test_empty_filter_itr());
    assert(test_construct_and_parse());
-   assert(test_replace_pattern());
+   //assert(test_replace_pattern());
    return 0;
 }
