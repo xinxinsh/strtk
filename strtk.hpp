@@ -235,7 +235,7 @@ namespace strtk
       typedef typename details::is_valid_iterator<Iterator>::type itr_type;
       typename details::supported_conversion_to_type<T>::type type;
       T t;
-      if(string_to_type_converter_impl(begin,end,t,type))
+      if (string_to_type_converter_impl(begin,end,t,type))
          return t;
       else
          throw;
@@ -264,7 +264,7 @@ namespace strtk
    inline std::string type_to_string(const T& t)
    {
       std::string s;
-      if(type_to_string<T>(t,s))
+      if (type_to_string<T>(t,s))
          return s;
       else
          throw;
@@ -958,7 +958,7 @@ namespace strtk
       std::size_t i = 0;
       std::size_t delta = delta_list[0];
 
-      for(;;)
+      for (;;)
       {
          std::copy(sit,sit + delta,nit);
          sit += p_size + delta;
@@ -3803,7 +3803,7 @@ namespace strtk
             while (token_list_->end() != itr)
             {
                itr_list_type::value_type& range = *itr++;
-               if(string_to_type_converter(range.first,range.second,value))
+               if (string_to_type_converter(range.first,range.second,value))
                {
                   *(out++) = value;
                }
@@ -4209,7 +4209,7 @@ namespace strtk
       }
 
       template<typename Predicate>
-      inline bool remove_row_if(const row_range_type& range, Predicate p)
+      inline bool remove_row_if(const row_range_type& range, Predicate predicate)
       {
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
@@ -4219,7 +4219,7 @@ namespace strtk
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          while (end != itr)
          {
-            if (!itr->empty() && p(itr->front().first,itr->back().second))
+            if (!itr->empty() && predicate(itr->front().first,itr->back().second))
             {
                itr = token_list_.erase(itr);
             }
@@ -4230,9 +4230,9 @@ namespace strtk
       }
 
       template<typename Predicate>
-      inline void remove_row_if(Predicate p)
+      inline void remove_row_if(Predicate predicate)
       {
-         return remove_row_if(all_rows(),p);
+         return remove_row_if(all_rows(),predicate);
       }
 
       inline void enforce_column_count(const std::size_t& column_count)
@@ -4497,7 +4497,7 @@ namespace strtk
             return false;
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          row_range_type r(range.first,range.first);
-         for(std::size_t i = range.first; i < range.second; ++i, ++itr)
+         for (std::size_t i = range.first; i < range.second; ++i, ++itr)
          {
             if (p(row_type(*itr)))
             {
@@ -4603,7 +4603,7 @@ namespace strtk
       {
          typedef typename std::iterator_traits<OutputIterator>::value_type output_type;
          output_type value;
-         if(string_to_type_converter(range.first,range.second,value))
+         if (string_to_type_converter(range.first,range.second,value))
          {
             *(out++) = value;
          }
@@ -5907,7 +5907,7 @@ namespace strtk
    {
       std::size_t size = 0;
       InputIterator itr = begin;
-      while(end != itr)
+      while (end != itr)
       {
          *out++ = *itr;
          if (ins(*itr++))
@@ -5925,7 +5925,7 @@ namespace strtk
    inline void iota(Iterator begin, Iterator end, T value)
    {
       Iterator itr = begin;
-      while(end != itr)
+      while (end != itr)
       {
          *(itr++) = value++;
       }
@@ -5936,7 +5936,7 @@ namespace strtk
             template<class,class> class Sequence>
    inline void iota(Sequence<T,Allocator>& sequence, std::size_t count, T value)
    {
-      while(count)
+      while (count)
       {
          sequence.push_back(value++);
          --count;
@@ -5948,7 +5948,7 @@ namespace strtk
             typename Allocator>
    inline void iota(std::set<T,Comparator,Allocator>& set, std::size_t count, T value)
    {
-      while(count)
+      while (count)
       {
          set.insert(value++);
          --count;
@@ -5958,7 +5958,7 @@ namespace strtk
    template<typename OutputIterator, typename T>
    inline void iota(std::size_t count, T value, OutputIterator out)
    {
-      while(count)
+      while (count)
       {
          *out++ = value++;
          --count;
@@ -6104,7 +6104,7 @@ namespace strtk
          // Note: The implied range will be: [min,max]
          using namespace boost;
          variate_generator<RandomNumberGenerator&,uniform_int<T> > rnd(rng,uniform_int<T>(min,max));
-         for(std::size_t i = 0; i < count; ++i, *out++ = rnd());
+         for (std::size_t i = 0; i < count; ++i, *out++ = rnd());
       }
 
       template<typename T, typename OutputIterator, typename RandomNumberGenerator>
@@ -6118,7 +6118,7 @@ namespace strtk
          // Note: The implied range will be: [min,max)
          using namespace boost;
          variate_generator<RandomNumberGenerator&, uniform_real<T> > rnd(rng,uniform_real<T>(min,max));
-         for(std::size_t i = 0; i < count; ++i, *out++ = rnd());
+         for (std::size_t i = 0; i < count; ++i, *out++ = rnd());
       }
 
    }
@@ -6134,7 +6134,7 @@ namespace strtk
       : rng_(static_cast<rng_type::result_type>(seed)),
         rnd_(rng_,boost::uniform_real<double>(0.0,1.0))
    {
-      while(pregen--) rng_();
+      while (pregen--) rng_();
    }
 
    inline double operator()()
@@ -6157,7 +6157,7 @@ namespace strtk
    {
       typename details::supported_random_type<T>::type type;
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for(std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng());
       generate_random_values_impl(count,min,max,out,rng,type);
    }
 
@@ -6171,7 +6171,7 @@ namespace strtk
    {
       typename details::supported_random_type<T>::type type;
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for(std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng());
       generate_random_values_impl(count,min,max,std::back_inserter(sequence),rng,type);
    }
 
@@ -6185,8 +6185,8 @@ namespace strtk
       const std::size_t size = std::distance(begin,end);
       if ((rng. min() < 0.0) || (rng.max() > 1.0)) return;
       std::deque<std::size_t> index;
-      for(std::size_t i = 0; i < size; index.push_back(i++));
-      while(!index.empty())
+      for (std::size_t i = 0; i < size; index.push_back(i++));
+      while (!index.empty())
       {
          std::size_t idx = static_cast<std::size_t>(index.size() * rng());
          *(out++) = *(begin + index[idx]);
@@ -6202,7 +6202,7 @@ namespace strtk
                                   const std::size_t& pregen = 0)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for(std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng());
       boost::uniform_real<double> dist(0.0,1.0);
       boost::variate_generator<boost::mt19937&, boost::uniform_real<double> > rnd(rng,dist);
       random_permutation(begin,end,rnd,out);
@@ -6219,8 +6219,8 @@ namespace strtk
       const std::size_t size = std::distance(begin,end);
       if ((size < set_size) || (rng. min() < 0.0) || (rng.max() > 1.0)) return false;
       std::deque<std::size_t> index;
-      for(std::size_t i = 0; i < size; index.push_back(i++));
-      while(set_size)
+      for (std::size_t i = 0; i < size; index.push_back(i++));
+      while (set_size)
       {
          std::size_t idx = static_cast<std::size_t>(index.size() * rng());
          *(out++) = *(begin + index[idx]);
@@ -6239,7 +6239,7 @@ namespace strtk
                                   const std::size_t& pregen = 0)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for(std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng());
       boost::uniform_real<double> dist(0.0,1.0);
       boost::variate_generator<boost::mt19937&, boost::uniform_real<double> > rnd(rng,dist);
       random_combination(begin,end,set_size,rnd,out);
@@ -6292,7 +6292,7 @@ namespace strtk
       {
          function(begin,end);
       }
-      while(std::next_permutation(begin,end));
+      while (std::next_permutation(begin,end));
    }
 
    template<typename Iterator, class Function>
@@ -6303,7 +6303,7 @@ namespace strtk
          if (!function(begin,end))
             return false;
       }
-      while(std::next_permutation(begin,end));
+      while (std::next_permutation(begin,end));
       return true;
    }
 
@@ -6314,7 +6314,7 @@ namespace strtk
       {
          function(begin,begin + size);
       }
-      while(next_combination(begin,begin + size,end));
+      while (next_combination(begin,begin + size,end));
    }
 
    template<typename Iterator, class Function>
@@ -6325,7 +6325,7 @@ namespace strtk
          if (!function(begin,begin + size))
             return false;
       }
-      while(next_combination(begin,begin + size,end));
+      while (next_combination(begin,begin + size,end));
       return true;
    }
 
@@ -6339,9 +6339,9 @@ namespace strtk
          {
             function(begin,begin + size);
          }
-         while(std::next_permutation(begin,begin + size));
+         while (std::next_permutation(begin,begin + size));
       }
-      while(next_combination(begin,begin + size,end));
+      while (next_combination(begin,begin + size,end));
    }
 
    template<typename Iterator, class Function>
@@ -6354,9 +6354,9 @@ namespace strtk
             if (!function(begin,begin + size))
                return false;
          }
-         while(std::next_permutation(begin,begin + size));
+         while (std::next_permutation(begin,begin + size));
       }
-      while(next_combination(begin,begin + size,end));
+      while (next_combination(begin,begin + size,end));
       return true;
    }
 
@@ -7284,7 +7284,7 @@ namespace strtk
 
          std::size_t remaining_bytes = file_size(src_file_name);
 
-         while(remaining_bytes >= block_size)
+         while (remaining_bytes >= block_size)
          {
             src_file.read(&buffer[0],static_cast<std::streamsize>(block_size));
             dest_file.write(&buffer[0],static_cast<std::streamsize>(block_size));
@@ -7317,12 +7317,12 @@ namespace strtk
          unsigned int round = 0;
          std::size_t remaining_bytes = 0;
 
-         while(round < 2)
+         while (round < 2)
          {
             std::ifstream& input_stream = ((round == 0) ? file1 : file2);
             remaining_bytes = ((round == 0) ? file_size(file_name1) : file_size(file_name2));
 
-            while(remaining_bytes >= block_size)
+            while (remaining_bytes >= block_size)
             {
                input_stream.read(&buffer[0],static_cast<std::streamsize>(block_size));
                out_file.write(&buffer[0],static_cast<std::streamsize>(block_size));
@@ -7356,11 +7356,11 @@ namespace strtk
 
          std::size_t remaining_bytes = file_size(file_name1);
 
-         while(remaining_bytes >= block_size)
+         while (remaining_bytes >= block_size)
          {
             file1.read(&buffer1[0],static_cast<std::streamsize>(block_size));
             file2.read(&buffer2[0],static_cast<std::streamsize>(block_size));
-            for(std::size_t i = 0; i < block_size; ++i)
+            for (std::size_t i = 0; i < block_size; ++i)
             {
                if (buffer1[i] != buffer2[i])
                {
@@ -7374,7 +7374,7 @@ namespace strtk
          {
             file1.read(&buffer1[0],static_cast<std::streamsize>(remaining_bytes));
             file2.read(&buffer2[0],static_cast<std::streamsize>(remaining_bytes));
-            for(std::size_t i = 0; i < remaining_bytes; ++i)
+            for (std::size_t i = 0; i < remaining_bytes; ++i)
             {
                if (buffer1[i] != buffer2[i])
                {
