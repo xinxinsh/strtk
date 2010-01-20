@@ -2,7 +2,7 @@
  *******************************************************************
  *                       String Tool Kit Library                   *
  *                                                                 *
- * String Tollkit Library Examples                                 *
+ * String Toolkit Library Examples                                 *
  * Author: Arash Partow (2002-2010)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
