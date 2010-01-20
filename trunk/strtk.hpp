@@ -1083,8 +1083,7 @@ namespace strtk
                      const typename std::iterator_traits<Iterator>::value_type& zero_or_one)
    {
       /*
-         Credits:
-         Adapted from code provided by Jack Handy (2001 CodeProject)
+         Credits: Adapted from code by Jack Handy (2001)
       */
       if (0 == std::distance(data_begin,data_end)) return false;
 
@@ -1191,8 +1190,7 @@ namespace strtk
       return imatch(s,sequence.begin(),sequence.end());
    }
 
-   template<class Comparator,
-            class Allocator>
+   template<class Comparator, class Allocator>
    inline bool imatch(const std::string& s, const std::set<std::string,Comparator,Allocator>& set)
    {
       return imatch(s,set.begin(),set.end());
@@ -1661,10 +1659,10 @@ namespace strtk
 
    template<class Set>
    class inserter_with_valuetype_iterator : public std::iterator<std::output_iterator_tag,
-                                                                      typename Set::value_type,
-                                                                      void,
-                                                                      void,
-                                                                      void>
+                                                                 typename Set::value_type,
+                                                                 void,
+                                                                 void,
+                                                                 void>
    {
    public:
 
@@ -1848,6 +1846,16 @@ namespace strtk
          compress_delimiters = 1,
          include_delimiters  = 2
       };
+
+      static inline bool perform_compress_delimiters(const type& split_opt)
+      {
+         return compress_delimiters == (split_opt & compress_delimiters);
+      }
+
+      static inline bool perform_include_delimiters(const type& split_opt)
+      {
+         return include_delimiters == (split_opt & include_delimiters);
+      }
    }
 
    template<typename DelimiterPredicate,
@@ -1862,21 +1870,23 @@ namespace strtk
       if (0 == std::distance(begin,end)) return 0;
       std::size_t token_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
+      const bool compress_delimiters = split_options::perform_compress_delimiters(split_option);
+      const bool include_delimiters = split_options::perform_include_delimiters(split_option);
       while (end != range.second)
       {
         if (delimiter(*range.second))
         {
-           if (split_option & split_options::include_delimiters)
+           if (include_delimiters)
            {
               ++range.second;
               *(out++) = range;
-              if (split_option & split_options::compress_delimiters)
+              if (compress_delimiters)
                  while ((end != (++range.second)) && delimiter(*range.second));
            }
            else
            {
               *(out++) = range;
-              if (split_option & split_options::compress_delimiters)
+              if (compress_delimiters)
                  while ((end != (++range.second)) && delimiter(*range.second));
               else
                  ++range.second;
@@ -1960,17 +1970,19 @@ namespace strtk
       if (0 == std::distance(begin,end)) return 0;
       std::size_t match_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
+      const bool compress_delimiters = split_options::perform_compress_delimiters(split_option);
+      const bool include_delimiters = split_options::perform_include_delimiters(split_option);
       while (end != range.second)
       {
         if (delimiter(*range.second))
         {
-           if (split_option & split_options::include_delimiters)
+           if (include_delimiters)
            {
               ++range.second;
               *(out++) = range;
               if (++match_count >= token_count)
                  return match_count;
-              if (split_option & split_options::compress_delimiters)
+              if (compress_delimiters)
                  while ((end != (++range.second)) && delimiter(*range.second));
            }
            else
@@ -1978,7 +1990,7 @@ namespace strtk
               *(out++) = range;
               if (++match_count >= token_count)
                  return match_count;
-              if (split_option & split_options::compress_delimiters)
+              if (compress_delimiters)
                  while ((end != (++range.second)) && delimiter(*range.second));
               else
                  ++range.second;
@@ -2417,39 +2429,12 @@ namespace strtk
       return count;
    }
 
-   template<typename InputIterator>
-   inline typename std::iterator_traits<InputIterator>::value_type min_of_range(const InputIterator begin, const InputIterator end)
-   {
-      typename std::iterator_traits<InputIterator>::value_type smallest = *begin;
-      InputIterator itr = begin;
-      while (end != ++itr)
-      {
-         if (*itr < smallest)
-            smallest = *itr;
-      }
-      return smallest;
-   }
-
-   template<typename InputIterator>
-   inline typename std::iterator_traits<InputIterator>::value_type max_of_range(const InputIterator begin, const InputIterator end)
-   {
-      typename std::iterator_traits<InputIterator>::value_type greatest = *begin;
-      InputIterator itr = begin;
-      while (end != ++itr)
-      {
-         if (*itr > greatest)
-            greatest = *itr;
-      }
-      return greatest;
-   }
-
    template<typename T,
             class Allocator,
             template<class,class> class Sequence>
    inline T min_of_cont(const Sequence<T,Allocator>& sequence)
    {
-      return min_of_range(sequence.begin(),sequence.end());
-
+      return (*std::min_element(sequence.begin(),sequence.end()));
    }
 
    template<typename T,
@@ -2465,7 +2450,7 @@ namespace strtk
             template<class,class> class Sequence>
    inline T max_of_cont(const Sequence<T,Allocator>& sequence)
    {
-      return max_of_range(sequence.begin(),sequence.end());
+      return (*std::max_element(sequence.begin(),sequence.end()));
    }
 
    template<typename T,
@@ -2524,7 +2509,7 @@ namespace strtk
       typedef typename std::list<iter_type> itr_list_type;
       itr_list_type itr_list;
 
-      type smallest = min_of_range(begin,end);
+      type smallest = (*std::min_element(begin,end));
 
       for (Iterator itr = begin; itr != end; ++itr)
       {
