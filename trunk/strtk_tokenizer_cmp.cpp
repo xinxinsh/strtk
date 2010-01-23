@@ -36,6 +36,8 @@
 
 #include "strtk.hpp"
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #ifdef WIN32
  #include <windows.h>
@@ -108,7 +110,10 @@ void strtk_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("[strtk] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",token_count,t.time(),(1.0 * token_count) / (1.0 * t.time()));
+   printf("[strtk] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+          token_count,
+          t.time(),
+          (1.0 * token_count) / (1.0 * t.time()));
 }
 
 void boost_tokenizer_timed_test()
@@ -131,12 +136,52 @@ void boost_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("[boost] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",token_count,t.time(),(1.0 * token_count) / (1.0 * t.time()));
+   printf("[boost] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+          token_count,
+          t.time(),
+          (1.0 * token_count) / (1.0 * t.time()));
+}
+
+
+void strtk_split_timed_test()
+{
+   std::string s = "";
+   s.reserve(base.size() * replicate_count);
+   for(unsigned int i = 0; i < replicate_count; ++i) s += base;
+   std::deque<std::string> token_list;
+   timer t;
+   t.start();
+   strtk::parse(s,delimiters,token_list);
+   t.stop();
+   printf("[strtk] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+          token_list.size(),
+          t.time(),
+          (1.0 * token_list.size()) / (1.0 * t.time()));
+}
+
+void boost_split_timed_test()
+{
+   std::string s = "";
+   s.reserve(base.size() * replicate_count);
+   for(unsigned int i = 0; i < replicate_count; ++i) s += base;
+   std::deque<std::string> token_list;
+   timer t;
+   t.start();
+   boost::split(token_list, s, boost::is_any_of(delimiters));
+   t.stop();
+   printf("[boost] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+          token_list.size(),
+          t.time(),
+          (1.0 * token_list.size()) / (1.0 * t.time()));
 }
 
 int main()
 {
+   std::cout << "Tokenizer Test" << std::endl;
    boost_tokenizer_timed_test();
    strtk_tokenizer_timed_test();
+   std::cout << "Split Test" << std::endl;
+   boost_split_timed_test();
+   strtk_split_timed_test();
    return 0;
 }
