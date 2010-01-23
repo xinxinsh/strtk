@@ -3235,121 +3235,17 @@ namespace strtk
                                           str2.c_str(),str2.c_str() + str2.size());
    }
 
-   namespace details
-   {
-
-      inline void compute_pod_hash(const char data[], unsigned int& hash)
-      {
-         hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
-      }
-
-      inline void compute_pod_hash(const unsigned char data[], unsigned int& hash)
-      {
-         hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
-      }
-
-      inline void compute_pod_hash(const int& data, unsigned int& hash)
-      {
-         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
-      }
-
-      inline void compute_pod_hash(const unsigned int& data, unsigned int& hash)
-      {
-         compute_pod_hash(static_cast<int>(data),hash);
-      }
-
-      inline void compute_pod_hash(const double& data, unsigned int& hash)
-      {
-         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
-      }
-
-      /*
-      inline void compute_pod_hash(const long long& data, unsigned int& hash)
-      {
-         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
-      }
-      */
-
-      template<std::size_t block_size, typename Iterator>
-      inline void compute_block(Iterator itr, std::size_t& length, unsigned int& hash)
-      {
-         while (length >= block_size)
-         {
-            for (std::size_t i = 0; i < block_size; ++i, ++itr)
-            {
-               compute_pod_hash((*itr),hash);
-            }
-            length -= block_size;
-         }
-      }
-
-      template<std::size_t block_size>
-      inline void compute_block(unsigned char* itr, std::size_t& length, unsigned int& hash)
-      {
-         while (length >= block_size)
-         {
-            for (std::size_t i = 0; i < block_size; ++i, ++itr)
-            {
-               compute_pod_hash((*itr),hash);
-            }
-            length -= block_size;
-         }
-      }
-
-      template<std::size_t block_size>
-      inline void compute_block(char* itr, std::size_t& length, unsigned int& hash)
-      {
-         compute_block<block_size>(reinterpret_cast<unsigned char*>(itr),length,hash);
-      }
-
-   } // namespace details
-
    template<typename Iterator>
-   inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value)
+   inline unsigned int hash(const Iterator itr, std::size_t length, unsigned int seed = 0xAAAAAAAA)
    {
-      hash_value = 0xAAAAAAAA;
-      if (length >= 64) details::compute_block<64>(itr,length,hash_value);
-      if (length >= 32) details::compute_block<32>(itr,length,hash_value);
-      if (length >= 16) details::compute_block<16>(itr,length,hash_value);
-      if (length >=  8) details::compute_block< 8>(itr,length,hash_value);
-      if (length >=  4) details::compute_block< 4>(itr,length,hash_value);
-      if (length >=  2) details::compute_block< 2>(itr,length,hash_value);
-      if (length >   0) details::compute_block< 1>(itr,length,hash_value);
-   }
-
-   template<typename Iterator>
-   inline unsigned int hash(const Iterator itr, std::size_t length)
-   {
-      unsigned int hash_value = 0;
-      hash(itr,length,hash_value);
+      unsigned int hash_value = seed;
+      details::hash(itr,length,hash_value);
       return hash_value;
    }
 
-   inline unsigned int hash(const std::string& s)
+   inline unsigned int hash(const std::string& s, unsigned int seed = 0xAAAAAAAA)
    {
-      unsigned int hash_value;
+      unsigned int hash_value = seed;
       hash(s.begin(),s.size(),hash_value);
       return hash_value;
    }
@@ -7754,6 +7650,109 @@ namespace strtk
       }
 
    } // namespace fileio
+
+   namespace details
+   {
+
+      inline void compute_pod_hash(const char data[], unsigned int& hash)
+      {
+         hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
+      }
+
+      inline void compute_pod_hash(const unsigned char data[], unsigned int& hash)
+      {
+         hash ^=  ((hash <<  7) ^  data[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (data[1] ^ (hash >> 5)));
+      }
+
+      inline void compute_pod_hash(const int& data, unsigned int& hash)
+      {
+         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
+      }
+
+      inline void compute_pod_hash(const unsigned int& data, unsigned int& hash)
+      {
+         compute_pod_hash(static_cast<int>(data),hash);
+      }
+
+      inline void compute_pod_hash(const double& data, unsigned int& hash)
+      {
+         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
+      }
+
+      /*
+      inline void compute_pod_hash(const long long& data, unsigned int& hash)
+      {
+         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
+      }
+      */
+
+      template<std::size_t block_size, typename Iterator>
+      inline void compute_block(Iterator itr, std::size_t& length, unsigned int& hash)
+      {
+         while (length >= block_size)
+         {
+            for (std::size_t i = 0; i < block_size; ++i, ++itr)
+            {
+               compute_pod_hash((*itr),hash);
+            }
+            length -= block_size;
+         }
+      }
+
+      template<std::size_t block_size>
+      inline void compute_block(unsigned char* itr, std::size_t& length, unsigned int& hash)
+      {
+         while (length >= block_size)
+         {
+            for (std::size_t i = 0; i < block_size; ++i, ++itr)
+            {
+               compute_pod_hash((*itr),hash);
+            }
+            length -= block_size;
+         }
+      }
+
+      template<std::size_t block_size>
+      inline void compute_block(char* itr, std::size_t& length, unsigned int& hash)
+      {
+         compute_block<block_size>(reinterpret_cast<unsigned char*>(itr),length,hash);
+      }
+
+      template<typename Iterator>
+      inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value)
+      {
+         if (length >= 64) compute_block<64>(itr,length,hash_value);
+         if (length >= 32) compute_block<32>(itr,length,hash_value);
+         if (length >= 16) compute_block<16>(itr,length,hash_value);
+         if (length >=  8) compute_block< 8>(itr,length,hash_value);
+         if (length >=  4) compute_block< 4>(itr,length,hash_value);
+         if (length >=  2) compute_block< 2>(itr,length,hash_value);
+         if (length ==  0) compute_block< 1>(itr,length,hash_value);
+      }
+
+   } // namespace details
 
 } // namespace strtk
 
