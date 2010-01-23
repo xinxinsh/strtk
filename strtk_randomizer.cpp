@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
       default :
                {
                   std::cout << "usage: strtk_randomizer <file name>" << std::endl;
-                  std::cout << "usage: cat data.txt | randomizer" << std::endl;
+                  std::cout << "usage: cat data.txt | strtk_randomizer" << std::endl;
                   return 1;
                }
    }

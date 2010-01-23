@@ -988,20 +988,19 @@ namespace strtk
       InputIterator r_it  = r_begin;
       InputIterator p_it  = p_begin;
 
-      std::size_t s_len = std::distance(s_begin,s_end);
       std::size_t p_len = std::distance(p_begin,p_end);
       std::size_t r_len = std::distance(r_begin,r_end);
 
       if ((0 == p_len) || ((p_len == r_len) && std::equal(p_begin,p_end,r_begin)))
       {
          std::copy(s_begin,s_end,out);
-         return s_len;
+         return std::distance(s_begin,s_end);
       }
 
       std::size_t pos = 0;
       std::size_t prev_pos = 0;
       std::size_t count = 0;
-      std::size_t new_size = s_len;
+      std::size_t new_size = std::distance(s_begin,s_end);
       int inc = r_len - p_len;
 
       InputIterator temp_s_it = s_it;
@@ -7398,8 +7397,16 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9, T10& t10)
       {
-         read_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8,t9);
-         read_pod(stream,t10);
+         stream.read(reinterpret_cast<char*>( &t1),static_cast<std::streamsize>(sizeof( T1)));
+         stream.read(reinterpret_cast<char*>( &t2),static_cast<std::streamsize>(sizeof( T2)));
+         stream.read(reinterpret_cast<char*>( &t3),static_cast<std::streamsize>(sizeof( T3)));
+         stream.read(reinterpret_cast<char*>( &t4),static_cast<std::streamsize>(sizeof( T4)));
+         stream.read(reinterpret_cast<char*>( &t5),static_cast<std::streamsize>(sizeof( T5)));
+         stream.read(reinterpret_cast<char*>( &t6),static_cast<std::streamsize>(sizeof( T6)));
+         stream.read(reinterpret_cast<char*>( &t7),static_cast<std::streamsize>(sizeof( T7)));
+         stream.read(reinterpret_cast<char*>( &t8),static_cast<std::streamsize>(sizeof( T8)));
+         stream.read(reinterpret_cast<char*>( &t9),static_cast<std::streamsize>(sizeof( T9)));
+         stream.read(reinterpret_cast<char*>(&t10),static_cast<std::streamsize>(sizeof(T10)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7410,8 +7417,15 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9)
       {
-         read_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8);
-         read_pod(stream,t9);
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
+         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
+         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
+         stream.read(reinterpret_cast<char*>(&t7),static_cast<std::streamsize>(sizeof(T7)));
+         stream.read(reinterpret_cast<char*>(&t8),static_cast<std::streamsize>(sizeof(T8)));
+         stream.read(reinterpret_cast<char*>(&t9),static_cast<std::streamsize>(sizeof(T9)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7420,8 +7434,14 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8)
       {
-         read_pod(stream,t1,t2,t3,t4,t5,t6,t7);
-         read_pod(stream,t8);
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
+         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
+         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
+         stream.read(reinterpret_cast<char*>(&t7),static_cast<std::streamsize>(sizeof(T7)));
+         stream.read(reinterpret_cast<char*>(&t8),static_cast<std::streamsize>(sizeof(T8)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7430,8 +7450,13 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7)
       {
-         read_pod(stream,t1,t2,t3,t4,t5,t6);
-         read_pod(stream,t7);
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
+         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
+         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
+         stream.read(reinterpret_cast<char*>(&t7),static_cast<std::streamsize>(sizeof(T7)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7440,8 +7465,12 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6)
       {
-         read_pod(stream,t1,t2,t3,t4,t5);
-         read_pod(stream,t6);
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
+         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
+         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7450,8 +7479,11 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5)
       {
-         read_pod(stream,t1,t2,t3,t4);
-         read_pod(stream,t5);
+         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
+         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
+         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4>
@@ -7493,6 +7525,36 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t[0]),sizeof(T) * length);
       }
 
+      template<typename T,
+               class Allocator,
+               template<class,class> class Sequence>
+      inline void read_pod(std::ifstream& stream,
+                           const std::size_t& count,
+                           Sequence<T,Allocator>& sequence)
+      {
+         T t;
+         for(std::size_t i = 0; i < count; ++i)
+         {
+            stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T)));
+            sequence.push_back(t);
+         }
+      }
+
+      template<typename T,
+               class Comparator,
+               class Allocator>
+      inline void read_pod(std::ifstream& stream,
+                           const std::size_t& count,
+                           std::set<T,Comparator,Allocator>& set)
+      {
+         T t;
+         for(std::size_t i = 0; i < count; ++i)
+         {
+            stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T)));
+            set.insert(t);
+         }
+      }
+
       template< typename T1, typename T2, typename T3, typename T4,
                 typename T5, typename T6, typename T7, typename T8,
                 typename T9, typename T10>
@@ -7501,8 +7563,16 @@ namespace strtk
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                             const T9& t9, const T10& t10)
       {
-         write_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8,t9);
-         write_pod(stream,t10);
+         stream.write(reinterpret_cast<char*>(&const_cast< T1&>( t1)),static_cast<std::streamsize>(sizeof( T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T2&>( t2)),static_cast<std::streamsize>(sizeof( T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T3&>( t3)),static_cast<std::streamsize>(sizeof( T3)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T4&>( t4)),static_cast<std::streamsize>(sizeof( T4)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T5&>( t5)),static_cast<std::streamsize>(sizeof( T5)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T6&>( t6)),static_cast<std::streamsize>(sizeof( T6)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T7&>( t7)),static_cast<std::streamsize>(sizeof( T7)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T8&>( t8)),static_cast<std::streamsize>(sizeof( T8)));
+         stream.write(reinterpret_cast<char*>(&const_cast< T9&>( t9)),static_cast<std::streamsize>(sizeof( T9)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T10&>(t10)),static_cast<std::streamsize>(sizeof(T10)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7513,8 +7583,15 @@ namespace strtk
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                             const T9& t9)
       {
-         write_pod(stream,t1,t2,t3,t4,t5,t6,t7,t8);
-         write_pod(stream,t9);
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T7&>(t7)),static_cast<std::streamsize>(sizeof(T7)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T8&>(t8)),static_cast<std::streamsize>(sizeof(T8)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T9&>(t9)),static_cast<std::streamsize>(sizeof(T9)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7523,8 +7600,14 @@ namespace strtk
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8)
       {
-         write_pod(stream,t1,t2,t3,t4,t5,t6,t7);
-         write_pod(stream,t8);
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T7&>(t7)),static_cast<std::streamsize>(sizeof(T7)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T8&>(t8)),static_cast<std::streamsize>(sizeof(T8)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7533,8 +7616,13 @@ namespace strtk
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7)
       {
-         write_pod(stream,t1,t2,t3,t4,t5,t6);
-         write_pod(stream,t7);
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T7&>(t7)),static_cast<std::streamsize>(sizeof(T7)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7543,8 +7631,12 @@ namespace strtk
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6)
       {
-         write_pod(stream,t1,t2,t3,t4,t5);
-         write_pod(stream,t6);
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4,
@@ -7553,8 +7645,11 @@ namespace strtk
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5)
       {
-         write_pod(stream,t1,t2,t3,t4);
-         write_pod(stream,t5);
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
       }
 
       template< typename T1, typename T2, typename T3, typename T4>
@@ -7580,7 +7675,7 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+
          stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
       }
 
@@ -7594,6 +7689,30 @@ namespace strtk
       inline void write_pod(std::ofstream& stream, T t[], const std::size_t length)
       {
          stream.write(reinterpret_cast<char*>(&t[0]),static_cast<std::streamsize>(sizeof(T) * length));
+      }
+
+      template<typename T,
+               class Allocator,
+               template<class,class> class Sequence>
+      inline void write_pod(std::ofstream& stream,
+                            const Sequence<T,Allocator>& sequence)
+      {
+         for(typename Sequence<T,Allocator>::iterator it = sequence.begin(); it != sequence.end(); ++it)
+         {
+            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*it)),static_cast<std::streamsize>(sizeof(T)));
+         }
+      }
+
+      template<typename T,
+               class Comparator,
+               class Allocator>
+      inline void write_pod(std::ofstream& stream,
+                            const std::set<T,Comparator,Allocator>& set)
+      {
+         for(typename std::set<T,Comparator,Allocator>::iterator it = set.begin(); it != set.end(); ++it)
+         {
+            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*it)),static_cast<std::streamsize>(sizeof(T)));
+         }
       }
 
       inline bool read_at_offset(std::ifstream& stream,
