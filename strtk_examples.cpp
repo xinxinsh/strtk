@@ -806,6 +806,20 @@ void bracketize_example()
    std::cout << strtk::bracketize("<",">",string_list) << std::endl;
 }
 
+void cut_example()
+{
+   std::string s = "0123456789";
+   std::deque<std::string> str_list;
+   for(std::size_t i = 0; i < s.size(); ++i)
+   {
+      std::rotate(s.begin(),s.begin() + i, s.end());
+      str_list.push_back(s);
+   }
+   std::deque<std::string> cut_str_list;
+   strtk::cut(1,5,str_list,std::back_inserter(cut_str_list));
+   std::cout << strtk::join("\n",cut_str_list) << std::endl;
+}
+
 int main()
 {
    tokenizer_example01();
@@ -857,5 +871,6 @@ int main()
    typename_example();
    iota_example();
    bracketize_example();
+   cut_example();
    return 0;
 }

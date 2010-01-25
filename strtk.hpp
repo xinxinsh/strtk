@@ -3235,15 +3235,22 @@ namespace strtk
                                           str2.c_str(),str2.c_str() + str2.size());
    }
 
+   namespace details
+   {
+      static const unsigned int hash_seed = 0xAAAAAAAA;
+      template<typename Iterator>
+      inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value);
+   }
+
    template<typename Iterator>
-   inline unsigned int hash(const Iterator itr, std::size_t length, unsigned int seed = 0xAAAAAAAA)
+   inline unsigned int hash(const Iterator itr, std::size_t length, unsigned int seed = details::hash_seed)
    {
       unsigned int hash_value = seed;
       details::hash(itr,length,hash_value);
       return hash_value;
    }
 
-   inline unsigned int hash(const std::string& s, unsigned int seed = 0xAAAAAAAA)
+   inline unsigned int hash(const std::string& s, unsigned int seed = details::hash_seed)
    {
       unsigned int hash_value = seed;
       hash(s.begin(),s.size(),hash_value);
@@ -5885,7 +5892,7 @@ namespace strtk
       InputIterator itr = begin;
       while (end != itr)
       {
-         std::string& s = *itr++;
+         const std::string& s = *itr++;
          if (s.size() < r0)
             continue;
          (*out++) = s.substr(r0,std::min(r1,s.size()) - r0);
@@ -5910,10 +5917,9 @@ namespace strtk
       Iterator itr = begin;
       while (end != itr)
       {
-         std::string& s = *itr;
-         if (s.size() < r0)
+         if ((*itr).size() < r0)
             continue;
-         (*itr++) = s.substr(r0,std::min(r1,s.size()) - r0);
+         (*itr++) = (*itr).substr(r0,std::min(r1,(*itr).size()) - r0);
       }
    }
 
