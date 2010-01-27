@@ -2771,8 +2771,13 @@ namespace strtk
                                                                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // 0xF8 - 0xFF
                                                               };
 
-      std::size_t length = std::distance(begin,end);
-      std::size_t rounds = length / 4;
+      const unsigned char* end_itr = end;
+      if ('=' == *(end - 2))
+         end_itr = end - 2;
+      else if ('=' == *(end - 1))
+         end_itr = end - 1;
+      const std::size_t length = std::distance(begin,end_itr);
+      const std::size_t rounds = length / 4;
       const unsigned char* itr = begin;
       for (std::size_t i = 0; i < rounds; ++i)
       {
@@ -2786,9 +2791,10 @@ namespace strtk
          *(out++) = static_cast<unsigned char>(( block       ) & 0xFF);
       }
 
-      if ((rounds = (length % 4)) > 0)
+      const std::size_t remainder = (length % 4);
+      if (remainder > 0)
       {
-         switch(rounds)
+         switch(remainder)
          {
             case 2 : {
                         unsigned int block  = base64_to_bin[*(itr++)] << 18;
@@ -3233,28 +3239,6 @@ namespace strtk
    {
       return hamming_distance_elementwise(str1.c_str(),str1.c_str() + str1.size(),
                                           str2.c_str(),str2.c_str() + str2.size());
-   }
-
-   namespace details
-   {
-      static const unsigned int hash_seed = 0xAAAAAAAA;
-      template<typename Iterator>
-      inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value);
-   }
-
-   template<typename Iterator>
-   inline unsigned int hash(const Iterator itr, std::size_t length, unsigned int seed = details::hash_seed)
-   {
-      unsigned int hash_value = seed;
-      details::hash(itr,length,hash_value);
-      return hash_value;
-   }
-
-   inline unsigned int hash(const std::string& s, unsigned int seed = details::hash_seed)
-   {
-      unsigned int hash_value = seed;
-      hash(s.begin(),s.size(),hash_value);
-      return hash_value;
    }
 
    class token_grid
@@ -7746,6 +7730,8 @@ namespace strtk
          compute_block<block_size>(reinterpret_cast<unsigned char*>(itr),length,hash);
       }
 
+      static const unsigned int hash_seed = 0xAAAAAAAA;
+
       template<typename Iterator>
       inline void hash(const Iterator itr, std::size_t length, unsigned int& hash_value)
       {
@@ -7759,6 +7745,21 @@ namespace strtk
       }
 
    } // namespace details
+
+   template<typename Iterator>
+   inline unsigned int hash(const Iterator itr, std::size_t length, unsigned int seed = details::hash_seed)
+   {
+      unsigned int hash_value = seed;
+      details::hash(itr,length,hash_value);
+      return hash_value;
+   }
+
+   inline unsigned int hash(const std::string& s, unsigned int seed = details::hash_seed)
+   {
+      unsigned int hash_value = seed;
+      hash(s.begin(),s.size(),hash_value);
+      return hash_value;
+   }
 
 } // namespace strtk
 
