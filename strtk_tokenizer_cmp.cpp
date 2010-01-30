@@ -86,12 +86,13 @@ public:
 
 #endif
 
-const std::string base = "a|bc?def,ghij;klmno_p|qr?stu,vwxy;z1234_56789 0 A|BC?DEF,GHIJ;KLMNO_P|QR?STU,VWXY;Z1234_56789";
-const std::size_t replicate_count = 1000000;
-const std::string delimiters = "|?,;_ ";
+static const std::string base = "a|bc?def,ghij;klmno_p|qr?stu,vwxy;z1234_56789 0 A|BC?DEF,GHIJ;KLMNO_P|QR?STU,VWXY;Z1234_56789";
+static const std::size_t replicate_count = 1000000;
+static const std::string delimiters = "|?,;_ ";
 
 void strtk_tokenizer_timed_test()
 {
+   printf("[strtk] ");
    std::string s = "";
    std::string so = "";
    s.reserve(base.size() * replicate_count);
@@ -110,7 +111,7 @@ void strtk_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("[strtk] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+   printf("Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
           token_count,
           t.time(),
           (1.0 * token_count) / (1.0 * t.time()));
@@ -118,6 +119,7 @@ void strtk_tokenizer_timed_test()
 
 void boost_tokenizer_timed_test()
 {
+   printf("[boost] ");
    std::string s = "";
    std::string so  ="";
    s.reserve(base.size() * replicate_count);
@@ -136,15 +138,15 @@ void boost_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("[boost] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+   printf("Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
           token_count,
           t.time(),
           (1.0 * token_count) / (1.0 * t.time()));
 }
 
-
 void strtk_split_timed_test()
 {
+   printf("[strtk] ");
    std::string s = "";
    s.reserve(base.size() * replicate_count);
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
@@ -153,7 +155,7 @@ void strtk_split_timed_test()
    t.start();
    strtk::parse(s,delimiters,token_list);
    t.stop();
-   printf("[strtk] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+   printf("Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
           token_list.size(),
           t.time(),
           (1.0 * token_list.size()) / (1.0 * t.time()));
@@ -161,6 +163,7 @@ void strtk_split_timed_test()
 
 void boost_split_timed_test()
 {
+   printf("[boost] ");
    std::string s = "";
    s.reserve(base.size() * replicate_count);
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
@@ -169,7 +172,7 @@ void boost_split_timed_test()
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
    t.stop();
-   printf("[boost] Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
+   printf("Token Count: %d\tTotal time: %8.4f\tRate: %8.4ftks/s\n",
           token_list.size(),
           t.time(),
           (1.0 * token_list.size()) / (1.0 * t.time()));
