@@ -3256,7 +3256,7 @@ namespace strtk
          : split_row_option(split_options::compress_delimiters),
            split_column_option(split_options::compress_delimiters),
            row_delimiters("\n\r"),
-           column_delimiters(",|;\t")
+           column_delimiters(",|;\t ")
          {}
 
          options(split_options::type sro,
@@ -3834,7 +3834,7 @@ namespace strtk
 
       token_grid(const std::string& input_buffer,
                  const std::size_t& input_buffer_size,
-                 const std::string& column_delimiters = ",;|\t",
+                 const std::string& column_delimiters = ",;|\t ",
                  const std::string& row_delimiters = "\n\r")
       : file_name_(""),
         buffer_(reinterpret_cast<unsigned char*>(const_cast<char*>(input_buffer.c_str()))),

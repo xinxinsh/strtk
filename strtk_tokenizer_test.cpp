@@ -478,6 +478,25 @@ bool test_construct_and_parse()
    return true;
 }
 
+bool test_parse()
+{
+   std::string data = "1 ,|\t987.654 ,|\t abc ,|\t";
+   int i;
+   double d;
+   std::string s;
+   if (!strtk::parse(data,",|\t ",i,d,s))
+   {
+      std::cout << "test_parse() - parse fail 1" << std::endl;
+      return false;
+   }
+   if ((i != 1) || (d != 987.654) || (s != "abc"))
+   {
+      std::cout << "test_parse() - parse fail 2" << std::endl;
+      return false;
+   }
+   return true;
+}
+
 bool test_replace_pattern()
 {
    typedef std::pair<std::string,std::string> sp_type;
@@ -538,6 +557,7 @@ int main()
    test_split_and_tokenizer();
    assert(test_empty_filter_itr());
    assert(test_construct_and_parse());
+   assert(test_parse());
    assert(test_replace_pattern());
    return 0;
 }
