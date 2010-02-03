@@ -2,7 +2,7 @@
  *******************************************************************
  *                       String Tool Kit Library                   *
  *                                                                 *
- * StrTk Tokenizer Vs BOOST Tokenizer                              *
+ * String Toolkit Tokenizer vs BOOST Tokenizer                     *
  * Author: Arash Partow - 2003                                     *
  * URL: http://www.partow.net/programming/strtk/index.html         *
  *                                                                 *
@@ -96,7 +96,7 @@ void strtk_tokenizer_timed_test()
    std::string s = "";
    std::string so = "";
    s.reserve(base.size() * replicate_count);
-   so.reserve(base.size() * replicate_count);
+   so.reserve(s.size());
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate);
@@ -123,7 +123,7 @@ void boost_tokenizer_timed_test()
    std::string s = "";
    std::string so  ="";
    s.reserve(base.size() * replicate_count);
-   so.reserve(base.size() * replicate_count);
+   so.reserve(s.size());
    for(unsigned int i = 0; i < replicate_count; ++i) s += base;
    typedef boost::tokenizer<boost::char_separator<char> > tokenizer_type;
    tokenizer_type tokenizer(s,boost::char_separator<char>(delimiters.c_str()));
