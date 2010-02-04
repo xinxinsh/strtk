@@ -44,7 +44,7 @@ bool test_tokenizer_split(const Predicate& p,
                           const bool compressed_delimiters = false)
 {
    std::string result = "";
-   std::vector< std::pair< std::string::const_iterator , std::string::const_iterator> > tok_list;
+   std::vector< std::pair<std::string::const_iterator , std::string::const_iterator> > tok_list;
    strtk::split(p,
                 s,
                 std::back_inserter(tok_list),
@@ -101,7 +101,6 @@ void test_split_and_tokenizer()
       std::string input;
       std::string output;
    };
-
 
    /*
       Test IO 1 and 2 : Single and Multi predicate tokenizing
@@ -321,6 +320,27 @@ void test_split_and_tokenizer()
    }
 }
 
+bool test_split_n()
+{
+   std::string delimiters = " ,|\t_:!";
+   std::string data1 = "1234567890abcdefghijklmnopqrstuvwxyz";
+   std::string data2 = strtk::join(delimiters,data1.begin(),data1.end());
+
+   strtk::multiple_char_delimiter_predicate predicate(delimiters);
+   std::vector<std::string> strlist;
+   strlist.reserve(data1.size());
+
+   for(std::size_t i = 0; i < data1.size(); ++i)
+   {
+      if (i != strtk::split_n(predicate,data2,i,strtk::range_to_type_back_inserter(strlist)))
+      {
+         std::cout << "test_split_n() - Failed Test: " << i << std::endl;
+         return false;
+      }
+   }
+   return true;
+}
+
 bool test_empty_filter_itr()
 {
    std::string s = "a||c";
@@ -481,9 +501,9 @@ bool test_construct_and_parse()
 bool test_parse()
 {
    std::string data = "1 ,|\t987.654 ,|\t abc ,|\t";
-   int i;
-   double d;
-   std::string s;
+   int i = 0;
+   double d = 0;
+   std::string s = "";
    if (!strtk::parse(data,",|\t ",i,d,s))
    {
       std::cout << "test_parse() - parse fail 1" << std::endl;
@@ -555,6 +575,7 @@ bool test_replace_pattern()
 int main()
 {
    test_split_and_tokenizer();
+   assert(test_split_n());
    assert(test_empty_filter_itr());
    assert(test_construct_and_parse());
    assert(test_parse());
