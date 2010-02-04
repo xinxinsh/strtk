@@ -1966,6 +1966,7 @@ namespace strtk
                               OutputIterator out,
                               const split_options::type& split_option = split_options::default_mode)
    {
+      if (0 == token_count) return 0;
       if (0 == std::distance(begin,end)) return 0;
       std::size_t match_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
@@ -6923,11 +6924,12 @@ namespace strtk
       inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, real_type_tag)
       {
          std::size_t length = std::distance(begin,end);
-         static const std::size_t buffer_size = 96;
-         if (length > buffer_size) return false;
+         static const std::size_t buffer_size = 97;
+         if (length >= buffer_size) return false;
          char buffer[buffer_size];
          char* endptr = buffer + length;
          std::memcpy(buffer,begin,length);
+         *(buffer + length) = 0;
          t = static_cast<T>(strtod(buffer,&endptr));
          return (0 == errno);
       }
