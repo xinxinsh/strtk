@@ -504,7 +504,7 @@ namespace strtk
 
       typedef T value_type;
 
-      multiple_delimiter_predicate(const T* d_begin,const T* d_end)
+      multiple_delimiter_predicate(const T* d_begin, const T* d_end)
       : length_(std::distance(d_begin,d_end)),
         delimiter_(new T[length_]),
         delimiter_end_(delimiter_ + length_)
@@ -521,7 +521,7 @@ namespace strtk
       }
 
       template<typename Iterator>
-      multiple_delimiter_predicate(const Iterator begin,const Iterator end)
+      multiple_delimiter_predicate(const Iterator begin, const Iterator end)
       : length_(std::distance(begin,end)),
         delimiter_(new T[length_]),
         delimiter_end_(delimiter_ + length_)
@@ -556,7 +556,7 @@ namespace strtk
    public:
 
       template<typename Iterator>
-      multiple_char_delimiter_predicate(const Iterator begin,const Iterator end)
+      multiple_char_delimiter_predicate(const Iterator begin, const Iterator end)
       {
          setup_delimiter_table(begin,end);
       }
@@ -3211,7 +3211,7 @@ namespace strtk
                               reinterpret_cast<const unsigned char*>(end2));
    }
 
-   inline std::size_t hamming_distance(const std::string& str1,const std::string& str2)
+   inline std::size_t hamming_distance(const std::string& str1, const std::string& str2)
    {
       return hamming_distance(str1.c_str(),str1.c_str() + str1.size(),
                               str2.c_str(),str2.c_str() + str2.size());
@@ -4415,7 +4415,7 @@ namespace strtk
          return sequential_partition(all_rows(),p,f);
       }
 
-      static token_grid::options default_options() const
+      static token_grid::options default_options()
       {
          return token_grid::options();
       }
@@ -6268,7 +6268,9 @@ namespace strtk
 
       inline bool operator!() const
       {
-         return (0 == buffer_length_) || (0 == original_buffer_) || (0 == buffer_);
+         return (0 == buffer_length_)   ||
+                (0 == original_buffer_) ||
+                (0 == buffer_);
       }
 
       inline void reset()
@@ -7684,21 +7686,6 @@ namespace strtk
          hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
          hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
       }
-
-      /*
-      inline void compute_pod_hash(const long long& data, unsigned int& hash)
-      {
-         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
-         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
-         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
-         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
-      }
-      */
 
       template<std::size_t block_size, typename Iterator>
       inline void compute_block(Iterator itr, std::size_t& length, unsigned int& hash)
