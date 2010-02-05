@@ -769,7 +769,6 @@ void typename_example()
    std::set<double> sf;
    std::set<std::string> ss;
 
-
    std::cout << strtk::type_name(vui) << std::endl;
    std::cout << strtk::type_name(vs)  << std::endl;
    std::cout << strtk::type_name(dd)  << std::endl;

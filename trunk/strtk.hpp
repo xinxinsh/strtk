@@ -1446,12 +1446,12 @@ namespace strtk
         end_(begin_ + length)
       {}
 
-      inline iterator begin()
+      inline iterator begin() const
       {
          return begin_;
       }
 
-      inline iterator end()
+      inline iterator end() const
       {
          return end_;
       }
@@ -3700,7 +3700,7 @@ namespace strtk
          template<typename T,
                   class Allocator,
                   template<class,class> class Sequence>
-         inline void parse_checked(Sequence<T,Allocator>& sequence)
+         inline void parse_checked(Sequence<T,Allocator>& sequence) const
          {
             parse_checked<T>(std::back_inserter(sequence));
          }
@@ -3708,7 +3708,7 @@ namespace strtk
          template<typename T,
                   class Comparator,
                   class Allocator>
-         inline void parse_checked(std::set<T,Comparator,Allocator>& set)
+         inline void parse_checked(std::set<T,Comparator,Allocator>& set) const
          {
             parse_checked<T>(std::inserter(set,set.end()));
          }
@@ -3889,7 +3889,7 @@ namespace strtk
       template<typename OutputIterator>
       inline bool extract_column_checked(const row_range_type& range,
                                          const std::size_t& index,
-                                         OutputIterator out)
+                                         OutputIterator out) const
       {
          if (index > max_column_count_)
             return false;
@@ -3913,7 +3913,7 @@ namespace strtk
 
       template<typename OutputIterator>
       inline bool extract_column_checked(const std::size_t& index,
-                                         OutputIterator out)
+                                         OutputIterator out) const
       {
          return extract_column_checked(all_rows(),index,out);
       }
@@ -3922,7 +3922,7 @@ namespace strtk
                class Allocator,
                template<class,class> class Sequence>
       inline void extract_column_checked(const std::size_t& index,
-                                          Sequence<T,Allocator>& sequence)
+                                          Sequence<T,Allocator>& sequence) const
       {
          extract_column_checked(index,back_inserter_with_valuetype(sequence));
       }
@@ -3931,7 +3931,7 @@ namespace strtk
                class Comparator,
                class Allocator>
       inline void extract_column_checked(const std::size_t& index,
-                                         std::set<T,Comparator,Allocator>& set)
+                                         std::set<T,Comparator,Allocator>& set) const
       {
          extract_column_checked(index,inserter_with_valuetype(set));
       }
@@ -3939,7 +3939,7 @@ namespace strtk
       template<typename OutputIterator>
       inline bool extract_column(const row_range_type& range,
                                  const std::size_t& index,
-                                 OutputIterator out)
+                                 OutputIterator out) const
       {
          if (index > max_column_count_)
             return false;
@@ -3958,7 +3958,7 @@ namespace strtk
 
       template<typename OutputIterator>
       inline bool extract_column(const std::size_t& index,
-                                 OutputIterator out)
+                                 OutputIterator out) const
       {
          return extract_column(all_rows(),index,out);
       }
@@ -3968,7 +3968,7 @@ namespace strtk
                                  const std::size_t& index1,
                                  const std::size_t& index2,
                                  OutputIterator1 out1,
-                                 OutputIterator2 out2)
+                                 OutputIterator2 out2) const
       {
          if ((index1 > max_column_count_) ||
              (index2 > max_column_count_))
@@ -3995,7 +3995,7 @@ namespace strtk
                                  const std::size_t& index3,
                                  OutputIterator1 out1,
                                  OutputIterator2 out2,
-                                 OutputIterator3 out3)
+                                 OutputIterator3 out3) const
       {
          if ((index1 > max_column_count_) ||
              (index2 > max_column_count_) ||
@@ -4027,7 +4027,7 @@ namespace strtk
                                  OutputIterator1 out1,
                                  OutputIterator2 out2,
                                  OutputIterator3 out3,
-                                 OutputIterator4 out4)
+                                 OutputIterator4 out4) const
       {
          if ((index1 > max_column_count_) ||
              (index2 > max_column_count_) ||
@@ -4064,7 +4064,7 @@ namespace strtk
                                  OutputIterator2 out2,
                                  OutputIterator3 out3,
                                  OutputIterator4 out4,
-                                 OutputIterator5 out5)
+                                 OutputIterator5 out5) const
       {
          if ((index1 > max_column_count_) ||
              (index2 > max_column_count_) ||
@@ -4290,7 +4290,7 @@ namespace strtk
       inline bool join_column(const std::size_t& col,
                               const row_range_type& row_range,
                               const std::string& delimiter,
-                              std::string& result)
+                              std::string& result) const
       {
          if (col > max_column_count_)
             return false;
@@ -4323,7 +4323,7 @@ namespace strtk
 
       inline bool join_column(const std::size_t& col,
                               const std::string& delimiter,
-                              std::string& result)
+                              std::string& result) const
       {
          return join_column(col,all_rows(),delimiter,result);
       }
@@ -4333,7 +4333,7 @@ namespace strtk
                               const row_range_type& range,
                               Predicate p,
                               const std::string& delimiter,
-                              std::string& result)
+                              std::string& result) const
       {
          if (col > max_column_count_)
             return false;
@@ -4367,7 +4367,7 @@ namespace strtk
       inline bool join_column(const std::size_t& col,
                               Predicate p,
                               const std::string& delimiter,
-                              std::string& result)
+                              std::string& result) const
       {
          return join_column(col,all_rows(),p,delimiter,result);
       }
@@ -4415,7 +4415,7 @@ namespace strtk
          return sequential_partition(all_rows(),p,f);
       }
 
-      static token_grid::options default_options()
+      static token_grid::options default_options() const
       {
          return token_grid::options();
       }
@@ -4669,7 +4669,7 @@ namespace strtk
    struct size_equal_to
    {
       template<typename Iterator>
-      inline bool operator()(const Iterator begin, const Iterator end)
+      inline bool operator()(const Iterator begin, const Iterator end) const
       {
          return length == std::distance(begin,end);
       }
@@ -4677,7 +4677,7 @@ namespace strtk
       template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
-      inline bool operator()(const Sequence<T,Allocator>& sequence)
+      inline bool operator()(const Sequence<T,Allocator>& sequence) const
       {
          return length == sequence.size();
       }
@@ -4685,12 +4685,12 @@ namespace strtk
       template <typename T,
                 class Comparator,
                 class Allocator>
-      inline bool operator()(const std::set<T,Comparator,Allocator>& set)
+      inline bool operator()(const std::set<T,Comparator,Allocator>& set) const
       {
          return length == set.size();
       }
 
-      inline bool operator()(const std::string& str)
+      inline bool operator()(const std::string& str) const
       {
          return length == str.size();
       }
@@ -4700,7 +4700,7 @@ namespace strtk
    struct size_less_than
    {
       template<typename Iterator>
-      inline bool operator()(const Iterator begin, const Iterator end)
+      inline bool operator()(const Iterator begin, const Iterator end) const
       {
          return std::distance(begin,end) < static_cast<typename std::iterator_traits<Iterator>::difference_type>(length);
       }
@@ -4708,7 +4708,7 @@ namespace strtk
       template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
-      inline bool operator()(const Sequence<T,Allocator>& sequence)
+      inline bool operator()(const Sequence<T,Allocator>& sequence) const
       {
          return sequence.size() < length;
       }
@@ -4716,12 +4716,12 @@ namespace strtk
       template <typename T,
                 class Comparator,
                 class Allocator>
-      inline bool operator()(const std::set<T,Comparator,Allocator>& set)
+      inline bool operator()(const std::set<T,Comparator,Allocator>& set) const
       {
          return set.size() < length;
       }
 
-      inline bool operator()(const std::string& str)
+      inline bool operator()(const std::string& str) const
       {
          return str.size() < length;
       }
@@ -4731,7 +4731,7 @@ namespace strtk
    struct size_greater_than
    {
       template<typename Iterator>
-      inline bool operator()(const Iterator begin, const Iterator end)
+      inline bool operator()(const Iterator begin, const Iterator end) const
       {
          return std::distance(begin,end) > static_cast<typename std::iterator_traits<Iterator>::difference_type>(length);
       }
@@ -4739,7 +4739,7 @@ namespace strtk
       template <typename T,
                 class Allocator,
                 template <class,class> class Sequence>
-      inline bool operator()(const Sequence<T,Allocator>& sequence)
+      inline bool operator()(const Sequence<T,Allocator>& sequence) const
       {
          return sequence.size() > length;
       }
@@ -4747,12 +4747,12 @@ namespace strtk
       template <typename T,
                 class Comparator,
                 class Allocator>
-      inline bool operator()(const std::set<T,Comparator,Allocator>& set)
+      inline bool operator()(const std::set<T,Comparator,Allocator>& set) const
       {
          return set.size() > length;
       }
 
-      inline bool operator()(const std::string& str)
+      inline bool operator()(const std::string& str) const
       {
          return str.size() > length;
       }
