@@ -5178,7 +5178,10 @@ namespace strtk
                      T5& t5,  T6&  t6,  T7&  t7,  T8&  t8,
                      T9& t9, T10& t10, T11& t11, T12& t12)
    {
-      return parse(data.c_str(), data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -5190,7 +5193,10 @@ namespace strtk
                      T5& t5, T6&   t6,  T7&  t7, T8& t8,
                      T9& t9, T10& t10, T11& t11)
    {
-      return parse(data.c_str(), data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -5202,7 +5208,10 @@ namespace strtk
                      T5& t5, T6& t6, T7& t7, T8& t8,
                      T9& t9, T10& t10)
    {
-      return parse(data.c_str(), data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -5214,7 +5223,10 @@ namespace strtk
                      T5& t5, T6& t6, T7& t7, T8& t8,
                      T9& t9)
    {
-      return parse(data.c_str(), data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8,t9);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7,t8,t9);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -5224,7 +5236,10 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      return parse(data.c_str(), data.c_str() + data.size(),delimiters,t1,t2,t3,t4,t5,t6,t7,t8);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7,t8);
    }
 
    template< typename T1, typename T2, typename T3, typename T4,
@@ -5234,7 +5249,10 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6, T7& t7)
    {
-      return parse(data.c_str(), data.c_str() + data.size(), delimiters,t1,t2,t3,t4,t5,t6,t7);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -5244,7 +5262,10 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5, T6& t6)
    {
-      return parse(data.c_str(), data.c_str() + data.size(), delimiters,t1,t2,t3,t4,t5,t6);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6);
    }
 
    template<typename T1, typename T2, typename T3, typename T4,
@@ -5254,7 +5275,10 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4,
                      T5& t5)
    {
-      return parse(data.c_str(), data.c_str() + data.size(), delimiters,t1,t2,t3,t4,t5);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5);
    }
 
    template<typename T1, typename T2, typename T3, typename T4>
@@ -5262,7 +5286,10 @@ namespace strtk
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      return parse(data.c_str(), data.c_str() + data.size(), delimiters,t1,t2,t3,t4);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4);
    }
 
    template<typename T1, typename T2, typename T3>
@@ -5270,7 +5297,10 @@ namespace strtk
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3)
    {
-      return parse(data.c_str(), data.c_str() + data.size(), delimiters,t1,t2,t3);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2,t3);
    }
 
    template<typename T1, typename T2>
@@ -5278,7 +5308,10 @@ namespace strtk
                      const std::string& delimiters,
                      T1& t1, T2& t2)
    {
-      return parse(data.c_str(), data.c_str() + data.size(), delimiters,t1,t2);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t1,t2);
    }
 
    template<typename T>
@@ -5286,7 +5319,10 @@ namespace strtk
                      const std::string& delimiters,
                      T& t)
    {
-      return parse(data.c_str(), data.c_str() + data.size(), delimiters,t);
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
+                   delimiters,
+                   t);
    }
 
    template <typename T,
@@ -5296,7 +5332,8 @@ namespace strtk
                             const std::string& delimiters,
                              Sequence<T,Allocator>& sequence)
    {
-      return parse(data.c_str(), data.c_str() + data.size(),
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
                    delimiters,
                    sequence);
    }
@@ -5308,7 +5345,8 @@ namespace strtk
                             const std::string& delimiters,
                              std::set<T,Comparator,Allocator>& set)
    {
-      return parse(data.c_str(), data.c_str() + data.size(),
+      return parse(data.c_str(),
+                   data.c_str() + data.size(),
                    delimiters,
                    set);
    }
@@ -5321,7 +5359,8 @@ namespace strtk
                               const std::size_t& n,
                               Sequence<T,Allocator>& sequence)
    {
-      return parse_n(data.c_str(), data.c_str() + data.size(),
+      return parse_n(data.c_str(),
+                     data.c_str() + data.size(),
                      delimiters,
                      n,
                      sequence);
@@ -5664,6 +5703,37 @@ namespace strtk
    {
       return join(delimiter,predicate,set.begin(),set.end());
    }
+
+   class build_string
+   {
+   public:
+
+      build_string(const std::size_t& initial_size = 64)
+      {
+         data_.reserve(initial_size);
+      }
+
+      template <typename T>
+      inline build_string& operator << (const T& t)
+      {
+         data_ += type_to_string(t);
+         return *this;
+      }
+
+      inline operator std::string () const
+      {
+         return data_;
+      }
+
+      inline operator const char* () const
+      {
+         return data_.c_str();
+      }
+
+   private:
+
+      std::string data_;
+   };
 
    inline void replicate(const std::size_t& count,
                          const std::string& str,
@@ -7748,6 +7818,21 @@ namespace strtk
       unsigned int hash_value = seed;
       hash(s.begin(),s.size(),hash_value);
       return hash_value;
+   }
+
+   namespace information
+   {
+      static const char* library = "String Toolkit";
+      static const char* version = "2.718281828459";
+      static const char* date    = "20100130";
+      static const char* epoch   = "Pre-C++0x 3D354316:1E231C0A";
+
+      static inline std::string data()
+      {
+         return std::string(library) +
+                std::string(" v") + std::string(version) +
+                std::string(" (") + date + std::string(" ") + epoch + std::string(")");
+      }
    }
 
 } // namespace strtk

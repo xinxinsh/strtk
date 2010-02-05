@@ -819,6 +819,16 @@ void cut_example()
    std::cout << strtk::join("\n",cut_str_list) << std::endl;
 }
 
+void func(const char* s)
+{
+   std::cout << s << std::endl;
+}
+
+void build_string_example()
+{
+   func(strtk::build_string() << "ABC " << 123 << " " << 456.789);
+}
+
 int main()
 {
    tokenizer_example01();
@@ -871,5 +881,6 @@ int main()
    iota_example();
    bracketize_example();
    cut_example();
+   build_string_example();
    return 0;
 }
