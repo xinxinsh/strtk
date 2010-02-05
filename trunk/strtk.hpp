@@ -3864,7 +3864,7 @@ namespace strtk
       inline std::size_t min_column_count() const { return min_column_count_;  }
       inline std::size_t max_column_count() const { return max_column_count_;  }
 
-      inline range_type token(const unsigned int& row, const std::size_t& col)
+      inline range_type token(const unsigned int& row, const std::size_t& col) const
       {
          return token_list_[row][col];
       }
