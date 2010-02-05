@@ -7421,7 +7421,7 @@ namespace strtk
                            Sequence<T,Allocator>& sequence)
       {
          T t;
-         for(std::size_t i = 0; i < count; ++i)
+         for (std::size_t i = 0; i < count; ++i)
          {
             stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T)));
             sequence.push_back(t);
@@ -7436,7 +7436,7 @@ namespace strtk
                            std::set<T,Comparator,Allocator>& set)
       {
          T t;
-         for(std::size_t i = 0; i < count; ++i)
+         for (std::size_t i = 0; i < count; ++i)
          {
             stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T)));
             set.insert(t);
@@ -7585,7 +7585,7 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const Sequence<T,Allocator>& sequence)
       {
-         for(typename Sequence<T,Allocator>::iterator it = sequence.begin(); it != sequence.end(); ++it)
+         for (typename Sequence<T,Allocator>::iterator it = sequence.begin(); it != sequence.end(); ++it)
          {
             stream.write(reinterpret_cast<char*>(&const_cast<T&>(*it)),static_cast<std::streamsize>(sizeof(T)));
          }
@@ -7597,7 +7597,7 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const std::set<T,Comparator,Allocator>& set)
       {
-         for(typename std::set<T,Comparator,Allocator>::iterator it = set.begin(); it != set.end(); ++it)
+         for (typename std::set<T,Comparator,Allocator>::iterator it = set.begin(); it != set.end(); ++it)
          {
             stream.write(reinterpret_cast<char*>(&const_cast<T&>(*it)),static_cast<std::streamsize>(sizeof(T)));
          }

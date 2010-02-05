@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
       return 0;
 
    std::size_t total_length = 0;
-   for(std::size_t i = 0; i < str_list.size(); total_length += str_list[i++].size());
+   for (std::size_t i = 0; i < str_list.size(); total_length += str_list[i++].size());
 
    std::string buffer;
    buffer.reserve(total_length + str_list.size());
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
                           buffer.size(),
                           strtk::token_grid::options());
 
-   for(std::size_t c = 0; c < grid.max_column_count(); ++c)
+   for (std::size_t c = 0; c < grid.max_column_count(); ++c)
    {
       std::cout << "C["<< c << "]"  << "\t";
       value_list.clear();
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
       std::cout << std::endl;
    }
 
-   for(std::size_t r = 0; r < grid.row_count(); ++r)
+   for (std::size_t r = 0; r < grid.row_count(); ++r)
    {
       std::cout << "R["<< r << "]"  << "\t";
       value_list.clear();

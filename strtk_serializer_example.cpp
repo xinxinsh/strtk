@@ -125,7 +125,7 @@ bool test02(char* buffer, const unsigned int buffer_size)
 
    const std::size_t rounds = 1000;
 
-   for(unsigned int i = 0; i < rounds; ++i)
+   for (unsigned int i = 0; i < rounds; ++i)
    {
       p1.write(s);
       p1.age++;
@@ -144,7 +144,7 @@ bool test02(char* buffer, const unsigned int buffer_size)
 
    person p2;
 
-   for(unsigned int i = 0; i < rounds; ++i)
+   for (unsigned int i = 0; i < rounds; ++i)
    {
       p2.clear();
       p2.read(s);
@@ -176,7 +176,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
 
    const std::size_t rounds = 1000;
 
-   for(unsigned int i = 0; i < rounds; ++i)
+   for (unsigned int i = 0; i < rounds; ++i)
    {
       p1.write(s);
       p1.age++;
@@ -198,7 +198,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
    std::size_t length = s.length();
 
    std::ifstream i_stream("data.txt",std::ios::binary);
-   if(!i_stream)
+   if (!i_stream)
    {
       std::cout << "Test03() ERROR - Could not open file!(2)" << std::endl;
       return false;
@@ -215,7 +215,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
 
    person p2;
 
-   for(unsigned int i = 0; i < rounds; ++i)
+   for (unsigned int i = 0; i < rounds; ++i)
    {
       p2.clear();
       p2.read(s);
@@ -240,7 +240,7 @@ bool test04(char* buffer, const unsigned int buffer_size)
 
    std::deque<unsigned int> lst;
    const unsigned int max_count = 100;
-   for(unsigned int i = 0; i < max_count; lst.push_back(i++));
+   for (unsigned int i = 0; i < max_count; lst.push_back(i++));
 
    s.write_from_external_sequence(lst);
 
@@ -249,7 +249,7 @@ bool test04(char* buffer, const unsigned int buffer_size)
 
    s.read_into_external_sequence(lst);
 
-   for(unsigned int i = 0; i < max_count; ++i)
+   for (unsigned int i = 0; i < max_count; ++i)
    {
       if (lst[i] != i)
       {

@@ -51,7 +51,7 @@ void example02()
    unsigned char buffer[size];
    unsigned char hex_buffer[2 * size];
    unsigned char b64_buffer[2 * size];
-   for(unsigned int i = 0; i < size; ++i) buffer[i] = static_cast<unsigned char>(i);
+   for (unsigned int i = 0; i < size; ++i) buffer[i] = static_cast<unsigned char>(i);
    strtk::convert_bin_to_hex(buffer,buffer + size, hex_buffer);
    strtk::convert_bin_to_base64(buffer,buffer + size, b64_buffer);
 }
@@ -62,13 +62,13 @@ void example03()
    unsigned char buffer1[size];
    unsigned char buffer2[size];
    unsigned char b64_buffer[2 * size];
-   for(unsigned int k = 1; k < size; ++k)
+   for (unsigned int k = 1; k < size; ++k)
    {
-      for(unsigned int i = 0; i < k; ++i) buffer1[i] = static_cast<unsigned char>(i);
+      for (unsigned int i = 0; i < k; ++i) buffer1[i] = static_cast<unsigned char>(i);
       std::size_t b64_size = strtk::convert_bin_to_base64(buffer1,buffer1 + k, b64_buffer);
       std::fill_n(buffer2,k,0x00);
       strtk::convert_base64_to_bin(b64_buffer,b64_buffer + b64_size, buffer2);
-      for(unsigned int i = 0; i < k; ++i)
+      for (unsigned int i = 0; i < k; ++i)
       {
          if (buffer1[i] != buffer2[i])
          {

@@ -49,10 +49,10 @@ void token_grid_test01()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   for(std::size_t i = 0; i < grid.row_count(); ++i)
+   for (std::size_t i = 0; i < grid.row_count(); ++i)
    {
       strtk::token_grid::row_type r = grid.row(i);
-      for(std::size_t j = 0; j < r.size(); ++j)
+      for (std::size_t j = 0; j < r.size(); ++j)
       {
          std::cout << r.get<int>(j) << "\t";
       }
@@ -80,7 +80,7 @@ void token_grid_test02()
 
    std::vector<int> lst(10);
 
-   for(std::size_t i = 0; i < grid.row_count(); ++i)
+   for (std::size_t i = 0; i < grid.row_count(); ++i)
    {
       switch(i)
       {
@@ -190,13 +190,13 @@ void token_grid_test04()
    std::string data;
    data.reserve(160);
    data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
-   for(unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
+   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
    strtk::token_grid grid(data,data.size(),",");
    grid.enforce_column_count(5);
-   for(unsigned int i = 0; i < grid.row_count(); ++i)
+   for (unsigned int i = 0; i < grid.row_count(); ++i)
    {
       strtk::token_grid::row_type row = grid.row(i);
-      for(unsigned j = 0; j < row.size(); ++j)
+      for (unsigned j = 0; j < row.size(); ++j)
       {
          strtk::token_grid::range_type r = row.token(j);
          std::cout << std::string(r.first,r.second) << "\t";
@@ -210,13 +210,13 @@ void token_grid_test05()
    std::string data;
    data.reserve(160);
    data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
-   for(unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
+   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
    strtk::token_grid grid(data,data.size(),",");
 
-   for(unsigned int i = 0; i < grid.row_count(); ++i)
+   for (unsigned int i = 0; i < grid.row_count(); ++i)
    {
       strtk::token_grid::row_type row = grid.row(i);
-      for(unsigned j = 0; j < row.size(); ++j)
+      for (unsigned j = 0; j < row.size(); ++j)
       {
          std::cout << grid.get<int>(i,j) << "\t";
       }
@@ -243,14 +243,14 @@ void token_grid_test06()
    std::vector<double> tmp(grid.row(0).size(),0.0);
    std::fill(avg_c.begin(),avg_c.end(),0.0);
 
-   for(unsigned int i = 0; i < grid.row_count(); ++i)
+   for (unsigned int i = 0; i < grid.row_count(); ++i)
    {
       grid.row(i).parse<double>(tmp.begin());
       std::transform(avg_c.begin(),avg_c.end(),tmp.begin(),avg_c.begin(),std::plus<double>());
       avg_r[i] = std::accumulate(tmp.begin(),tmp.end(),0.0) / tmp.size();
    }
 
-   for(unsigned int i = 0; i < avg_c.size(); avg_c[i++] /= grid.row_count());
+   for (unsigned int i = 0; i < avg_c.size(); avg_c[i++] /= grid.row_count());
 
    std::cout << "Column Averages:\t";
    std::copy(avg_c.begin(),avg_c.end(),std::ostream_iterator<double>(std::cout,"\t"));
@@ -287,7 +287,7 @@ void token_grid_test07()
    std::vector<std::string> words;
    words.reserve(grid.row_count());
 
-   for(std::size_t i = 0; i < grid.min_column_count(); ++i)
+   for (std::size_t i = 0; i < grid.min_column_count(); ++i)
    {
       words.clear();
       grid.extract_column(i,strtk::back_inserter_with_valuetype(words));
@@ -308,7 +308,7 @@ void token_grid_test08()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   for(std::size_t r = 0; r < grid.row_count(); ++r)
+   for (std::size_t r = 0; r < grid.row_count(); ++r)
    {
       double sum = 0.0;
       if (grid.accumulate_row(r,sum))
@@ -317,7 +317,7 @@ void token_grid_test08()
          std::cout << "failed row["<< r <<"]" << std::endl;
    }
 
-   for(std::size_t c = 0; c < grid.max_column_count(); ++c)
+   for (std::size_t c = 0; c < grid.max_column_count(); ++c)
    {
       double sum = 0.0;
       if (grid.accumulate_column(c,sum))
@@ -340,7 +340,7 @@ void token_grid_test09()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   for(std::size_t r = 0; r < grid.row_count(); ++r)
+   for (std::size_t r = 0; r < grid.row_count(); ++r)
    {
       std::string row = "";
       if (grid.join_row(r,"|",row))
@@ -349,7 +349,7 @@ void token_grid_test09()
          std::cout << "failed row["<< r <<"]" << std::endl;
    }
 
-   for(std::size_t c = 0; c < grid.max_column_count(); ++c)
+   for (std::size_t c = 0; c < grid.max_column_count(); ++c)
    {
       std::string col = "";
       if (grid.join_column(c,"|",col))
@@ -418,7 +418,7 @@ void token_grid_test11()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   for(std::size_t r = 0; r < grid.row_count(); ++r)
+   for (std::size_t r = 0; r < grid.row_count(); ++r)
    {
       if ((0 < r) && (r < grid.row_count() - 1))
       {
@@ -426,7 +426,7 @@ void token_grid_test11()
          const strtk::token_grid::row_type& next = row.next_row();
          const strtk::token_grid::row_type& prev = row.prev_row();
 
-         for(std::size_t c = 0; c < row.size(); c++)
+         for (std::size_t c = 0; c < row.size(); c++)
          {
             double average = (row.get<double>(c) + next.get<double>(c) + prev.get<double>(c)) / 3.0;
             std::cout << average << "\t";
@@ -468,7 +468,7 @@ public:
                    const strtk::token_grid::row_range_type& range)
    {
       double bucket_sum = 0.0;
-      if(!grid.accumulate_column(tick_value_column,range,bucket_sum))
+      if (!grid.accumulate_column(tick_value_column,range,bucket_sum))
       {
          std::cout << "failed to accumulate!" << std::endl;
          return false;
@@ -501,7 +501,7 @@ void token_grid_test12()
    std::deque<double> sum_value;
    summarizer s(sum_value);
    grid.sequential_partition(s,s);
-   for(std::size_t i = 0; i < sum_value.size(); ++i)
+   for (std::size_t i = 0; i < sum_value.size(); ++i)
    {
       std::cout << "bucket[" << i << "] = " << sum_value[i] << std::endl;
    }
