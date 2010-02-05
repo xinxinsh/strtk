@@ -65,7 +65,7 @@ int main()
    unsigned char* buffer = new unsigned char[data_width];
    unsigned char* hex_buffer = new unsigned char[2 * data_width];
 
-   for( ; ; )
+   for ( ; ; )
    {
       std::cin.read(reinterpret_cast<char*>(buffer),data_width);
       if (!(std::cin.eof() || std::cin.bad()))

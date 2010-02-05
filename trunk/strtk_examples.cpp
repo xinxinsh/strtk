@@ -164,7 +164,7 @@ void tokenizer_example10()
    strtk::single_delimiter_predicate<std::string> predicate("delimiter");
    strtk::tokenizer< std::string*,strtk::single_delimiter_predicate<std::string> > tokenizer(range.begin(),range.end(),predicate);
    strtk::tokenizer< std::string*,strtk::single_delimiter_predicate<std::string> >::iterator it = tokenizer.begin();
-   while(it != tokenizer.end())
+   while (it != tokenizer.end())
    {
       std::cout << "[" << strtk::join(" ",(*it).first,(*it).second) << "]";
       ++it;
@@ -214,7 +214,7 @@ void split_example01()
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    strtk::split(predicate,s,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -229,7 +229,7 @@ void split_example02()
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
    strtk::split(predicate,s,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -244,7 +244,7 @@ void split_example03()
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    strtk::split(predicate,s,std::back_inserter(token_list),strtk::split_options::compress_delimiters);
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -259,7 +259,7 @@ void split_example04()
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
    strtk::split(predicate,s,std::back_inserter(token_list),strtk::split_options::compress_delimiters);
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -273,7 +273,7 @@ void split_example05()
    strtk::std_string::token_list_type token_list;
    strtk::split(" .;?",s,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -299,7 +299,7 @@ void split_n_example01()
    const std::size_t token_count = 4;
    strtk::split_n(predicate,s,token_count,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -315,7 +315,7 @@ void split_n_example02()
    const std::size_t token_count = 4;
    strtk::split_n(predicate,s,token_count,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -330,7 +330,7 @@ void split_n_example03()
    const std::size_t token_count = 4;
    strtk::split_n(" .;?",s,token_count,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
       ++it;
@@ -358,7 +358,7 @@ void offset_splitter_example01()
    strtk::std_string::token_list_type token_list;
    strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "] ";
       ++it;
@@ -374,7 +374,7 @@ void offset_splitter_example02()
    strtk::std_string::token_list_type token_list;
    strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       if (1 != std::distance((*it).first,(*it).second))
       {
@@ -391,7 +391,7 @@ void offset_splitter_example03()
    strtk::std_string::token_list_type token_list;
    strtk::offset_splitter(s.begin(),s.end(),strtk::offsets(1,2,3,4,5,6,7),std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator it = token_list.begin();
-   while(it != token_list.end())
+   while (it != token_list.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "] ";
       ++it;
@@ -575,7 +575,7 @@ void random_permutation_example()
 {
    #ifdef ENABLE_RANDOM
    std::vector<std::size_t> lst;
-   for(std::size_t i = 0; i < 10; lst.push_back(i++));
+   for (std::size_t i = 0; i < 10; lst.push_back(i++));
 
    const std::size_t seed[] = {
                                0x390E348F, 0x2884D0F5, 0x18AEB587, 0x31F9038C, 0x2AB63848,
@@ -585,7 +585,7 @@ void random_permutation_example()
                                0x1A300ACF, 0x0E99E22D, 0x222E195F, 0x1E54BACF, 0x35A9284C
                               };
 
-   for(std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
+   for (std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
    {
       strtk::random_permutation(lst.begin(),lst.end(),
                                 std::ostream_iterator<std::size_t>(std::cout,"\t"),seed[i]);
@@ -604,9 +604,9 @@ void random_combination_example()
                         };
 
    std::vector<std::size_t> lst;
-   for(std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); lst.push_back(i++));
+   for (std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); lst.push_back(i++));
 
-   for(std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
+   for (std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
    {
       strtk::random_combination(lst.begin(),lst.end(),
                                 i + 1,
@@ -627,7 +627,7 @@ void lexicographically_collate_example()
                               "The Quick Brown Fox Jumps Over The Lazy Dog"
                             };
 
-   for(std::size_t i = 0; i < sizeof(str_list)/sizeof(std::string); ++i)
+   for (std::size_t i = 0; i < sizeof(str_list) / sizeof(std::string); ++i)
    {
       std::cout << str_list[i] << " --> ";
       strtk::lexicographically_canonicalize(str_list[i]);
@@ -810,7 +810,7 @@ void cut_example()
 {
    std::string s = "0123456789";
    std::deque<std::string> str_list;
-   for(std::size_t i = 0; i < s.size(); ++i)
+   for (std::size_t i = 0; i < s.size(); ++i)
    {
       std::rotate(s.begin(),s.begin() + i, s.end());
       str_list.push_back(s);

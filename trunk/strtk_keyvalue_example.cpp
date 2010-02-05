@@ -75,7 +75,7 @@ int main(void)
    strtk::for_each_token(data,pair_tokenizer,kvp);
 
    pair_list_type::iterator it = keyvalue_list.begin();
-   while(it != keyvalue_list.end())
+   while (keyvalue_list.end() != it)
    {
       std::cout << "<" << (*it).first << "," << (*it).second << ">" << std::endl;
       ++it;

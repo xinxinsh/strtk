@@ -50,7 +50,7 @@ bool test_tokenizer_split(const Predicate& p,
                 std::back_inserter(tok_list),
                 (compressed_delimiters) ? strtk::split_options::compress_delimiters : strtk::split_options::default_mode);
 
-   for(std::size_t i = 0; i < tok_list.size(); ++i)
+   for (std::size_t i = 0; i < tok_list.size(); ++i)
    {
       if (tok_list[i].first == tok_list[i].second)
          result += "<>";
@@ -292,7 +292,7 @@ void test_split_and_tokenizer()
    single_predicate_type single_predicate('|');
    multiple_predicate_type multi_predicate("|?-,;_");
 
-   for(std::size_t i = 0; i < test_count; ++i)
+   for (std::size_t i = 0; i < test_count; ++i)
    {
       std::string in = test_input_output1[i].input;
       std::string out = test_input_output1[i].output;
@@ -330,7 +330,7 @@ bool test_split_n()
    std::vector<std::string> strlist;
    strlist.reserve(data1.size());
 
-   for(std::size_t i = 0; i < data1.size(); ++i)
+   for (std::size_t i = 0; i < data1.size(); ++i)
    {
       if (i != strtk::split_n(predicate,data2,i,strtk::range_to_type_back_inserter(strlist)))
       {
@@ -498,7 +498,7 @@ bool test_construct_and_parse()
    return true;
 }
 
-bool test_parse()
+bool test_parse1()
 {
    std::string data = "1 ,|\t987.654 ,|\t abc ,|\t";
    int i = 0;
@@ -514,6 +514,52 @@ bool test_parse()
       std::cout << "test_parse() - parse fail 2" << std::endl;
       return false;
    }
+   return true;
+}
+
+bool test_parse2()
+{
+   std::string data = "1 ,|\t2. ,|\t 3.3 ,|\t .4 ,|\t 123.456 ,|\t 3.30 ,|\t 1.0e+010 ,|\t 2.2e+11 ,|\t 3.0E+012 ,|\t 4.4E+13";
+
+   double d[10] = { 0.0 };
+
+   if (!strtk::parse(data,",|\t ",d[0],d[1],d[2],d[3],d[4],d[5],d[6],d[7],d[8],d[9]))
+   {
+      std::cout << "test_parse2() - parse double fail" << std::endl;
+      return false;
+   }
+
+   if (d[0] !=      1.0) { std::cout << "test_parse2() double check0 " << std::endl; return false; }
+   if (d[1] !=      2.0) { std::cout << "test_parse2() double check1 " << std::endl; return false; }
+   if (d[2] !=      3.3) { std::cout << "test_parse2() double check2 " << std::endl; return false; }
+   if (d[3] !=      0.4) { std::cout << "test_parse2() double check3 " << std::endl; return false; }
+   if (d[4] !=  123.456) { std::cout << "test_parse2() double check4 " << std::endl; return false; }
+   if (d[5] !=      3.3) { std::cout << "test_parse2() double check5 " << std::endl; return false; }
+   if (d[6] != 1.0e+010) { std::cout << "test_parse2() double check6 " << std::endl; return false; }
+   if (d[7] != 2.2e+011) { std::cout << "test_parse2() double check7 " << std::endl; return false; }
+   if (d[8] != 3.0e+012) { std::cout << "test_parse2() double check8 " << std::endl; return false; }
+   if (d[9] != 4.4e+013) { std::cout << "test_parse2() double check9 " << std::endl; return false; }
+
+
+   float f[10]  = { 0.0 };
+
+   if (!strtk::parse(data,",|\t ",f[0],f[1],f[2],f[3],f[4],f[5],f[6],f[7],f[8],f[9]))
+   {
+      std::cout << "test_parse2() - parse float fail" << std::endl;
+      return false;
+   }
+
+   if (f[0] !=      1.0f) { std::cout << "test_parse2() float check0 " << std::endl; return false; }
+   if (f[1] !=      2.0f) { std::cout << "test_parse2() float check1 " << std::endl; return false; }
+   if (f[2] !=      3.3f) { std::cout << "test_parse2() float check2 " << std::endl; return false; }
+   if (f[3] !=      0.4f) { std::cout << "test_parse2() float check3 " << std::endl; return false; }
+   if (f[4] !=  123.456f) { std::cout << "test_parse2() float check4 " << std::endl; return false; }
+   if (f[5] !=      3.3f) { std::cout << "test_parse2() float check5 " << std::endl; return false; }
+   if (f[6] != 1.0e+010f) { std::cout << "test_parse2() float check6 " << std::endl; return false; }
+   if (f[7] != 2.2e+011f) { std::cout << "test_parse2() float check7 " << std::endl; return false; }
+   if (f[8] != 3.0e+012f) { std::cout << "test_parse2() float check8 " << std::endl; return false; }
+   if (f[9] != 4.4e+013f) { std::cout << "test_parse2() float check9 " << std::endl; return false; }
+
    return true;
 }
 
@@ -554,9 +600,9 @@ bool test_replace_pattern()
                                        "abc"
                                      };
    std::string result;
-   for(std::size_t i = 0; i < sizeof(test)/sizeof(sp_type); ++i)
+   for (std::size_t i = 0; i < sizeof(test) / sizeof(sp_type); ++i)
    {
-      for(std::size_t j = 0; j < sizeof(base)/sizeof(std::string); ++j)
+      for (std::size_t j = 0; j < sizeof(base) / sizeof(std::string); ++j)
       {
          strtk::replace_pattern(base[j],test[i].first,test[i].second,result);
          if (test[i].first != test[i].second)
@@ -578,7 +624,8 @@ int main()
    assert(test_split_n());
    assert(test_empty_filter_itr());
    assert(test_construct_and_parse());
-   assert(test_parse());
+   assert(test_parse1());
+   assert(test_parse2());
    assert(test_replace_pattern());
    return 0;
 }
