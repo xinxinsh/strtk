@@ -111,7 +111,7 @@ valgrind_check :
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokengrid_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_serializer_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_randomizer
-	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_randomizer
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_random_line
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_numstats
 
 clean:
