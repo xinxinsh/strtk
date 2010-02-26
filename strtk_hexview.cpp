@@ -24,9 +24,9 @@
                 and outputs it to stdout. An example of the
                 output:
 
-   00000006d0  696474685D3B0A0A202020666F722820 idth];.....for(.
-   00000006e0  3B203B20290A2020207B0A2020202020 ;.;.)....{......
-   00000006f0  207374643A3A63696E2E726561642872 .std::cin.read(r
+   00000006D0  696474685D3B0A0A202020666F722820 idth];.....for(.
+   00000006E0  3B203B20290A2020207B0A2020202020 ;.;.)....{......
+   00000006F0  207374643A3A63696E2E726561642872 .std::cin.read(r
    0000000700  65696E746572707265745F636173743C einterpret_cast<
    0000000710  636861722A3E28627566666572292C64 char*>(buffer),d
    0000000720  6174615F7769647468293B0A20202020 ata_width);.....
@@ -37,11 +37,11 @@
    0000000770  6B3A3A636F6E766572745F62696E5F74 k::convert_bin_t
    0000000780  6F5F686578286275666665722C627566 o_hex(buffer,buf
    0000000790  666572202B20646174615F7769647468 fer.+.data_width
-   00000007a0  2C6865785F627566666572293B0A2020 ,hex_buffer);...
-   00000007b0  202020202020207374643A3A636F7574 .......std::cout
-   00000007c0  203C3C207374643A3A686578203C3C20 .<<.std::hex.<<.
-   00000007d0  7374643A3A73657466696C6C28273027 std::setfill('0'
-   00000007e0  29203C3C207374643A3A736574772831 ).<<.std::setw(1
+   00000007A0  2C6865785F627566666572293B0A2020 ,hex_buffer);...
+   00000007B0  202020202020207374643A3A636F7574 .......std::cout
+   00000007C0  203C3C207374643A3A686578203C3C20 .<<.std::hex.<<.
+   00000007D0  7374643A3A73657466696C6C28273027 std::setfill('0'
+   00000007E0  29203C3C207374643A3A736574772831 ).<<.std::setw(1
 
 */
 
@@ -71,7 +71,7 @@ int main()
       if (!(std::cin.eof() || std::cin.bad()))
       {
          strtk::convert_bin_to_hex(buffer,buffer + data_width,hex_buffer);
-         std::cout << std::hex << std::setfill('0') << std::setw(10) << current_address << "  ";
+         std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(10) << current_address << "  ";
          std::copy(hex_buffer,hex_buffer + (2 * data_width),std::ostream_iterator<unsigned char>(std::cout,""));
          std::cout << " ";
          strtk::convert_to_printable_chars(buffer,buffer + data_width);
@@ -85,7 +85,7 @@ int main()
          if (0 != (read_in_width = std::cin.gcount()))
          {
             strtk::convert_bin_to_hex(buffer,buffer + read_in_width,hex_buffer);
-            std::cout << std::hex << std::setw(10) << current_address << "  ";
+            std::cout << std::hex << std::uppercase << std::setw(10) << current_address << "  ";
             std::copy(hex_buffer,hex_buffer + (2 * read_in_width),std::ostream_iterator<unsigned char>(std::cout,""));
             std::cout << std::string(2 * (16 - read_in_width) + 1, ' ');
             strtk::convert_to_printable_chars(buffer,buffer + read_in_width);

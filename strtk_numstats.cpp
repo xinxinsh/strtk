@@ -21,7 +21,7 @@
                 input file or the stdin, outputting simple statistical
                 information regarding the rows and columns of values
                 (min, max, sum, mean, median). Tokens that can't be
-                parse into a valid double type are ignored.
+                parsed into a valid double type are ignored.
 
                 Example Input:
                  56,    62,   819,   291,    16
