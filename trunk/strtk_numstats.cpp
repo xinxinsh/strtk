@@ -44,7 +44,7 @@
 
 */
 
-
+#include <cstddef>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
@@ -55,8 +55,8 @@
 
 #include "strtk.hpp"
 
-template<class Allocator,
-         template<class,class> class Sequence>
+template<typename Allocator,
+         template<typename,typename> class Sequence>
 void compute_stats(Sequence<double,Allocator>& value_list)
 {
    //Format: min max sum mean median
@@ -66,11 +66,11 @@ void compute_stats(Sequence<double,Allocator>& value_list)
    std::cout << min_value << "\t" << max_value << "\t";
 
    double sum = std::accumulate(value_list.begin(),value_list.end(),0.0);
-   std::cout << sum  << "\t";
+   std::cout << sum << "\t";
    std::cout << sum / value_list.size()  << "\t";
 
    std::nth_element(value_list.begin(),value_list.begin() + (value_list.size() / 2), value_list.end());
-   std::cout <<  *(value_list.begin() + (value_list.size() / 2)) << "\t";
+   std::cout << *(value_list.begin() + (value_list.size() / 2)) << "\t";
 }
 
 int main(int argc, char* argv[])
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 
    for (std::size_t c = 0; c < grid.max_column_count(); ++c)
    {
-      std::cout << "C["<< c << "]"  << "\t";
+      std::cout << "C["<< c << "]" << "\t";
       value_list.clear();
       grid.extract_column_checked(c,value_list);
       compute_stats(value_list);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 
    for (std::size_t r = 0; r < grid.row_count(); ++r)
    {
-      std::cout << "R["<< r << "]"  << "\t";
+      std::cout << "R["<< r << "]" << "\t";
       value_list.clear();
       grid.row(r).parse_checked(value_list);
       compute_stats(value_list);

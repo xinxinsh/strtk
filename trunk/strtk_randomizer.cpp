@@ -24,6 +24,7 @@
 */
 
 
+#include <cstddef>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -58,6 +59,9 @@ int main(int argc, char* argv[])
       strtk::random_permutation(str_lst.begin(),str_lst.end(),
                                 std::ostream_iterator<std::string>(std::cout,"\n"),
                                 static_cast<std::size_t>(::time(0)));
+      #else
+      std::copy(str_lst.begin(),str_lst.end(),
+                std::ostream_iterator<std::string>(std::cout,"\n"));
       #endif
    }
    return 0;

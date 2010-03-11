@@ -16,6 +16,7 @@
 */
 
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <iterator>
@@ -553,6 +554,7 @@ void generate_random_example01()
 
 void generate_random_example02()
 {
+   #ifdef ENABLE_RANDOM
    std::deque<int> rnd_int_list;
    strtk::generate_random_values<int>(5,-5,+5,rnd_int_list);
 
@@ -569,6 +571,7 @@ void generate_random_example02()
    std::cout << strtk::join(" ",rnd_uint_list) << std::endl;
    std::cout << strtk::join(" ",rnd_double_list) << std::endl;
    std::cout << strtk::join(" ",rnd_float_list) << std::endl;
+   #endif
 }
 
 void random_permutation_example()
