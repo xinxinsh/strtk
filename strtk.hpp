@@ -14,8 +14,10 @@
  *******************************************************************
 */
 
+
 #ifndef INCLUDE_STRTK_HPP
 #define INCLUDE_STRTK_HPP
+
 
 #include <cstddef>
 #include <cctype>
@@ -26,12 +28,14 @@
 #include <limits>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <deque>
 #include <list>
 #include <set>
+
 
 #define ENABLE_LEXICAL_CAST
 #ifdef ENABLE_LEXICAL_CAST
@@ -51,6 +55,7 @@
    #include <boost/regex.hpp>
    //#include <regex>
 #endif
+
 
 namespace strtk
 {
@@ -2371,45 +2376,6 @@ namespace strtk
          ++match_count;
       }
       return match_count;
-   }
-
-   template<typename InputIterator, typename DelimiterPredicate>
-   inline std::size_t count_tokens(const InputIterator begin,
-                                   const InputIterator end,
-                                   const DelimiterPredicate& delimiter,
-                                   const split_options::type& split_option = split_options::default_mode)
-   {
-      if (0 == std::distance(begin,end)) return 0;
-      std::size_t token_count = 0;
-      std::pair<InputIterator,InputIterator> range(begin,begin);
-      while (end != range.second)
-      {
-        if (delimiter(*range.second))
-        {
-           if (split_option & split_options::include_delimiters)
-           {
-              ++range.second;
-              if (split_option & split_options::compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second));
-           }
-           else
-           {
-              if (split_option & split_options::compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second));
-              else
-                 ++range.second;
-           }
-           ++token_count;
-           range.first = range.second;
-        }
-        else
-           ++range.second;
-      }
-      if ((range.first != range.second) || delimiter(*(range.second - 1)))
-      {
-         ++token_count;
-      }
-      return token_count;
    }
 
    template<typename InputIterator>
@@ -7050,10 +7016,19 @@ namespace strtk
             {
                return false;
             }
-            return true;
          #else
-            return false;
+            try
+            {
+               std::stringstream ss;
+               ss << t;
+               s = ss.str();
+            }
+            catch (const std::exception&)
+            {
+               return false;
+            }
          #endif
+         return true;
       }
 
       template<typename T>

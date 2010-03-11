@@ -37,37 +37,22 @@ struct parse_line
 {
 public:
 
-   parse_line(Container& c, const Predicate& p)
-   : c_(c),
-     p_(p)
+   parse_line(Container& c, Predicate& p)
+   : c_(&c),
+     p_(&p)
    {}
-
-   parse_line(const parse_line& pl)
-   : c_(pl.c_),
-     p_(pl.p_)
-   {}
-
-   parse_line& operator=(const parse_line& pl)
-   {
-      if (this != &pl)
-      {
-         c_ = pl.c_;
-         p_ = pl.p_;
-      }
-      return *this;
-   }
 
    inline void operator()(const std::string& s)
    {
-      strtk::split(p_,
-                   s,
-                   strtk::range_to_type_back_inserter(c_),
-                   strtk::split_options::compress_delimiters);
+      strtk::split(*p_,
+                    s,
+                    strtk::range_to_type_back_inserter(*c_),
+                    strtk::split_options::compress_delimiters);
    }
 
 private:
-   Container& c_;
-   const Predicate& p_;
+   Container* c_;
+   Predicate* p_;
 };
 
 template<typename Container>

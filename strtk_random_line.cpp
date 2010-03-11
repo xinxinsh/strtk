@@ -26,6 +26,7 @@
 */
 
 
+#include <cstddef>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -37,6 +38,10 @@
 
 
 #include "strtk.hpp"
+
+#ifndef ENABLE_RANDOM
+   #error This module requires random
+#endif
 
 class random_line_selector
 {
@@ -65,7 +70,7 @@ private:
 
 int main(int argc, char* argv[])
 {
-   if (argc != 2)
+   if (2 != argc)
    {
       std::cout << "usage: strtk_random_line <file name>" << std::endl;
       return 1;

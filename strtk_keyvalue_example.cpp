@@ -30,33 +30,19 @@ struct key_value_parser
 public:
 
    key_value_parser(Container& c, const std::string& delimiters)
-   : c_(c),
+   : c_(&c),
      delimiters_(delimiters){}
-
-   key_value_parser(const key_value_parser& kvp)
-   : c_(kvp.c_),
-     delimiters_(kvp.delimiters_)
-   {}
-
-   key_value_parser& operator=(const key_value_parser& kvp)
-   {
-      if (this != &kvp)
-      {
-         c_ = kvp.c_;
-         delimiters_ = kvp.delimiters_;
-      }
-      return *this;
-   }
 
    void operator()(const strtk::std_string::tokenizer<>::iterator_type& it)
    {
       std::pair<std::string,std::string> kv;
       strtk::parse(it.first,it.second,delimiters_,kv.first,kv.second);
-      c_.push_back(kv);
+      c_->push_back(kv);
    }
 
 private:
-   Container& c_;
+
+   Container* c_;
    std::string delimiters_;
 };
 

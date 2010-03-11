@@ -260,7 +260,6 @@ bool test04(char* buffer, const unsigned int buffer_size)
    return true;
 }
 
-
 int main()
 {
    static const std::size_t max_buffer_size = 64 * strtk::one_kilobyte; // 64KB
