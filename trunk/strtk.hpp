@@ -351,7 +351,8 @@ namespace strtk
      {
         while (sequence.end() != itr)
         {
-           stream << *itr++ << delimiter;
+           stream << *itr << delimiter;
+           ++itr;
            ++count;
         }
      }
@@ -359,7 +360,8 @@ namespace strtk
      {
         while (sequence.end() != itr)
         {
-           stream << *itr++;
+           stream << *itr;
+           ++itr;
            ++count;
         }
      }
@@ -380,7 +382,8 @@ namespace strtk
      {
         while (set.end() != itr)
         {
-           stream << *itr++ << delimiter;
+           stream << *itr << delimiter;
+           ++itr;
            ++count;
         }
      }
@@ -388,7 +391,8 @@ namespace strtk
      {
         while (set.end() != itr)
         {
-           stream << *itr++;
+           stream << *itr;
+           ++itr;
            ++count;
         }
      }
@@ -475,10 +479,11 @@ namespace strtk
       InputIterator itr = begin;
       while (end != itr)
       {
-         if (!predicate(*itr++))
+         if (!predicate(*itr))
          {
             return false;
          }
+         ++itr;
       }
       return true;
    }
@@ -7632,9 +7637,9 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const Sequence<T,Allocator>& sequence)
       {
-         for (typename Sequence<T,Allocator>::iterator it = sequence.begin(); it != sequence.end(); ++it)
+         for (typename Sequence<T,Allocator>::iterator itr = sequence.begin(); itr != sequence.end(); ++itr)
          {
-            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*it)),static_cast<std::streamsize>(sizeof(T)));
+            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
          }
       }
 
@@ -7644,9 +7649,9 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const std::set<T,Comparator,Allocator>& set)
       {
-         for (typename std::set<T,Comparator,Allocator>::iterator it = set.begin(); it != set.end(); ++it)
+         for (typename std::set<T,Comparator,Allocator>::iterator itr = set.begin(); itr != set.end(); ++itr)
          {
-            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*it)),static_cast<std::streamsize>(sizeof(T)));
+            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
          }
       }
 
