@@ -527,7 +527,7 @@ void remove_leading_example()
 void uri_extractor_example01()
 {
    #ifdef ENABLE_REGEX
-   std::string text = "someone@somewhere.com http://www.test.net any.one@any.where.com ftp://123.abcxyz.org";
+   std::string text = "someone@somewhere.com http://www.test.net some.place.com any.one@any.where.com ftp://123.abcxyz.org";
    std::list<std::string> email_list;
    std::list<std::string> url_list;
    strtk::split_regex(strtk::email_expression,text,std::back_inserter(email_list));
