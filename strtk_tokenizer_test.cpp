@@ -514,6 +514,7 @@ bool test_parse1()
       std::cout << "test_parse() - parse fail 2" << std::endl;
       return false;
    }
+
    return true;
 }
 
@@ -562,6 +563,46 @@ bool test_parse2()
 
    return true;
 }
+
+bool test_parse3()
+{
+
+   std::string data = "123.456e3,123.456E3 123.456e+3,123.456E+3 123.456e03              "
+                      "123.456E03, 123.456e+03 123.456E+03,123.456e0003|123.456E0003,    "
+                      "123.456e+0003 123.456E+0003,|123.4560e3 123.45600E3, 123.456000e+3"
+                      "123.456000E+3,|123.4560000e03 123.45600000E03, 123.456000000e+03  "
+                      "123.4560000000E+03,123.45600000000e0003|123.456000000000E0003,    "
+                      "123.4560000000000e+0003 123.45600000000000E+0003                  ";
+
+   std::vector<double> double_list;
+
+   if (!strtk::parse(data,",|\t ",double_list))
+   {
+      std::cout << "test_parse2() - parse double fail" << std::endl;
+      return false;
+   }
+
+   for(std::size_t i = 0; i < double_list.size(); ++i)
+   {
+      if (123.456e3 != double_list[i]) { std::cout << "test_parse3() double check[" << i << "] " << std::endl; return false; }
+   }
+
+   std::vector<float> float_list;
+
+   if (!strtk::parse(data,",|\t ",float_list))
+   {
+      std::cout << "test_parse3() - parse float fail" << std::endl;
+      return false;
+   }
+
+   for(std::size_t i = 0; i < float_list.size(); ++i)
+   {
+      if (123.456e3f != float_list[i]) { std::cout << "test_parse3() float check[" << i << "] " << std::endl; return false; }
+   }
+
+   return  true;
+}
+
 
 bool test_replace_pattern()
 {
@@ -626,6 +667,7 @@ int main()
    assert(test_construct_and_parse());
    assert(test_parse1());
    assert(test_parse2());
+   assert(test_parse3());
    assert(test_replace_pattern());
    return 0;
 }

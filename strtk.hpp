@@ -249,7 +249,7 @@ namespace strtk
    template<typename T>
    inline bool string_to_type_converter(const std::string& s, T& t)
    {
-      return string_to_type_converter<T>(s.c_str(),s.c_str() + s.size(),t);
+      return string_to_type_converter<const char*, T>(s.c_str(),s.c_str() + s.size(),t);
    }
 
    template<typename T>
@@ -7052,13 +7052,7 @@ namespace strtk
          while (value);
          result.resize(std::distance(result.c_str(),const_cast<const char*>(itr)));
          itr = const_cast<char*>(result.c_str());
-         char* itr2 = itr + (result.size() - 1);
-         while (itr < itr2)
-         {
-            std::swap(*itr,*itr2);
-            ++itr;
-            --itr2;
-         }
+         std::reverse(itr,itr + result.size());
          return true;
       }
 
@@ -7081,13 +7075,7 @@ namespace strtk
          if (negative) *(itr++) = '-';
          result.resize(std::distance(result.c_str(),const_cast<const char*>(itr)));
          itr = const_cast<char*>(result.c_str());
-         char* itr2 = itr + (result.size() - 1);
-         while (itr < itr2)
-         {
-            std::swap(*itr,*itr2);
-            ++itr;
-            --itr2;
-         }
+         std::reverse(itr,itr + result.size());
          return true;
       }
 
