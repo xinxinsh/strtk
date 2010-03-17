@@ -44,7 +44,6 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/spirit/include/karma.hpp>
 
 #ifdef WIN32
  #include <windows.h>
