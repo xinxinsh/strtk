@@ -27,9 +27,14 @@
                 Running time is measured around the tokenization
                 loop, and printed out along with a measure indicating
                 the average number of tokens parsed per second.
+                Furthermore, the tests include a simple comparison
+                of integer to string and vice-versa conversions routines
+                between standard library, BOOST and String Toolkit.
 */
 
 
+#include <cstddef>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <iterator>
@@ -39,6 +44,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/spirit/include/karma.hpp>
 
 #ifdef WIN32
  #include <windows.h>
@@ -179,6 +185,27 @@ void boost_split_timed_test()
           token_list.size() / (1.0 * t.time()));
 }
 
+void sprintf_lexical_cast_test_i2s()
+{
+   printf("[sprintf] "); fflush(stdout);
+   std::string s;
+   s.reserve(32);
+   const std::size_t max = 10000000;
+   std::size_t total_length = 0;
+   timer t;
+   t.start();
+   for(std::size_t i = 0; i < max; ++i)
+   {
+      s.resize(sprintf(const_cast<char*>(s.c_str()),"%d",i));
+      total_length += s.size();
+   }
+   t.stop();
+   printf("Numbers: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          max,
+          t.time(),
+          max / (1.0 * t.time()));
+}
+
 void boost_lexical_cast_test_i2s()
 {
    printf("[boost] "); fflush(stdout);
@@ -266,6 +293,30 @@ static const std::string strint_list[] =
              };
 static const std::size_t strint_list_size = sizeof(strint_list) / sizeof(std::string);
 
+void atoi_lexical_cast_test_s2i()
+{
+   printf("[atoi] "); fflush(stdout);
+   const std::size_t rounds = 100000;
+   std::size_t total = 0;
+   int n = 0;
+   timer t;
+   t.start();
+   for(std::size_t x = 0; x < rounds; ++x)
+   {
+      for(std::size_t i = 0; i < strint_list_size; ++i)
+      {
+         n = ::atoi(strint_list[i].c_str());
+         total += n;
+      }
+   }
+   t.stop();
+   printf("Numbers: %d\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          rounds * strint_list_size,
+          total,
+          t.time(),
+          (rounds * strint_list_size) / (1.0 * t.time()));
+}
+
 void boost_lexical_cast_test_s2i()
 {
    printf("[boost] "); fflush(stdout);
@@ -322,10 +373,12 @@ int main()
    std::cout << "Split Test" << std::endl;
    boost_split_timed_test();
    strtk_split_timed_test();
-   std::cout << "Int To String Test" << std::endl;
+   std::cout << "Integer To String Test" << std::endl;
+   sprintf_lexical_cast_test_i2s();
    boost_lexical_cast_test_i2s();
    strtk_lexical_cast_test_i2s();
-   std::cout << "String To Int Test" << std::endl;
+   std::cout << "String To Integer Test" << std::endl;
+   atoi_lexical_cast_test_s2i();
    boost_lexical_cast_test_s2i();
    strtk_lexical_cast_test_s2i();
    return 0;
