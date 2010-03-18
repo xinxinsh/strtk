@@ -6897,7 +6897,7 @@ namespace strtk
             {
                t = boost::lexical_cast<T>(std::string(begin,end));
             }
-            catch(boost::bad_lexical_cast&)
+            catch (const boost::bad_lexical_cast&)
             {
                return false;
             }
@@ -7017,7 +7017,7 @@ namespace strtk
             {
                s = boost::lexical_cast<std::string>(t);
             }
-            catch(boost::bad_lexical_cast&)
+            catch (const boost::bad_lexical_cast&)
             {
                return false;
             }
@@ -7063,7 +7063,8 @@ namespace strtk
             result.resize(3 * sizeof(value) + 1);
          char* itr = const_cast<char*>(result.c_str());
          bool negative = (value < 0);
-         value = static_cast<T>(std::abs(value));
+         if (negative)
+            value = static_cast<T>(std::abs(value));
          int tmp_value = value;
          do
          {
@@ -7603,7 +7604,6 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2)
       {
-
          stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
       }
 

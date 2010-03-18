@@ -28,8 +28,8 @@
                 loop, and printed out along with a measure indicating
                 the average number of tokens parsed per second.
                 Furthermore, the tests include a simple comparison
-                of integer to string and vice-versa conversions routines
-                between standard library, BOOST and String Toolkit.
+                of integer to string and vice-versa conversion routines
+                between the standard library, BOOST and String Toolkit.
 */
 
 
@@ -106,14 +106,14 @@ void strtk_tokenizer_timed_test()
    for (unsigned int i = 0; i < replicate_count; ++i) s += base;
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate);
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator it = tokenizer.begin();
+   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator itr = tokenizer.begin();
    unsigned int token_count = 0;
    timer t;
    t.start();
-   while (it != tokenizer.end())
+   while (itr != tokenizer.end())
    {
-      so += std::string((*it).first,(*it).second);
-      ++it;
+      so += std::string((*itr).first,(*itr).second);
+      ++itr;
       ++token_count;
    }
    t.stop();
@@ -133,14 +133,14 @@ void boost_tokenizer_timed_test()
    for (unsigned int i = 0; i < replicate_count; ++i) s += base;
    typedef boost::tokenizer<boost::char_separator<char> > tokenizer_type;
    tokenizer_type tokenizer(s,boost::char_separator<char>(delimiters.c_str()));
-   tokenizer_type::iterator it = tokenizer.begin();
+   tokenizer_type::iterator itr = tokenizer.begin();
    unsigned int token_count = 0;
    timer t;
    t.start();
-   while (it != tokenizer.end())
+   while (itr != tokenizer.end())
    {
-      so += *it;
-      ++it;
+      so += *itr;
+      ++itr;
       ++token_count;
    }
    t.stop();
@@ -193,14 +193,15 @@ void sprintf_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for(std::size_t i = 0; i < max; ++i)
+   for (std::size_t i = 0; i < max; ++i)
    {
       s.resize(sprintf(const_cast<char*>(s.c_str()),"%d",i));
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %d\tTotal length: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           max,
+          total_length,
           t.time(),
           max / (1.0 * t.time()));
 }
@@ -214,14 +215,15 @@ void boost_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for(std::size_t i = 0; i < max; ++i)
+   for (std::size_t i = 0; i < max; ++i)
    {
       s = boost::lexical_cast<std::string>(i);
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %d\tTotal length: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           max,
+          total_length,
           t.time(),
           max / (1.0 * t.time()));
 }
@@ -235,14 +237,15 @@ void strtk_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for(std::size_t i = 0; i < max; ++i)
+   for (std::size_t i = 0; i < max; ++i)
    {
       strtk::type_to_string(i,s);
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %d\tTotal length: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           max,
+          total_length,
           t.time(),
           max / (1.0 * t.time()));
 }
@@ -300,9 +303,9 @@ void atoi_lexical_cast_test_s2i()
    int n = 0;
    timer t;
    t.start();
-   for(std::size_t x = 0; x < rounds; ++x)
+   for (std::size_t x = 0; x < rounds; ++x)
    {
-      for(std::size_t i = 0; i < strint_list_size; ++i)
+      for (std::size_t i = 0; i < strint_list_size; ++i)
       {
          n = ::atoi(strint_list[i].c_str());
          total += n;
@@ -324,9 +327,9 @@ void boost_lexical_cast_test_s2i()
    int n = 0;
    timer t;
    t.start();
-   for(std::size_t x = 0; x < rounds; ++x)
+   for (std::size_t x = 0; x < rounds; ++x)
    {
-      for(std::size_t i = 0; i < strint_list_size; ++i)
+      for (std::size_t i = 0; i < strint_list_size; ++i)
       {
          n = boost::lexical_cast<int>(strint_list[i]);
          total += n;
@@ -348,9 +351,9 @@ void strtk_lexical_cast_test_s2i()
    int n = 0;
    timer t;
    t.start();
-   for(std::size_t x = 0; x < rounds; ++x)
+   for (std::size_t x = 0; x < rounds; ++x)
    {
-      for(std::size_t i = 0; i < strint_list_size; ++i)
+      for (std::size_t i = 0; i < strint_list_size; ++i)
       {
          strtk::string_to_type_converter(strint_list[i],n);
          total += n;

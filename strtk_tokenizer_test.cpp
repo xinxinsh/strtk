@@ -572,7 +572,8 @@ bool test_parse3()
                       "123.456e+0003 123.456E+0003,|123.4560e3 123.45600E3, 123.456000e+3"
                       "123.456000E+3,|123.4560000e03 123.45600000E03, 123.456000000e+03  "
                       "123.4560000000E+03,123.45600000000e0003|123.456000000000E0003,    "
-                      "123.4560000000000e+0003 123.45600000000000E+0003                  ";
+                      "123.4560000000000e+0003 123.45600000000000E+0003                  "
+                      "0123.456e+003 00123.456E+003,| 000123.45600E3, 000000123.456e+0003";
 
    std::vector<double> double_list;
 
@@ -584,7 +585,11 @@ bool test_parse3()
 
    for(std::size_t i = 0; i < double_list.size(); ++i)
    {
-      if (123.456e3 != double_list[i]) { std::cout << "test_parse3() double check[" << i << "] " << std::endl; return false; }
+      if (123.456e3 != double_list[i])
+      {
+         std::cout << "test_parse3() double check[" << i << "] " << std::endl;
+         return false;
+      }
    }
 
    std::vector<float> float_list;
@@ -597,12 +602,15 @@ bool test_parse3()
 
    for(std::size_t i = 0; i < float_list.size(); ++i)
    {
-      if (123.456e3f != float_list[i]) { std::cout << "test_parse3() float check[" << i << "] " << std::endl; return false; }
+      if (123.456e3f != float_list[i])
+      {
+         std::cout << "test_parse3() float check[" << i << "] " << std::endl;
+         return false;
+      }
    }
 
    return  true;
 }
-
 
 bool test_replace_pattern()
 {
