@@ -504,6 +504,7 @@ namespace strtk
       }
 
    private:
+
       T delimiter_;
    };
 
@@ -556,6 +557,7 @@ namespace strtk
       multiple_delimiter_predicate operator=(const multiple_delimiter_predicate<T>& mdp);
 
    private:
+
       std::size_t length_;
       T* delimiter_;
       T* delimiter_end_;
@@ -587,6 +589,7 @@ namespace strtk
       }
 
    private:
+
       static const std::size_t table_size = 256;
 
       template<typename Iterator>
@@ -1467,6 +1470,7 @@ namespace strtk
       }
 
    private:
+
       iterator begin_;
       iterator end_;
    };
@@ -1528,6 +1532,7 @@ namespace strtk
       }
 
    private:
+
       Sequence& sequence_;
    };
 
@@ -1594,6 +1599,7 @@ namespace strtk
       }
 
    private:
+
       Set& set_;
    };
 
@@ -1657,6 +1663,7 @@ namespace strtk
       }
 
    private:
+
       Sequence& sequence_;
    };
 
@@ -1719,6 +1726,7 @@ namespace strtk
       }
 
    private:
+
       Set& set_;
    };
 
@@ -1777,6 +1785,7 @@ namespace strtk
       }
 
    private:
+
       std::size_t& counter_;
    };
 
@@ -2256,6 +2265,7 @@ namespace strtk
       }
 
    private:
+
       bool rotate_;
       mutable std::size_t current_index_;
       int offset_list_[offset_list_size + 1];
@@ -3250,6 +3260,7 @@ namespace strtk
       class row_type
       {
       private:
+
          typedef std::pair<bool,row_type*> row_pair_type;
 
       public:
@@ -4506,6 +4517,7 @@ namespace strtk
       }
 
    private:
+
       OutputIterator out_;
    };
 
@@ -4608,6 +4620,7 @@ namespace strtk
             return;
          }
       }
+
    private:
 
       filter_on_match& operator=(const filter_on_match& fom);
@@ -5820,7 +5833,8 @@ namespace strtk
          return t_;
       }
 
-      private:
+   private:
+
       std::size_t count_;
       std::size_t interval_;
       T t_;
@@ -6070,6 +6084,7 @@ namespace strtk
    }
 
    private:
+
       rng_type rng_;
       variate_type rnd_;
    };
@@ -6633,6 +6648,7 @@ namespace strtk
    {
       // static_assert for T either int or unsigned int and alike (could use a concept)
    private:
+
       class base64_value_check
       {
       public:
@@ -6718,6 +6734,7 @@ namespace strtk
       }
 
    private:
+
       bool valid_;
       T* t_;
    };
@@ -7788,10 +7805,45 @@ namespace strtk
       return hash_value;
    }
 
+   template<typename Key,
+            typename T,
+            typename Comparator,
+            typename MapAllocator,
+            typename SetAllocator>
+   void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                      std::set<Key,Comparator,SetAllocator>& set)
+   {
+      if (map.empty()) return;
+      typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
+      typename map_type::const_iterator itr = map.begin();
+      while (map.end() != itr)
+      {
+         set.insert((itr++)->first);
+      }
+   }
+
+   template<typename Key,
+            typename T,
+            typename Comparator,
+            typename MapAllocator,
+            typename SequenceAllocator,
+            template<typename,typename> class Sequence>
+   void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                      Sequence<Key,SequenceAllocator>& sequence)
+   {
+      if (map.empty()) return;
+      typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
+      typename map_type::const_iterator itr = map.begin();
+      while (map.end() != itr)
+      {
+         sequence.push_back((itr++)->first);
+      }
+   }
+
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.718281828459";
+      static const char* version = "2.71828182845904";
       static const char* date    = "20100130";
       static const char* epoch   = "Pre-C++0x 3D354316:1E231C0A";
 

@@ -24,6 +24,7 @@
 #include <deque>
 #include <list>
 #include <set>
+#include <map>
 #include "strtk.hpp"
 
 void tokenizer_example01()
@@ -832,6 +833,30 @@ void build_string_example()
    func(strtk::build_string() << "ABC " << 123 << " " << 456.789);
 }
 
+void make_key_lists()
+{
+   std::map<std::string,int> map;
+   map["zero"]  = 0;
+   map["one"]   = 1;
+   map["two"]   = 2;
+   map["three"] = 3;
+   map["four"]  = 4;
+   map["five"]  = 5;
+
+   std::set<std::string> key_set;
+   std::vector<std::string> key_vec;
+   std::deque<std::string> key_deq;
+   std::list<std::string> key_lst;
+
+   strtk::make_key_list(map,key_set);
+   strtk::make_key_list(map,key_vec);
+   strtk::make_key_list(map,key_deq);
+
+   std::cout << "Keys(set): " << strtk::join(", ",key_set) << std::endl;
+   std::cout << "Keys(vec): " << strtk::join(", ",key_vec) << std::endl;
+   std::cout << "Keys(deq): " << strtk::join(", ",key_deq) << std::endl;
+}
+
 int main()
 {
    tokenizer_example01();
@@ -885,5 +910,6 @@ int main()
    bracketize_example();
    cut_example();
    build_string_example();
+   make_key_lists();
    return 0;
 }
