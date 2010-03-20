@@ -117,7 +117,7 @@ void strtk_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("Token Count: %d\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
           token_count,
           t.time(),
           token_count / (1.0 * t.time()));
@@ -144,7 +144,7 @@ void boost_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("Token Count: %d\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
           token_count,
           t.time(),
           token_count / (1.0 * t.time()));
@@ -161,7 +161,7 @@ void strtk_split_timed_test()
    t.start();
    strtk::parse(s,delimiters,token_list);
    t.stop();
-   printf("Token Count: %d\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
           token_list.size(),
           t.time(),
           token_list.size() / (1.0 * t.time()));
@@ -178,7 +178,7 @@ void boost_split_timed_test()
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
    t.stop();
-   printf("Token Count: %d\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
           token_list.size(),
           t.time(),
           token_list.size() / (1.0 * t.time()));
@@ -193,13 +193,13 @@ void sprintf_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (std::size_t i = 0; i < max; ++i)
+   for (int i = 0; i < max; ++i)
    {
       s.resize(sprintf(const_cast<char*>(s.c_str()),"%d",i));
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %d\tTotal length: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           max,
           total_length,
           t.time(),
@@ -215,13 +215,13 @@ void boost_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (std::size_t i = 0; i < max; ++i)
+   for (int i = 0; i < max; ++i)
    {
       s = boost::lexical_cast<std::string>(i);
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %d\tTotal length: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           max,
           total_length,
           t.time(),
@@ -237,13 +237,13 @@ void strtk_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (std::size_t i = 0; i < max; ++i)
+   for (int i = 0; i < max; ++i)
    {
       strtk::type_to_string(i,s);
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %d\tTotal length: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           max,
           total_length,
           t.time(),
@@ -299,7 +299,7 @@ void atoi_lexical_cast_test_s2i()
 {
    printf("[atoi] "); fflush(stdout);
    const std::size_t rounds = 100000;
-   std::size_t total = 0;
+   int total = 0;
    int n = 0;
    timer t;
    t.start();
@@ -312,7 +312,7 @@ void atoi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %d\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           rounds * strint_list_size,
           total,
           t.time(),
@@ -323,7 +323,7 @@ void boost_lexical_cast_test_s2i()
 {
    printf("[boost] "); fflush(stdout);
    const std::size_t rounds = 100000;
-   std::size_t total = 0;
+   int total = 0;
    int n = 0;
    timer t;
    t.start();
@@ -336,7 +336,7 @@ void boost_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %d\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           rounds * strint_list_size,
           total,
           t.time(),
@@ -347,7 +347,7 @@ void strtk_lexical_cast_test_s2i()
 {
    printf("[strtk] "); fflush(stdout);
    const std::size_t rounds = 100000;
-   std::size_t total = 0;
+   int total = 0;
    int n = 0;
    timer t;
    t.start();
@@ -360,7 +360,7 @@ void strtk_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %d\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           rounds * strint_list_size,
           total,
           t.time(),
