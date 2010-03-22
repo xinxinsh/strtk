@@ -127,7 +127,7 @@ void boost_tokenizer_timed_test()
 {
    printf("[boost] "); fflush(stdout);
    std::string s = "";
-   std::string so  ="";
+   std::string so = "";
    s.reserve(base.size() * replicate_count);
    so.reserve(s.size());
    for (unsigned int i = 0; i < replicate_count; ++i) s += base;
