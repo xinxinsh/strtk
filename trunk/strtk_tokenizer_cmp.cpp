@@ -193,7 +193,7 @@ void sprintf_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (int i = 0; i < max; ++i)
+   for (int i = 0; i < static_cast<int>(max); ++i)
    {
       s.resize(sprintf(const_cast<char*>(s.c_str()),"%d",i));
       total_length += s.size();
@@ -215,7 +215,7 @@ void boost_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (int i = 0; i < max; ++i)
+   for (int i = 0; i < static_cast<int>(max); ++i)
    {
       s = boost::lexical_cast<std::string>(i);
       total_length += s.size();
@@ -237,7 +237,7 @@ void strtk_lexical_cast_test_i2s()
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (int i = 0; i < max; ++i)
+   for (int i = 0; i < static_cast<int>(max); ++i)
    {
       strtk::type_to_string(i,s);
       total_length += s.size();
