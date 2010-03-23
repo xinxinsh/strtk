@@ -1,6 +1,6 @@
 /*
  *******************************************************************
- *                       String Tool Kit Library                   *
+ *                     String Toolkit Library                      *
  *                                                                 *
  * Text Parser Example 02                                          *
  * Author: Arash Partow (2002-2010)                                *
@@ -33,11 +33,13 @@
 
 #include "strtk.hpp"
 
-const unsigned int list_size = 17;
-const std::string not_of_interest_list [list_size] = { "as", "at", "but", "by", "for",
-                                                       "in", "like", "next", "of", "on",
-                                                       "opposite", "out", "past", "to",
-                                                       "up", "via", ""};
+const std::string not_of_interest_list [] = { "as", "at", "but", "by", "for",
+                                              "in", "like", "next", "of", "on",
+                                              "opposite", "out", "past", "to",
+                                              "up", "via", ""};
+
+const std::size_t not_of_interest_list_size = sizeof(not_of_interest_list) / sizeof(std::string);
+
 
 template<typename Container, typename Predicate>
 struct parse_line
@@ -52,7 +54,7 @@ public:
      tmp_(""),
      tokenizer_(tmp_,p_,true),
      filter_(reinterpret_cast<const std::string*>(not_of_interest_list),
-             reinterpret_cast<const std::string*>(not_of_interest_list + list_size),
+             reinterpret_cast<const std::string*>(not_of_interest_list + not_of_interest_list_size),
              strtk::range_to_type_back_inserter(c_),
              true,
              false)

@@ -1,6 +1,6 @@
 /*
  *******************************************************************
- *                       String Tool Kit Library                   *
+ *                     String Toolkit Library                      *
  *                                                                 *
  * Random Line Selection                                           *
  * Author: Arash Partow (2002-2010)                                *
@@ -40,7 +40,7 @@
 #include "strtk.hpp"
 
 #ifndef ENABLE_RANDOM
-   #error This module requires random
+   #error This example requires random
 #endif
 
 class random_line_selector

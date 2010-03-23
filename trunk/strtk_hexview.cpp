@@ -1,6 +1,6 @@
 /*
  *******************************************************************
- *                       String Tool Kit Library                   *
+ *                     String Toolkit Library                      *
  *                                                                 *
  * Hex-Viewer                                                      *
  * Author: Arash Partow (2002-2010)                                *
@@ -71,9 +71,14 @@ int main()
       if (!(std::cin.eof() || std::cin.bad()))
       {
          strtk::convert_bin_to_hex(buffer,buffer + data_width,hex_buffer);
+         //print the address offset
          std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(10) << current_address << "  ";
+
+         //print the hexadecimal representation
          std::copy(hex_buffer,hex_buffer + (2 * data_width),std::ostream_iterator<unsigned char>(std::cout,""));
          std::cout << " ";
+
+         //print the printable view representation
          strtk::convert_to_printable_chars(buffer,buffer + data_width);
          std::copy(buffer,buffer + data_width,std::ostream_iterator<unsigned char>(std::cout,""));
          std::cout << std::endl;
