@@ -1,6 +1,6 @@
 /*
  *******************************************************************
- *                       String Tool Kit Library                   *
+ *                     String Toolkit Library                      *
  *                                                                 *
  * String Toolkit Tokenizer vs BOOST Tokenizer                     *
  * Author: Arash Partow - 2003                                     *

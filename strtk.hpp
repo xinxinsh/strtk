@@ -1,6 +1,6 @@
 /*
  *******************************************************************
- *                       String Tool Kit Library                   *
+ *                     String Toolkit Library                      *
  *                                                                 *
  * Author: Arash Partow (2002-2010)                                *
  * URL: http://www.partow.net/programming/strtk/index.html         *
@@ -7335,9 +7335,9 @@ namespace strtk
          return true;
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7, typename T8,
-                typename T9, typename T10>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8,
+               typename T9, typename T10>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8,
@@ -7355,9 +7355,9 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t10),static_cast<std::streamsize>(sizeof(T10)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7, typename T8,
-                typename T9>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8,
+               typename T9>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8,
@@ -7374,8 +7374,8 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t9),static_cast<std::streamsize>(sizeof(T9)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7, typename T8>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8)
@@ -7390,8 +7390,8 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t8),static_cast<std::streamsize>(sizeof(T8)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7)
@@ -7405,8 +7405,8 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t7),static_cast<std::streamsize>(sizeof(T7)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6)
@@ -7419,8 +7419,8 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5)
@@ -7432,7 +7432,7 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4>
+      template<typename T1, typename T2, typename T3, typename T4>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4)
       {
@@ -7442,7 +7442,7 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
       }
 
-      template< typename T1, typename T2, typename T3>
+      template<typename T1, typename T2, typename T3>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3)
       {
@@ -7451,7 +7451,7 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
       }
 
-      template< typename T1, typename T2>
+      template<typename T1, typename T2>
       inline void read_pod(std::ifstream& stream,
                            T1& t1, T2& t2)
       {
@@ -7459,16 +7459,16 @@ namespace strtk
          stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
       }
 
-      template< typename T>
+      template<typename T>
       inline void read_pod(std::ifstream& stream, T& t)
       {
          stream.read(reinterpret_cast<char*>(&t),sizeof(T));
       }
 
-      template< typename T>
-      inline void read_pod(std::ifstream& stream, T t[], const std::size_t length)
+      template<typename T, std::size_t N>
+      inline void read_pod(std::ifstream& stream, T (&t)[N])
       {
-         stream.read(reinterpret_cast<char*>(&t[0]),sizeof(T) * length);
+         stream.read(reinterpret_cast<char*>(&t[0]),sizeof(T) * N);
       }
 
       template<typename T,
@@ -7501,9 +7501,9 @@ namespace strtk
          }
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7, typename T8,
-                typename T9, typename T10>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8,
+               typename T9, typename T10>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8,
@@ -7521,9 +7521,9 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T10&>(t10)),static_cast<std::streamsize>(sizeof(T10)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7, typename T8,
-                typename T9>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8,
+               typename T9>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8,
@@ -7540,8 +7540,8 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T9&>(t9)),static_cast<std::streamsize>(sizeof(T9)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7, typename T8>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7, typename T8>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8)
@@ -7556,8 +7556,8 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T8&>(t8)),static_cast<std::streamsize>(sizeof(T8)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6, typename T7>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6, typename T7>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7)
@@ -7571,8 +7571,8 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T7&>(t7)),static_cast<std::streamsize>(sizeof(T7)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5, typename T6>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5, typename T6>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6)
@@ -7585,8 +7585,8 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4,
-                typename T5>
+      template<typename T1, typename T2, typename T3, typename T4,
+               typename T5>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5)
@@ -7598,7 +7598,7 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
       }
 
-      template< typename T1, typename T2, typename T3, typename T4>
+      template<typename T1, typename T2, typename T3, typename T4>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4)
       {
@@ -7608,7 +7608,7 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
       }
 
-      template< typename T1, typename T2, typename T3>
+      template<typename T1, typename T2, typename T3>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3)
       {
@@ -7617,7 +7617,7 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
       }
 
-      template< typename T1, typename T2>
+      template<typename T1, typename T2>
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2)
       {
@@ -7630,10 +7630,10 @@ namespace strtk
          stream.write(reinterpret_cast<char*>(&const_cast<T&>(t)),static_cast<std::streamsize>(sizeof(T)));
       }
 
-      template< typename T>
-      inline void write_pod(std::ofstream& stream, T t[], const std::size_t length)
+      template<typename T, std::size_t N>
+      inline void write_pod(std::ofstream& stream, T (&t)[N])
       {
-         stream.write(reinterpret_cast<char*>(&t[0]),static_cast<std::streamsize>(sizeof(T) * length));
+         stream.write(reinterpret_cast<char*>(&t[0]),static_cast<std::streamsize>(sizeof(T) * N));
       }
 
       template<typename T,
@@ -7699,6 +7699,440 @@ namespace strtk
       }
 
    } // namespace fileio
+
+   template<typename T1,  typename T2, typename  T3, typename  T4,
+            typename T5,  typename T6, typename  T7, typename  T8,
+            typename T9, typename T10, typename T11, typename T12>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2&   t2, T3&   t3, T4&   t4,
+                                  T5& t5, T6&   t6, T7&   t7, T8&   t8,
+                                  T9& t9, T10& t10, T11& t11, T12& t12)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof( T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof( T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof( T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof( T4);
+      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof( T5);
+      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof( T6);
+      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof( T7);
+      t8 = (*reinterpret_cast< T8*>(data)); data += sizeof( T8);
+      t9 = (*reinterpret_cast< T9*>(data)); data += sizeof( T9);
+     t10 = (*reinterpret_cast<T10*>(data)); data += sizeof(T10);
+     t11 = (*reinterpret_cast<T11*>(data)); data += sizeof(T11);
+     t12 = (*reinterpret_cast<T12*>(data)); data += sizeof(T12);
+     return data;
+   }
+
+   template<typename T1,  typename T2, typename  T3, typename T4,
+            typename T5,  typename T6, typename  T7, typename T8,
+            typename T9, typename T10, typename T11>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2&   t2, T3&   t3, T4& t4,
+                                  T5& t5, T6&   t6, T7&   t7, T8& t8,
+                                  T9& t9, T10& t10, T11& t11)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof( T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof( T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof( T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof( T4);
+      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof( T5);
+      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof( T6);
+      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof( T7);
+      t8 = (*reinterpret_cast< T8*>(data)); data += sizeof( T8);
+      t9 = (*reinterpret_cast< T9*>(data)); data += sizeof( T9);
+     t10 = (*reinterpret_cast<T10*>(data)); data += sizeof(T10);
+     t11 = (*reinterpret_cast<T11*>(data)); data += sizeof(T11);
+     return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9, typename T10>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3, T4& t4,
+                                  T5& t5, T6& t6, T7& t7, T8& t8,
+                                  T9& t9, T10& t10)
+   {
+       t1 = (*reinterpret_cast< T1*>(data)); data += sizeof( T1);
+       t2 = (*reinterpret_cast< T2*>(data)); data += sizeof( T2);
+       t3 = (*reinterpret_cast< T3*>(data)); data += sizeof( T3);
+       t4 = (*reinterpret_cast< T4*>(data)); data += sizeof( T4);
+       t5 = (*reinterpret_cast< T5*>(data)); data += sizeof( T5);
+       t6 = (*reinterpret_cast< T6*>(data)); data += sizeof( T6);
+       t7 = (*reinterpret_cast< T7*>(data)); data += sizeof( T7);
+       t8 = (*reinterpret_cast< T8*>(data)); data += sizeof( T8);
+       t9 = (*reinterpret_cast< T9*>(data)); data += sizeof( T9);
+      t10 = (*reinterpret_cast<T10*>(data)); data += sizeof(T10);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3, T4& t4,
+                                  T5& t5, T6& t6, T7& t7, T8& t8,
+                                  T9& t9)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
+      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof(T7);
+      t8 = (*reinterpret_cast< T8*>(data)); data += sizeof(T8);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3, T4& t4,
+                                  T5& t5, T6& t6, T7& t7, T8& t8)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
+      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof(T7);
+      t8 = (*reinterpret_cast< T8*>(data)); data += sizeof(T8);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3, T4& t4,
+                                  T5& t5, T6& t6, T7& t7)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
+      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof(T7);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3, T4& t4,
+                                  T5& t5, T6& t6)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3, T4& t4,
+                                  T5& t5)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3, T4& t4)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2, T3& t3)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      return data;
+   }
+
+   template< typename T1, typename T2>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1, T2& t2)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      return data;
+   }
+
+   template<typename T1>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  T1& t1)
+   {
+      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      return data;
+   }
+
+   template<typename T, std::size_t N>
+   inline unsigned char* read_pod(unsigned char* data, T (&t)[N])
+   {
+      T* begin = reinterpret_cast<T*>(data);
+      T* end = begin + N;
+      std::copy(begin,end,&t[0]);
+      return data + (N * sizeof(T));
+   }
+
+   template<typename T,
+            typename Allocator,
+            template<typename,typename> class Sequence>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  const std::size_t& n,
+                                  const Sequence<T,Allocator>& sequence)
+   {
+      T* ptr = reinterpret_cast<T>(data);
+      std::copy(ptr, ptr + n, std::back_inserter(sequence));
+      return data + (sequence.size() * sizeof(T));
+   }
+
+   template<typename T,
+            typename Allocator,
+            typename Comparator>
+   inline unsigned char* read_pod(unsigned char* data,
+                                  const std::size_t& n,
+                                  const std::set<T,Comparator,Allocator>& set)
+   {
+      T* ptr = reinterpret_cast<T>(data);
+      std::copy(ptr, ptr + n, std::inserter(set,set.begin()));
+      return data + (set.size() * sizeof(T));
+   }
+
+   template<typename T1,  typename T2, typename  T3, typename  T4,
+            typename T5,  typename T6, typename  T7, typename  T8,
+            typename T9, typename T10, typename T11, typename T12>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2&   t2, const T3&   t3, const T4& t4,
+                                   const T5& t5, const T6&   t6, const T7&   t7, const T8& t8,
+                                   const T9& t9, const T10& t10, const T11& t11, const T12& t12)
+   {
+      (*reinterpret_cast< T1*>(data)) =  t1; data += sizeof( T1);
+      (*reinterpret_cast< T2*>(data)) =  t2; data += sizeof( T2);
+      (*reinterpret_cast< T3*>(data)) =  t3; data += sizeof( T3);
+      (*reinterpret_cast< T4*>(data)) =  t4; data += sizeof( T4);
+      (*reinterpret_cast< T5*>(data)) =  t5; data += sizeof( T5);
+      (*reinterpret_cast< T6*>(data)) =  t6; data += sizeof( T6);
+      (*reinterpret_cast< T7*>(data)) =  t7; data += sizeof( T7);
+      (*reinterpret_cast< T8*>(data)) =  t8; data += sizeof( T8);
+      (*reinterpret_cast< T9*>(data)) =  t9; data += sizeof( T9);
+      (*reinterpret_cast<T10*>(data)) = t10; data += sizeof(T10);
+      (*reinterpret_cast<T11*>(data)) = t11; data += sizeof(T11);
+      (*reinterpret_cast<T12*>(data)) = t12; data += sizeof(T12);
+      return data;
+   }
+
+   template<typename T1,  typename T2, typename  T3, typename T4,
+            typename T5,  typename T6, typename  T7, typename T8,
+            typename T9, typename T10, typename T11>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2&   t2, const T3&   t3, const T4& t4,
+                                   const T5& t5, const T6&   t6, const T7&   t7, const T8& t8,
+                                   const T9& t9, const T10& t10, const T11& t11)
+   {
+      (*reinterpret_cast< T1*>(data)) =  t1; data += sizeof( T1);
+      (*reinterpret_cast< T2*>(data)) =  t2; data += sizeof( T2);
+      (*reinterpret_cast< T3*>(data)) =  t3; data += sizeof( T3);
+      (*reinterpret_cast< T4*>(data)) =  t4; data += sizeof( T4);
+      (*reinterpret_cast< T5*>(data)) =  t5; data += sizeof( T5);
+      (*reinterpret_cast< T6*>(data)) =  t6; data += sizeof( T6);
+      (*reinterpret_cast< T7*>(data)) =  t7; data += sizeof( T7);
+      (*reinterpret_cast< T8*>(data)) =  t8; data += sizeof( T8);
+      (*reinterpret_cast< T9*>(data)) =  t9; data += sizeof( T9);
+      (*reinterpret_cast<T10*>(data)) = t10; data += sizeof(T10);
+      (*reinterpret_cast<T11*>(data)) = t11; data += sizeof(T11);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9, typename T10>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                                   const T5& t5, const T6& t6, const T7& t7, const T8& t8,
+                                   const T9& t9, const T10& t10)
+   {
+      (*reinterpret_cast< T1*>(data)) =  t1; data += sizeof( T1);
+      (*reinterpret_cast< T2*>(data)) =  t2; data += sizeof( T2);
+      (*reinterpret_cast< T3*>(data)) =  t3; data += sizeof( T3);
+      (*reinterpret_cast< T4*>(data)) =  t4; data += sizeof( T4);
+      (*reinterpret_cast< T5*>(data)) =  t5; data += sizeof( T5);
+      (*reinterpret_cast< T6*>(data)) =  t6; data += sizeof( T6);
+      (*reinterpret_cast< T7*>(data)) =  t7; data += sizeof( T7);
+      (*reinterpret_cast< T8*>(data)) =  t8; data += sizeof( T8);
+      (*reinterpret_cast< T9*>(data)) =  t9; data += sizeof( T9);
+      (*reinterpret_cast<T10*>(data)) = t10; data += sizeof(T10);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8,
+            typename T9>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                                   const T5& t5, const T6& t6, const T7& t7, const T8& t8,
+                                   const T9& t9)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      (*reinterpret_cast<T3*>(data)) = t3; data += sizeof(T3);
+      (*reinterpret_cast<T4*>(data)) = t4; data += sizeof(T4);
+      (*reinterpret_cast<T5*>(data)) = t5; data += sizeof(T5);
+      (*reinterpret_cast<T6*>(data)) = t6; data += sizeof(T6);
+      (*reinterpret_cast<T7*>(data)) = t7; data += sizeof(T7);
+      (*reinterpret_cast<T8*>(data)) = t8; data += sizeof(T8);
+      (*reinterpret_cast<T9*>(data)) = t9; data += sizeof(T9);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7, typename T8>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                                   const T5& t5, const T6& t6, const T7& t7, const T8& t8)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      (*reinterpret_cast<T3*>(data)) = t3; data += sizeof(T3);
+      (*reinterpret_cast<T4*>(data)) = t4; data += sizeof(T4);
+      (*reinterpret_cast<T5*>(data)) = t5; data += sizeof(T5);
+      (*reinterpret_cast<T6*>(data)) = t6; data += sizeof(T6);
+      (*reinterpret_cast<T7*>(data)) = t7; data += sizeof(T7);
+      (*reinterpret_cast<T8*>(data)) = t8; data += sizeof(T8);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                                   const T5& t5, const T6& t6, const T7& t7)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      (*reinterpret_cast<T3*>(data)) = t3; data += sizeof(T3);
+      (*reinterpret_cast<T4*>(data)) = t4; data += sizeof(T4);
+      (*reinterpret_cast<T5*>(data)) = t5; data += sizeof(T5);
+      (*reinterpret_cast<T6*>(data)) = t6; data += sizeof(T6);
+      (*reinterpret_cast<T7*>(data)) = t7; data += sizeof(T7);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                                   const T5& t5, const T6& t6)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      (*reinterpret_cast<T3*>(data)) = t3; data += sizeof(T3);
+      (*reinterpret_cast<T4*>(data)) = t4; data += sizeof(T4);
+      (*reinterpret_cast<T5*>(data)) = t5; data += sizeof(T5);
+      (*reinterpret_cast<T6*>(data)) = t6; data += sizeof(T6);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3, const T4& t4,
+                                   const T5& t5)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      (*reinterpret_cast<T3*>(data)) = t3; data += sizeof(T3);
+      (*reinterpret_cast<T4*>(data)) = t4; data += sizeof(T4);
+      (*reinterpret_cast<T5*>(data)) = t5; data += sizeof(T5);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3, typename T4>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3, const T4& t4)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      (*reinterpret_cast<T3*>(data)) = t3; data += sizeof(T3);
+      (*reinterpret_cast<T4*>(data)) = t4; data += sizeof(T4);
+      return data;
+   }
+
+   template<typename T1, typename T2, typename T3>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2, const T3& t3)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      (*reinterpret_cast<T3*>(data)) = t3; data += sizeof(T3);
+      return data;
+   }
+
+   template<typename T1, typename T2>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1, const T2& t2)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      (*reinterpret_cast<T2*>(data)) = t2; data += sizeof(T2);
+      return data;
+   }
+
+   template<typename T1>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const T1& t1)
+   {
+      (*reinterpret_cast<T1*>(data)) = t1; data += sizeof(T1);
+      return data;
+   }
+
+   template<typename T, std::size_t N>
+   inline unsigned char* write_pod(unsigned char* data, const T (&t)[N])
+   {
+      T* ptr = reinterpret_cast<T*>(data);
+      std::copy(t,t + N,ptr);
+      return data + (N * sizeof(T));
+   }
+
+   template<typename T,
+            typename Allocator,
+            template<typename,typename> class Sequence>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const Sequence<T,Allocator>& sequence)
+   {
+      T* ptr = reinterpret_cast<T>(data);
+      std::copy(sequence.begin(),sequence.end(),ptr);
+      return data + (sequence.size() * sizeof(T));
+   }
+
+   template<typename T,
+            typename Allocator,
+            typename Comparator>
+   inline unsigned char* write_pod(unsigned char* data,
+                                   const std::set<T,Comparator,Allocator>& set)
+   {
+      T* ptr = reinterpret_cast<T>(data);
+      std::copy(set.begin(),set.end(),ptr);
+      return data + (set.size() * sizeof(T));
+   }
 
    namespace details
    {
@@ -7791,7 +8225,9 @@ namespace strtk
    } // namespace details
 
    template<typename Iterator>
-   inline unsigned int hash(const Iterator itr, std::size_t length, unsigned int seed = details::hash_seed)
+   inline unsigned int hash(const Iterator itr,
+                            std::size_t length,
+                            unsigned int seed = details::hash_seed)
    {
       unsigned int hash_value = seed;
       details::hash(itr,length,hash_value);

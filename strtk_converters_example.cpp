@@ -1,6 +1,6 @@
 /*
  *******************************************************************
- *                       String Tool Kit Library                   *
+ *                     String Toolkit Library                      *
  *                                                                 *
  * Converters Examples                                             *
  * Author: Arash Partow (2002-2010)                                *
