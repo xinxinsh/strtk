@@ -1,18 +1,18 @@
 /*
- *******************************************************************
- *                     String Toolkit Library                      *
- *                                                                 *
- * Randomizer                                                      *
- * Author: Arash Partow (2002-2010)                                *
- * URL: http://www.partow.net/programming/strtk/index.html         *
- *                                                                 *
- * Copyright notice:                                               *
- * Free use of the String Tool Kit Library is permitted under the  *
- * guidelines and in accordance with the most current version of   *
- * the Common Public License.                                      *
- * http://www.opensource.org/licenses/cpl1.0.php                   *
- *                                                                 *
- *******************************************************************
+ *****************************************************************
+ *                     String Toolkit Library                    *
+ *                                                               *
+ * Randomizer                                                    *
+ * Author: Arash Partow (2002-2010)                              *
+ * URL: http://www.partow.net/programming/strtk/index.html       *
+ *                                                               *
+ * Copyright notice:                                             *
+ * Free use of the String Toolkit Library is permitted under the *
+ * guidelines and in accordance with the most current version of *
+ * the Common Public License.                                    *
+ * http://www.opensource.org/licenses/cpl1.0.php                 *
+ *                                                               *
+ *****************************************************************
 */
 
 
