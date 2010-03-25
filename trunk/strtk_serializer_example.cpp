@@ -21,6 +21,9 @@
 #include <fstream>
 #include <algorithm>
 #include <string>
+#include <vector>
+#include <deque>
+#include <list>
 
 #include "strtk.hpp"
 
@@ -236,25 +239,95 @@ bool test03(char* buffer, const unsigned int buffer_size)
 
 bool test04(char* buffer, const unsigned int buffer_size)
 {
-   strtk::serializer s(buffer,buffer_size);
-   s.clear();
-   std::deque<unsigned int> lst;
-   const unsigned int max_count = 1000;
-   for (unsigned int i = 0; i < max_count; lst.push_back(i++));
-
-   s.write_from_external_sequence(lst);
-
-   lst.clear();
-   s.reset();
-
-   s.read_into_external_sequence(lst);
-
-   for (unsigned int i = 0; i < max_count; ++i)
    {
-      if (lst[i] != i)
+      // Read out then back in an array of unsigned ints.
+      strtk::serializer s(buffer,buffer_size);
+      s.clear();
+      std::deque<unsigned int> lst;
+      const unsigned int max_count = 1000;
+      for (unsigned int i = 0; i < max_count; lst.push_back(i++));
+
+      s.write_from_external_sequence(lst);
+
+      lst.clear();
+      s.reset();
+
+      s.read_into_external_sequence(lst);
+
+      for (unsigned int i = 0; i < max_count; ++i)
       {
-         std::cout << "test04 - unsigned int failure at index: " << i << std::endl;
-         return false;
+         if (lst[i] != i)
+         {
+            std::cout << "test04 - 'unsigned int' failure at index: " << i << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      // Read out then back in an array of floats.
+      strtk::serializer s(buffer,buffer_size);
+      s.clear();
+      std::vector<float> lst;
+      const unsigned int max_count = 1000;
+      const std::size_t magic_count = 6;
+      const float magic[magic_count] = { 111.111f, 333.333f, 555.555f,
+                                         777.777f, 135.531f, 357.753f };
+      for (unsigned int i = 0; i < max_count; ++i)
+      {
+         lst.push_back(magic[i % magic_count] * i);
+      }
+
+      s.write_from_external_sequence(lst);
+
+      lst.clear();
+      s.reset();
+
+      s.read_into_external_sequence(lst);
+
+      for (unsigned int i = 0; i < max_count; ++i)
+      {
+         const float d = magic[i % magic_count] * i;
+         if (lst[i] != d)
+         {
+            std::cout << "test04 - 'float' failure at index: " << i
+                      << " expected value: "                 << d << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      // Read out then back in an array of doubles.
+      strtk::serializer s(buffer,buffer_size);
+      s.clear();
+      std::list<double> lst;
+      const unsigned int max_count = 1000;
+      const std::size_t magic_count = 6;
+      const double magic[magic_count] = { 111.111, 333.333, 555.555,
+                                          777.777, 135.531, 357.753 };
+      for (unsigned int i = 0; i < max_count; ++i)
+      {
+         lst.push_back(magic[i % magic_count] * i);
+      }
+
+      s.write_from_external_sequence(lst);
+
+      lst.clear();
+      s.reset();
+
+      s.read_into_external_sequence(lst);
+
+      std::list<double>::iterator itr = lst.begin();
+      for (unsigned int i = 0; i < max_count; ++i, ++itr)
+      {
+         const double d = magic[i % magic_count] * i;
+         if (*itr != d)
+         {
+            std::cout << "test04 - 'double' failure at index: " << i
+                      << " expected value: "                  << d << std::endl;
+            return false;
+         }
       }
    }
 
@@ -289,8 +362,31 @@ bool test05(char* buffer)
 
    unsigned char* ptr = reinterpret_cast<unsigned char*>(buffer);
 
-   strtk::write_pod(ptr,in_char,in_uchar,in_short,in_ushort,in_int,in_uint,in_long,in_ulong,in_float,in_double,in_ldouble);
-   strtk::read_pod(ptr,out_char,out_uchar,out_short,out_ushort,out_int,out_uint,out_long,out_ulong,out_float,out_double,out_ldouble);
+   strtk::write_pod(ptr,
+                    in_char,
+                    in_uchar,
+                    in_short,
+                    in_ushort,
+                    in_int,
+                    in_uint,
+                    in_long,
+                    in_ulong,
+                    in_float,
+                    in_double,
+                    in_ldouble);
+
+   strtk::read_pod(ptr,
+                   out_char,
+                   out_uchar,
+                   out_short,
+                   out_ushort,
+                   out_int,
+                   out_uint,
+                   out_long,
+                   out_ulong,
+                   out_float,
+                   out_double,
+                   out_ldouble);
 
    if (in_char    != out_char)    { std::cout << "test05 - Failed char"    << std::endl; return false; }
    if (in_uchar   != out_uchar)   { std::cout << "test05 - Failed uchar"   << std::endl; return false; }
