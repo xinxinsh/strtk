@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 #include <iterator>
+#include <utility>
 #include <vector>
 #include <deque>
 #include <list>
@@ -851,10 +852,86 @@ void make_key_lists()
    strtk::make_key_list(map,key_set);
    strtk::make_key_list(map,key_vec);
    strtk::make_key_list(map,key_deq);
+   strtk::make_key_list(map,key_lst);
 
    std::cout << "Keys(set): " << strtk::join(", ",key_set) << std::endl;
    std::cout << "Keys(vec): " << strtk::join(", ",key_vec) << std::endl;
    std::cout << "Keys(deq): " << strtk::join(", ",key_deq) << std::endl;
+   std::cout << "Keys(lst): " << strtk::join(", ",key_lst) << std::endl;
+}
+
+void make_value_lists()
+{
+   std::multimap<std::string,int> map;
+
+   map.insert(std::pair<std::string,int>("one",1));
+
+   map.insert(std::pair<std::string,int>("two",1));
+   map.insert(std::pair<std::string,int>("two",2));
+
+   map.insert(std::pair<std::string,int>("three",1));
+   map.insert(std::pair<std::string,int>("three",2));
+   map.insert(std::pair<std::string,int>("three",3));
+
+   std::vector<int> val_vec;
+   std::deque<int> val_deq;
+   std::list<int> val_lst;
+
+   std::string key1 = "one";
+   std::string key2 = "two";
+   std::string key3 = "three";
+
+   strtk::make_value_list(map,key1,val_vec);
+   strtk::make_value_list(map,key2,val_deq);
+   strtk::make_value_list(map,key3,val_lst);
+
+   std::cout << "Values(vec): " << strtk::join(", ",val_vec) << std::endl;
+   std::cout << "Values(deq): " << strtk::join(", ",val_deq) << std::endl;
+   std::cout << "Values(lst): " << strtk::join(", ",val_lst) << std::endl;
+}
+
+void globbing_example()
+{
+   {
+      std::string pattern = "a?c";
+      std::string data    = "abc";
+
+      if (strtk::match(pattern,data))
+      {
+         std::cout << data << " matches pattern: " << pattern << std::endl;
+      }
+   }
+
+   {
+      std::string pattern = "a*c";
+      std::string data    = "abbbbbbc";
+
+      if (strtk::match(pattern,data))
+      {
+         std::cout << data << " matches pattern: " << pattern << std::endl;
+      }
+   }
+
+   {
+      std::string pattern = "a*c?e";
+      std::string data    = "abbbbbbcde";
+
+      if (strtk::match(pattern,data))
+      {
+         std::cout << data << " matches pattern: " << pattern << std::endl;
+      }
+   }
+
+   {
+      std::string pattern = "*a*c?e?";
+      std::string data    = "0000abbbbbbcdef";
+
+      if (strtk::match(pattern,data))
+      {
+         std::cout << data << " matches pattern: " << pattern << std::endl;
+      }
+   }
+
 }
 
 int main()
@@ -911,5 +988,7 @@ int main()
    cut_example();
    build_string_example();
    make_key_lists();
+   make_value_lists();
+   globbing_example();
    return 0;
 }
