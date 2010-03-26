@@ -29,12 +29,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <utility>
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <deque>
 #include <list>
 #include <set>
+#include <map>
 
 
 #define ENABLE_LEXICAL_CAST
@@ -8245,17 +8247,28 @@ namespace strtk
             typename T,
             typename Comparator,
             typename MapAllocator,
-            typename SetAllocator>
+            typename OutputIterator>
    void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
-                      std::set<Key,Comparator,SetAllocator>& set)
+                      OutputIterator out)
    {
       if (map.empty()) return;
       typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
       typename map_type::const_iterator itr = map.begin();
       while (map.end() != itr)
       {
-         set.insert((itr++)->first);
+         *out++ = (itr++)->first;
       }
+   }
+
+   template<typename Key,
+            typename T,
+            typename Comparator,
+            typename MapAllocator,
+            typename SetAllocator>
+   void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                      std::set<Key,Comparator,SetAllocator>& set)
+   {
+      make_key_list(map,std::inserter(set,set.begin()));
    }
 
    template<typename Key,
@@ -8267,13 +8280,38 @@ namespace strtk
    void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
                       Sequence<Key,SequenceAllocator>& sequence)
    {
+      make_key_list(map,std::back_inserter(sequence));
+   }
+
+   template<typename Key,
+            typename T,
+            typename Comparator,
+            typename MapAllocator,
+            typename OutputIterator>
+            void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
+                                 const Key& key,
+                                 OutputIterator out)
+   {
       if (map.empty()) return;
-      typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
-      typename map_type::const_iterator itr = map.begin();
-      while (map.end() != itr)
+      typedef typename std::multimap<Key,T,Comparator,MapAllocator> map_type;
+      typename map_type::const_iterator itr = map.find(key);
+      while (map.end() != itr && (key == itr->first))
       {
-         sequence.push_back((itr++)->first);
+         *out++ = (itr++)->second;
       }
+   }
+
+   template<typename Key,
+            typename T,
+            typename Comparator,
+            typename MapAllocator,
+            typename SequenceAllocator,
+            template<typename,typename> class Sequence>
+   void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
+                        const Key& key,
+                        Sequence<T,SequenceAllocator>& sequence)
+   {
+      make_value_list(map,key,std::back_inserter(sequence));
    }
 
    namespace information
