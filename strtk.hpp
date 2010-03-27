@@ -5329,7 +5329,7 @@ namespace strtk
              typename Allocator>
    inline std::size_t parse(const std::string& data,
                             const std::string& delimiters,
-                             std::set<T,Comparator,Allocator>& set)
+                            std::set<T,Comparator,Allocator>& set)
    {
       return parse(data.c_str(),
                    data.c_str() + data.size(),
@@ -8239,8 +8239,16 @@ namespace strtk
    inline unsigned int hash(const std::string& s, unsigned int seed = details::hash_seed)
    {
       unsigned int hash_value = seed;
-      hash(s.begin(),s.size(),hash_value);
-      return hash_value;
+      return hash(s.begin(),s.size(),hash_value);
+   }
+
+   template<typename T,
+            typename Allocator,
+            template<typename,typename> class Sequence>
+   inline unsigned int hash(const Sequence<T,Allocator>& sequence, unsigned int seed = details::hash_seed)
+   {
+      unsigned int hash_value = seed;
+      return hash(sequence.begin(),sequence.size(),hash_value);
    }
 
    template<typename Key,
