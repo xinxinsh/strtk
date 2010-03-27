@@ -931,7 +931,32 @@ void globbing_example()
          std::cout << data << " matches pattern: " << pattern << std::endl;
       }
    }
+}
 
+void example_replace()
+{
+   std::string data = "abcdefabcdefabcdefabcdefabcdefabcdef";
+   typedef std::pair<std::string,std::string> pair_type;
+   const pair_type pattern_replace[] = {
+                                          pair_type(     "a",     "w"),
+                                          pair_type(    "ab",    "wx"),
+                                          pair_type(   "abc",   "wxy"),
+                                          pair_type(  "abcd",  "wxyz"),
+                                          pair_type( "abcde", "wxyz0"),
+                                          pair_type("abcdef","wxyz01")
+                                       };
+   const std::size_t size = sizeof(pattern_replace) / sizeof(pair_type);
+
+   std::cout << "Data: " << data << std::endl;
+   std::string modified_string;
+   for (std::size_t i = 0; i < size; ++i)
+   {
+      strtk::replace_pattern(data,
+                             pattern_replace[i].first,pattern_replace[i].second,
+                             modified_string);
+      std::cout << "Replace (" << pattern_replace[i].first << ") "
+                << "With (" << pattern_replace[i].second << "): " << modified_string << std::endl;
+   }
 }
 
 int main()
@@ -990,5 +1015,6 @@ int main()
    make_key_lists();
    make_value_lists();
    globbing_example();
+   example_replace();
    return 0;
 }
