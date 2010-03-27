@@ -674,6 +674,17 @@ void hash_example()
    std::cout << "hash(int):    " << strtk::hash(int_list, sizeof( int_list) / sizeof(int))           << std::endl;
    std::cout << "hash(uint):   " << strtk::hash(uint_list,sizeof(uint_list) / sizeof(unsigned int))  << std::endl;
    std::cout << "hash(double): " << strtk::hash(dbl_list, sizeof( dbl_list) / sizeof(double))        << std::endl;
+
+   std::vector<int> int_vec;
+   std::vector<double> dbl_deq;
+   std::string str(chr_list,7);
+
+   strtk::iota(int_vec,10,1);
+   strtk::iota(dbl_deq,10,135.791);
+
+   std::cout << "hash(int_vec): " << strtk::hash(int_vec) << std::endl;
+   std::cout << "hash(dbl_deq): " << strtk::hash(dbl_deq) << std::endl;
+   std::cout << "hash(std::string): " << strtk::hash(str) << std::endl;
 }
 
 void join_example()
