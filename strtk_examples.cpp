@@ -970,6 +970,44 @@ void example_replace()
    }
 }
 
+void find_example()
+{
+   std::string data = "abc 123 ABC 456 abc 789 AbC 012 abc 345 aBC 678 ABc 901";
+   std::string pattern = "abc";
+
+   {
+      typedef strtk::std_string::token_deque_type match_list_type;
+      match_list_type match_list;
+
+      strtk::find_all(pattern,data,std::back_inserter(match_list));
+
+      match_list_type::iterator itr = match_list.begin();
+
+      while (match_list.end() != itr)
+      {
+         std::cout << "(" << std::string(itr->first,itr->second) << ")\t";
+         ++itr;
+      }
+      std::cout << std::endl;
+   }
+
+   {
+      typedef strtk::std_string::token_deque_type match_list_type;
+      match_list_type match_list;
+
+      strtk::ifind_all(pattern,data,std::back_inserter(match_list));
+
+      match_list_type::iterator itr = match_list.begin();
+
+      while (match_list.end() != itr)
+      {
+         std::cout << "(" << std::string(itr->first,itr->second) << ")\t";
+         ++itr;
+      }
+      std::cout << std::endl;
+   }
+}
+
 int main()
 {
    tokenizer_example01();
@@ -1027,5 +1065,6 @@ int main()
    make_value_lists();
    globbing_example();
    example_replace();
+   find_example();
    return 0;
 }
