@@ -1155,6 +1155,11 @@ namespace strtk
                    '?');
    }
 
+   inline bool imatch_char(const char c1, const char c2)
+   {
+      return std::toupper(c1) == std::toupper(c2);
+   }
+
    template<typename InputIterator>
    inline bool imatch(const InputIterator begin1, const InputIterator end1,
                       const InputIterator begin2, const InputIterator end2)
@@ -1208,6 +1213,64 @@ namespace strtk
    inline bool imatch(const std::string& s, const std::set<std::string,Comparator,Allocator>& set)
    {
       return imatch(s,set.begin(),set.end());
+   }
+
+   template<typename Iterator, typename OutputIterator>
+   inline std::size_t find_all(const Iterator pattern_begin,
+                               const Iterator pattern_end,
+                               const Iterator begin,
+                               const Iterator end,
+                               OutputIterator out)
+   {
+      Iterator itr = begin;
+      std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
+      std::size_t match_count = 0;
+      while (end != (itr = std::search(itr, end, pattern_begin, pattern_end)))
+      {
+         *out++ = std::make_pair(itr,itr + pattern_length);
+         itr += pattern_length;
+         ++match_count;
+      }
+      return match_count;
+   }
+
+   template<typename Iterator, typename OutputIterator>
+   inline std::size_t ifind_all(const Iterator pattern_begin,
+                                const Iterator pattern_end,
+                                const Iterator begin,
+                                const Iterator end,
+                                OutputIterator out)
+   {
+      Iterator itr = begin;
+      std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
+      std::size_t match_count = 0;
+      while (end != (itr = std::search(itr, end, pattern_begin, pattern_end, imatch_char)))
+      {
+         *out++ = std::make_pair(itr,itr + pattern_length);
+         itr += pattern_length;
+         ++match_count;
+      }
+      return match_count;
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t find_all(const std::string& pattern,
+                               const std::string& data,
+                               OutputIterator out)
+   {
+      return find_all(pattern.begin(),pattern.end(),
+                      data.begin(),data.end(),
+                      out);
+   }
+
+   template<typename OutputIterator>
+   inline std::size_t ifind_all(const std::string& pattern,
+                                const std::string& data,
+                                OutputIterator out)
+   {
+      return ifind_all(pattern.begin(),pattern.end(),
+                       data.begin(),data.end(),
+                       out);
    }
 
    template<typename Iterator, typename DelimiterPredicate>
