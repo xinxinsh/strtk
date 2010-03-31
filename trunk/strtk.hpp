@@ -7046,6 +7046,33 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
+      inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end, T& t, signed_type_tag)
+      {
+         if (0 == std::distance(itr,end))
+            return false;
+         t = 0;
+         bool negative = false;
+         if ('+' == *itr)
+            ++itr;
+         else if ('-' == *itr)
+         {
+            ++itr;
+            negative = true;
+         }
+         if (end == itr)
+            return false;
+         while (end != itr)
+         {
+            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
+            if (0xFF == digit)
+               return false;
+            t = (10 * t) + digit;
+         }
+         if (negative) t *= -1;
+         return true;
+      }
+
+      template<typename Iterator, typename T>
       inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, real_type_tag)
       {
          if (0 == std::distance(begin,end))
@@ -7065,7 +7092,7 @@ namespace strtk
 
          while (end != itr)
          {
-            const unsigned int digit = strtk::details::digit_table[static_cast<unsigned int>(*itr)];
+            const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
             if (0xFF == digit)
                break;
             d = (10.0 * d) + digit;
@@ -7081,7 +7108,7 @@ namespace strtk
                ++itr;
                while (end != itr)
                {
-                  const unsigned int digit = strtk::details::digit_table[static_cast<unsigned int>(*itr)];
+                  const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
                   if (0xFF == digit)
                      break;
                   d = (10.0 * d) + digit;
@@ -7092,17 +7119,20 @@ namespace strtk
 
             if (end != itr)
             {
-               typename std::iterator_traits<Iterator>::value_type c = *itr++;
+               typename std::iterator_traits<Iterator>::value_type c = *itr;
                if (('E' == c) || ('e' == c))
                {
-                  strtk::details::signed_type_tag tag;
+                  ++itr;
+                  details::signed_type_tag tag;
                   int exp = 0;
-                  if (!strtk::details::string_to_type_converter_impl(itr,end,exp,tag))
+                  if (!details::string_to_type_converter_impl_ref(itr,end,exp,tag))
                      return false;
                   exponent += exp;
                }
             }
          }
+
+         if (end != itr) return false;
 
          if (0 != exponent)
          {
