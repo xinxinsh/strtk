@@ -16,7 +16,7 @@
 
 
 COMPILER         = -c++
-OPTIMIZATION_OPT = -O3
+OPTIMIZATION_OPT = -O1
 OPTIONS          = -pedantic -ansi -Wall -Werror $(OPTIMIZATION_OPT) -o
 REGEX            = -lboost_regex
 PTHREAD          = -lpthread
