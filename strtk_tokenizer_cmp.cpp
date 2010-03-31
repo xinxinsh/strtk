@@ -441,9 +441,9 @@ void atof_cast_test_s2d()
    double d   = 0.0;
    timer t;
    t.start();
-   for(std::size_t r = 0; r < rounds; ++r)
+   for (std::size_t r = 0; r < rounds; ++r)
    {
-      for(std::size_t i = 0; i < v_size; ++i)
+      for (std::size_t i = 0; i < v_size; ++i)
       {
          d = atof(v[i].c_str());
          if (r & 1)
@@ -467,9 +467,9 @@ void boost_cast_test_s2d()
    double d   = 0.0;
    timer t;
    t.start();
-   for(std::size_t r = 0; r < rounds; ++r)
+   for (std::size_t r = 0; r < rounds; ++r)
    {
-      for(std::size_t i = 0; i < v_size; ++i)
+      for (std::size_t i = 0; i < v_size; ++i)
       {
          d = boost::lexical_cast<double>(v[i]);
          if (r & 1)
@@ -493,9 +493,9 @@ void strtk_cast_test_s2d()
    double d   = 0.0;
    timer t;
    t.start();
-   for(std::size_t r = 0; r < rounds; ++r)
+   for (std::size_t r = 0; r < rounds; ++r)
    {
-      for(std::size_t i = 0; i < v_size; ++i)
+      for (std::size_t i = 0; i < v_size; ++i)
       {
          strtk::string_to_type_converter(v[i],d);
          if (r & 1)
