@@ -7048,15 +7048,114 @@ namespace strtk
       template<typename Iterator, typename T>
       inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, real_type_tag)
       {
-         std::size_t length = std::distance(begin,end);
-         static const std::size_t buffer_size = 97;
-         if (length >= buffer_size) return false;
-         char buffer[buffer_size];
-         char* endptr = buffer + length;
-         std::memcpy(buffer,begin,length);
-         *(buffer + length) = 0;
-         t = static_cast<T>(strtod(buffer,&endptr));
-         return (0 == errno);
+         if (0 == std::distance(begin,end))
+            return false;
+         double d = 0.0;
+         Iterator itr = begin;
+         bool negative = false;
+         if ('+' == *itr)
+            ++itr;
+         else if ('-' == *itr)
+         {
+            ++itr;
+            negative = true;
+         }
+         if (end == itr)
+            return false;
+
+         while (end != itr)
+         {
+            const unsigned int digit = strtk::details::digit_table[static_cast<unsigned int>(*itr)];
+            if (0xFF == digit)
+               break;
+            d = (10.0 * d) + digit;
+            ++itr;
+         }
+
+         int exponent  = 0;
+
+         if (end != itr)
+         {
+            if ('.' == *itr)
+            {
+               ++itr;
+               while (end != itr)
+               {
+                  const unsigned int digit = strtk::details::digit_table[static_cast<unsigned int>(*itr)];
+                  if (0xFF == digit)
+                     break;
+                  d = (10.0 * d) + digit;
+                  ++itr;
+                  --exponent;
+               }
+            }
+
+            if (end != itr)
+            {
+               typename std::iterator_traits<Iterator>::value_type c = *itr++;
+               if (('E' == c) || ('e' == c))
+               {
+                  strtk::details::signed_type_tag tag;
+                  int exp = 0;
+                  if (!strtk::details::string_to_type_converter_impl(itr,end,exp,tag))
+                     return false;
+                  exponent += exp;
+               }
+            }
+         }
+
+         if (0 != exponent)
+         {
+            if (
+                (std::numeric_limits<T>::max_exponent10 < exponent) ||
+                (std::numeric_limits<T>::min_exponent10 > exponent)
+               )
+            {
+               return false;
+            }
+
+            const int e = std::abs(exponent);
+            static const double fract10[] =
+                                  {
+                                    0.0,
+                                    1.0E+001, 1.0E+002, 1.0E+003, 1.0E+004, 1.0E+005, 1.0E+006, 1.0E+007, 1.0E+008, 1.0E+009, 1.0E+010,
+                                    1.0E+011, 1.0E+012, 1.0E+013, 1.0E+014, 1.0E+015, 1.0E+016, 1.0E+017, 1.0E+018, 1.0E+019, 1.0E+020,
+                                    1.0E+021, 1.0E+022, 1.0E+023, 1.0E+024, 1.0E+025, 1.0E+026, 1.0E+027, 1.0E+028, 1.0E+029, 1.0E+030,
+                                    1.0E+031, 1.0E+032, 1.0E+033, 1.0E+034, 1.0E+035, 1.0E+036, 1.0E+037, 1.0E+038, 1.0E+039, 1.0E+040,
+                                    1.0E+041, 1.0E+042, 1.0E+043, 1.0E+044, 1.0E+045, 1.0E+046, 1.0E+047, 1.0E+048, 1.0E+049, 1.0E+050,
+                                    1.0E+051, 1.0E+052, 1.0E+053, 1.0E+054, 1.0E+055, 1.0E+056, 1.0E+057, 1.0E+058, 1.0E+059, 1.0E+060,
+                                    1.0E+061, 1.0E+062, 1.0E+063, 1.0E+064, 1.0E+065, 1.0E+066, 1.0E+067, 1.0E+068, 1.0E+069, 1.0E+070,
+                                    1.0E+071, 1.0E+072, 1.0E+073, 1.0E+074, 1.0E+075, 1.0E+076, 1.0E+077, 1.0E+078, 1.0E+079, 1.0E+080,
+                                    1.0E+081, 1.0E+082, 1.0E+083, 1.0E+084, 1.0E+085, 1.0E+086, 1.0E+087, 1.0E+088, 1.0E+089, 1.0E+090,
+                                    1.0E+091, 1.0E+092, 1.0E+093, 1.0E+094, 1.0E+095, 1.0E+096, 1.0E+097, 1.0E+098, 1.0E+099, 1.0E+100,
+                                    1.0E+101, 1.0E+102, 1.0E+103, 1.0E+104, 1.0E+105, 1.0E+106, 1.0E+107, 1.0E+108, 1.0E+109, 1.0E+110,
+                                    1.0E+111, 1.0E+112, 1.0E+113, 1.0E+114, 1.0E+115, 1.0E+116, 1.0E+117, 1.0E+118, 1.0E+119, 1.0E+120,
+                                    1.0E+121, 1.0E+122, 1.0E+123, 1.0E+124, 1.0E+125, 1.0E+126, 1.0E+127, 1.0E+128, 1.0E+129, 1.0E+130,
+                                    1.0E+131, 1.0E+132, 1.0E+133, 1.0E+134, 1.0E+135, 1.0E+136, 1.0E+137, 1.0E+138, 1.0E+139, 1.0E+140,
+                                    1.0E+141, 1.0E+142, 1.0E+143, 1.0E+144, 1.0E+145, 1.0E+146, 1.0E+147, 1.0E+148, 1.0E+149, 1.0E+150,
+                                    1.0E+151, 1.0E+152, 1.0E+153, 1.0E+154, 1.0E+155, 1.0E+156, 1.0E+157, 1.0E+158, 1.0E+159, 1.0E+160,
+                                    1.0E+161, 1.0E+162, 1.0E+163, 1.0E+164, 1.0E+165, 1.0E+166, 1.0E+167, 1.0E+168, 1.0E+169, 1.0E+170,
+                                    1.0E+171, 1.0E+172, 1.0E+173, 1.0E+174, 1.0E+175, 1.0E+176, 1.0E+177, 1.0E+178, 1.0E+179, 1.0E+180,
+                                    1.0E+181, 1.0E+182, 1.0E+183, 1.0E+184, 1.0E+185, 1.0E+186, 1.0E+187, 1.0E+188, 1.0E+189, 1.0E+190,
+                                    1.0E+191, 1.0E+192, 1.0E+193, 1.0E+194, 1.0E+195, 1.0E+196, 1.0E+197, 1.0E+198, 1.0E+199, 1.0E+200
+                                  };
+
+            static const std::size_t fract10_size = sizeof(fract10) / sizeof(double);
+
+            if (static_cast<std::size_t>(e) < fract10_size)
+            {
+               if (exponent > 0)
+                  d *= fract10[e];
+               else
+                  d /= fract10[e];
+            }
+            else
+               d *= std::pow(10.0,1.0 * exponent);
+         }
+
+         if (negative) d *= -1;
+         t = static_cast<T>(d);
+         return true;
       }
 
       template<typename Iterator, typename T>
