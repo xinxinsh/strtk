@@ -6857,7 +6857,7 @@ namespace strtk
 
    namespace details
    {
-
+      static const unsigned int invalid_digit = 0xFF;
       static const std::size_t digit_table_symbol_count = 256;
       static const unsigned char digit_table[digit_table_symbol_count] = {
                                                                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xFF - 0x07
@@ -7010,7 +7010,7 @@ namespace strtk
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
-            if (0xFF == digit)
+            if (details::invalid_digit == digit)
                return false;
             t = (10 * t) + digit;
          }
@@ -7037,7 +7037,7 @@ namespace strtk
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
-            if (0xFF == digit)
+            if (details::invalid_digit == digit)
                return false;
             t = (10 * t) + digit;
          }
@@ -7064,7 +7064,7 @@ namespace strtk
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
-            if (0xFF == digit)
+            if (details::invalid_digit == digit)
                return false;
             t = (10 * t) + digit;
          }
@@ -7093,13 +7093,13 @@ namespace strtk
          while (end != itr)
          {
             const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
-            if (0xFF == digit)
+            if (details::invalid_digit == digit)
                break;
             d = (10.0 * d) + digit;
             ++itr;
          }
 
-         int exponent  = 0;
+         int exponent = 0;
 
          if (end != itr)
          {
@@ -7109,7 +7109,7 @@ namespace strtk
                while (end != itr)
                {
                   const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
-                  if (0xFF == digit)
+                  if (details::invalid_digit == digit)
                      break;
                   d = (10.0 * d) + digit;
                   ++itr;
@@ -7123,9 +7123,8 @@ namespace strtk
                if (('E' == c) || ('e' == c))
                {
                   ++itr;
-                  details::signed_type_tag tag;
                   int exp = 0;
-                  if (!details::string_to_type_converter_impl_ref(itr,end,exp,tag))
+                  if (!details::string_to_type_converter_impl_ref(itr,end,exp,details::signed_type_tag()))
                      return false;
                   exponent += exp;
                }
@@ -8517,9 +8516,9 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.71828182845904";
-      static const char* date    = "20100130";
-      static const char* epoch   = "Pre-C++0x 3D354316:1E231C0A";
+      static const char* version = "2.7182818284590452";
+      static const char* date    = "20100401";
+      static const char* epoch   = "Pre-C++0x EC214AEB:9DE13587";
 
       static inline std::string data()
       {
