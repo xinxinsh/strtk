@@ -17,7 +17,7 @@
 
 COMPILER         = -c++
 OPTIMIZATION_OPT = -O1
-OPTIONS          = -pedantic -ansi -Wall -Werror $(OPTIMIZATION_OPT) -o
+OPTIONS          = -pedantic -ansi -Wall -Wextra -Werror $(OPTIMIZATION_OPT) -o
 REGEX            = -lboost_regex
 PTHREAD          = -lpthread
 LINKER_OPT       = -L/usr/lib -lstdc++ 
