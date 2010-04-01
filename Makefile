@@ -111,6 +111,7 @@ valgrind_check :
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_text_parser_example01
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_text_parser_example02
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_test
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_parse_test
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_hexview
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_converters_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokengrid_example
