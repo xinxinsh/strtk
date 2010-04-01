@@ -1,3 +1,30 @@
+/*
+ *****************************************************************
+ *                     String Toolkit Library                    *
+ *                                                               *
+ * Parse Test                                                    *
+ * Author: Arash Partow (2002-2010)                              *
+ * URL: http://www.partow.net/programming/strtk/index.html       *
+ *                                                               *
+ * Copyright notice:                                             *
+ * Free use of the String Toolkit Library is permitted under the *
+ * guidelines and in accordance with the most current version of *
+ * the Common Public License.                                    *
+ * http://www.opensource.org/licenses/cpl1.0.php                 *
+ *                                                               *
+ *****************************************************************
+*/
+
+
+/*
+   Description: The Parse Test performs a simple parsing operation
+                upon a string containing delimited values into 12
+                relevant types from a struct named data_block. The
+                test process is timed and once completed statistics
+                about run-time and parsing rates is printed.
+*/
+
+
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
