@@ -45,11 +45,12 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 
-//Note: Uncomment the following to include Karma and Qi, this also requires Boost 1.42
+//Note: Uncomment the following to include Karma and Qi, this also requires Boost 1.42+
 //#define INCLUDE_KARMA
+//#define INCLUDE_QI_S2I
 //#define INCLUDE_QI_S2D
 //#include <boost/spirit/include/qi.hpp>
-//#include <boost/spirit/include/qi.hpp>
+//#include <boost/spirit/include/karma.hpp>
 
 #ifdef WIN32
  #include <windows.h>
@@ -385,7 +386,6 @@ void boost_lexical_cast_test_s2i()
           (rounds * strint_list_size) / (1.0 * t.time()));
 }
 
-
 #ifdef INCLUDE_QI_S2I
 inline bool qi_string_to_int(const std::string& str, int & value)
 {
@@ -600,7 +600,6 @@ void qi_cast_test_s2d()
 #else
  void qi_cast_test_s2d(){}
 #endif
-
 
 void strtk_cast_test_s2d()
 {
