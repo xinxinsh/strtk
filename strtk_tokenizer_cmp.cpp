@@ -45,6 +45,12 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 
+//Note: Uncomment the following to include Karma and Qi, this also requires Boost 1.42
+//#define INCLUDE_KARMA
+//#define INCLUDE_QI_S2D
+//#include <boost/spirit/include/qi.hpp>
+//#include <boost/spirit/include/qi.hpp>
+
 #ifdef WIN32
  #include <windows.h>
 #else
@@ -228,6 +234,42 @@ void boost_lexical_cast_test_i2s()
           max / (1.0 * t.time()));
 }
 
+#ifdef INCLUDE_KARMA
+#include <boost/spirit/include/karma.hpp>
+inline bool karma_int_to_string(int const& value, std::string& str)
+{
+  str.clear();
+  std::back_insert_iterator<std::string> sink(str);
+  using namespace boost::spirit;
+  using boost::spirit::karma::generate;
+  return generate(sink, int_, value);
+}
+
+void karma_lexical_cast_test_i2s()
+{
+   printf("[karma] "); fflush(stdout);
+   std::string s;
+   s.reserve(32);
+   const std::size_t max = 10000000;
+   std::size_t total_length = 0;
+   timer t;
+   t.start();
+   for (int i = 0; i < static_cast<int>(max); ++i)
+   {
+      karma_int_to_string(i,s);
+      total_length += s.size();
+   }
+   t.stop();
+   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          max,
+          total_length,
+          t.time(),
+          max / (1.0 * t.time()));
+}
+#else
+void karma_lexical_cast_test_i2s(){}
+#endif
+
 void strtk_lexical_cast_test_i2s()
 {
    printf("[strtk] "); fflush(stdout);
@@ -342,6 +384,42 @@ void boost_lexical_cast_test_s2i()
           t.time(),
           (rounds * strint_list_size) / (1.0 * t.time()));
 }
+
+
+#ifdef INCLUDE_QI_S2I
+inline bool qi_string_to_int(const std::string& str, int & value)
+{
+  using namespace boost::spirit;
+  using boost::spirit::qi::parse;
+  return parse(str.begin(),str.end(), int_, value);
+}
+
+void qi_lexical_cast_test_s2i()
+{
+   printf("[qi] "); fflush(stdout);
+   const std::size_t rounds = 100000;
+   int total = 0;
+   int n = 0;
+   timer t;
+   t.start();
+   for (std::size_t x = 0; x < rounds; ++x)
+   {
+      for (std::size_t i = 0; i < strint_list_size; ++i)
+      {
+         qi_string_to_int(strint_list[i],n);
+         total += n;
+      }
+   }
+   t.stop();
+   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          rounds * strint_list_size,
+          total,
+          t.time(),
+          (rounds * strint_list_size) / (1.0 * t.time()));
+}
+#else
+ void qi_lexical_cast_test_s2i() {}
+#endif
 
 void strtk_lexical_cast_test_s2i()
 {
@@ -486,6 +564,44 @@ void boost_cast_test_s2d()
           (rounds * v_size) / (1.0 * t.time()));
 }
 
+#ifdef INCLUDE_QI_S2D
+inline bool qi_string_to_double(const std::string& str, double& value)
+{
+  using namespace boost::spirit;
+  using boost::spirit::qi::parse;
+  return parse(str.begin(),str.end(), double_, value);
+}
+
+void qi_cast_test_s2d()
+{
+   printf("[qi] "); fflush(stdout);
+   double sum = 0.0;
+   double d   = 0.0;
+   timer t;
+   t.start();
+   for (std::size_t r = 0; r < rounds; ++r)
+   {
+      for (std::size_t i = 0; i < v_size; ++i)
+      {
+         qi_string_to_double(v[i],d);
+         if (r & 1)
+            sum += d;
+         else
+            sum -= d;
+      }
+   }
+   t.stop();
+   printf("Numbers: %u\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fdbls/sec\n",
+          rounds * v_size,
+          sum,
+          t.time(),
+          (rounds * v_size) / (1.0 * t.time()));
+}
+#else
+ void qi_cast_test_s2d(){}
+#endif
+
+
 void strtk_cast_test_s2d()
 {
    printf("[strtk] "); fflush(stdout);
@@ -523,14 +639,17 @@ int main()
    std::cout << "Integer To String Test" << std::endl;
    sprintf_lexical_cast_test_i2s();
    boost_lexical_cast_test_i2s();
+   karma_lexical_cast_test_i2s();
    strtk_lexical_cast_test_i2s();
    std::cout << "String To Integer Test" << std::endl;
    atoi_lexical_cast_test_s2i();
    boost_lexical_cast_test_s2i();
+   qi_lexical_cast_test_s2i();
    strtk_lexical_cast_test_s2i();
    std::cout << "String To Double Test" << std::endl;
    atof_cast_test_s2d();
    boost_cast_test_s2d();
+   qi_cast_test_s2d();
    strtk_cast_test_s2d();
    return 0;
 }
