@@ -130,10 +130,21 @@ void parse_test01()
    std::string str1 = "";
    std::string str2 = "";
 
-   strtk::construct(str1,"|",i1.d1,i1.d2,i1.d3,i1.d4,i1.d5,i1.d6,i1.d7,i1.d8,i1.d9,i1.d10,i1.d11,i1.d12);
-   strtk::construct(str2,"|",i2.d1,i2.d2,i2.d3,i2.d4,i2.d5,i2.d6,i2.d7,i2.d8,i2.d9,i2.d10,i2.d11,i2.d12);
+   strtk::construct(str1,
+                    "|",
+                     i1.d1, i1.d2, i1.d3,
+                     i1.d4, i1.d5, i1.d6,
+                     i1.d7, i1.d8, i1.d9,
+                    i1.d10,i1.d11,i1.d12);
 
-   const std::size_t dblist_size = 20;
+   strtk::construct(str2,
+                    "|",
+                     i2.d1, i2.d2, i2.d3,
+                     i2.d4, i2.d5, i2.d6,
+                     i2.d7, i2.d8, i2.d9,
+                    i2.d10,i2.d11,i2.d12);
+
+   const std::size_t dblist_size = 30;
 
    std::vector<data_block> db_list(dblist_size);
    std::vector<std::string> s_list;
@@ -166,8 +177,42 @@ void parse_test01()
           (s_list.size() * count) / (1.0 * t.time()));
 }
 
+void parse_test02()
+{
+   static const std::string data = "-1140639 -1352246 -1364216  -139556 -1508745 -1613887 -1785865  -189043 -2587409  -277311"
+                                   "+5949527  6178253 +6183204  6716479 +6853831  6881008  +698539   712081 +7641583  8362997"
+                                   "-2803774 -2990674 -3101408 -3193780 -3284812 -3288516  -360094 -4283200 -4857366  -487077"
+                                   "+4475723  4481602 +4739021  4971375 +4983229   549060 +5652473  5718381 +5807982  5905582"
+                                   "-5098362 -5481616 -5685238 -6024753 -6327104 -6435002 -6616233 -6790734  -682977 -7103068"
+                                   "+1725389  1739907 +1790328  2283111 +2633376  3081627  +327784  3329177 +3413213   359663"
+                                   "-7162254 -7166378 -7257340 -7563199 -7762135 -7823310 -7929750 -8195674 -8283146 -8502597"
+                                   "-8641026 -8995586 -9290949 -9408126 -9446630 -9744076 -9937408  1081438 +1266350  1571976"
+                                   " +369796  3767047 +3779257  3818495 +3978233  3985261 +4170549  4261764 +4283197  4444979"
+                                   "+8376780   840695 +8444607  9219961 +9482187  9517369 +9521169  9523796 +9634928  9785825";
+
+   std::vector<int> vec_int;
+   vec_int.reserve(100);
+
+   std::cout << "[integer into "<< strtk::type_name(vec_int) << "] ";
+
+   timer t;
+   t.start();
+   static const std::size_t count = 1000000;
+   for (std::size_t i = 0; i < count; ++i)
+   {
+      vec_int.clear();
+      strtk::parse(data," ",vec_int);
+   }
+   t.stop();
+   printf("Token Count: %u\tTotal time: %8.4f\tRate: %8.4fprs/s\n",
+          vec_int.size() * count,
+          t.time(),
+          (vec_int.size() * count) / (1.0 * t.time()));
+}
+
 int main()
 {
    parse_test01();
+   parse_test02();
    return 0;
 }
