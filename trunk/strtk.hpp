@@ -6905,6 +6905,19 @@ namespace strtk
                                                '5','6','7','8','9'
                                              };
 
+      template<typename>
+      struct max_string_length                                { enum { value =  0, size =  0 }; };
+      template<> struct max_string_length<short>              { enum { value =  6, size = 16 }; };
+      template<> struct max_string_length<unsigned short>     { enum { value =  6, size = 16 }; };
+
+      template<> struct max_string_length<int>                { enum { value = 12, size = 16 }; };
+      template<> struct max_string_length<unsigned int>       { enum { value = 12, size = 16 }; };
+
+      template<> struct max_string_length<long>               { enum { value = 12, size = 16 }; };
+      template<> struct max_string_length<unsigned long>      { enum { value = 12, size = 16 }; };
+
+      //template<> struct max_string_length<long long>          { enum { value = 20, size = 24 }; };
+      //template<> struct max_string_length<unsigned long long> { enum { value = 20, size = 24 }; };
 
       #define register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
@@ -7013,6 +7026,9 @@ namespace strtk
             ++itr;
          if (end == itr)
             return false;
+         while ((end != itr) && ('0' == *itr)) ++itr;
+         if (typename max_string_length<T>::value < std::distance(begin,itr))
+            return false;
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
@@ -7039,6 +7055,9 @@ namespace strtk
             negative = true;
          }
          if (end == itr)
+            return false;
+         while ((end != itr) && ('0' == *itr)) ++itr;
+         if (typename max_string_length<T>::value < std::distance(begin,itr))
             return false;
          while (end != itr)
          {
@@ -7255,7 +7274,7 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, unsigned_type_tag)
       {
-         char buffer[16];
+         char buffer[typename max_string_length<T>::size];
          char* itr = buffer;
          unsigned int tmp_value = value;
          do
@@ -7274,7 +7293,7 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, signed_type_tag)
       {
-         char buffer[16];
+         char buffer[typename max_string_length<T>::size];
          char* itr = buffer;
          bool negative = (value < 0);
          if (negative)
