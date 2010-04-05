@@ -3334,8 +3334,8 @@ namespace strtk
          : index_(std::numeric_limits<std::size_t>::max()),
            row_list_(0),
            token_list_(&token_list),
-           next_row_(false,0),
-           prev_row_(false,0)
+           next_row_(false,static_cast<row_type*>(0)),
+           prev_row_(false,static_cast<row_type*>(0))
          {}
 
          row_type(const std::size_t& index,
@@ -3343,8 +3343,8 @@ namespace strtk
          : index_(index),
            row_list_(&row_list),
            token_list_(&(*row_list_)[index_]),
-           next_row_(index < (row_list.size() - 1),0),
-           prev_row_(index > 0,0)
+           next_row_(index < (row_list.size() - 1),static_cast<row_type*>(0)),
+           prev_row_(index > 0,static_cast<row_type*>(0))
          {}
 
         ~row_type()
@@ -4515,7 +4515,7 @@ namespace strtk
          if (!stream)
             return false;
          stream.seekg (0,std::ios::end);
-         buffer_size_ = stream.tellg();
+         buffer_size_ = static_cast<std::size_t>(stream.tellg());
          if (0 == buffer_size_)
             return false;
          stream.seekg (0,std::ios::beg);
@@ -7384,7 +7384,7 @@ namespace strtk
          std::ifstream file(file_name.c_str(),std::ios::binary);
          if (!file) return 0;
          file.seekg (0, std::ios::end);
-         return file.tellg();
+         return static_cast<std::size_t>(file.tellg());
       }
 
       inline bool load_file(const std::string& file_name, char* buffer, std::size_t buffer_size)
