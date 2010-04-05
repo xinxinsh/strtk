@@ -610,6 +610,60 @@ bool test_construct_and_parse()
    return true;
 }
 
+bool test_int_uint_convert()
+{
+   static const std::size_t count = 1000000;
+   std::string s;
+   s.reserve(32);
+   {
+      int t = 0;
+      for(int i = -static_cast<int>(count); i < static_cast<int>(count); ++i)
+      {
+         if (!strtk::type_to_string(i,s))
+         {
+            std::cout << "test_int_convert() - Failed int to string @ " << i << std::endl;
+            return false;
+         }
+         if (!strtk::string_to_type_converter(s,t))
+         {
+            std::cout << "test_int_convert() - Failed string to int @ " << i << std::endl;
+            return false;
+         }
+         if (i != t)
+         {
+            std::cout << "test_int_convert() - Failed i == t @ " << i << std::endl;
+            return false;
+         }
+         s.clear();
+      }
+   }
+
+   {
+      unsigned int t = 0;
+      for(unsigned int i = 0; i < count; ++i)
+      {
+         if (!strtk::type_to_string(i,s))
+         {
+            std::cout << "test_int_convert() - Failed uint to string @ " << i << std::endl;
+            return false;
+         }
+         if (!strtk::string_to_type_converter(s,t))
+         {
+            std::cout << "test_int_convert() - Failed string to uint @ " << i << std::endl;
+            return false;
+         }
+         if (i != t)
+         {
+            std::cout << "test_int_convert() - Failed i == t @ " << i << std::endl;
+            return false;
+         }
+         s.clear();
+      }
+   }
+
+   return true;
+}
+
 bool test_parse1()
 {
    std::string data = "1 ,|\t987.654 ,|\t abc ,|\t";
@@ -786,6 +840,7 @@ int main()
    assert(test_empty_filter_itr());
    assert(test_construct_and_parse());
    assert(test_double_convert());
+   assert(test_int_uint_convert());
    assert(test_parse1());
    assert(test_parse2());
    assert(test_parse3());

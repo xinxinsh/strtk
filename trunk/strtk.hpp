@@ -7255,9 +7255,8 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, unsigned_type_tag)
       {
-         if (result.size() < (3 * sizeof(value) + 1))
-            result.resize(3 * sizeof(value) + 1);
-         char* itr = const_cast<char*>(result.c_str());
+         char buffer[16];
+         char* itr = buffer;
          unsigned int tmp_value = value;
          do
          {
@@ -7266,7 +7265,7 @@ namespace strtk
             *(itr++) = digitr[(tmp_value - value * 10)];
          }
          while (value);
-         result.resize(std::distance(result.c_str(),const_cast<const char*>(itr)));
+         result.assign(buffer,itr - buffer);
          itr = const_cast<char*>(result.c_str());
          std::reverse(itr,itr + result.size());
          return true;
@@ -7275,9 +7274,8 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, signed_type_tag)
       {
-         if (result.size() < (3 * sizeof(value) + 1))
-            result.resize(3 * sizeof(value) + 1);
-         char* itr = const_cast<char*>(result.c_str());
+         char buffer[16];
+         char* itr = buffer;
          bool negative = (value < 0);
          if (negative)
             value = static_cast<T>(std::abs(value));
@@ -7290,7 +7288,7 @@ namespace strtk
          }
          while (value);
          if (negative) *(itr++) = '-';
-         result.resize(std::distance(result.c_str(),const_cast<const char*>(itr)));
+         result.assign(buffer,itr - buffer);
          itr = const_cast<char*>(result.c_str());
          std::reverse(itr,itr + result.size());
          return true;
