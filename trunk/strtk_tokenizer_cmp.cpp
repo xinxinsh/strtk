@@ -245,8 +245,7 @@ inline bool karma_int_to_string(const int& value, std::string& str)
   char* x = buffer;
   if (!generate(x, int_, value))
      return false;
-  *x = 0;
-  str.assign(buffer);
+  str.assign(buffer, x - buffer);
   return true;
 }
 
