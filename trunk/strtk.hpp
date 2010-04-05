@@ -6906,18 +6906,18 @@ namespace strtk
                                              };
 
       template<typename>
-      struct max_string_length                                { enum { value =  0, size =  0 }; };
-      template<> struct max_string_length<short>              { enum { value =  6, size = 16 }; };
-      template<> struct max_string_length<unsigned short>     { enum { value =  6, size = 16 }; };
+      struct max_string_length                                { enum { value =  0, size = 32 }; };
+      template<> struct max_string_length<short>              { enum { value =  5, size = 16 }; };
+      template<> struct max_string_length<unsigned short>     { enum { value =  5, size = 16 }; };
 
-      template<> struct max_string_length<int>                { enum { value = 12, size = 16 }; };
-      template<> struct max_string_length<unsigned int>       { enum { value = 12, size = 16 }; };
+      template<> struct max_string_length<int>                { enum { value = 10, size = 16 }; };
+      template<> struct max_string_length<unsigned int>       { enum { value = 10, size = 16 }; };
 
-      template<> struct max_string_length<long>               { enum { value = 12, size = 16 }; };
-      template<> struct max_string_length<unsigned long>      { enum { value = 12, size = 16 }; };
+      template<> struct max_string_length<long>               { enum { value = 10, size = 16 }; };
+      template<> struct max_string_length<unsigned long>      { enum { value = 10, size = 16 }; };
 
-      //template<> struct max_string_length<long long>          { enum { value = 20, size = 24 }; };
-      //template<> struct max_string_length<unsigned long long> { enum { value = 20, size = 24 }; };
+      //template<> struct max_string_length<long long>          { enum { value = 19, size = 24 }; };
+      //template<> struct max_string_length<unsigned long long> { enum { value = 19, size = 24 }; };
 
       #define register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
@@ -7027,7 +7027,7 @@ namespace strtk
          if (end == itr)
             return false;
          while ((end != itr) && ('0' == *itr)) ++itr;
-         if (max_string_length<T>::value < std::distance(begin,itr))
+         if (max_string_length<T>::value < std::distance(itr,end))
             return false;
          while (end != itr)
          {
@@ -7057,7 +7057,7 @@ namespace strtk
          if (end == itr)
             return false;
          while ((end != itr) && ('0' == *itr)) ++itr;
-         if (max_string_length<T>::value < std::distance(begin,itr))
+         if (max_string_length<T>::value < std::distance(itr,end))
             return false;
          while (end != itr)
          {
