@@ -7027,7 +7027,7 @@ namespace strtk
          if (end == itr)
             return false;
          while ((end != itr) && ('0' == *itr)) ++itr;
-         if (typename max_string_length<T>::value < std::distance(begin,itr))
+         if (max_string_length<T>::value < std::distance(begin,itr))
             return false;
          while (end != itr)
          {
@@ -7057,7 +7057,7 @@ namespace strtk
          if (end == itr)
             return false;
          while ((end != itr) && ('0' == *itr)) ++itr;
-         if (typename max_string_length<T>::value < std::distance(begin,itr))
+         if (max_string_length<T>::value < std::distance(begin,itr))
             return false;
          while (end != itr)
          {
@@ -7274,7 +7274,7 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, unsigned_type_tag)
       {
-         char buffer[typename max_string_length<T>::size];
+         char buffer[max_string_length<T>::size];
          char* itr = buffer;
          unsigned int tmp_value = value;
          do
@@ -7293,7 +7293,7 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, signed_type_tag)
       {
-         char buffer[typename max_string_length<T>::size];
+         char buffer[max_string_length<T>::size];
          char* itr = buffer;
          bool negative = (value < 0);
          if (negative)
