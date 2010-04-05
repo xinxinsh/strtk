@@ -621,17 +621,17 @@ bool test_int_uint_convert()
       {
          if (!strtk::type_to_string(i,s))
          {
-            std::cout << "test_int_convert() - Failed int to string @ " << i << std::endl;
+            std::cout << "test_int_uint_convert() - Failed int to string @ " << i << std::endl;
             return false;
          }
          if (!strtk::string_to_type_converter(s,t))
          {
-            std::cout << "test_int_convert() - Failed string to int @ " << i << std::endl;
+            std::cout << "test_int_uint_convert() - Failed string to int @ " << i << std::endl;
             return false;
          }
          if (i != t)
          {
-            std::cout << "test_int_convert() - Failed i == t @ " << i << std::endl;
+            std::cout << "test_int_uint_convert() - Failed i == t @ " << i << std::endl;
             return false;
          }
          s.clear();
@@ -644,23 +644,101 @@ bool test_int_uint_convert()
       {
          if (!strtk::type_to_string(i,s))
          {
-            std::cout << "test_int_convert() - Failed uint to string @ " << i << std::endl;
+            std::cout << "test_int_uint_convert() - Failed uint to string @ " << i << std::endl;
             return false;
          }
          if (!strtk::string_to_type_converter(s,t))
          {
-            std::cout << "test_int_convert() - Failed string to uint @ " << i << std::endl;
+            std::cout << "test_int_uint_convert() - Failed string to uint @ " << i << std::endl;
             return false;
          }
          if (i != t)
          {
-            std::cout << "test_int_convert() - Failed i == t @ " << i << std::endl;
+            std::cout << "test_int_uint_convert() - Failed i == t @ " << i << std::endl;
             return false;
          }
          s.clear();
       }
    }
 
+   static const std::string bad_list[]
+                = {
+                     "12345678901",            "+12345678901",
+                     "123456789012",           "+123456789012",
+                     "1234567890123",          "+1234567890123",
+                     "12345678901234",         "+12345678901234",
+                     "123456789012345",        "+123456789012345",
+                     "00000123456789012345",   "+00000123456789012345",
+                     "12345678901234500000",   "+12345678901234500000",
+                     "1234A",                  "+1234A",
+                     "12A34",                  "+12A34",
+                     "A1234",                  "+A1234",
+                     "-12345678901",           "012345678901",
+                     "-123456789012",          "00123456789012",
+                     "-1234567890123",         "0001234567890123",
+                     "-12345678901234",        "00012345678901234",
+                     "-123456789012345",       "000123456789012345",
+                     "-00000123456789012345",  "-012345678901",
+                     "-12345678901234500000",  "-00123456789012",
+                     "-1234A",                 "-0001234567890123",
+                     "-12A34",                 "-00012345678901234",
+                     "-A1234",                 "-000123456789012345",
+                     "+012345678901",
+                     "+00123456789012",
+                     "+0001234567890123",
+                     "+00012345678901234",
+                     "+000123456789012345",
+                     ""
+                  };
+   static const std::size_t bad_list_size = sizeof(bad_list) / sizeof(std::string);
+
+   {
+      int t = 0;
+      for (std::size_t i = 0; i < bad_list_size; ++i)
+      {
+         if (strtk::string_to_type_converter(bad_list[i],t))
+         {
+            std::cout << "test_int_uint_convert() - Failed bad test for int @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      unsigned int t = 0;
+      for (std::size_t i = 0; i < bad_list_size; ++i)
+      {
+         if (strtk::string_to_type_converter(bad_list[i],t))
+         {
+            std::cout << "test_int_uint_convert() - Failed bad test for uint @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      short t = 0;
+      for (std::size_t i = 0; i < bad_list_size; ++i)
+      {
+         if (strtk::string_to_type_converter(bad_list[i],t))
+         {
+            std::cout << "test_int_uint_convert() - Failed bad test for short @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      unsigned short t = 0;
+      for (std::size_t i = 0; i < bad_list_size; ++i)
+      {
+         if (strtk::string_to_type_converter(bad_list[i],t))
+         {
+            std::cout << "test_int_uint_convert() - Failed bad test for ushort @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
    return true;
 }
 
