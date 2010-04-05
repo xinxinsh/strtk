@@ -237,13 +237,17 @@ void boost_lexical_cast_test_i2s()
 
 #ifdef INCLUDE_KARMA
 #include <boost/spirit/include/karma.hpp>
-inline bool karma_int_to_string(int const& value, std::string& str)
+inline bool karma_int_to_string(const int& value, std::string& str)
 {
-  str.clear();
-  std::back_insert_iterator<std::string> sink(str);
   using namespace boost::spirit;
   using boost::spirit::karma::generate;
-  return generate(sink, int_, value);
+  char buffer[16];
+  char* x = buffer;
+  if (!generate(x, int_, value))
+     return false;
+  *x = 0;
+  str.assign(buffer);
+  return true;
 }
 
 void karma_lexical_cast_test_i2s()
@@ -391,7 +395,9 @@ inline bool qi_string_to_int(const std::string& str, int & value)
 {
   using namespace boost::spirit;
   using boost::spirit::qi::parse;
-  return parse(str.begin(),str.end(), int_, value);
+  char* begin = const_cast<char*>(str.c_str());
+  char* end = begin + str.size();
+  return parse(begin,end, int_, value);
 }
 
 void qi_lexical_cast_test_s2i()
@@ -569,7 +575,9 @@ inline bool qi_string_to_double(const std::string& str, double& value)
 {
   using namespace boost::spirit;
   using boost::spirit::qi::parse;
-  return parse(str.begin(),str.end(), double_, value);
+  char* begin = const_cast<char*>(str.c_str());
+  char* end = begin + str.size();
+  return parse(begin,end, double_, value);
 }
 
 void qi_cast_test_s2d()
