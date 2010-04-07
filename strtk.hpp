@@ -3053,10 +3053,10 @@ namespace strtk
    template<std::size_t n>
    struct interleave_ary;
 
-   template<> struct interleave_ary<sizeof(unsigned short)> { typedef unsigned short type; };
-   template<> struct interleave_ary<sizeof(unsigned int  )> { typedef unsigned int   type; };
-   //template<> struct interleave_ary<sizeof(unsigned long )> { typedef unsigned long  type; };
-   //template<> struct interleave_ary<8> { typedef long long    type; }; Note: atm not supported by ISO C++ (N1811)
+   template<> struct interleave_ary<sizeof(unsigned short)>     { typedef unsigned short type; };
+   template<> struct interleave_ary<sizeof(unsigned int  )>     { typedef unsigned int   type; };
+ //template<> struct interleave_ary<sizeof(unsigned long )>     { typedef unsigned long  type; };
+   template<> struct interleave_ary<sizeof(unsigned long long)> { typedef long long      type; }; //Note: atm not supported by ISO C++ (N1811)
 
    template<std::size_t n>
    inline void create_nway_interleave_table(typename interleave_ary<n>::type table[256])
@@ -3152,7 +3152,6 @@ namespace strtk
              high_bit_count(*(ptr + 2)) + high_bit_count(*(ptr + 3));
    }
 
-   /*
    inline std::size_t high_bit_count(const long long& ll)
    {
       const unsigned char* ptr = reinterpret_cast<const unsigned char*>(&ll);
@@ -3161,7 +3160,6 @@ namespace strtk
              high_bit_count(*(ptr + 4)) + high_bit_count(*(ptr + 5)) +
              high_bit_count(*(ptr + 6)) + high_bit_count(*(ptr + 7));
    }
-   */
 
    inline std::size_t high_bit_count(const unsigned char* begin, const unsigned char* end)
    {
@@ -6416,17 +6414,19 @@ namespace strtk
       template<typename T> inline bool operator << (T& output) { return write(output); }
 
       template<typename T>
-      inline bool read(T&              output) { return output.read(*this); }
-      inline bool read(char&           output) { return read_pod(output);   }
-      inline bool read(short&          output) { return read_pod(output);   }
-      inline bool read(unsigned short& output) { return read_pod(output);   }
-      inline bool read(int&            output) { return read_pod(output);   }
-      inline bool read(unsigned int&   output) { return read_pod(output);   }
-      inline bool read(long&           output) { return read_pod(output);   }
-      inline bool read(unsigned long&  output) { return read_pod(output);   }
-      inline bool read(float&          output) { return read_pod(output);   }
-      inline bool read(double&         output) { return read_pod(output);   }
-      inline bool read(bool&           output) { return read_pod(output);   }
+      inline bool read(T&                   output) { return output.read(*this); }
+      inline bool read(char&                output) { return read_pod(output);   }
+      inline bool read(short&               output) { return read_pod(output);   }
+      inline bool read(unsigned short&      output) { return read_pod(output);   }
+      inline bool read(int&                 output) { return read_pod(output);   }
+      inline bool read(unsigned int&        output) { return read_pod(output);   }
+      inline bool read(long&                output) { return read_pod(output);   }
+      inline bool read(unsigned long&       output) { return read_pod(output);   }
+      inline bool read(long long&           output) { return read_pod(output);   }
+      inline bool read(unsigned long long&  output) { return read_pod(output);   }
+      inline bool read(float&               output) { return read_pod(output);   }
+      inline bool read(double&              output) { return read_pod(output);   }
+      inline bool read(bool&                output) { return read_pod(output);   }
 
       inline bool read(std::string& output)
       {
@@ -6448,17 +6448,19 @@ namespace strtk
       }
 
       template<typename T>
-      inline bool write(const T&              input) { return input.write(*this); }
-      inline bool write(const char&           input) { return write_pod(input);   }
-      inline bool write(const short&          input) { return write_pod(input);   }
-      inline bool write(const unsigned short& input) { return write_pod(input);   }
-      inline bool write(const int&            input) { return write_pod(input);   }
-      inline bool write(const unsigned int&   input) { return write_pod(input);   }
-      inline bool write(const long&           input) { return write_pod(input);   }
-      inline bool write(const unsigned long&  input) { return write_pod(input);   }
-      inline bool write(const float&          input) { return write_pod(input);   }
-      inline bool write(const double&         input) { return write_pod(input);   }
-      inline bool write(const bool&           input) { return write_pod(input);   }
+      inline bool write(const T&                   input) { return input.write(*this); }
+      inline bool write(const char&                input) { return write_pod(input);   }
+      inline bool write(const short&               input) { return write_pod(input);   }
+      inline bool write(const unsigned short&      input) { return write_pod(input);   }
+      inline bool write(const int&                 input) { return write_pod(input);   }
+      inline bool write(const unsigned int&        input) { return write_pod(input);   }
+      inline bool write(const long&                input) { return write_pod(input);   }
+      inline bool write(const unsigned long&       input) { return write_pod(input);   }
+      inline bool write(const long long&           input) { return write_pod(input);   }
+      inline bool writw(const unsigned long long&  input) { return write_pod(input);   }
+      inline bool write(const float&               input) { return write_pod(input);   }
+      inline bool write(const double&              input) { return write_pod(input);   }
+      inline bool write(const bool&                input) { return write_pod(input);   }
 
       inline bool write(const std::string& input)
       {
@@ -6906,18 +6908,19 @@ namespace strtk
                                              };
 
       template<typename>
-      struct max_string_length                                { enum { value =  0, size = 32 }; };
-      template<> struct max_string_length<short>              { enum { value =  5, size = 16 }; };
-      template<> struct max_string_length<unsigned short>     { enum { value =  5, size = 16 }; };
+      struct numeric { enum { length = 0, size = 32, bound_length = 0}; };
 
-      template<> struct max_string_length<int>                { enum { value = 10, size = 16 }; };
-      template<> struct max_string_length<unsigned int>       { enum { value = 10, size = 16 }; };
+      template<> struct numeric<short>              { enum { length =  5, size = 16, bound_length =  4}; };
+      template<> struct numeric<unsigned short>     { enum { length =  5, size = 16, bound_length =  4}; };
 
-      template<> struct max_string_length<long>               { enum { value = 10, size = 16 }; };
-      template<> struct max_string_length<unsigned long>      { enum { value = 10, size = 16 }; };
+      template<> struct numeric<int>                { enum { length = 10, size = 16, bound_length =  8}; };
+      template<> struct numeric<unsigned int>       { enum { length = 10, size = 16, bound_length =  8}; };
 
-      //template<> struct max_string_length<long long>          { enum { value = 19, size = 24 }; };
-      //template<> struct max_string_length<unsigned long long> { enum { value = 19, size = 24 }; };
+      template<> struct numeric<long>               { enum { length = 10, size = 16, bound_length =  8}; };
+      template<> struct numeric<unsigned long>      { enum { length = 10, size = 16, bound_length =  8}; };
+
+      template<> struct numeric<long long>          { enum { length = 19, size = 24, bound_length = 18}; };
+      template<> struct numeric<unsigned long long> { enum { length = 19, size = 24, bound_length = 18}; };
 
       #define register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
@@ -7016,35 +7019,48 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, unsigned_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& result, unsigned_type_tag)
       {
          if (0 == std::distance(begin,end))
             return false;
-         t = 0;
+         T t = 0;
          Iterator itr = begin;
          if ('+' == *itr)
             ++itr;
          if (end == itr)
             return false;
+         unsigned int digit_count = 0;
          while ((end != itr) && ('0' == *itr)) ++itr;
-         if (max_string_length<T>::value < std::distance(itr,end))
-            return false;
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
             if (is_invalid_digit(digit))
                return false;
-            t = (10 * t) + digit;
+            if ((++digit_count) <= numeric<T>::bound_length)
+            {
+               t *= 10;
+               t += digit;
+            }
+            else
+            {
+               typedef unsigned long long base_type;
+               static const base_type max_limit = +std::numeric_limits<T>::max();
+               base_type tmp = static_cast<base_type>(t) * 10 + digit;
+               if (static_cast<base_type>(tmp) > max_limit)
+                  return false;
+               t = static_cast<T>(tmp);
+            }
          }
+         result = static_cast<T>(t);
          return true;
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, signed_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& result, signed_type_tag)
       {
          if (0 == std::distance(begin,end))
             return false;
-         t = 0;
+         T t = 0;
          Iterator itr = begin;
          bool negative = false;
          if ('+' == *itr)
@@ -7056,26 +7072,42 @@ namespace strtk
          }
          if (end == itr)
             return false;
+         unsigned int digit_count = 0;
          while ((end != itr) && ('0' == *itr)) ++itr;
-         if (max_string_length<T>::value < std::distance(itr,end))
-            return false;
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
             if (is_invalid_digit(digit))
                return false;
-            t = (10 * t) + digit;
+            if ((++digit_count) <= numeric<T>::bound_length)
+            {
+               t *= 10;
+               t += digit;
+            }
+            else
+            {
+               typedef unsigned long long base_type;
+               static const base_type max_limit = +std::numeric_limits<T>::max();
+               static const base_type min_limit = -std::numeric_limits<T>::min();
+               base_type tmp = static_cast<base_type>(t) * 10 + digit;
+               if (negative && static_cast<base_type>(tmp) > min_limit)
+                  return false;
+               else if (static_cast<base_type>(tmp) > max_limit)
+                  return false;
+               t = static_cast<T>(tmp);
+            }
          }
          if (negative) t *= -1;
+         result = static_cast<T>(t);
          return true;
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end, T& t, signed_type_tag)
+      inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end, T& result, signed_type_tag)
       {
          if (0 == std::distance(itr,end))
             return false;
-         t = 0;
+         T t = 0;
          bool negative = false;
          if ('+' == *itr)
             ++itr;
@@ -7086,14 +7118,33 @@ namespace strtk
          }
          if (end == itr)
             return false;
+         unsigned int digit_count = 0;
+         while ((end != itr) && ('0' == *itr)) ++itr;
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
             if (is_invalid_digit(digit))
                return false;
-            t = (10 * t) + digit;
+            if (++digit_count > numeric<T>::bound_length)
+            {
+               typedef unsigned long long base_type;
+               static const base_type max_limit = +std::numeric_limits<T>::max();
+               static const base_type min_limit = -std::numeric_limits<T>::min();
+               base_type tmp = static_cast<base_type>(t) * 10 + digit;
+               if (negative && static_cast<base_type>(tmp) > min_limit)
+                  return false;
+               else if (static_cast<base_type>(tmp) > max_limit)
+                  return false;
+               t = static_cast<T>(tmp);
+            }
+            else
+            {
+               t *= 10;
+               t += digit;
+            }
          }
          if (negative) t *= -1;
+         result = static_cast<T>(t);
          return true;
       }
 
@@ -7274,7 +7325,7 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, unsigned_type_tag)
       {
-         char buffer[max_string_length<T>::size];
+         char buffer[numeric<T>::size];
          char* itr = buffer;
          unsigned int tmp_value = value;
          do
@@ -7293,7 +7344,7 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, signed_type_tag)
       {
-         char buffer[max_string_length<T>::size];
+         char buffer[numeric<T>::size];
          char* itr = buffer;
          bool negative = (value < 0);
          if (negative)

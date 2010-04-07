@@ -97,7 +97,7 @@ bool test_tokenizer_itr(const Predicate& p,
    return result == expected_result;
 }
 
-void test_split_and_tokenizer()
+bool test_split_and_tokenizer()
 {
    struct test_pairs
    {
@@ -300,27 +300,64 @@ void test_split_and_tokenizer()
       std::string in = test_input_output1[i].input;
       std::string out = test_input_output1[i].output;
 
-      if (!test_tokenizer_split(single_predicate,in,out)) std::cout << "Failed Split Test01 " << i << std::endl;
-      if (!test_tokenizer_itr<tokenizer_type1>(single_predicate,in,out)) std::cout << "Failed Iterator Test01 " << i << std::endl;
+      if (!test_tokenizer_split(single_predicate,in,out))
+      {
+         std::cout << "Failed Split Test01 " << i << std::endl;
+         return false;
+      }
+
+      if (!test_tokenizer_itr<tokenizer_type1>(single_predicate,in,out))
+      {
+         std::cout << "Failed Iterator Test01 " << i << std::endl;
+         return false;
+      }
 
       in = test_input_output2[i].input;
       out = test_input_output2[i].output;
 
-      if (!test_tokenizer_split(multi_predicate,in,out)) std::cout << "Failed Split Test02 " << i << std::endl;
-      if (!test_tokenizer_itr<tokenizer_type2>(multi_predicate,in,out)) std::cout << "Failed Iterator Test02 " << i << std::endl;
+      if (!test_tokenizer_split(multi_predicate,in,out))
+      {
+         std::cout << "Failed Split Test02 " << i << std::endl;
+         return false;
+      }
+
+      if (!test_tokenizer_itr<tokenizer_type2>(multi_predicate,in,out))
+      {
+         std::cout << "Failed Iterator Test02 " << i << std::endl;
+         return false;
+      }
 
       in = test_input_output3[i].input;
       out = test_input_output3[i].output;
 
-      if (!test_tokenizer_split(single_predicate,in,out,true)) std::cout << "Failed Compressed Delimiter Split Test01 " << i << std::endl;
-      if (!test_tokenizer_itr<tokenizer_type1>(single_predicate,in,out,true)) std::cout << "Failed Compressed Delimiter Iterator Test01 " << i << std::endl;
+      if (!test_tokenizer_split(single_predicate,in,out,true))
+      {
+         std::cout << "Failed Compressed Delimiter Split Test01 " << i << std::endl;
+         return false;
+      }
+
+      if (!test_tokenizer_itr<tokenizer_type1>(single_predicate,in,out,true))
+      {
+         std::cout << "Failed Compressed Delimiter Iterator Test01 " << i << std::endl;
+         return false;
+      }
 
       in = test_input_output4[i].input;
       out = test_input_output4[i].output;
 
-      if (!test_tokenizer_split(multi_predicate,in,out,true)) std::cout << "Failed Compressed Delimiter Split Test02 " << i << std::endl;
-      if (!test_tokenizer_itr<tokenizer_type2>(multi_predicate,in,out,true)) std::cout << "Failed Compressed Delimiter Iterator Test02 " << i << std::endl;
+      if (!test_tokenizer_split(multi_predicate,in,out,true))
+      {
+         std::cout << "Failed Compressed Delimiter Split Test02 " << i << std::endl;
+         return false;
+      }
+
+      if (!test_tokenizer_itr<tokenizer_type2>(multi_predicate,in,out,true))
+      {
+         std::cout << "Failed Compressed Delimiter Iterator Test02 " << i << std::endl;
+         return false;
+      }
    }
+   return true;
 }
 
 bool test_split_n()
@@ -913,15 +950,16 @@ bool test_replace_pattern()
 
 int main()
 {
-   test_split_and_tokenizer();
-   assert(test_split_n());
-   assert(test_empty_filter_itr());
-   assert(test_construct_and_parse());
-   assert(test_double_convert());
-   assert(test_int_uint_convert());
-   assert(test_parse1());
-   assert(test_parse2());
-   assert(test_parse3());
-   assert(test_replace_pattern());
-   return 0;
+   bool result = true;
+   result &= test_split_and_tokenizer();
+   result &= test_split_n();
+   result &= test_empty_filter_itr();
+   result &= test_construct_and_parse();
+   result &= test_double_convert();
+   result &= test_int_uint_convert();
+   result &= test_parse1();
+   result &= test_parse2();
+   result &= test_parse3();
+   result &= test_replace_pattern();
+   return (false == result ? 1 : 0);
 }
