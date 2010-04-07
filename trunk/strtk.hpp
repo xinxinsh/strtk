@@ -7331,12 +7331,12 @@ namespace strtk
       {
          char buffer[numeric<T>::size];
          char* itr = buffer;
-         unsigned int tmp_value = value;
+         std::size_t remainder = 0;
          do
          {
-            tmp_value = value;
-            value /= 10;
-            *(itr++) = digitr[(tmp_value - value * 10)];
+            remainder = value % 10;
+            value    /= 10;
+            *(itr++) = digitr[remainder];
          }
          while (value);
          result.assign(buffer,itr - buffer);
@@ -7353,12 +7353,12 @@ namespace strtk
          bool negative = (value < 0);
          if (negative)
             value = static_cast<T>(std::abs(value));
-         int tmp_value = value;
+         std::size_t remainder = 0;
          do
          {
-            tmp_value = value;
-            value /= 10;
-            *(itr++) = digitr[tmp_value - value * 10];
+            remainder = value % 10;
+            value    /= 10;
+            *(itr++) = digitr[remainder];
          }
          while (value);
          if (negative) *(itr++) = '-';
