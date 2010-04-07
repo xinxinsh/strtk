@@ -776,6 +776,114 @@ bool test_int_uint_convert()
          }
       }
    }
+
+   {
+      std::string s1 =  "65536";
+      std::string s2 = "+65536";
+      unsigned short t = 0;
+      if (strtk::string_to_type_converter(s1,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 ushort str: " << s << std::endl;
+         return false;
+      }
+      if (strtk::string_to_type_converter(s2,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 ushort str: " << s << std::endl;
+         return false;
+      }
+   }
+
+   {
+      std::string s1 = "–32769";
+      std::string s2 = "+32768";
+      std::string s3 =  "32768";
+      short int t = 0;
+
+      if (strtk::string_to_type_converter(s1,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for min short str: " << s << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s2,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 short str: " << s << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s3,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 short str: " << s << std::endl;
+         return false;
+      }
+   }
+
+   {
+      std::string s1 =  "4294967296";
+      std::string s2 = "+4294967296";
+      unsigned int t = 0;
+      if (strtk::string_to_type_converter(s1,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 uint str: " << s << std::endl;
+         return false;
+      }
+      if (strtk::string_to_type_converter(s2,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 uint str: " << s << std::endl;
+         return false;
+      }
+   }
+
+   {
+      std::string s1 = "–2147483649";
+      std::string s2 = "+2147483648";
+      std::string s3 =  "2147483648";
+      int t = 0;
+
+      if (strtk::string_to_type_converter(s1,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for min int str: " << s << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s2,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 int str: " << s << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s3,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 int str: " << s << std::endl;
+         return false;
+      }
+   }
+
+   {
+      std::string s1 = "–9223372036854775808";
+      std::string s2 = "+9223372036854775808";
+      std::string s3 =  "9223372036854775808";
+      int t = 0;
+
+      if (strtk::string_to_type_converter(s1,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for min long long str: " << s << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s2,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 long long str: " << s << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s3,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 long long str: " << s << std::endl;
+         return false;
+      }
+   }
+
    return true;
 }
 

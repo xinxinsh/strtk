@@ -6958,10 +6958,12 @@ namespace strtk
       register_unsigned_type_tag(unsigned short)
       register_unsigned_type_tag(unsigned int)
       register_unsigned_type_tag(unsigned long)
+      register_unsigned_type_tag(unsigned long long)
 
       register_signed_type_tag(short)
       register_signed_type_tag(int)
       register_signed_type_tag(long)
+      register_signed_type_tag(long long)
 
       register_real_type_tag(float)
       register_real_type_tag(double)
@@ -6975,6 +6977,7 @@ namespace strtk
       register_hex_type_tag(hex_to_number_sink<unsigned short>)
       register_hex_type_tag(hex_to_number_sink<unsigned int>)
       register_hex_type_tag(hex_to_number_sink<unsigned long>)
+      register_hex_type_tag(hex_to_number_sink<unsigned long long>)
 
       register_base64_type_tag(base64_to_number_sink<short>)
       register_base64_type_tag(base64_to_number_sink<int>)
@@ -6982,6 +6985,7 @@ namespace strtk
       register_base64_type_tag(base64_to_number_sink<unsigned short>)
       register_base64_type_tag(base64_to_number_sink<unsigned int>)
       register_base64_type_tag(base64_to_number_sink<unsigned long>)
+      register_base64_type_tag(base64_to_number_sink<unsigned long long>)
 
       register_supported_iterator_type(char*)
       register_supported_iterator_type(unsigned char*)
@@ -7396,9 +7400,11 @@ namespace strtk
       register_type_name(short)
       register_type_name(int)
       register_type_name(long)
+      register_type_name(long long)
       register_type_name(unsigned short)
       register_type_name(unsigned int)
       register_type_name(unsigned long)
+      register_type_name(unsigned long long)
       register_type_name(double)
       register_type_name(float)
       register_type_name(std::string)
@@ -8428,6 +8434,19 @@ namespace strtk
       inline void compute_pod_hash(const unsigned int& data, unsigned int& hash)
       {
          compute_pod_hash(static_cast<int>(data),hash);
+      }
+
+      inline void compute_pod_hash(const unsigned long long& data, unsigned int& hash)
+      {
+         const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
+         hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[1] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[2] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[3] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[4] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[5] ^ (hash >> 5)));
+         hash ^=  ((hash <<  7) ^  itr[6] * (hash >> 3));
+         hash ^= ~((hash << 11) + (itr[7] ^ (hash >> 5)));
       }
 
       inline void compute_pod_hash(const double& data, unsigned int& hash)
