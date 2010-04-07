@@ -46,11 +46,13 @@
 #include <boost/lexical_cast.hpp>
 
 //Note: Uncomment the following to include Karma and Qi, this also requires Boost 1.42+
-//#define INCLUDE_KARMA
-//#define INCLUDE_QI_S2I
-//#define INCLUDE_QI_S2D
-//#include <boost/spirit/include/qi.hpp>
-//#include <boost/spirit/include/karma.hpp>
+#ifdef USE_SPIRIT
+#define INCLUDE_KARMA
+#define INCLUDE_QI_S2I
+#define INCLUDE_QI_S2D
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/karma.hpp>
+#endif
 
 #ifdef WIN32
  #include <windows.h>

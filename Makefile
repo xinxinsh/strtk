@@ -17,11 +17,11 @@
 
 COMPILER         = -c++
 OPTIMIZATION_OPT = -O1
-OPTIONS          = -pedantic-errors -ansi -Wall -Wextra -Werror -Wno-long-long $(OPTIMIZATION_OPT) -o
+BASE_OPTIONS     = -pedantic-errors -ansi -Wall -Wextra -Werror -Wno-long-long
+OPTIONS          = $(BASE_OPTIONS) $(OPTIMIZATION_OPT) -o
 REGEX            = -lboost_regex
 PTHREAD          = -lpthread
 LINKER_OPT       = -L/usr/lib -lstdc++ 
-
 
 OBJECTS = $(CPP_SRC:.cpp=.o)
 
@@ -87,6 +87,13 @@ strtk_random_line : strtk_random_line.cpp strtk.hpp
 strtk_numstats : strtk_numstats.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_numstats strtk_numstats.cpp $(LINKER_OPT)
 
+pgo : strtk_parse_test.cpp strtk_tokenizer_cmp.cpp strtk.hpp
+	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -pg -fprofile-generate -DUSE_SPIRIT -o strtk_tokenizer_cmp strtk_tokenizer_cmp.cpp $(LINKER_OPT)
+	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -pg -fprofile-generate -o strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
+	./strtk_tokenizer_cmp
+	./strtk_parse_test
+	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -fprofile-use -DUSE_SPIRIT -o strtk_tokenizer_cmp strtk_tokenizer_cmp.cpp $(LINKER_OPT)
+	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -fprofile-use -o strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
 
 strip_bin :
 	strip -s strtk_tokenizer_cmp
@@ -121,4 +128,4 @@ valgrind_check :
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_numstats
 
 clean:
-	rm -f core *.o *.bak *stackdump *#
+	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda
