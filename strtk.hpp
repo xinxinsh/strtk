@@ -6902,7 +6902,7 @@ namespace strtk
          return (static_cast<T>(invalid_digit) == t);
       }
 
-      static const unsigned char digitr[10] = {
+      static const unsigned char digitr[] = {
                                                '0','1','2','3','4',
                                                '5','6','7','8','9'
                                              };
@@ -7129,7 +7129,12 @@ namespace strtk
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
             if (is_invalid_digit(digit))
                return false;
-            if (++digit_count > numeric<T>::bound_length)
+            if ((++digit_count) <= numeric<T>::bound_length)
+            {
+               t *= 10;
+               t += digit;
+            }
+            else
             {
                typedef unsigned long long base_type;
                static const base_type max_limit = +std::numeric_limits<T>::max();
@@ -7140,11 +7145,6 @@ namespace strtk
                else if (static_cast<base_type>(tmp) > max_limit)
                   return false;
                t = static_cast<T>(tmp);
-            }
-            else
-            {
-               t *= 10;
-               t += digit;
             }
          }
          if (negative) t *= -1;
