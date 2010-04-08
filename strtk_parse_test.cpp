@@ -171,8 +171,8 @@ void parse_test01()
       }
    }
    t.stop();
-   printf("Token Count: %u\tTotal time: %8.4f\tRate: %8.4fprs/s\n",
-          s_list.size() * 12 * count,
+   printf("Token Count: %lu\tTotal time: %8.4f\tRate: %8.4fprs/s\n",
+          static_cast<unsigned long>(s_list.size() * 12 * count),
           t.time(),
           (s_list.size() * count) / (1.0 * t.time()));
 }
@@ -204,8 +204,8 @@ void parse_test02()
       strtk::parse(data," ",vec_int);
    }
    t.stop();
-   printf("Token Count: %u\tTotal time: %8.4f\tRate: %8.4fprs/s\n",
-          vec_int.size() * count,
+   printf("Token Count: %lu\tTotal time: %8.4f\tRate: %8.4fprs/s\n",
+          static_cast<unsigned long>(vec_int.size() * count),
           t.time(),
           (vec_int.size() * count) / (1.0 * t.time()));
 }

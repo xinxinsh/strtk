@@ -245,7 +245,7 @@ bool test04(char* buffer, const unsigned int buffer_size)
       s.clear();
       std::deque<unsigned int> lst;
       const unsigned int max_count = 1000;
-      for (unsigned int i = 0; i < max_count; lst.push_back(i++));
+      for (unsigned int i = 0; i < max_count; lst.push_back(i++)) ;
 
       s.write_from_external_sequence(lst);
 
@@ -407,9 +407,10 @@ bool test06(char* buffer)
 {
    const size_t size = 10;
    const int intlst[size] = { -1, 2, -3, 4, -5, 6, -7, 8, -9, 10 };
-   const unsigned int uintlst[size] = { 734594,1375762, 5432543,
-                                        3454, 32132, 65463, 976765,
-                                        2355754, 74239542, 32523 };
+   const unsigned int uintlst[size] = { 
+                                        734594, 1375762, 5432543,     3454, 32132, 
+                                         65463,  976765, 2355754, 74239542, 32523 
+                                      };
    const float fltlst[size] = { 1.1f, 2.2f, 3.3f, 4.4f, 5.5f, 6.6f, 7.7f, 8.8f, 9.9f, 10.10f };
    const double dbllst[size] = { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.10 };
 

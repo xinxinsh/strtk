@@ -190,7 +190,7 @@ void token_grid_test04()
    std::string data;
    data.reserve(160);
    data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
-   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
+   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i) ;
    strtk::token_grid grid(data,data.size(),",");
    grid.enforce_column_count(5);
    for (unsigned int i = 0; i < grid.row_count(); ++i)
@@ -210,7 +210,7 @@ void token_grid_test05()
    std::string data;
    data.reserve(160);
    data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
-   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i);
+   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i) ;
    strtk::token_grid grid(data,data.size(),",");
 
    for (unsigned int i = 0; i < grid.row_count(); ++i)
@@ -250,7 +250,7 @@ void token_grid_test06()
       avg_r[i] = std::accumulate(tmp.begin(),tmp.end(),0.0) / tmp.size();
    }
 
-   for (unsigned int i = 0; i < avg_c.size(); avg_c[i++] /= grid.row_count());
+   for (unsigned int i = 0; i < avg_c.size(); avg_c[i++] /= grid.row_count()) ;
 
    std::cout << "Column Averages:\t";
    std::copy(avg_c.begin(),avg_c.end(),std::ostream_iterator<double>(std::cout,"\t"));
