@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
       return 0;
 
    std::size_t total_length = 0;
-   for (std::size_t i = 0; i < str_list.size(); total_length += str_list[i++].size());
+   for (std::size_t i = 0; i < str_list.size(); total_length += str_list[i++].size()) ;
 
    std::string buffer;
    buffer.reserve(total_length + str_list.size());

@@ -174,8 +174,8 @@ void strtk_split_timed_test()
    t.start();
    strtk::parse(s,delimiters,token_list);
    t.stop();
-   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
-          token_list.size(),
+   printf("Token Count: %lu\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+          static_cast<unsigned long>(token_list.size()),
           t.time(),
           token_list.size() / (1.0 * t.time()));
 }
@@ -191,8 +191,8 @@ void boost_split_timed_test()
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
    t.stop();
-   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
-          token_list.size(),
+   printf("Token Count: %lu\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+          static_cast<unsigned long>(token_list.size()),
           t.time(),
           token_list.size() / (1.0 * t.time()));
 }
@@ -212,9 +212,9 @@ void sprintf_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          max,
-          total_length,
+   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(max),
+          static_cast<unsigned long>(total_length),
           t.time(),
           max / (1.0 * t.time()));
 }
@@ -234,9 +234,9 @@ void boost_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          max,
-          total_length,
+   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(max),
+          static_cast<unsigned long>(total_length),
           t.time(),
           max / (1.0 * t.time()));
 }
@@ -270,9 +270,9 @@ void karma_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          max,
-          total_length,
+   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(max),
+          static_cast<unsigned long>(total_length),
           t.time(),
           max / (1.0 * t.time()));
 }
@@ -295,25 +295,28 @@ void strtk_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %u\tTotal length: %u\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          max,
-          total_length,
+   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(max),
+          static_cast<unsigned long>(total_length),
           t.time(),
           max / (1.0 * t.time()));
 }
 
 static const std::string strint_list[] =
              {
+                       "0",         "1",         "2",         "3",         "4",         "5",         "6",         "7",         "8",         "9",
                   "917049",   "4931205",   "6768064",   "6884243",   "5647132",   "7371203",  "-8629878",   "4941840",   "4543268",   "1075600",
                  "9922547",   "6960207",   "1883152",   "2300759",   "-279294",   "4187292",   "3699841",  "+8386395",  "-1441129",   "-887892",
                  "-635422",   "9742573",   "2326186",  "-5903851",   "5648486",   "3057647",   "2980079",   "2957468",   "7929158",   "1925615",
                  "4365041",   "5624958",   "8990205",   "2652177",   "3993588",   "-298316",   "2901599",   "3887387",  "-5202979",   "1196268",
                  "5968501",   "7619928",   "3565643",   "1885272",   "-749485",   "2961381",   "2982579",   "2387454",   "4250081",   "5958205",
+                   "00000",     "00001",     "00002",     "00003",     "00004",     "00005",     "00006",     "00007",     "00008",     "00009",
                  "4907034",   "2592882",   "3269234",    "549815",   "6256292",   "9721039",   "-595225",  "+5587491",   "4596297",  "-3885009",
                  "6518423",   "5149762",   "8834164",  "-8085586",   "3233120",   "8166948",   "4172345",   "6735549",   "-934295",   "9481935",
                  "-430406",   "6932717",   "4087292",   "4047263",   "3236400",  "-3863050",   "4312079",   "6956261",   "5689446",   "3871332",
                  "4969414",   "9378599",   "7971781",   "5380630",   "5001363",   "1715827",   "6044615",   "9118925",   "9956168",  "-8865496",
                  "5962464",   "7408980",   "6646513",   "-634564",   "4188330",   "9805948",   "5625691",  "+7641113",  "-4212929",   "7802447",
+                      "+0",        "+1",        "+2",        "+3",        "+4",        "+5",        "+6",        "+7",        "+8",        "+9",
                  "2174248",   "7449361",   "9896659",    "-25961",   "1706598",   "2412368",  "-4617035",   "6314554",   "2225957",   "7521434",
                 "-9530566",   "3914164",   "2394759",   "7157744",   "9919392",   "6406949",   "-744004",   "9899789",   "8380325",  "-1416284",
                  "3402833",   "2150043",   "5191009",   "8979538",   "9565778",   "3750211",   "7304823",   "2829359",   "6544236",   "-615740",
@@ -321,6 +324,7 @@ static const std::string strint_list[] =
                 "-4924485",   "7467889",   "9813178",   "7927100",   "3614859",   "7293354",   "9232973",   "4323115",   "1133911",   "9511638",
                  "4443188",   "2289448",   "5639726",   "9073898",   "8540394",   "5389992",   "1397726",   "-589230",   "1017086",   "1852330",
                  "9097353",   "6002251",   "-308780",  "-3830169",   "4340467",   "2235284",   "3314444",   "1085967",   "4152107",  "+5431117",
+                   "-0000",     "-0001",     "-0002",     "-0003",     "-0004",     "-0005",     "-0006",     "-0007",     "-0008",     "-0009",
                  "-444999",   "2136400",   "6925907",   "6990614",   "3588271",   "8422028",  "-4034772",   "5804039",  "-6740545",   "9381873",
                  "-924923",   "1652367",   "2302616",   "6776663",   "2567821",   "-248935",   "2587688",   "7076742",  "-6461467",   "1562896",
                  "-768116",   "2338768",   "9887307",   "9992184",   "2045182",   "2797589",   "9784597",   "9696554",   "5113329",   "1067216",
@@ -330,6 +334,7 @@ static const std::string strint_list[] =
                "-47385048", "-79413272", "-85904404",  "87791158",  "49194195",  "13051222",  "57773302",  "31904423",   "3142966",  "27846156",
                  "7420011", "-72376922", "-68873971",  "23765361",   "4040725", "-22359806",  "85777219",  "10099223", "-90364256", "-40158172",
                 "-7948696", "-64344821",  "34404238",  "84037448", "-85084788", "-42078409", "-56550310",  "96898389",   "-595829", "-73166703",
+                      "-0",        "-1",        "-2",        "-3",        "-4",        "-5",        "-6",        "-7",        "-8",        "-9",
                "-82838342",  "64441808",  "43641062", "-64419642", "-44421934",  "75232413", "-75773725", "-89139509",  "12812089", "-97633526",
                 "36090916", "-57706234",  "17804655",   "4189936",  "-4100124",  "38803710", "-39735126", "-62397437",  "75801648",  "51302332",
                 "73433906",  "13015224", "-12624818",  "91360377",  "11576319", "-54467535",   "8892431",  "36319780",  "38832042",  "50172572",
@@ -340,6 +345,7 @@ static const std::string strint_list[] =
                "-82740809", "-24122215",  "67301713", "-63649610",  "75499016",  "82746620",  "17052193",   "4602244", "-32721165",  "20837836",
                 "64501793",  "53146328",   "5152287",  "-9674493",  "68105580",  "57245637",  "39740229", "-74071854",  "86777268",  "86484437",
                "-86962508",  "12644427", "-62944073",  "59539680",  "43340539",  "30661534",  "20143968", "-68183731", "-48250926",  "42669063",
+                    "+000",      "+001",      "+002",      "+003",      "+004",      "+005",      "+006",      "+007",      "+008",      "+009",
                 "87736852",  "-4444906", "-48094147",  "54774735",  "54571890", "-22473078",  "95053418",    "393654", "-33229960",  "32276798",
                "-48361110",  "44295939", "-79813406",  "11630865",  "38544571",  "70972830",  "-9821748", "-60965384", "-13096675", "-24569041",
                 "97233152",  "51028396", "-13796948",  "95437272",  "71352512", "-83233730", "-68517318",  "61832742", "-42667174", "-18002395",
@@ -364,8 +370,8 @@ void atoi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * strint_list_size,
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
           (rounds * strint_list_size) / (1.0 * t.time()));
@@ -388,8 +394,8 @@ void boost_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * strint_list_size,
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
           (rounds * strint_list_size) / (1.0 * t.time()));
@@ -422,8 +428,8 @@ void qi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * strint_list_size,
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
           (rounds * strint_list_size) / (1.0 * t.time()));
@@ -449,8 +455,8 @@ void strtk_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %u\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * strint_list_size,
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
           (rounds * strint_list_size) / (1.0 * t.time()));
@@ -542,8 +548,8 @@ void atof_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %u\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * v_size,
+   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
           (rounds * v_size) / (1.0 * t.time()));
@@ -568,8 +574,8 @@ void boost_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %u\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * v_size,
+   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
           (rounds * v_size) / (1.0 * t.time()));
@@ -604,8 +610,8 @@ void qi_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %u\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * v_size,
+   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
           (rounds * v_size) / (1.0 * t.time()));
@@ -633,8 +639,8 @@ void strtk_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %u\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          rounds * v_size,
+   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+          static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
           (rounds * v_size) / (1.0 * t.time()));

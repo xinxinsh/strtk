@@ -1319,7 +1319,7 @@ namespace strtk
                   curr_tok_begin_ = prev_;
                   curr_tok_end_ = itr_;
                   if (compress_delimiters_)
-                     while ((end_ != ++itr_) && predicate_(*itr_));
+                     while ((end_ != ++itr_) && predicate_(*itr_)) ;
                   else
                      ++itr_;
                   return *this;
@@ -1964,13 +1964,13 @@ namespace strtk
               ++range.second;
               *(out++) = range;
               if (compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second)) ;
            }
            else
            {
               *(out++) = range;
               if (compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second)) ;
               else
                  ++range.second;
            }
@@ -2067,7 +2067,7 @@ namespace strtk
               if (++match_count >= token_count)
                  return match_count;
               if (compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second)) ;
            }
            else
            {
@@ -2075,7 +2075,7 @@ namespace strtk
               if (++match_count >= token_count)
                  return match_count;
               if (compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second));
+                 while ((end != (++range.second)) && delimiter(*range.second)) ;
               else
                  ++range.second;
            }
@@ -6054,7 +6054,7 @@ namespace strtk
       if (pre_gen_cnt > 0)
       {
          unsigned int r = 0x00;
-         for (unsigned int i = 0; i < pre_gen_cnt; r = rnd(), ++i);
+         for (unsigned int i = 0; i < pre_gen_cnt; r = rnd(), ++i) ;
       }
       unsigned char* itr = data;
       unsigned int* x = 0;
@@ -6108,7 +6108,7 @@ namespace strtk
          // Note: The implied range will be: [min,max]
          using namespace boost;
          variate_generator<RandomNumberGenerator&,uniform_int<T> > rnd(rng,uniform_int<T>(min,max));
-         for (std::size_t i = 0; i < count; ++i, *out++ = rnd());
+         for (std::size_t i = 0; i < count; ++i, *out++ = rnd()) ;
       }
 
       template<typename T, typename OutputIterator, typename RandomNumberGenerator>
@@ -6122,7 +6122,7 @@ namespace strtk
          // Note: The implied range will be: [min,max)
          using namespace boost;
          variate_generator<RandomNumberGenerator&, uniform_real<T> > rnd(rng,uniform_real<T>(min,max));
-         for (std::size_t i = 0; i < count; ++i, *out++ = rnd());
+         for (std::size_t i = 0; i < count; ++i, *out++ = rnd()) ;
       }
 
    }
@@ -6162,7 +6162,7 @@ namespace strtk
    {
       typename details::supported_random_type<T>::type type;
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for (std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng()) ;
       generate_random_values_impl(count,min,max,out,rng,type);
    }
 
@@ -6176,7 +6176,7 @@ namespace strtk
    {
       typename details::supported_random_type<T>::type type;
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for (std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng()) ;
       generate_random_values_impl(count,min,max,std::back_inserter(sequence),rng,type);
    }
 
@@ -6190,7 +6190,7 @@ namespace strtk
       const std::size_t size = std::distance(begin,end);
       if ((rng. min() < 0.0) || (rng.max() > 1.0)) return;
       std::deque<std::size_t> index;
-      for (std::size_t i = 0; i < size; index.push_back(i++));
+      for (std::size_t i = 0; i < size; index.push_back(i++)) ;
       while (!index.empty())
       {
          std::size_t idx = static_cast<std::size_t>(index.size() * rng());
@@ -6207,7 +6207,7 @@ namespace strtk
                                   const std::size_t& pregen = 0)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for (std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng()) ;
       boost::uniform_real<double> dist(0.0,1.0);
       boost::variate_generator<boost::mt19937&, boost::uniform_real<double> > rnd(rng,dist);
       random_permutation(begin,end,rnd,out);
@@ -6224,7 +6224,7 @@ namespace strtk
       const std::size_t size = std::distance(begin,end);
       if ((size < set_size) || (rng. min() < 0.0) || (rng.max() > 1.0)) return false;
       std::deque<std::size_t> index;
-      for (std::size_t i = 0; i < size; index.push_back(i++));
+      for (std::size_t i = 0; i < size; index.push_back(i++)) ;
       while (set_size)
       {
          std::size_t idx = static_cast<std::size_t>(index.size() * rng());
@@ -6244,7 +6244,7 @@ namespace strtk
                                   const std::size_t& pregen = 0)
    {
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
-      for (std::size_t i = 0; i++ < pregen; rng());
+      for (std::size_t i = 0; i++ < pregen; rng()) ;
       boost::uniform_real<double> dist(0.0,1.0);
       boost::variate_generator<boost::mt19937&, boost::uniform_real<double> > rnd(rng,dist);
       random_combination(begin,end,set_size,rnd,out);

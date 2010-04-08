@@ -580,7 +580,7 @@ void random_permutation_example()
 {
    #ifdef ENABLE_RANDOM
    std::vector<std::size_t> lst;
-   for (std::size_t i = 0; i < 10; lst.push_back(i++));
+   for (std::size_t i = 0; i < 10; lst.push_back(i++)) ;
 
    const std::size_t seed[] = {
                                0x390E348F, 0x2884D0F5, 0x18AEB587, 0x31F9038C, 0x2AB63848,
@@ -609,7 +609,7 @@ void random_combination_example()
                         };
 
    std::vector<std::size_t> lst;
-   for (std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); lst.push_back(i++));
+   for (std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); lst.push_back(i++)) ;
 
    for (std::size_t i = 0; i < sizeof(seed)/sizeof(std::size_t); ++i)
    {
