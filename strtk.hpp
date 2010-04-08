@@ -7330,18 +7330,17 @@ namespace strtk
       inline bool type_to_string_converter_impl(T value, std::string& result, unsigned_type_tag)
       {
          char buffer[numeric<T>::size];
-         char* itr = buffer;
+         char* itr = buffer + (numeric<T>::size - 1);
          std::size_t remainder = 0;
          do
          {
             remainder = value % 10;
             value    /= 10;
-            *(itr++) = digitr[remainder];
+            *(itr--)  = digitr[remainder];
          }
          while (value);
-         result.assign(buffer,itr - buffer);
-         itr = const_cast<char*>(result.c_str());
-         std::reverse(itr,itr + result.size());
+         itr++;
+         result.assign(itr, (buffer + numeric<T>::size) - itr);
          return true;
       }
 
@@ -7349,7 +7348,7 @@ namespace strtk
       inline bool type_to_string_converter_impl(T value, std::string& result, signed_type_tag)
       {
          char buffer[numeric<T>::size];
-         char* itr = buffer;
+         char* itr = buffer + (numeric<T>::size - 1);
          bool negative = (value < 0);
          if (negative)
             value = static_cast<T>(std::abs(value));
@@ -7358,13 +7357,12 @@ namespace strtk
          {
             remainder = value % 10;
             value    /= 10;
-            *(itr++) = digitr[remainder];
+            *(itr--)  = digitr[remainder];
          }
          while (value);
-         if (negative) *(itr++) = '-';
-         result.assign(buffer,itr - buffer);
-         itr = const_cast<char*>(result.c_str());
-         std::reverse(itr,itr + result.size());
+         if (negative) *(itr--) = '-';
+         itr++;
+         result.assign(itr, (buffer + numeric<T>::size) - itr);
          return true;
       }
 
@@ -8609,7 +8607,7 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.7182818284590452";
+      static const char* version = "2.718281828459045235";
       static const char* date    = "20100401";
       static const char* epoch   = "Pre-C++0x EC214AEB:9DE13587";
 
