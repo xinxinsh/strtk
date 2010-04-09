@@ -50,6 +50,7 @@
 #include <boost/lexical_cast.hpp>
 
 //Note: Define USE_SPIRIT to include Karma and Qi (requires Boost 1.42+)
+//#define USE_SPIRIT
 #ifdef USE_SPIRIT
  #define INCLUDE_KARMA
  #define INCLUDE_QI_S2I
@@ -109,9 +110,16 @@ static const std::string base = "a|bc?def,ghij;klmno_p|qr?stu,vwxy;z1234_56789 0
 static const std::size_t replicate_count = 1000000;
 static const std::string delimiters = "|?,;_ ";
 
+void print_mode(const std::string& mode)
+{
+   static const std::size_t test_mode_length = sizeof("[sprintf]");
+   printf("%s",strtk::text::left_align(test_mode_length, ' ', mode).c_str());
+   fflush(stdout);
+}
+
 void strtk_tokenizer_timed_test()
 {
-   printf("[strtk] "); fflush(stdout);
+   print_mode("[strtk]");
    std::string s = "";
    std::string so = "";
    s.reserve(base.size() * replicate_count);
@@ -138,7 +146,7 @@ void strtk_tokenizer_timed_test()
 
 void boost_tokenizer_timed_test()
 {
-   printf("[boost] "); fflush(stdout);
+   print_mode("[boost]");
    std::string s = "";
    std::string so = "";
    s.reserve(base.size() * replicate_count);
@@ -165,7 +173,7 @@ void boost_tokenizer_timed_test()
 
 void strtk_split_timed_test()
 {
-   printf("[strtk] "); fflush(stdout);
+   print_mode("[strtk]");
    std::string s = "";
    s.reserve(base.size() * replicate_count);
    for (unsigned int i = 0; i < replicate_count; ++i) s += base;
@@ -182,7 +190,7 @@ void strtk_split_timed_test()
 
 void boost_split_timed_test()
 {
-   printf("[boost] "); fflush(stdout);
+   print_mode("[boost]");
    std::string s = "";
    s.reserve(base.size() * replicate_count);
    for (unsigned int i = 0; i < replicate_count; ++i) s += base;
@@ -199,7 +207,7 @@ void boost_split_timed_test()
 
 void sprintf_lexical_cast_test_i2s()
 {
-   printf("[sprintf] "); fflush(stdout);
+   print_mode("[sprintf]");
    std::string s;
    s.reserve(32);
    const std::size_t max = 10000000;
@@ -221,7 +229,7 @@ void sprintf_lexical_cast_test_i2s()
 
 void boost_lexical_cast_test_i2s()
 {
-   printf("[boost] "); fflush(stdout);
+   print_mode("[boost]");
    std::string s;
    s.reserve(32);
    const std::size_t max = 10000000;
@@ -257,7 +265,7 @@ inline bool karma_int_to_string(const int& value, std::string& str)
 
 void karma_lexical_cast_test_i2s()
 {
-   printf("[karma] "); fflush(stdout);
+   print_mode("[karma]");
    std::string s;
    s.reserve(32);
    const std::size_t max = 10000000;
@@ -282,7 +290,7 @@ void karma_lexical_cast_test_i2s(){}
 
 void strtk_lexical_cast_test_i2s()
 {
-   printf("[strtk] "); fflush(stdout);
+   print_mode("[strtk]");
    std::string s;
    s.reserve(32);
    const std::size_t max = 10000000;
@@ -365,7 +373,7 @@ static const std::size_t strint_list_size = sizeof(strint_list) / sizeof(std::st
 
 void atoi_lexical_cast_test_s2i()
 {
-   printf("[atoi] "); fflush(stdout);
+   print_mode("[atoi]");
    const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
@@ -389,7 +397,7 @@ void atoi_lexical_cast_test_s2i()
 
 void boost_lexical_cast_test_s2i()
 {
-   printf("[boost] "); fflush(stdout);
+   print_mode("[boost]");
    const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
@@ -423,7 +431,7 @@ inline bool qi_string_to_int(const std::string& str, int & value)
 
 void qi_lexical_cast_test_s2i()
 {
-   printf("[qi] "); fflush(stdout);
+   print_mode("[qi]");
    const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
@@ -450,7 +458,7 @@ void qi_lexical_cast_test_s2i()
 
 void strtk_lexical_cast_test_s2i()
 {
-   printf("[strtk] "); fflush(stdout);
+   print_mode("[strtk]");
    const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
@@ -540,6 +548,7 @@ static const std::string v[] = {
                     "000000123.456e+0003",                      "0.0",                     "00.00",
                                 "000.000",                "0000.0000",                     "1234.",
                                    "01.2",                 "0012.340",               "00012.34500",
+                  "+0.0", "+1.0", "+2.0", "+3.0", "+4.0", "+5.0", "+6.0", "+7.0", "+8.0", "+9.0",
                    "-0.595932",  "+0.780005", "-0.892725",  "0.241765", "-0.168054", "+0.687922",
                    "+0.326186",  "-0.557688",  "0.524772", "-0.316610", "+0.451794", "-0.233149",
                    "-0.513733",   "0.827170", "-0.324329", "+0.944863", "-0.824447",  "0.963773",
@@ -547,9 +556,7 @@ static const std::string v[] = {
                    "-0.609128",  "+0.480234", "-0.125272", "+0.404477", "-0.687858", "+0.454091",
                    "+0.628872",  "-0.438190",  "0.779150", "-0.965766", "+0.384968", "-0.620200",
                    "-0.681751",   "0.517473", "-0.700753", "+0.940319", "-0.882250",  "0.591237",
-
-
-
+                   "0.0",  "1.0",  "2.0",  "3.0",  "4.0",  "5.0",  "6.0",  "7.0",  "8.0",  "9.0",
                   };
 
 static const std::size_t v_size = sizeof(v) / sizeof(std::string);
@@ -557,7 +564,7 @@ static const std::size_t rounds = 50000;
 
 void atof_cast_test_s2d()
 {
-   printf("[atof] "); fflush(stdout);
+   print_mode("[atof]");
    double sum = 0.0;
    double d   = 0.0;
    timer t;
@@ -574,7 +581,7 @@ void atof_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
@@ -583,7 +590,7 @@ void atof_cast_test_s2d()
 
 void boost_cast_test_s2d()
 {
-   printf("[boost] "); fflush(stdout);
+   print_mode("[boost]");
    double sum = 0.0;
    double d   = 0.0;
    timer t;
@@ -600,7 +607,7 @@ void boost_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
@@ -619,7 +626,7 @@ inline bool qi_string_to_double(const std::string& str, double& value)
 
 void qi_cast_test_s2d()
 {
-   printf("[qi] "); fflush(stdout);
+   print_mode("[qi]");
    double sum = 0.0;
    double d   = 0.0;
    timer t;
@@ -636,7 +643,7 @@ void qi_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
@@ -648,7 +655,7 @@ void qi_cast_test_s2d()
 
 void strtk_cast_test_s2d()
 {
-   printf("[strtk] "); fflush(stdout);
+   print_mode("[strtk]");
    double sum = 0.0;
    double d   = 0.0;
    timer t;
@@ -665,7 +672,7 @@ void strtk_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tSum: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),

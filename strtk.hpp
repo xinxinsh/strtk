@@ -7101,7 +7101,7 @@ namespace strtk
                t = static_cast<T>(tmp);
             }
          }
-         if (negative) t *= -1;
+         if (negative) t = -t;
          result = static_cast<T>(t);
          return true;
       }
@@ -7147,7 +7147,7 @@ namespace strtk
                t = static_cast<T>(tmp);
             }
          }
-         if (negative) t *= -1;
+         if (negative) t = -t;
          result = static_cast<T>(t);
          return true;
       }
@@ -7262,7 +7262,7 @@ namespace strtk
                d *= std::pow(10.0,1.0 * exponent);
          }
 
-         if (negative) d *= -1;
+         if (negative) d = -d;
          t = static_cast<T>(d);
          return true;
       }
