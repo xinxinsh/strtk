@@ -7225,8 +7225,7 @@ namespace strtk
                {
                   ++itr;
                   int exp = 0;
-                  static const details::signed_type_tag st_tag;
-                  if (!details::string_to_type_converter_impl_ref(itr,end,exp,st_tag))
+                  if (!details::string_to_type_converter_impl_ref(itr,end,exp,details::signed_type_tag()))
                      return false;
                   exponent += exp;
                }
