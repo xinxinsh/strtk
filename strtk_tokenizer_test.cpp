@@ -27,6 +27,7 @@
 
 
 #include <cstddef>
+#include <cstdlib>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
@@ -444,6 +445,14 @@ struct data_block
    }
 };
 
+void std_double_to_string(const double& d, std::string& s)
+{
+   char buffer[128];
+   std::size_t sz = sprintf(buffer,"%20.19e",d);
+   buffer[sz] = 0;
+   s.assign(buffer);
+}
+
 bool test_double_convert()
 {
    static const std::string double_str[] =
@@ -564,6 +573,47 @@ bool test_double_convert()
       }
    }
 
+   {
+      double d1 = +123.456;
+      double d2 = -123.456;
+      double delta[] =
+            {
+               0.333,   0.555,   0.777,
+               0.999, 0.13579, 0.97531
+            };
+      std::size_t delta_size = sizeof(delta) / sizeof(double);
+      std::string s;
+      s.reserve(256);
+      double tmp = 0.0;
+      for(int i = 0; i < 1000000; ++i)
+      {
+         std_double_to_string(d1,s);
+         if (!strtk::string_to_type_converter(s,tmp))
+         {
+            std::cout << "test_double_convert() - (1) final test string to double failure @ " << i << std::endl;
+            return false;
+         }
+         if (std::abs(d1 - tmp) > 0.000000001)
+         {
+            std::cout << "test_double_convert() - (1) final test compare failure @ " << i << std::endl;
+            return false;
+         }
+         d1 += delta[std::abs(i) % delta_size];
+
+         std_double_to_string(d2,s);
+         if (!strtk::string_to_type_converter(s,tmp))
+         {
+            std::cout << "test_double_convert() - (2) final test string to double failure @ " << i << std::endl;
+            return false;
+         }
+         if (std::abs(d2 - tmp) > 0.000000001)
+         {
+            std::cout << "test_double_convert() - (2) final test compare failure @ " << i << std::endl;
+            return false;
+         }
+         d2 -= delta[std::abs(i) % delta_size];
+      }
+   }
    return true;
 }
 
@@ -1066,6 +1116,7 @@ bool test_replace_pattern()
    }
    return true;
 }
+
 
 int main()
 {
