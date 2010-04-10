@@ -80,7 +80,7 @@ bool test_tokenizer_itr(const Predicate& p,
    std::string result = "";
    Tokenizer stk(s,p,compressed_delimiters);
    typename Tokenizer::iterator it = stk.begin();
-   while (it != stk.end())
+   while (stk.end() != it)
    {
       if ((*it).first == (*it).second)
          result += "<>";
@@ -665,7 +665,7 @@ bool test_int_uint_convert()
    s.reserve(32);
    {
       int t = 0;
-      for(int i = -static_cast<int>(count); i < static_cast<int>(count); ++i)
+      for (int i = -static_cast<int>(count); i < static_cast<int>(count); ++i)
       {
          if (!strtk::type_to_string(i,s))
          {
@@ -688,7 +688,7 @@ bool test_int_uint_convert()
 
    {
       unsigned int t = 0;
-      for(unsigned int i = 0; i < count; ++i)
+      for (unsigned int i = 0; i < count; ++i)
       {
          if (!strtk::type_to_string(i,s))
          {
@@ -805,7 +805,7 @@ bool test_int_uint_convert()
    }
 
    {
-      std::string s1 = "–32769";
+      std::string s1 = "-32769";
       std::string s2 = "+32768";
       std::string s3 =  "32768";
       short int t = 0;
@@ -846,7 +846,7 @@ bool test_int_uint_convert()
    }
 
    {
-      std::string s1 = "–2147483649";
+      std::string s1 = "-2147483649";
       std::string s2 = "+2147483648";
       std::string s3 =  "2147483648";
       int t = 0;
@@ -871,7 +871,7 @@ bool test_int_uint_convert()
    }
 
    {
-      std::string s1 = "–9223372036854775808";
+      std::string s1 = "-9223372036854775808";
       std::string s2 = "+9223372036854775808";
       std::string s3 =  "9223372036854775808";
       int t = 0;
@@ -983,7 +983,7 @@ bool test_parse3()
       return false;
    }
 
-   for(std::size_t i = 0; i < double_list.size(); ++i)
+   for (std::size_t i = 0; i < double_list.size(); ++i)
    {
       if (123.456e3 != double_list[i])
       {
@@ -1000,7 +1000,7 @@ bool test_parse3()
       return false;
    }
 
-   for(std::size_t i = 0; i < float_list.size(); ++i)
+   for (std::size_t i = 0; i < float_list.size(); ++i)
    {
       if (123.456e3f != float_list[i])
       {

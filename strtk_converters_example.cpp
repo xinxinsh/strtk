@@ -28,7 +28,8 @@
 
 void example01()
 {
-   std::string text = "A professional is a person who knows more and more about less and less until they know everything about nothing.";
+   std::string text = "A professional is a person who knows more and more about less and less "
+                      "until they know everything about nothing.";
    std::string hex;
    std::string base64;
    std::string hexbin;
@@ -48,7 +49,7 @@ void example01()
 
 void example02()
 {
-   const std::size_t size = 1024;
+   static const std::size_t size = 1024;
    unsigned char buffer[size];
    unsigned char hex_buffer[2 * size];
    unsigned char b64_buffer[2 * size];
@@ -59,7 +60,7 @@ void example02()
 
 void example03()
 {
-   const std::size_t size = 1024;
+   static const std::size_t size = 1024;
    unsigned char buffer1[size];
    unsigned char buffer2[size];
    unsigned char b64_buffer[2 * size];
