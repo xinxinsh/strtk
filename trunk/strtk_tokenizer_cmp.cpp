@@ -113,7 +113,7 @@ static const std::string delimiters = "|?,;_ ";
 void print_mode(const std::string& mode)
 {
    static const std::size_t test_mode_length = sizeof("[sprintf]");
-   printf("%s",strtk::text::left_align(test_mode_length, ' ', mode).c_str());
+   printf("%s", strtk::text::left_align(test_mode_length, ' ', mode).c_str());
    fflush(stdout);
 }
 
