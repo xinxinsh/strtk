@@ -439,7 +439,7 @@ namespace strtk
       {
          if (predicate(*itr))
          {
-            *(out++)= *itr;
+            *(out++) = *itr;
          }
          ++itr;
       }
@@ -455,7 +455,7 @@ namespace strtk
       {
          if (!predicate(*itr))
             break;
-         *(out++)= *(itr++);
+         *(out++) = *(itr++);
       }
       return itr;
    }
@@ -470,7 +470,7 @@ namespace strtk
       {
          if (predicate(*itr))
             break;
-         *(out++)= *(itr++);
+         *(out++) = *(itr++);
       }
       return itr;
    }
@@ -1355,7 +1355,10 @@ namespace strtk
 
          inline tokenizer_iterator& operator+=(const int inc)
          {
-            for (int i = 0; i < inc; ++i) ++(*this);
+            for (int i = 0; i < inc; ++i)
+            {
+               ++(*this);
+            }
             return *this;
          }
 
@@ -2607,7 +2610,8 @@ namespace strtk
 
    inline void lexicographically_canonicalize(std::string& str)
    {
-      lexicographically_canonicalize(const_cast<char*>(str.c_str()), const_cast<char*>(str.c_str() + str.size()));
+      lexicographically_canonicalize(const_cast<char*>(str.c_str()),
+                                     const_cast<char*>(str.c_str() + str.size()));
    }
 
    template<typename T,
@@ -6808,7 +6812,9 @@ namespace strtk
 
    namespace text
    {
-      inline std::string center(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      inline std::string center(const std::size_t& width,
+                                const std::string::value_type& pad,
+                                const std::string& str)
       {
          if (str.size() >= width) return str;
          std::size_t pad_count = width - str.size();
@@ -6816,42 +6822,55 @@ namespace strtk
          return std::string(pad_count >> 1,pad) + str + std::string(pad_count_2,pad);
       }
 
-      inline std::string right_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      inline std::string right_align(const std::size_t& width,
+                                     const std::string::value_type& pad,
+                                     const std::string& str)
       {
          if (str.size() >= width) return str;
          return std::string(width - str.size(),pad) + str;
       }
 
-      inline std::string left_align(const std::size_t& width, const std::string::value_type& pad, const std::string& str)
+      inline std::string left_align(const std::size_t& width,
+                                    const std::string::value_type& pad,
+                                    const std::string& str)
       {
          if (str.size() >= width) return str;
          return str + std::string(width - str.size(),pad);
       }
 
       template<typename T>
-      inline std::string center(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      inline std::string center(const std::size_t& width,
+                                const std::string::value_type& pad,
+                                const T& t)
       {
          return center(width,pad,type_to_string(t));
       }
 
       template<typename T>
-      inline std::string right_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      inline std::string right_align(const std::size_t& width,
+                                     const std::string::value_type& pad,
+                                     const T& t)
       {
          return right_align(width,pad,type_to_string(t));
       }
 
       template<typename T>
-      inline std::string left_align(const std::size_t& width, const std::string::value_type& pad, const T& t)
+      inline std::string left_align(const std::size_t& width,
+                                    const std::string::value_type& pad,
+                                    const T& t)
       {
          return left_align(width,pad,type_to_string(t));
       }
 
-      inline std::string remaining_string(const std::size_t& index, const std::string& str)
+      inline std::string remaining_string(const std::size_t& index,
+                                          const std::string& str)
       {
          return (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }
 
-      inline void remaining_string(const std::size_t& index, const std::string& str, std::string& result)
+      inline void remaining_string(const std::size_t& index,
+                                   const std::string& str,
+                                   std::string& result)
       {
          result = (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }

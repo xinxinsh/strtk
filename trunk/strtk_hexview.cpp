@@ -59,11 +59,11 @@ int main()
       Note: process takes input from stdin.
       usage: cat file.txt | strtk_hexview
    */
-   const std::size_t data_width = 16;
+   static const std::size_t data_width = 16;
    std::size_t current_address = 0;
 
-   unsigned char* buffer = new unsigned char[data_width];
-   unsigned char* hex_buffer = new unsigned char[2 * data_width];
+   unsigned char buffer[data_width];
+   unsigned char hex_buffer[2 * data_width];
 
    for ( ; ; )
    {
