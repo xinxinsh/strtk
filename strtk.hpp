@@ -2201,7 +2201,7 @@ namespace strtk
       std::size_t match_count = 0;
       while (it_end != itr)
       {
-         token.assign((*itr)[0].first,(*itr)[0].second);
+         token.assign((*itr)[0].first,(*itr)[0].second - (*itr)[0].first);
          *(out++) = token;
          ++itr;
          ++match_count;
@@ -2249,7 +2249,7 @@ namespace strtk
       std::size_t match_count = 0;
       while (it_end != itr)
       {
-         token.assign((*itr)[0].first,(*itr)[0].second);
+         token.assign((*itr)[0].first,(*itr)[0].second - (*itr)[0].first);
          *(out++) = token;
          ++itr;
          if (++match_count >= token_count)
