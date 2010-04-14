@@ -7145,7 +7145,7 @@ namespace strtk
          while ((end != itr) && ('0' == *itr)) ++itr;
          while (end != itr)
          {
-            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
+            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
             if (is_invalid_digit(digit))
                return false;
             if ((++digit_count) <= numeric<T>::bound_length)
@@ -7165,6 +7165,7 @@ namespace strtk
                   return false;
                t = static_cast<T>(tmp);
             }
+            ++itr;
          }
          if (negative) t = -t;
          result = static_cast<T>(t);
@@ -7189,14 +7190,21 @@ namespace strtk
          if (end == itr)
             return false;
 
-         while (end != itr)
+         bool instate = false;
+
+         if ('.' != *itr)
          {
-            const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
-            if (is_invalid_digit(digit))
-               break;
-            d *= 10.0;
-            d += digit;
-            ++itr;
+            const Iterator curr = itr;
+            while (end != itr)
+            {
+               const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
+               if (is_invalid_digit(digit))
+                  break;
+               d *= 10.0;
+               d += digit;
+               ++itr;
+            }
+            if (curr != itr) instate = true;
          }
 
          int exponent = 0;
@@ -7206,6 +7214,7 @@ namespace strtk
             if ('.' == *itr)
             {
                ++itr;
+               const Iterator curr = itr;
                while (end != itr)
                {
                   const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
@@ -7216,6 +7225,7 @@ namespace strtk
                   ++itr;
                   --exponent;
                }
+               if (curr != itr) instate = true;
             }
 
             if (end != itr)
@@ -7229,10 +7239,12 @@ namespace strtk
                      return false;
                   exponent += exp;
                }
+               else
+                  return false;
             }
          }
 
-         if (end != itr) return false;
+         if ((end != itr) || (!instate)) return false;
 
          if (0 != exponent)
          {
