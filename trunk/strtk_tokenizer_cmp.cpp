@@ -17,7 +17,6 @@
 
 
 /*
-/*
    Description: This comparison aims to determine the running time difference between
                 the Boost string tokenizer and the String Toolkit Library's string tokenizer.
                 The comparison involves each tokenizer accepting a set of possible delimiters
