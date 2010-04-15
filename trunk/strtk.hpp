@@ -7143,11 +7143,16 @@ namespace strtk
             return false;
          unsigned int digit_count = 0;
          while ((end != itr) && ('0' == *itr)) ++itr;
+
+         bool return_result = true;
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
             if (is_invalid_digit(digit))
-               return false;
+            {
+               return_result = false;
+               break;
+            }
             if ((++digit_count) <= numeric<T>::bound_length)
             {
                t *= 10;
@@ -7160,16 +7165,16 @@ namespace strtk
                static const base_type min_limit = -std::numeric_limits<T>::min();
                base_type tmp = static_cast<base_type>(t) * 10 + digit;
                if (negative && static_cast<base_type>(tmp) > min_limit)
-                  return false;
+                  return_result = false;
                else if (static_cast<base_type>(tmp) > max_limit)
-                  return false;
+                  return_result = false;
                t = static_cast<T>(tmp);
             }
             ++itr;
          }
          if (negative) t = -t;
          result = static_cast<T>(t);
-         return true;
+         return return_result;
       }
 
       template<typename Iterator, typename T>
@@ -7236,15 +7241,22 @@ namespace strtk
                   ++itr;
                   int exp = 0;
                   if (!details::string_to_type_converter_impl_ref(itr,end,exp,details::signed_type_tag()))
-                     return false;
+                  {
+                     if (end == itr)
+                        return false;
+                     else
+                        c = *itr;
+                  }
                   exponent += exp;
                }
-               else
-                  return false;
+
+               if (('f' == c) || ('F' == c) || ('l' == c) || ('L' == c))
+                  ++itr;
             }
          }
 
-         if ((end != itr) || (!instate)) return false;
+         if ((end != itr) || (!instate))
+            return false;
 
          if (0 != exponent)
          {
@@ -7284,15 +7296,18 @@ namespace strtk
 
             static const std::size_t fract10_size = sizeof(fract10) / sizeof(double);
 
-            if (static_cast<std::size_t>(e) < fract10_size)
+            if (d != 0.0)
             {
-               if (exponent > 0)
-                  d *= fract10[e];
+               if (static_cast<std::size_t>(e) < fract10_size)
+               {
+                  if (exponent > 0)
+                     d *= fract10[e];
+                  else
+                     d /= fract10[e];
+               }
                else
-                  d /= fract10[e];
+                  d *= std::pow(10.0, 1.0 * exponent);
             }
-            else
-               d *= std::pow(10.0, 1.0 * exponent);
          }
 
          if (negative) d = -d;
