@@ -602,7 +602,13 @@ bool test_double_convert()
    double v = 0.0;
    for (std::size_t i = 0; i < d_size; ++i)
    {
-      strtk::string_to_type_converter(double_str[i],v);
+      v = 0.0;
+      if(!strtk::string_to_type_converter(double_str[i],v))
+      {
+         std::cout << "test_double_convert() double convert[" << i << "]" << std::endl;
+         return false;
+      }
+
       if (d[i] != v)
       {
          std::cout << "test_double_convert() double check[" << i << "]" << std::endl;
@@ -655,16 +661,19 @@ bool test_double_convert()
             std::cout << "test_double_convert() - Failed int to string @ " << i << std::endl;
             return false;
          }
+
          if (!strtk::string_to_type_converter(s,t))
          {
             std::cout << "test_double_convert() - Failed string to double @ " << i << std::endl;
             return false;
          }
+
          if (static_cast<double>(i) != t)
          {
             std::cout << "test_double_convert() - Failed i == t @ " << i << std::endl;
             return false;
          }
+
          s.clear();
       }
    }
