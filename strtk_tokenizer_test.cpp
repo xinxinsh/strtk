@@ -17,12 +17,11 @@
 
 
 /*
-   Description: The String Tokenizer Test performs some very basic
-                "unit test"-like testing and code coverage upon the
-                String Toolkit library's various tokenization,
-                splitting and parsing routines.
-                A silent/blank return indicates a positive test sweep,
-                otherwise any output indicates test failures.
+   Description: The String Tokenizer Test performs some very basic "unit test"-like
+                testing and code coverage upon the String Toolkit library's various
+                tokenization, splitting and parsing routines.
+                A silent/blank return indicates a positive test sweep, otherwise
+                any output indicates test failures.
 */
 
 
@@ -679,13 +678,39 @@ bool test_double_convert()
    }
 
    {
+      std::string s;
+      s.reserve(256);
+      double v = -111111.11;
+      double t = 0.0;
+      while (v < +111111.11)
+      {
+         std_double_to_string(v,s);
+         if (!strtk::string_to_type_converter(s,t))
+         {
+            std::cout << "test_double_convert() - Failed decimal to string,  t: " << t << std::endl;
+            return false;
+         }
+
+         if (std::abs(t - v) > 0.0000000001)
+         {
+            std::cout << "test_double_convert() - Failed decimal r == t  r: " << t << std::endl;
+            return false;
+         }
+
+         v += 0.01;
+         s.clear();
+         t = 0.0;
+      }
+   }
+
+   {
       double d1 = +123.456;
       double d2 = -123.456;
       double delta[] =
-            {
+             {
                0.333,   0.555,   0.777,
                0.999, 0.13579, 0.97531
-            };
+             };
       std::size_t delta_size = sizeof(delta) / sizeof(double);
       std::string s;
       s.reserve(256);
