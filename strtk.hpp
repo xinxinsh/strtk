@@ -8626,9 +8626,9 @@ namespace strtk
             typename Comparator,
             typename MapAllocator,
             typename OutputIterator>
-            void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
-                                 const Key& key,
-                                 OutputIterator out)
+   void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
+                        const Key& key,
+                        OutputIterator out)
    {
       if (map.empty()) return;
       typedef typename std::multimap<Key,T,Comparator,MapAllocator> map_type;
@@ -8649,7 +8649,13 @@ namespace strtk
                         const Key& key,
                         Sequence<T,SequenceAllocator>& sequence)
    {
-      make_value_list(map,key,std::back_inserter(sequence));
+      if (map.empty()) return;
+      typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
+      typename map_type::const_iterator itr = map.find(key);
+      if (map.end() != itr)
+      {
+         sequence.push_back(itr->second);
+      }
    }
 
    namespace information
@@ -8661,9 +8667,10 @@ namespace strtk
 
       static inline std::string data()
       {
-         return std::string(library) +
-                std::string(" v") + std::string(version) +
-                std::string(" (") + date + std::string(" ") + epoch + std::string(")");
+         static std::string info_str = std::string(library) +
+                                       std::string(" v") + std::string(version) +
+                                       std::string(" (") + date + std::string(" ") + epoch + std::string(")");
+         return info_str;
       }
    }
 
