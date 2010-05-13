@@ -47,7 +47,7 @@
 #include <boost/lexical_cast.hpp>
 
 //Note: Define USE_SPIRIT to include Karma and Qi (requires Boost 1.42+)
-#define USE_SPIRIT
+//#define USE_SPIRIT
 #ifdef USE_SPIRIT
  #define INCLUDE_KARMA
  #define INCLUDE_QI_S2I
@@ -690,25 +690,25 @@ void strtk_cast_test_s2d()
 
 int main()
 {
-   //std::cout << "Tokenizer Test" << std::endl;
-   //boost_tokenizer_timed_test();
-   //strtk_tokenizer_timed_test();
-   //std::cout << "Split Test" << std::endl;
-   //boost_split_timed_test();
-   //strtk_split_timed_test();
+   std::cout << "Tokenizer Test" << std::endl;
+   boost_tokenizer_timed_test();
+   strtk_tokenizer_timed_test();
+   std::cout << "Split Test" << std::endl;
+   boost_split_timed_test();
+   strtk_split_timed_test();
    std::cout << "Integer To String Test" << std::endl;
    sprintf_lexical_cast_test_i2s();
-   //boost_lexical_cast_test_i2s();
+   boost_lexical_cast_test_i2s();
    karma_lexical_cast_test_i2s();
    strtk_lexical_cast_test_i2s();
    std::cout << "String To Integer Test" << std::endl;
    atoi_lexical_cast_test_s2i();
-   //boost_lexical_cast_test_s2i();
+   boost_lexical_cast_test_s2i();
    qi_lexical_cast_test_s2i();
    strtk_lexical_cast_test_s2i();
    std::cout << "String To Double Test" << std::endl;
    atof_cast_test_s2d();
-   //boost_cast_test_s2d();
+   boost_cast_test_s2d();
    qi_cast_test_s2d();
    strtk_cast_test_s2d();
    return 0;

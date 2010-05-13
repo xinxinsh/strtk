@@ -8649,13 +8649,7 @@ namespace strtk
                         const Key& key,
                         Sequence<T,SequenceAllocator>& sequence)
    {
-      if (map.empty()) return;
-      typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
-      typename map_type::const_iterator itr = map.find(key);
-      if (map.end() != itr)
-      {
-         sequence.push_back(itr->second);
-      }
+      make_value_list(map,key,std::back_inserter(sequence));
    }
 
    namespace information
