@@ -47,7 +47,7 @@
 #include <boost/lexical_cast.hpp>
 
 //Note: Define USE_SPIRIT to include Karma and Qi (requires Boost 1.42+)
-//#define USE_SPIRIT
+#define USE_SPIRIT
 #ifdef USE_SPIRIT
  #define INCLUDE_KARMA
  #define INCLUDE_QI_S2I
@@ -72,10 +72,10 @@ public:
    void start() { QueryPerformanceCounter(&start_time);        }
    void stop()  { QueryPerformanceCounter(&stop_time);         }
    double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
- private:
-  LARGE_INTEGER start_time;
-  LARGE_INTEGER stop_time;
-  LARGE_INTEGER clock_frequency;
+private:
+   LARGE_INTEGER start_time;
+   LARGE_INTEGER stop_time;
+   LARGE_INTEGER clock_frequency;
 };
 
 #else
@@ -95,10 +95,10 @@ public:
 
       return (diff / 1000000.0);
    }
- private:
-  struct timeval start_time;
-  struct timeval stop_time;
-  struct timeval clock_frequency;
+private:
+   struct timeval start_time;
+   struct timeval stop_time;
+   struct timeval clock_frequency;
 };
 
 #endif
@@ -135,7 +135,7 @@ void strtk_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Tokens:%10u\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
           token_count,
           t.time(),
           token_count / (1.0 * t.time()));
@@ -162,7 +162,7 @@ void boost_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("Token Count: %u\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Tokens:%10u\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
           token_count,
           t.time(),
           token_count / (1.0 * t.time()));
@@ -179,7 +179,7 @@ void strtk_split_timed_test()
    t.start();
    strtk::parse(s,delimiters,token_list);
    t.stop();
-   printf("Token Count: %lu\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Tokens:%10lu\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
           token_list.size() / (1.0 * t.time()));
@@ -196,32 +196,33 @@ void boost_split_timed_test()
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
    t.stop();
-   printf("Token Count: %lu\tTotal time: %8.4fsec\tRate: %8.4ftks/sec\n",
+   printf("Tokens:%10lu\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
           token_list.size() / (1.0 * t.time()));
 }
+
+static const int max_i2s = 30000000;
 
 void sprintf_lexical_cast_test_i2s()
 {
    print_mode("[sprintf]");
    std::string s;
    s.reserve(32);
-   const std::size_t max = 10000000;
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (int i = (-static_cast<int>(max) / 2); i < (static_cast<int>(max) / 2); ++i)
+   for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
       s.resize(sprintf(const_cast<char*>(s.c_str()),"%d",i));
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          static_cast<unsigned long>(max),
+   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max / (1.0 * t.time()));
+          max_i2s / (1.0 * t.time()));
 }
 
 void boost_lexical_cast_test_i2s()
@@ -229,21 +230,20 @@ void boost_lexical_cast_test_i2s()
    print_mode("[boost]");
    std::string s;
    s.reserve(32);
-   const std::size_t max = 10000000;
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (int i = (-static_cast<int>(max) / 2); i < (static_cast<int>(max) / 2); ++i)
+   for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
       s = boost::lexical_cast<std::string>(i);
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          static_cast<unsigned long>(max),
+   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max / (1.0 * t.time()));
+          max_i2s / (1.0 * t.time()));
 }
 
 #ifdef INCLUDE_KARMA
@@ -265,21 +265,20 @@ void karma_lexical_cast_test_i2s()
    print_mode("[karma]");
    std::string s;
    s.reserve(32);
-   const std::size_t max = 10000000;
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (int i = (-static_cast<int>(max) / 2); i < (static_cast<int>(max) / 2); ++i)
+   for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
       karma_int_to_string(i,s);
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          static_cast<unsigned long>(max),
+   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max / (1.0 * t.time()));
+          max_i2s / (1.0 * t.time()));
 }
 #else
 void karma_lexical_cast_test_i2s(){}
@@ -290,21 +289,20 @@ void strtk_lexical_cast_test_i2s()
    print_mode("[strtk]");
    std::string s;
    s.reserve(32);
-   const std::size_t max = 10000000;
    std::size_t total_length = 0;
    timer t;
    t.start();
-   for (int i = (-static_cast<int>(max) / 2); i < (static_cast<int>(max) / 2); ++i)
+   for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
       strtk::type_to_string(i,s);
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal length: %lu\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
-          static_cast<unsigned long>(max),
+   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max / (1.0 * t.time()));
+          max_i2s / (1.0 * t.time()));
 }
 
 static const std::string strint_list[] =
@@ -314,10 +312,10 @@ static const std::string strint_list[] =
                     "+290",       "823",      "+111",       "715",      "-866",      "+367",       "666",      "-706",       "850",      "-161",
                  "9922547",   "6960207",   "1883152",   "2300759",   "-279294",   "4187292",   "3699841",  "+8386395",  "-1441129",   "-887892",
                  "-635422",   "9742573",   "2326186",  "-5903851",   "5648486",   "3057647",   "2980079",   "2957468",   "7929158",   "1925615",
-                     "879",      "+130",       "292",       "705",       "817",       "446",       "576",       "750",       "523",      "-527",
-                 "4365041",   "5624958",   "8990205",   "2652177",   "3993588",   "-298316",   "2901599",   "3887387",  "-5202979",   "1196268",
+                     "879",      "+130",       "292",      "+705",       "817",       "446",       "576",       "750",       "523",      "-527",
+                 "4365041",   "5624958",   "8990205",   "2652177",   "3993588",   "-298316",  "+2901599",   "3887387",  "-5202979",   "1196268",
                  "5968501",   "7619928",   "3565643",   "1885272",   "-749485",   "2961381",   "2982579",   "2387454",   "4250081",   "5958205",
-                   "00000",     "00001",     "00002",     "00003",     "00004",     "00005",     "00006",     "00007",     "00008",     "00009",
+                   "00000",     "00001",     "00002",    "+00003",     "00004",     "00005",     "00006",     "00007",     "00008",    "+00009",
                  "4907034",   "2592882",   "3269234",    "549815",   "6256292",   "9721039",   "-595225",  "+5587491",   "4596297",  "-3885009",
                      "673",      "-899",       "174",       "354",       "870",       "147",       "898",      "-510",       "369",      "+859",
                  "6518423",   "5149762",   "8834164",  "-8085586",   "3233120",   "8166948",   "4172345",   "6735549",   "-934295",   "9481935",
@@ -331,7 +329,7 @@ static const std::string strint_list[] =
                  "3402833",   "2150043",   "5191009",   "8979538",   "9565778",   "3750211",   "7304823",   "2829359",   "6544236",   "-615740",
                      "363",      "-627",       "129",      "+656",       "135",       "113",       "381",      "+646",       "198",        "38",
                  "8060564",   "-176752",   "1184717",   "-666343",  "-1273292",   "-485827",   "6241066",   "6579411",   "8093119",   "7481306",
-                "-4924485",   "7467889",   "9813178",   "7927100",   "3614859",   "7293354",   "9232973",   "4323115",   "1133911",   "9511638",
+                "-4924485",   "7467889",   "9813178",   "7927100",  "+3614859",   "7293354",   "9232973",   "4323115",   "1133911",  "+9511638",
                  "4443188",   "2289448",   "5639726",   "9073898",   "8540394",   "5389992",   "1397726",   "-589230",   "1017086",   "1852330",
                     "-840",       "267",       "201",       "533",      "-675",       "494",       "315",       "706",      "-920",       "784",
                  "9097353",   "6002251",   "-308780",  "-3830169",   "4340467",   "2235284",   "3314444",   "1085967",   "4152107",  "+5431117",
@@ -340,9 +338,9 @@ static const std::string strint_list[] =
                  "-924923",   "1652367",   "2302616",   "6776663",   "2567821",   "-248935",   "2587688",   "7076742",  "-6461467",   "1562896",
                  "-768116",   "2338768",   "9887307",   "9992184",   "2045182",   "2797589",   "9784597",   "9696554",   "5113329",   "1067216",
                "-76247763",  "58169007",  "29408062",  "85342511",  "42092201", "-95817703",  "-1912517", "-26275135",  "54656606", "-58188878",
-                    "+473",        "74",       "374",       "-64",       "266",       "715",       "937",      "-249",       "249",       "780",
+                    "+473",        "74",       "374",       "-64",       "266",      "+715",       "937",      "-249",       "249",       "780",
                  "3907360", "-23063423",  "59062754",  "83711047", "-95221044",  "34894840", "-38562139", "-82018330",  "14226223", "-10799717",
-                 "8529722",  "88961903",  "25608618", "-39988247",  "33228241",  "38598533",  "21161480", "-33723784",   "8873948",  "96505557",
+                 "8529722",  "88961903",  "25608618", "-39988247",  "33228241", "+38598533",  "21161480", "-33723784",   "8873948",  "96505557",
                "-47385048", "-79413272", "-85904404",  "87791158",  "49194195",  "13051222",  "57773302",  "31904423",   "3142966",  "27846156",
                  "7420011", "-72376922", "-68873971",  "23765361",   "4040725", "-22359806",  "85777219",  "10099223", "-90364256", "-40158172",
                 "-7948696", "-64344821",  "34404238",  "84037448", "-85084788", "-42078409", "-56550310",  "96898389",   "-595829", "-73166703",
@@ -350,11 +348,11 @@ static const std::string strint_list[] =
                "-82838342",  "64441808",  "43641062", "-64419642", "-44421934",  "75232413", "-75773725", "-89139509",  "12812089", "-97633526",
                 "36090916", "-57706234",  "17804655",   "4189936",  "-4100124",  "38803710", "-39735126", "-62397437",  "75801648",  "51302332",
                 "73433906",  "13015224", "-12624818",  "91360377",  "11576319", "-54467535",   "8892431",  "36319780",  "38832042",  "50172572",
-                    "-317",       "109",      "-888",       "302",      "-463",       "716",       "916",       "665",       "826",       "513",
+                    "-317",       "109",      "-888",       "302",      "-463",       "716",      "+916",       "665",       "826",       "513",
                 "42423473",  "41078812",  "40445652", "-76722281",  "95092224",  "12075234",  "-4045888", "-74396490", "-57304222", "-21726885",
-                "92038121", "-31899682",  "21589254", "-30260046",  "56000244",  "69686659",  "93327838",  "96882881", "-91419389",  "77529147",
-                "43288506",   "1192435", "-74095920",  "76756590", "-31184683", "-35716724",   "9451980", "-63168350",  "62864002",  "26283194",
-                "37188395",  "29151634",  "99343471", "-69450330", "-55680090", "-64957599",  "47577948",  "47107924",   "2490477",  "48633003",
+                "92038121", "-31899682",  "21589254", "-30260046",  "56000244",  "69686659", "+93327838",  "96882881", "-91419389",  "77529147",
+               "+43288506",   "1192435", "-74095920",  "76756590", "-31184683", "-35716724",   "9451980", "-63168350",  "62864002",  "26283194",
+                "37188395",  "29151634",  "99343471", "-69450330", "-55680090", "-64957599",  "47577948",  "47107924",   "2490477", "+48633003",
                "-82740809", "-24122215",  "67301713", "-63649610",  "75499016",  "82746620",  "17052193",   "4602244", "-32721165",  "20837836",
                      "674",      "+467",      "+706",       "889",       "172",      "+282",      "-795",       "188",       "+87",       "153",
                 "64501793",  "53146328",   "5152287",  "-9674493",  "68105580",  "57245637",  "39740229", "-74071854",  "86777268",  "86484437",
@@ -385,7 +383,7 @@ void atoi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
@@ -409,7 +407,7 @@ void boost_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
@@ -443,7 +441,7 @@ void qi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
@@ -470,7 +468,7 @@ void strtk_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * strint_list_size),
           total,
           t.time(),
@@ -592,7 +590,7 @@ void atof_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
@@ -618,7 +616,7 @@ void boost_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
@@ -654,7 +652,7 @@ void qi_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
@@ -683,7 +681,7 @@ void strtk_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate: %8.4fnums/sec\n",
+   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(rounds * v_size),
           sum,
           t.time(),
@@ -692,25 +690,25 @@ void strtk_cast_test_s2d()
 
 int main()
 {
-   std::cout << "Tokenizer Test" << std::endl;
-   boost_tokenizer_timed_test();
-   strtk_tokenizer_timed_test();
-   std::cout << "Split Test" << std::endl;
-   boost_split_timed_test();
-   strtk_split_timed_test();
+   //std::cout << "Tokenizer Test" << std::endl;
+   //boost_tokenizer_timed_test();
+   //strtk_tokenizer_timed_test();
+   //std::cout << "Split Test" << std::endl;
+   //boost_split_timed_test();
+   //strtk_split_timed_test();
    std::cout << "Integer To String Test" << std::endl;
    sprintf_lexical_cast_test_i2s();
-   boost_lexical_cast_test_i2s();
+   //boost_lexical_cast_test_i2s();
    karma_lexical_cast_test_i2s();
    strtk_lexical_cast_test_i2s();
    std::cout << "String To Integer Test" << std::endl;
    atoi_lexical_cast_test_s2i();
-   boost_lexical_cast_test_s2i();
+   //boost_lexical_cast_test_s2i();
    qi_lexical_cast_test_s2i();
    strtk_lexical_cast_test_s2i();
    std::cout << "String To Double Test" << std::endl;
    atof_cast_test_s2d();
-   boost_cast_test_s2d();
+   //boost_cast_test_s2d();
    qi_cast_test_s2d();
    strtk_cast_test_s2d();
    return 0;
