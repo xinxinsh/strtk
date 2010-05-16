@@ -6921,10 +6921,26 @@ namespace strtk
          return (static_cast<T>(invalid_digit) == t);
       }
 
-      static const unsigned char digitr[] = {
-                                               '0','1','2','3','4',
-                                               '5','6','7','8','9'
-                                             };
+      static const unsigned char digitr[] =
+                                    {
+                                       "0123456789"
+                                    };
+
+      static const unsigned char dbl_digitr[] =
+                                    {
+                                       "00102030405060708090"
+                                       "01112131415161718191"
+                                       "02122232425262728292"
+                                       "03132333435363738393"
+                                       "04142434445464748494"
+                                       "05152535455565758595"
+                                       "06162636465666768696"
+                                       "07172737475767778797"
+                                       "08182838485868788898"
+                                       "09192939495969798999"
+                                    };
+
+      static const std::size_t dbl_digitr_size = sizeof(dbl_digitr) / sizeof(unsigned char);
 
       template<typename>
       struct numeric { enum { length = 0, size = 32, bound_length = 0}; };
@@ -7380,6 +7396,16 @@ namespace strtk
          char buffer[numeric<T>::size];
          char* itr = buffer + (numeric<T>::size - 1);
          std::size_t remainder = 0;
+
+         while (value >= 100)
+         {
+            remainder  = value % 100;
+            value     /= 100;
+            index = remainder << 1;
+            *(itr--) = details::dbl_digitr[index + 0];
+            *(itr--) = details::dbl_digitr[index + 1];
+         }
+
          do
          {
             remainder = value % 10;
@@ -7387,30 +7413,43 @@ namespace strtk
             *(itr--)  = digitr[remainder];
          }
          while (value);
+
          itr++;
          result.assign(itr, (buffer + numeric<T>::size) - itr);
          return true;
       }
 
       template<typename T>
-      inline bool type_to_string_converter_impl(T value, std::string& result, signed_type_tag)
+      inline bool type_to_string_converter_impl(T value, std::string& result, strtk::details::signed_type_tag)
       {
-         char buffer[numeric<T>::size];
-         char* itr = buffer + (numeric<T>::size - 1);
+         char buffer[strtk::details::numeric<T>::size];
+         char* itr = buffer + (strtk::details::numeric<T>::size - 1);
          bool negative = (value < 0);
          if (negative)
             value = static_cast<T>(std::abs(value));
          std::size_t remainder = 0;
+         std::size_t index = 0;
+
+         while (value >= 100)
+         {
+            remainder  = value % 100;
+            value     /= 100;
+            index = remainder << 1;
+            *(itr--) = details::dbl_digitr[index + 0];
+            *(itr--) = details::dbl_digitr[index + 1];
+         }
+
          do
          {
             remainder = value % 10;
             value    /= 10;
-            *(itr--)  = digitr[remainder];
+            *(itr--)  = strtk::details::digitr[remainder];
          }
          while (value);
+
          if (negative) *(itr--) = '-';
          itr++;
-         result.assign(itr, (buffer + numeric<T>::size) - itr);
+         result.assign(itr, (buffer + strtk::details::numeric<T>::size) - itr);
          return true;
       }
 
