@@ -7400,7 +7400,7 @@ namespace strtk
          std::size_t remainder = 0;
          std::size_t index = 0;
 
-         while (value >= radix_sqr)
+         while (value >= static_cast<T>(radix_sqr))
          {
             remainder  = value % radix_sqr;
             value     /= radix_sqr;
@@ -7435,7 +7435,7 @@ namespace strtk
          std::size_t remainder = 0;
          std::size_t index = 0;
 
-         while (value >= radix_sqr)
+         while (value >= static_cast<T>(radix_sqr))
          {
             remainder  = value % radix_sqr;
             value     /= radix_sqr;
