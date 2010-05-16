@@ -7393,15 +7393,17 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, unsigned_type_tag)
       {
+         static const std::size_t radix = 10;
+         static const std::size_t radix_sqr = radix * radix;
          char buffer[numeric<T>::size];
          char* itr = buffer + (numeric<T>::size - 1);
          std::size_t remainder = 0;
          std::size_t index = 0;
 
-         while (value >= 100)
+         while (value >= radix_sqr)
          {
-            remainder  = value % 100;
-            value     /= 100;
+            remainder  = value % radix_sqr;
+            value     /= radix_sqr;
             index = remainder << 1;
             *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
             *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
@@ -7409,8 +7411,8 @@ namespace strtk
 
          do
          {
-            remainder = value % 10;
-            value    /= 10;
+            remainder = value % radix;
+            value    /= radix;
             *(itr--)  = digitr[remainder];
          }
          while (value);
@@ -7423,6 +7425,8 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(T value, std::string& result, strtk::details::signed_type_tag)
       {
+         static const std::size_t radix = 10;
+         static const std::size_t radix_sqr = radix * radix;
          char buffer[strtk::details::numeric<T>::size];
          char* itr = buffer + (strtk::details::numeric<T>::size - 1);
          bool negative = (value < 0);
@@ -7431,10 +7435,10 @@ namespace strtk
          std::size_t remainder = 0;
          std::size_t index = 0;
 
-         while (value >= 100)
+         while (value >= radix_sqr)
          {
-            remainder  = value % 100;
-            value     /= 100;
+            remainder  = value % radix_sqr;
+            value     /= radix_sqr;
             index = remainder << 1;
             *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
             *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
@@ -7442,8 +7446,8 @@ namespace strtk
 
          do
          {
-            remainder = value % 10;
-            value    /= 10;
+            remainder = value % radix;
+            value    /= radix;
             *(itr--)  = strtk::details::digitr[remainder];
          }
          while (value);
