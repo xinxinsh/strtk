@@ -7402,8 +7402,8 @@ namespace strtk
             remainder  = value % 100;
             value     /= 100;
             index = remainder << 1;
-            *(itr--) = details::dbl_digitr[index + 0];
-            *(itr--) = details::dbl_digitr[index + 1];
+            *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
+            *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
          }
 
          do
