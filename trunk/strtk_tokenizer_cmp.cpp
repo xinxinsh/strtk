@@ -30,7 +30,7 @@
 
                 Definitions:
                 tks/sec  : Tokens per second
-                nums/sec : numbers per second
+                nums/sec : Numbers per second
 */
 
 
@@ -135,7 +135,7 @@ void strtk_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("Tokens:%10u\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           token_count,
           t.time(),
           token_count / (1.0 * t.time()));
@@ -162,7 +162,7 @@ void boost_tokenizer_timed_test()
       ++token_count;
    }
    t.stop();
-   printf("Tokens:%10u\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           token_count,
           t.time(),
           token_count / (1.0 * t.time()));
@@ -179,7 +179,7 @@ void strtk_split_timed_test()
    t.start();
    strtk::parse(s,delimiters,token_list);
    t.stop();
-   printf("Tokens:%10lu\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
           token_list.size() / (1.0 * t.time()));
@@ -196,13 +196,13 @@ void boost_split_timed_test()
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
    t.stop();
-   printf("Tokens:%10lu\tTotal time:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
           token_list.size() / (1.0 * t.time()));
 }
 
-static const int max_i2s = 30000000;
+static const int max_i2s = 50000000;
 
 void sprintf_lexical_cast_test_i2s()
 {
@@ -218,7 +218,7 @@ void sprintf_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -239,7 +239,7 @@ void boost_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -274,7 +274,7 @@ void karma_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -298,7 +298,7 @@ void strtk_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %lu\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -363,18 +363,35 @@ static const std::string strint_list[] =
                      "708",      "-467",      "-794",       "610",      "+929",       "766",       "152",       "482",       "397",      "-191",
                 "97233152",  "51028396", "-13796948",  "95437272",  "71352512", "-83233730", "-68517318",  "61832742", "-42667174", "-18002395",
                "-92239407",  "12701336", "-63830875",  "41514172",  "-5726049",  "18668677",  "69555144", "-13737009", "-22626233", "-55078143",
+                      "00",        "11",        "22",        "33",        "44",       "-00",       "-11",       "-22",       "-33",       "-44",
+                     "000",       "111",       "222",       "333",       "444",      "-000",      "-111",      "-222",      "-333",      "-444",
+                    "0000",      "1111",      "2222",      "3333",      "4444",     "-0000",     "-1111",     "-2222",     "-3333",     "-4444",
+                   "00000",     "11111",     "22222",     "33333",     "44444",    "-00000",    "-11111",    "-22222",    "-33333",    "-44444",
+                  "000000",    "111111",    "222222",    "333333",    "444444",   "-000000",   "-111111",   "-222222",   "-333333",   "-444444",
+                 "0000000",   "1111111",   "2222222",   "3333333",   "4444444",  "-0000000",  "-1111111",  "-2222222",  "-3333333",  "-4444444",
+                "00000000",  "11111111",  "22222222",  "33333333",  "44444444", "-00000000", "-11111111", "-22222222", "-33333333", "-44444444",
+               "000000000", "111111111", "222222222", "333333333", "444444444","-000000000","-111111111","-222222222","-333333333","-444444444",
+                      "55",        "66",        "77",        "88",        "99",       "-55",       "-66",       "-77",       "-88",       "-99",
+                     "555",       "666",       "777",       "888",       "999",      "-555",      "-666",      "-777",      "-888",      "-999",
+                    "5555",      "6666",      "7777",      "8888",      "9999",     "-5555",     "-6666",     "-7777",     "-8888",     "-9999",
+                   "55555",     "66666",     "77777",     "88888",     "99999",    "-55555",    "-66666",    "-77777",    "-88888",    "-99999",
+                  "555555",    "666666",    "777777",    "888888",    "999999",   "-555555",   "-666666",   "-777777",   "-888888",   "-999999",
+                 "5555555",   "6666666",   "7777777",   "8888888",   "9999999",  "-5555555",  "-6666666",  "-7777777",  "-8888888",  "-9999999",
+                "55555555",  "66666666",  "77777777",  "88888888",  "99999999", "-55555555", "-66666666", "-77777777", "-88888888", "-99999999",
+               "555555555", "666666666", "777777777", "888888888", "999999999","-555555555","-666666666","-777777777","-888888888","-999999999"
              };
 static const std::size_t strint_list_size = sizeof(strint_list) / sizeof(std::string);
+
+static const std::size_t s2i_rounds = 100000;
 
 void atoi_lexical_cast_test_s2i()
 {
    print_mode("[atoi]");
-   const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
    timer t;
    t.start();
-   for (std::size_t x = 0; x < rounds; ++x)
+   for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
       for (std::size_t i = 0; i < strint_list_size; ++i)
       {
@@ -383,22 +400,21 @@ void atoi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * strint_list_size),
+   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
 }
 
 void boost_lexical_cast_test_s2i()
 {
    print_mode("[boost]");
-   const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
    timer t;
    t.start();
-   for (std::size_t x = 0; x < rounds; ++x)
+   for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
       for (std::size_t i = 0; i < strint_list_size; ++i)
       {
@@ -407,11 +423,11 @@ void boost_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * strint_list_size),
+   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
 }
 
 #ifdef INCLUDE_QI_S2I
@@ -427,12 +443,11 @@ inline bool qi_string_to_int(const std::string& str, int & value)
 void qi_lexical_cast_test_s2i()
 {
    print_mode("[qi]");
-   const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
    timer t;
    t.start();
-   for (std::size_t x = 0; x < rounds; ++x)
+   for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
       for (std::size_t i = 0; i < strint_list_size; ++i)
       {
@@ -441,11 +456,11 @@ void qi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * strint_list_size),
+   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
 }
 #else
  void qi_lexical_cast_test_s2i() {}
@@ -454,12 +469,11 @@ void qi_lexical_cast_test_s2i()
 void strtk_lexical_cast_test_s2i()
 {
    print_mode("[strtk]");
-   const std::size_t rounds = 100000;
    int total = 0;
    int n = 0;
    timer t;
    t.start();
-   for (std::size_t x = 0; x < rounds; ++x)
+   for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
       for (std::size_t i = 0; i < strint_list_size; ++i)
       {
@@ -468,11 +482,11 @@ void strtk_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tTotal: %d\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * strint_list_size),
+   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
 }
 
 static const std::string v[] = {
@@ -569,7 +583,7 @@ static const std::string v[] = {
                   };
 
 static const std::size_t v_size = sizeof(v) / sizeof(std::string);
-static const std::size_t rounds = 50000;
+static const std::size_t s2d_rounds = 50000;
 
 void atof_cast_test_s2d()
 {
@@ -578,7 +592,7 @@ void atof_cast_test_s2d()
    double d   = 0.0;
    timer t;
    t.start();
-   for (std::size_t r = 0; r < rounds; ++r)
+   for (std::size_t r = 0; r < s2d_rounds; ++r)
    {
       for (std::size_t i = 0; i < v_size; ++i)
       {
@@ -590,11 +604,11 @@ void atof_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * v_size),
+   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),
-          (rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / (1.0 * t.time()));
 }
 
 void boost_cast_test_s2d()
@@ -604,7 +618,7 @@ void boost_cast_test_s2d()
    double d   = 0.0;
    timer t;
    t.start();
-   for (std::size_t r = 0; r < rounds; ++r)
+   for (std::size_t r = 0; r < s2d_rounds; ++r)
    {
       for (std::size_t i = 0; i < v_size; ++i)
       {
@@ -616,11 +630,11 @@ void boost_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * v_size),
+   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),
-          (rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / (1.0 * t.time()));
 }
 
 #ifdef INCLUDE_QI_S2D
@@ -640,7 +654,7 @@ void qi_cast_test_s2d()
    double d   = 0.0;
    timer t;
    t.start();
-   for (std::size_t r = 0; r < rounds; ++r)
+   for (std::size_t r = 0; r < s2d_rounds; ++r)
    {
       for (std::size_t i = 0; i < v_size; ++i)
       {
@@ -652,11 +666,11 @@ void qi_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * v_size),
+   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),
-          (rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / (1.0 * t.time()));
 }
 #else
  void qi_cast_test_s2d(){}
@@ -669,7 +683,7 @@ void strtk_cast_test_s2d()
    double d   = 0.0;
    timer t;
    t.start();
-   for (std::size_t r = 0; r < rounds; ++r)
+   for (std::size_t r = 0; r < s2d_rounds; ++r)
    {
       for (std::size_t i = 0; i < v_size; ++i)
       {
@@ -681,11 +695,11 @@ void strtk_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers: %lu\tError: %12.10f\tTotal time: %8.4fsec\tRate:%14.4fnums/sec\n",
-          static_cast<unsigned long>(rounds * v_size),
+   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+          static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),
-          (rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / (1.0 * t.time()));
 }
 
 int main()
