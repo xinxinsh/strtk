@@ -6923,7 +6923,7 @@ namespace strtk
 
       static const unsigned char digitr[] =
                                     {
-                                       "0123456789"
+                                       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                     };
 
       static const unsigned char dbl_digitr[] =
@@ -6941,6 +6941,33 @@ namespace strtk
                                     };
 
       static const std::size_t dbl_digitr_size = sizeof(dbl_digitr) / sizeof(unsigned char);
+
+      static const unsigned long long multiplier_base10[] =
+                                         {
+                                            1ULL,
+                                            10ULL,
+                                            100ULL,
+                                            1000ULL,
+                                            10000ULL,
+                                            100000ULL,
+                                            1000000ULL,
+                                            10000000ULL,
+                                            100000000ULL,
+                                            1000000000ULL,
+                                            10000000000ULL,
+                                            100000000000ULL,
+                                            1000000000000ULL,
+                                            10000000000000ULL,
+                                            100000000000000ULL,
+                                            1000000000000000ULL,
+                                            10000000000000000ULL,
+                                            100000000000000000ULL,
+                                            1000000000000000000ULL,
+                                            10000000000000000000ULL
+                                         };
+
+      static const std::size_t multiplier_base10_size = sizeof(multiplier_base10) / sizeof(unsigned long long);
+
 
       template<typename>
       struct numeric { enum { length = 0, size = 32, bound_length = 0}; };
@@ -7068,28 +7095,43 @@ namespace strtk
             ++itr;
          if (end == itr)
             return false;
-         unsigned int digit_count = 0;
+
          while ((end != itr) && ('0' == *itr)) ++itr;
-         while (end != itr)
+         const std::size_t length = std::distance(itr,end);
+
+         if (0 != length)
          {
-            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
-            if (is_invalid_digit(digit))
-               return false;
-            if ((++digit_count) <= numeric<T>::bound_length)
+            const Iterator new_end = itr - 1;
+            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length);
+            itr += (length - 1);
+
+            std::size_t multiplier_index = 0;
+
+            while (interim_end != itr)
             {
-               t *= 10;
-               t += digit;
-            }
-            else
-            {
-               typedef unsigned long long base_type;
-               static const base_type max_limit = +std::numeric_limits<T>::max();
-               base_type tmp = static_cast<base_type>(t) * 10 + digit;
-               if (static_cast<base_type>(tmp) > max_limit)
+               const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+               if (is_invalid_digit(digit))
                   return false;
-               t = static_cast<T>(tmp);
+               t +=  (digit * static_cast<T>(multiplier_base10[multiplier_index++]));
+            }
+
+            if (interim_end != new_end)
+            {
+               while (new_end != itr)
+               {
+                  const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+                  if (is_invalid_digit(digit))
+                     return false;
+                  typedef unsigned long long base_type;
+                  static const base_type max_limit = +std::numeric_limits<T>::max();
+                  base_type tmp = static_cast<base_type>(t) + (digit * multiplier_base10[multiplier_index++]);
+                  if (static_cast<base_type>(tmp) > max_limit)
+                     return false;
+                  t = static_cast<T>(tmp);
+               }
             }
          }
+
          result = static_cast<T>(t);
          return true;
       }
@@ -7111,31 +7153,46 @@ namespace strtk
          }
          if (end == itr)
             return false;
-         unsigned int digit_count = 0;
+
          while ((end != itr) && ('0' == *itr)) ++itr;
-         while (end != itr)
+         const std::size_t length = std::distance(itr,end);
+
+         if (0 != length)
          {
-            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr++)]);
-            if (is_invalid_digit(digit))
-               return false;
-            if ((++digit_count) <= numeric<T>::bound_length)
+            const Iterator new_end = itr - 1;
+            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length) - 1;
+            itr += (length - 1);
+
+            std::size_t multiplier_index = 0;
+
+            while (interim_end != itr)
             {
-               t *= 10;
-               t += digit;
+               const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+               if (is_invalid_digit(digit))
+                  return false;
+               t +=  (digit * static_cast<T>(multiplier_base10[multiplier_index++]));
             }
-            else
+
+            if (interim_end != new_end)
             {
-               typedef unsigned long long base_type;
-               static const base_type max_limit = +std::numeric_limits<T>::max();
-               static const base_type min_limit = -std::numeric_limits<T>::min();
-               base_type tmp = static_cast<base_type>(t) * 10 + digit;
-               if (negative && static_cast<base_type>(tmp) > min_limit)
-                  return false;
-               else if (static_cast<base_type>(tmp) > max_limit)
-                  return false;
-               t = static_cast<T>(tmp);
+               while (new_end != itr)
+               {
+                  const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+                  if (is_invalid_digit(digit))
+                     return false;
+                  typedef unsigned long long base_type;
+                  static const base_type max_limit = +std::numeric_limits<T>::max();
+                  static const base_type min_limit = -std::numeric_limits<T>::min();
+                  base_type tmp = static_cast<base_type>(t) + (digit * multiplier_base10[multiplier_index++]);
+                  if (negative && static_cast<base_type>(tmp) > min_limit)
+                     return false;
+                  else if (static_cast<base_type>(tmp) > max_limit)
+                     return false;
+                  t = static_cast<T>(tmp);
+               }
             }
          }
+
          if (negative) t = -t;
          result = static_cast<T>(t);
          return true;
@@ -7400,22 +7457,26 @@ namespace strtk
          std::size_t remainder = 0;
          std::size_t index = 0;
 
-         while (value >= static_cast<T>(radix_sqr))
+         if (0 != value)
          {
-            remainder  = value % radix_sqr;
-            value     /= radix_sqr;
-            index = remainder << 1;
-            *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
-            *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
-         }
+            while (value >= static_cast<T>(radix))
+            {
+               remainder  = value % radix_sqr;
+               value     /= radix_sqr;
+               index = remainder << 1;
+               *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
+               *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
+            }
 
-         do
-         {
-            remainder = value % radix;
-            value    /= radix;
-            *(itr--)  = digitr[remainder];
+            if (0 != value)
+            {
+               remainder = value % radix;
+               value    /= radix;
+               *(itr--)  = strtk::details::digitr[remainder];
+            }
          }
-         while (value);
+         else
+            *(itr--) = '0';
 
          itr++;
          result.assign(itr, (buffer + numeric<T>::size) - itr);
@@ -7432,25 +7493,30 @@ namespace strtk
          bool negative = (value < 0);
          if (negative)
             value = static_cast<T>(std::abs(value));
+
          std::size_t remainder = 0;
          std::size_t index = 0;
 
-         while (value >= static_cast<T>(radix_sqr))
+         if (0 != value)
          {
-            remainder  = value % radix_sqr;
-            value     /= radix_sqr;
-            index = remainder << 1;
-            *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
-            *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
-         }
+            while (value >= static_cast<T>(radix))
+            {
+               remainder  = value % radix_sqr;
+               value     /= radix_sqr;
+               index = remainder << 1;
+               *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
+               *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
+            }
 
-         do
-         {
-            remainder = value % radix;
-            value    /= radix;
-            *(itr--)  = strtk::details::digitr[remainder];
+            if (0 != value)
+            {
+               remainder = value % radix;
+               value    /= radix;
+               *(itr--)  = strtk::details::digitr[remainder];
+            }
          }
-         while (value);
+         else
+            *(itr--) = '0';
 
          if (negative) *(itr--) = '-';
          itr++;
