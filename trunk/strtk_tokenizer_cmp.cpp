@@ -218,7 +218,7 @@ void sprintf_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -239,7 +239,7 @@ void boost_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -274,7 +274,7 @@ void karma_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -298,7 +298,7 @@ void strtk_lexical_cast_test_i2s()
       total_length += s.size();
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12lu\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
@@ -378,7 +378,30 @@ static const std::string strint_list[] =
                   "555555",    "666666",    "777777",    "888888",    "999999",   "-555555",   "-666666",   "-777777",   "-888888",   "-999999",
                  "5555555",   "6666666",   "7777777",   "8888888",   "9999999",  "-5555555",  "-6666666",  "-7777777",  "-8888888",  "-9999999",
                 "55555555",  "66666666",  "77777777",  "88888888",  "99999999", "-55555555", "-66666666", "-77777777", "-88888888", "-99999999",
-               "555555555", "666666666", "777777777", "888888888", "999999999","-555555555","-666666666","-777777777","-888888888","-999999999"
+               "555555555", "666666666", "777777777", "888888888", "999999999","-555555555","-666666666","-777777777","-888888888","-999999999",
+              "0000000011", "0000000022", "0000000033", "0000000044", "-000000011", "-000000022", "-000000033", "-000000044", "-000000088",
+              "0000000111", "0000000222", "0000000333", "0000000444", "-000000111", "-000000222", "-000000333", "-000000444", "-000000888",
+              "0000001111", "0000002222", "0000003333", "0000004444", "-000001111", "-000002222", "-000003333", "-000004444", "-000008888",
+              "0000011111", "0000022222", "0000033333", "0000044444", "-000011111", "-000022222", "-000033333", "-000044444", "-000088888",
+              "0000111111", "0000222222", "0000333333", "0000444444", "-000111111", "-000222222", "-000333333", "-000444444", "-000888888",
+              "0001111111", "0002222222", "0003333333", "0004444444", "-001111111", "-002222222", "-003333333", "-004444444", "-008888888",
+              "0011111111", "0022222222", "0033333333", "0044444444", "-011111111", "-022222222", "-033333333", "-044444444", "-088888888",
+              "0111111111", "0222222222", "0333333333", "0444444444", "-111111111", "-222222222", "-333333333", "-444444444", "-888888888",
+              "0000000055", "0000000066", "0000000077", "0000000088", "0000000099", "-000000055", "-000000066", "-000000077", "-000000099",
+              "0000000555", "0000000666", "0000000777", "0000000888", "0000000999", "-000000555", "-000000666", "-000000777", "-000000999",
+              "0000005555", "0000006666", "0000007777", "0000008888", "0000009999", "-000005555", "-000006666", "-000007777", "-000009999",
+              "0000055555", "0000066666", "0000077777", "0000088888", "0000099999", "-000055555", "-000066666", "-000077777", "-000099999",
+              "0000555555", "0000666666", "0000777777", "0000888888", "0000999999", "-000555555", "-000666666", "-000777777", "-000999999",
+              "0005555555", "0006666666", "0007777777", "0008888888", "0009999999", "-005555555", "-006666666", "-007777777", "-009999999",
+              "0055555555", "0066666666", "0077777777", "0088888888", "0099999999", "-055555555", "-066666666", "-077777777", "-099999999",
+              "0555555555", "0666666666", "0777777777", "0888888888", "0999999999", "-555555555", "-666666666", "-777777777", "-999999999",
+               "0000001234567890", "+0000001234567890", "-0000001234567890",
+                "000001234567890",  "+000001234567890",  "-000001234567890",
+                 "00001234567890",   "+00001234567890",   "-00001234567890",
+                  "0001234567890",    "+0001234567890",    "-0001234567890",
+                   "001234567890",     "+001234567890",     "-001234567890",
+                    "01234567890",      "+01234567890",      "-01234567890",
+                     "1234567890",       "+1234567890",       "-1234567890",
              };
 static const std::size_t strint_list_size = sizeof(strint_list) / sizeof(std::string);
 
@@ -400,7 +423,7 @@ void atoi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
@@ -423,7 +446,7 @@ void boost_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
@@ -456,7 +479,7 @@ void qi_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
@@ -482,7 +505,7 @@ void strtk_lexical_cast_test_s2i()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tTotal:%10d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tTotal:%12d\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
@@ -604,7 +627,7 @@ void atof_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tError:%12.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),
@@ -630,7 +653,7 @@ void boost_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tError:%12.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),
@@ -666,7 +689,7 @@ void qi_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tError:%12.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),
@@ -695,7 +718,7 @@ void strtk_cast_test_s2d()
       }
    }
    t.stop();
-   printf("Numbers:%10lu\tError:%14.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
+   printf("Numbers:%10lu\tError:%12.10f\tTime:%8.4fsec\tRate:%14.4fnums/sec\n",
           static_cast<unsigned long>(s2d_rounds * v_size),
           sum,
           t.time(),

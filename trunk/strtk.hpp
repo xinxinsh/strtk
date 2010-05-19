@@ -196,6 +196,7 @@ namespace strtk
       struct bool_type_tag {};
       struct hex_type_tag {};
       struct base64_type_tag {};
+      struct stdstring_type_tag{};
 
       template<typename T>
       struct supported_conversion_to_type
@@ -6921,6 +6922,14 @@ namespace strtk
          return (static_cast<T>(invalid_digit) == t);
       }
 
+      template<typename T>
+      static inline bool is_valid_digit(const T& t)
+      {
+         static const unsigned int invalid_digit = 0xFF;
+         return (static_cast<T>(invalid_digit) != t);
+      }
+
+
       static const unsigned char digitr[] =
                                     {
                                        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -6942,7 +6951,7 @@ namespace strtk
 
       static const std::size_t dbl_digitr_size = sizeof(dbl_digitr) / sizeof(unsigned char);
 
-      static const unsigned long long multiplier_base10[] =
+      static const unsigned long long b10x[] =
                                          {
                                             1ULL,
                                             10ULL,
@@ -6966,8 +6975,31 @@ namespace strtk
                                             10000000000000000000ULL
                                          };
 
-      static const std::size_t multiplier_base10_size = sizeof(multiplier_base10) / sizeof(unsigned long long);
+      static const std::size_t b10x_size = sizeof(b10x) / sizeof(unsigned long long);
 
+      static const unsigned long long base10x[10 * b10x_size] =
+                                {
+                                   0 * b10x[ 0], 1 * b10x[ 0], 2 * b10x[ 0], 3 * b10x[ 0], 4 * b10x[ 0], 5 * b10x[ 0], 6 * b10x[ 0], 7 * b10x[ 0], 8 * b10x[ 0], 9 * b10x[ 0],
+                                   0 * b10x[ 1], 1 * b10x[ 1], 2 * b10x[ 1], 3 * b10x[ 1], 4 * b10x[ 1], 5 * b10x[ 1], 6 * b10x[ 1], 7 * b10x[ 1], 8 * b10x[ 1], 9 * b10x[ 1],
+                                   0 * b10x[ 2], 1 * b10x[ 2], 2 * b10x[ 2], 3 * b10x[ 2], 4 * b10x[ 2], 5 * b10x[ 2], 6 * b10x[ 2], 7 * b10x[ 2], 8 * b10x[ 2], 9 * b10x[ 2],
+                                   0 * b10x[ 3], 1 * b10x[ 3], 2 * b10x[ 3], 3 * b10x[ 3], 4 * b10x[ 3], 5 * b10x[ 3], 6 * b10x[ 3], 7 * b10x[ 3], 8 * b10x[ 3], 9 * b10x[ 3],
+                                   0 * b10x[ 4], 1 * b10x[ 4], 2 * b10x[ 4], 3 * b10x[ 4], 4 * b10x[ 4], 5 * b10x[ 4], 6 * b10x[ 4], 7 * b10x[ 4], 8 * b10x[ 4], 9 * b10x[ 4],
+                                   0 * b10x[ 5], 1 * b10x[ 5], 2 * b10x[ 5], 3 * b10x[ 5], 4 * b10x[ 5], 5 * b10x[ 5], 6 * b10x[ 5], 7 * b10x[ 5], 8 * b10x[ 5], 9 * b10x[ 5],
+                                   0 * b10x[ 6], 1 * b10x[ 6], 2 * b10x[ 6], 3 * b10x[ 6], 4 * b10x[ 6], 5 * b10x[ 6], 6 * b10x[ 6], 7 * b10x[ 6], 8 * b10x[ 6], 9 * b10x[ 6],
+                                   0 * b10x[ 7], 1 * b10x[ 7], 2 * b10x[ 7], 3 * b10x[ 7], 4 * b10x[ 7], 5 * b10x[ 7], 6 * b10x[ 7], 7 * b10x[ 7], 8 * b10x[ 7], 9 * b10x[ 7],
+                                   0 * b10x[ 8], 1 * b10x[ 8], 2 * b10x[ 8], 3 * b10x[ 8], 4 * b10x[ 8], 5 * b10x[ 8], 6 * b10x[ 8], 7 * b10x[ 8], 8 * b10x[ 8], 9 * b10x[ 8],
+                                   0 * b10x[ 9], 1 * b10x[ 9], 2 * b10x[ 9], 3 * b10x[ 9], 4 * b10x[ 9], 5 * b10x[ 9], 6 * b10x[ 9], 7 * b10x[ 9], 8 * b10x[ 9], 9 * b10x[ 9],
+                                   0 * b10x[10], 1 * b10x[10], 2 * b10x[10], 3 * b10x[10], 4 * b10x[10], 5 * b10x[10], 6 * b10x[10], 7 * b10x[10], 8 * b10x[10], 9 * b10x[10],
+                                   0 * b10x[11], 1 * b10x[11], 2 * b10x[11], 3 * b10x[11], 4 * b10x[11], 5 * b10x[11], 6 * b10x[11], 7 * b10x[11], 8 * b10x[11], 9 * b10x[11],
+                                   0 * b10x[12], 1 * b10x[12], 2 * b10x[12], 3 * b10x[12], 4 * b10x[12], 5 * b10x[12], 6 * b10x[12], 7 * b10x[12], 8 * b10x[12], 9 * b10x[12],
+                                   0 * b10x[13], 1 * b10x[13], 2 * b10x[13], 3 * b10x[13], 4 * b10x[13], 5 * b10x[13], 6 * b10x[13], 7 * b10x[13], 8 * b10x[13], 9 * b10x[13],
+                                   0 * b10x[14], 1 * b10x[14], 2 * b10x[14], 3 * b10x[14], 4 * b10x[14], 5 * b10x[14], 6 * b10x[14], 7 * b10x[14], 8 * b10x[14], 9 * b10x[14],
+                                   0 * b10x[15], 1 * b10x[15], 2 * b10x[15], 3 * b10x[15], 4 * b10x[15], 5 * b10x[15], 6 * b10x[15], 7 * b10x[15], 8 * b10x[15], 9 * b10x[15],
+                                   0 * b10x[16], 1 * b10x[16], 2 * b10x[16], 3 * b10x[16], 4 * b10x[16], 5 * b10x[16], 6 * b10x[16], 7 * b10x[16], 8 * b10x[16], 9 * b10x[16],
+                                   0 * b10x[17], 1 * b10x[17], 2 * b10x[17], 3 * b10x[17], 4 * b10x[17], 5 * b10x[17], 6 * b10x[17], 7 * b10x[17], 8 * b10x[17], 9 * b10x[17],
+                                   0 * b10x[18], 1 * b10x[18], 2 * b10x[18], 3 * b10x[18], 4 * b10x[18], 5 * b10x[18], 6 * b10x[18], 7 * b10x[18], 8 * b10x[18], 9 * b10x[18],
+                                   0 * b10x[19], 1 * b10x[19], 2 * b10x[19], 3 * b10x[19], 4 * b10x[19], 5 * b10x[19], 6 * b10x[19], 7 * b10x[19], 8 * b10x[19], 9 * b10x[19]
+                                };
 
       template<typename>
       struct numeric { enum { length = 0, size = 32, bound_length = 0}; };
@@ -7010,6 +7042,9 @@ namespace strtk
 
       template<> struct supported_conversion_to_type<bool> { typedef bool_type_tag type; };
       template<> struct supported_iterator_type<bool> { enum { value = true }; };
+
+      template<> struct supported_conversion_to_type<std::string> { typedef stdstring_type_tag type; };
+      template<> struct supported_iterator_type<std::string> { enum { value = true }; };
 
       #define register_sequence_iterator_type(sequence)\
       register_supported_iterator_type(sequence<char>::iterator)\
@@ -7078,7 +7113,7 @@ namespace strtk
       }
 
       template<typename Iterator>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, std::string& t, not_supported_type_tag)
+      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, std::string& t, stdstring_type_tag)
       {
          t.assign(begin,end);
          return true;
@@ -7091,6 +7126,7 @@ namespace strtk
             return false;
          T t = 0;
          Iterator itr = begin;
+
          if ('+' == *itr)
             ++itr;
          if (end == itr)
@@ -7099,36 +7135,42 @@ namespace strtk
          while ((end != itr) && ('0' == *itr)) ++itr;
          const std::size_t length = std::distance(itr,end);
 
+         if (length > numeric<T>::length)
+            return false;
+
          if (0 != length)
          {
+            static const std::size_t radix = 10;
             const Iterator new_end = itr - 1;
-            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length);
+            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length) - 1;
             itr += (length - 1);
 
-            std::size_t multiplier_index = 0;
+            const unsigned long long* multiplier_index = base10x;
+            T digit = 0;
 
             while (interim_end != itr)
             {
-               const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
-               if (is_invalid_digit(digit))
+               digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+               if (is_valid_digit(digit))
+                  t += static_cast<T>(multiplier_index[digit]);
+               else
                   return false;
-               t +=  (digit * static_cast<T>(multiplier_base10[multiplier_index++]));
+               multiplier_index += radix;
             }
 
             if (interim_end != new_end)
             {
+               T tmp = t;
                while (new_end != itr)
                {
-                  const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
-                  if (is_invalid_digit(digit))
+                  digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+                  if (is_valid_digit(digit))
+                     t += static_cast<T>(multiplier_index[digit]);
+                  else
                      return false;
-                  typedef unsigned long long base_type;
-                  static const base_type max_limit = +std::numeric_limits<T>::max();
-                  base_type tmp = static_cast<base_type>(t) + (digit * multiplier_base10[multiplier_index++]);
-                  if (static_cast<base_type>(tmp) > max_limit)
-                     return false;
-                  t = static_cast<T>(tmp);
+                  multiplier_index += radix;
                }
+               if (tmp > t) return false;
             }
          }
 
@@ -7144,6 +7186,7 @@ namespace strtk
          T t = 0;
          Iterator itr = begin;
          bool negative = false;
+
          if ('+' == *itr)
             ++itr;
          else if ('-' == *itr)
@@ -7151,45 +7194,49 @@ namespace strtk
             ++itr;
             negative = true;
          }
+
          if (end == itr)
             return false;
 
          while ((end != itr) && ('0' == *itr)) ++itr;
          const std::size_t length = std::distance(itr,end);
 
+         if (length > numeric<T>::length)
+            return false;
+
          if (0 != length)
          {
+            static const std::size_t radix = 10;
             const Iterator new_end = itr - 1;
             const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length) - 1;
             itr += (length - 1);
 
-            std::size_t multiplier_index = 0;
+            const unsigned long long* multiplier_index = base10x;
+            T digit = 0;
 
             while (interim_end != itr)
             {
-               const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
-               if (is_invalid_digit(digit))
+               digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+               if (is_valid_digit(digit))
+                  t += static_cast<T>(multiplier_index[digit]);
+               else
                   return false;
-               t +=  (digit * static_cast<T>(multiplier_base10[multiplier_index++]));
+               multiplier_index += radix;
             }
 
             if (interim_end != new_end)
             {
+               T tmp = t;
                while (new_end != itr)
                {
-                  const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
-                  if (is_invalid_digit(digit))
+                  digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+                  if (is_valid_digit(digit))
+                     t += static_cast<T>(multiplier_index[digit]);
+                  else
                      return false;
-                  typedef unsigned long long base_type;
-                  static const base_type max_limit = +std::numeric_limits<T>::max();
-                  static const base_type min_limit = -std::numeric_limits<T>::min();
-                  base_type tmp = static_cast<base_type>(t) + (digit * multiplier_base10[multiplier_index++]);
-                  if (negative && static_cast<base_type>(tmp) > min_limit)
-                     return false;
-                  else if (static_cast<base_type>(tmp) > max_limit)
-                     return false;
-                  t = static_cast<T>(tmp);
+                  multiplier_index += radix;
                }
+               if (tmp > t) return false;
             }
          }
 
@@ -7205,6 +7252,7 @@ namespace strtk
             return false;
          T t = 0;
          bool negative = false;
+
          if ('+' == *itr)
             ++itr;
          else if ('-' == *itr)
@@ -7212,8 +7260,10 @@ namespace strtk
             ++itr;
             negative = true;
          }
+
          if (end == itr)
             return false;
+
          unsigned int digit_count = 0;
          while ((end != itr) && ('0' == *itr)) ++itr;
 
@@ -7539,7 +7589,7 @@ namespace strtk
          return true;
       }
 
-      inline bool type_to_string_converter_impl(const std::string& value, std::string& result, not_supported_type_tag)
+      inline bool type_to_string_converter_impl(const std::string& value, std::string& result, stdstring_type_tag)
       {
          result = value;
          return true;
