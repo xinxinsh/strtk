@@ -6951,58 +6951,8 @@ namespace strtk
 
       static const std::size_t dbl_digitr_size = sizeof(dbl_digitr) / sizeof(unsigned char);
 
-      static const unsigned long long b10x[] =
-                                         {
-                                            1ULL,
-                                            10ULL,
-                                            100ULL,
-                                            1000ULL,
-                                            10000ULL,
-                                            100000ULL,
-                                            1000000ULL,
-                                            10000000ULL,
-                                            100000000ULL,
-                                            1000000000ULL,
-                                            10000000000ULL,
-                                            100000000000ULL,
-                                            1000000000000ULL,
-                                            10000000000000ULL,
-                                            100000000000000ULL,
-                                            1000000000000000ULL,
-                                            10000000000000000ULL,
-                                            100000000000000000ULL,
-                                            1000000000000000000ULL,
-                                            10000000000000000000ULL
-                                         };
-
-      static const std::size_t b10x_size = sizeof(b10x) / sizeof(unsigned long long);
-
-      static const unsigned long long base10x[10 * b10x_size] =
-                                {
-                                   0 * b10x[ 0], 1 * b10x[ 0], 2 * b10x[ 0], 3 * b10x[ 0], 4 * b10x[ 0], 5 * b10x[ 0], 6 * b10x[ 0], 7 * b10x[ 0], 8 * b10x[ 0], 9 * b10x[ 0],
-                                   0 * b10x[ 1], 1 * b10x[ 1], 2 * b10x[ 1], 3 * b10x[ 1], 4 * b10x[ 1], 5 * b10x[ 1], 6 * b10x[ 1], 7 * b10x[ 1], 8 * b10x[ 1], 9 * b10x[ 1],
-                                   0 * b10x[ 2], 1 * b10x[ 2], 2 * b10x[ 2], 3 * b10x[ 2], 4 * b10x[ 2], 5 * b10x[ 2], 6 * b10x[ 2], 7 * b10x[ 2], 8 * b10x[ 2], 9 * b10x[ 2],
-                                   0 * b10x[ 3], 1 * b10x[ 3], 2 * b10x[ 3], 3 * b10x[ 3], 4 * b10x[ 3], 5 * b10x[ 3], 6 * b10x[ 3], 7 * b10x[ 3], 8 * b10x[ 3], 9 * b10x[ 3],
-                                   0 * b10x[ 4], 1 * b10x[ 4], 2 * b10x[ 4], 3 * b10x[ 4], 4 * b10x[ 4], 5 * b10x[ 4], 6 * b10x[ 4], 7 * b10x[ 4], 8 * b10x[ 4], 9 * b10x[ 4],
-                                   0 * b10x[ 5], 1 * b10x[ 5], 2 * b10x[ 5], 3 * b10x[ 5], 4 * b10x[ 5], 5 * b10x[ 5], 6 * b10x[ 5], 7 * b10x[ 5], 8 * b10x[ 5], 9 * b10x[ 5],
-                                   0 * b10x[ 6], 1 * b10x[ 6], 2 * b10x[ 6], 3 * b10x[ 6], 4 * b10x[ 6], 5 * b10x[ 6], 6 * b10x[ 6], 7 * b10x[ 6], 8 * b10x[ 6], 9 * b10x[ 6],
-                                   0 * b10x[ 7], 1 * b10x[ 7], 2 * b10x[ 7], 3 * b10x[ 7], 4 * b10x[ 7], 5 * b10x[ 7], 6 * b10x[ 7], 7 * b10x[ 7], 8 * b10x[ 7], 9 * b10x[ 7],
-                                   0 * b10x[ 8], 1 * b10x[ 8], 2 * b10x[ 8], 3 * b10x[ 8], 4 * b10x[ 8], 5 * b10x[ 8], 6 * b10x[ 8], 7 * b10x[ 8], 8 * b10x[ 8], 9 * b10x[ 8],
-                                   0 * b10x[ 9], 1 * b10x[ 9], 2 * b10x[ 9], 3 * b10x[ 9], 4 * b10x[ 9], 5 * b10x[ 9], 6 * b10x[ 9], 7 * b10x[ 9], 8 * b10x[ 9], 9 * b10x[ 9],
-                                   0 * b10x[10], 1 * b10x[10], 2 * b10x[10], 3 * b10x[10], 4 * b10x[10], 5 * b10x[10], 6 * b10x[10], 7 * b10x[10], 8 * b10x[10], 9 * b10x[10],
-                                   0 * b10x[11], 1 * b10x[11], 2 * b10x[11], 3 * b10x[11], 4 * b10x[11], 5 * b10x[11], 6 * b10x[11], 7 * b10x[11], 8 * b10x[11], 9 * b10x[11],
-                                   0 * b10x[12], 1 * b10x[12], 2 * b10x[12], 3 * b10x[12], 4 * b10x[12], 5 * b10x[12], 6 * b10x[12], 7 * b10x[12], 8 * b10x[12], 9 * b10x[12],
-                                   0 * b10x[13], 1 * b10x[13], 2 * b10x[13], 3 * b10x[13], 4 * b10x[13], 5 * b10x[13], 6 * b10x[13], 7 * b10x[13], 8 * b10x[13], 9 * b10x[13],
-                                   0 * b10x[14], 1 * b10x[14], 2 * b10x[14], 3 * b10x[14], 4 * b10x[14], 5 * b10x[14], 6 * b10x[14], 7 * b10x[14], 8 * b10x[14], 9 * b10x[14],
-                                   0 * b10x[15], 1 * b10x[15], 2 * b10x[15], 3 * b10x[15], 4 * b10x[15], 5 * b10x[15], 6 * b10x[15], 7 * b10x[15], 8 * b10x[15], 9 * b10x[15],
-                                   0 * b10x[16], 1 * b10x[16], 2 * b10x[16], 3 * b10x[16], 4 * b10x[16], 5 * b10x[16], 6 * b10x[16], 7 * b10x[16], 8 * b10x[16], 9 * b10x[16],
-                                   0 * b10x[17], 1 * b10x[17], 2 * b10x[17], 3 * b10x[17], 4 * b10x[17], 5 * b10x[17], 6 * b10x[17], 7 * b10x[17], 8 * b10x[17], 9 * b10x[17],
-                                   0 * b10x[18], 1 * b10x[18], 2 * b10x[18], 3 * b10x[18], 4 * b10x[18], 5 * b10x[18], 6 * b10x[18], 7 * b10x[18], 8 * b10x[18], 9 * b10x[18],
-                                   0 * b10x[19], 1 * b10x[19], 2 * b10x[19], 3 * b10x[19], 4 * b10x[19], 5 * b10x[19], 6 * b10x[19], 7 * b10x[19], 8 * b10x[19], 9 * b10x[19]
-                                };
-
       template<typename>
-      struct numeric { enum { length = 0, size = 32, bound_length = 0}; };
+      struct numeric { enum { length = 0, size = 32, bound_length = 0, min_exp = 0, max_exp = 0 }; };
 
       template<> struct numeric<short>              { enum { length =  5, size = 16, bound_length =  4}; };
       template<> struct numeric<unsigned short>     { enum { length =  5, size = 16, bound_length =  4}; };
@@ -7015,6 +6965,9 @@ namespace strtk
 
       template<> struct numeric<long long>          { enum { length = 19, size = 24, bound_length = 18}; };
       template<> struct numeric<unsigned long long> { enum { length = 19, size = 24, bound_length = 18}; };
+
+      template<> struct numeric<float>              { enum { min_exp =  -38, max_exp =  +38 }; };
+      template<> struct numeric<double>             { enum { min_exp = -308, max_exp = +308 }; };
 
       #define register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
@@ -7122,13 +7075,13 @@ namespace strtk
       template<typename Iterator, typename T>
       inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& result, unsigned_type_tag)
       {
-         if (0 == std::distance(begin,end))
-            return false;
-         T t = 0;
+         if (end == begin) return false;
+
          Iterator itr = begin;
 
          if ('+' == *itr)
             ++itr;
+
          if (end == itr)
             return false;
 
@@ -7138,37 +7091,38 @@ namespace strtk
          if (length > numeric<T>::length)
             return false;
 
+         T t = 0;
+
          if (0 != length)
          {
             static const std::size_t radix = 10;
-            const Iterator new_end = itr - 1;
-            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length) - 1;
-            itr += (length - 1);
-
-            const unsigned long long* multiplier_index = base10x;
+            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length);
             T digit = 0;
-
             while (interim_end != itr)
             {
-               digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+               digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
                if (is_valid_digit(digit))
-                  t += static_cast<T>(multiplier_index[digit]);
+               {
+                  t = (t * radix) + digit;
+                  ++itr;
+               }
                else
                   return false;
-               multiplier_index += radix;
             }
 
-            if (interim_end != new_end)
+            if (interim_end != end)
             {
                T tmp = t;
-               while (new_end != itr)
+               while (end != itr)
                {
-                  digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+                  digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
                   if (is_valid_digit(digit))
-                     t += static_cast<T>(multiplier_index[digit]);
+                  {
+                     t = (t * radix) + digit;
+                     ++itr;
+                  }
                   else
                      return false;
-                  multiplier_index += radix;
                }
                if (tmp > t) return false;
             }
@@ -7181,9 +7135,8 @@ namespace strtk
       template<typename Iterator, typename T>
       inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& result, signed_type_tag)
       {
-         if (0 == std::distance(begin,end))
-            return false;
-         T t = 0;
+         if (end == begin) return false;
+
          Iterator itr = begin;
          bool negative = false;
 
@@ -7195,8 +7148,7 @@ namespace strtk
             negative = true;
          }
 
-         if (end == itr)
-            return false;
+         if (end == itr) return false;
 
          while ((end != itr) && ('0' == *itr)) ++itr;
          const std::size_t length = std::distance(itr,end);
@@ -7204,42 +7156,42 @@ namespace strtk
          if (length > numeric<T>::length)
             return false;
 
+         T t = 0;
+
          if (0 != length)
          {
             static const std::size_t radix = 10;
-            const Iterator new_end = itr - 1;
-            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length) - 1;
-            itr += (length - 1);
-
-            const unsigned long long* multiplier_index = base10x;
+            const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length);
             T digit = 0;
-
             while (interim_end != itr)
             {
-               digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+               digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
                if (is_valid_digit(digit))
-                  t += static_cast<T>(multiplier_index[digit]);
+               {
+                  t = (t * radix) + digit;
+                  ++itr;
+               }
                else
                   return false;
-               multiplier_index += radix;
             }
 
-            if (interim_end != new_end)
+            if (interim_end != end)
             {
                T tmp = t;
-               while (new_end != itr)
+               while (end != itr)
                {
-                  digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr--)]);
+                  digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
                   if (is_valid_digit(digit))
-                     t += static_cast<T>(multiplier_index[digit]);
+                  {
+                     t = (t * radix) + digit;
+                     ++itr;
+                  }
                   else
                      return false;
-                  multiplier_index += radix;
                }
                if (tmp > t) return false;
             }
          }
-
          if (negative) t = -t;
          result = static_cast<T>(t);
          return true;
@@ -7248,8 +7200,9 @@ namespace strtk
       template<typename Iterator, typename T>
       inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end, T& result, signed_type_tag)
       {
-         if (0 == std::distance(itr,end))
+         if (end == itr)
             return false;
+
          T t = 0;
          bool negative = false;
 
@@ -7303,7 +7256,7 @@ namespace strtk
       template<typename Iterator, typename T>
       inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, real_type_tag)
       {
-         if (0 == std::distance(begin,end))
+         if (begin == end)
             return false;
          double d = 0.0;
          Iterator itr = begin;
@@ -7328,8 +7281,7 @@ namespace strtk
                const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
                if (is_invalid_digit(digit))
                   break;
-               d *= 10.0;
-               d += digit;
+               d = (d * 10.0) + digit;
                ++itr;
             }
             if (curr != itr) instate = true;
@@ -7348,8 +7300,7 @@ namespace strtk
                   const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
                   if (is_invalid_digit(digit))
                      break;
-                  d *= 10.0;
-                  d += digit;
+                  d = (d * 10.0) + digit;
                   ++itr;
                   --exponent;
                }
@@ -7370,6 +7321,10 @@ namespace strtk
                      else
                         c = *itr;
                   }
+
+                  if ((exp < numeric<T>::min_exp) || (numeric<T>::max_exp < exp))
+                     return false;
+
                   exponent += exp;
                }
 
