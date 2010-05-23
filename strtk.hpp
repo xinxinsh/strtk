@@ -7347,7 +7347,6 @@ namespace strtk
             {
                ++itr;
                const Iterator curr = itr;
-               while ((end != itr) && ('0' == *itr)) ++itr;
                while (end != itr)
                {
                   const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
