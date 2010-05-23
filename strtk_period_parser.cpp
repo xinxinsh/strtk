@@ -81,7 +81,7 @@ private:
    iterator_type token_list[max_token_count];
 };
 
-int main(int argc, char* argv[])
+int main()
 {
    period_parser parser;
    const std::string period_string[] =
