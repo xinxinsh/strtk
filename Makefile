@@ -67,8 +67,8 @@ strtk_tokenizer_test: strtk_tokenizer_test.cpp strtk.hpp
 strtk_parse_test: strtk_parse_test.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
 
-strtk_period_parse: strtk_period_parse.cpp strtk.hpp
-	$(COMPILER) $(OPTIONS) strtk_period_parse strtk_period_parse.cpp $(LINKER_OPT)
+strtk_period_parser: strtk_period_parser.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_period_parser strtk_period_parser.cpp $(LINKER_OPT)
 
 strtk_hexview: strtk_hexview.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_hexview strtk_hexview.cpp $(LINKER_OPT)
