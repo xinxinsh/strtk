@@ -35,6 +35,7 @@ BUILD_LIST+=strtk_text_parser_example01
 BUILD_LIST+=strtk_text_parser_example02
 BUILD_LIST+=strtk_tokenizer_test
 BUILD_LIST+=strtk_parse_test
+BUILD_LIST+=strtk_period_parser
 BUILD_LIST+=strtk_hexview
 BUILD_LIST+=strtk_converters_example
 BUILD_LIST+=strtk_tokengrid_example
@@ -65,6 +66,9 @@ strtk_tokenizer_test: strtk_tokenizer_test.cpp strtk.hpp
 
 strtk_parse_test: strtk_parse_test.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
+
+strtk_period_parse: strtk_period_parse.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_period_parse strtk_period_parse.cpp $(LINKER_OPT)
 
 strtk_hexview: strtk_hexview.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_hexview strtk_hexview.cpp $(LINKER_OPT)

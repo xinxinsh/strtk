@@ -608,6 +608,56 @@ namespace strtk
       bool delimiter_table_[table_size];
    };
 
+   template<typename DelimiterPredicate>
+   class char_delimiter_set
+   {
+   public:
+      char_delimiter_set(const bool rotate = false)
+      : rotate_(rotate),
+        transition_(false),
+        index_(0)
+      {}
+
+      inline void add_predicate(const DelimiterPredicate& predicate)
+      {
+         predicate_.push_back(predicate);
+      }
+
+      inline bool operator()(const unsigned char& c) const
+      {
+         if (predicate_.empty()) return false;
+
+         const bool result = predicate_[index_](c);
+
+         if (result) transition_ = true;
+
+         if (!result && transition_)
+         {
+            transition_ = false;
+            ++index_;
+            if (index_ >= predicate_.size())
+            {
+               if (rotate_)
+                  index_ = 0;
+               else
+                  --index_;
+            }
+         }
+         return result;
+      }
+
+      inline bool operator()(const char& c) const
+      {
+         return operator()(static_cast<unsigned char>(c));
+      }
+
+   private:
+      bool rotate_;
+      mutable bool transition_;
+      mutable std::size_t index_;
+      std::vector<DelimiterPredicate> predicate_;
+   };
+
    template<typename Iterator, typename Predicate>
    inline std::size_t remove_inplace(Predicate predicate,
                                      Iterator begin,
@@ -1968,7 +2018,7 @@ namespace strtk
               ++range.second;
               *(out++) = range;
               if (compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second)) ;
+                 while ((end != range.second) && delimiter(*range.second)) ++range.second;
            }
            else
            {
@@ -2071,7 +2121,7 @@ namespace strtk
               if (++match_count >= token_count)
                  return match_count;
               if (compress_delimiters)
-                 while ((end != (++range.second)) && delimiter(*range.second)) ;
+                 while ((end != range.second) && delimiter(*range.second)) ++range.second;
            }
            else
            {
@@ -7276,12 +7326,14 @@ namespace strtk
          if ('.' != *itr)
          {
             const Iterator curr = itr;
+            while ((end != itr) && ('0' == *itr)) ++itr;
             while (end != itr)
             {
                const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
-               if (is_invalid_digit(digit))
+               if (is_valid_digit(digit))
+                  d = (d * 10.0) + digit;
+               else
                   break;
-               d = (d * 10.0) + digit;
                ++itr;
             }
             if (curr != itr) instate = true;
@@ -7295,12 +7347,14 @@ namespace strtk
             {
                ++itr;
                const Iterator curr = itr;
+               while ((end != itr) && ('0' == *itr)) ++itr;
                while (end != itr)
                {
                   const unsigned int digit = details::digit_table[static_cast<unsigned int>(*itr)];
-                  if (is_invalid_digit(digit))
+                  if (is_valid_digit(digit))
+                     d = (d * 10.0) + digit;
+                  else
                      break;
-                  d = (d * 10.0) + digit;
                   ++itr;
                   --exponent;
                }
