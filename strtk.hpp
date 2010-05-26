@@ -197,6 +197,7 @@ namespace strtk
       struct hex_type_tag {};
       struct base64_type_tag {};
       struct stdstring_type_tag{};
+      struct stdstring_range_type_tag{};
 
       template<typename T>
       struct supported_conversion_to_type
@@ -1979,9 +1980,10 @@ namespace strtk
       typedef std::size_t type;
       enum
       {
-         default_mode        = 0,
-         compress_delimiters = 1,
-         include_delimiters  = 2
+         default_mode            = 0,
+         compress_delimiters     = 1,
+         include_1st_delimiter   = 2,
+         include_all_delimiters  = 4
       };
 
       static inline bool perform_compress_delimiters(const type& split_opt)
@@ -1989,10 +1991,16 @@ namespace strtk
          return compress_delimiters == (split_opt & compress_delimiters);
       }
 
-      static inline bool perform_include_delimiters(const type& split_opt)
+      static inline bool perform_include_1st_delimiter(const type& split_opt)
       {
-         return include_delimiters == (split_opt & include_delimiters);
+         return include_1st_delimiter == (split_opt & include_1st_delimiter);
       }
+
+      static inline bool perform_include_all_delimiters(const type& split_opt)
+      {
+         return include_all_delimiters == (split_opt & include_all_delimiters);
+      }
+
    }
 
    template<typename DelimiterPredicate,
@@ -2004,20 +2012,26 @@ namespace strtk
                             OutputIterator out,
                             const split_options::type split_option = split_options::default_mode)
    {
-      if (0 == std::distance(begin,end)) return 0;
+      if (begin == end) return 0;
       std::size_t token_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
       const bool compress_delimiters = split_options::perform_compress_delimiters(split_option);
-      const bool include_delimiters = split_options::perform_include_delimiters(split_option);
+      const bool include_1st_delimiter = split_options::perform_include_1st_delimiter(split_option);
+      const bool include_all_delimiters = (!include_1st_delimiter) && split_options::perform_include_all_delimiters(split_option);
+      const bool include_delimiters = include_1st_delimiter || include_all_delimiters;
+
       while (end != range.second)
       {
         if (delimiter(*range.second))
         {
            if (include_delimiters)
            {
-              ++range.second;
+              if (include_1st_delimiter)
+                 ++range.second;
+              else if (include_all_delimiters)
+                 while ((end != range.second) && delimiter(*range.second)) ++range.second;
               *(out++) = range;
-              if (compress_delimiters)
+              if ((!include_all_delimiters) && compress_delimiters)
                  while ((end != range.second) && delimiter(*range.second)) ++range.second;
            }
            else
@@ -2105,11 +2119,14 @@ namespace strtk
                               const split_options::type& split_option = split_options::default_mode)
    {
       if (0 == token_count) return 0;
-      if (0 == std::distance(begin,end)) return 0;
+      if (begin == end) return 0;
       std::size_t match_count = 0;
       std::pair<Iterator,Iterator> range(begin,begin);
       const bool compress_delimiters = split_options::perform_compress_delimiters(split_option);
-      const bool include_delimiters = split_options::perform_include_delimiters(split_option);
+      const bool include_1st_delimiter = split_options::perform_include_1st_delimiter(split_option);
+      const bool include_all_delimiters = (!include_1st_delimiter) && split_options::perform_include_all_delimiters(split_option);
+      const bool include_delimiters = include_1st_delimiter || include_all_delimiters;
+
       while (end != range.second)
       {
         if (delimiter(*range.second))
@@ -2294,11 +2311,11 @@ namespace strtk
                                     OutputIterator out)
    {
       boost::sregex_iterator itr(begin,end,delimiter_expression);
-      boost::sregex_iterator it_end;
+      boost::sregex_iterator itr_end;
       std::string token;
       token.reserve(one_kilobyte);
       std::size_t match_count = 0;
-      while (it_end != itr)
+      while (itr_end != itr)
       {
          token.assign((*itr)[0].first,(*itr)[0].second);
          *(out++) = token;
@@ -5837,24 +5854,36 @@ namespace strtk
       std::string data_;
    };
 
-   inline void replicate(const std::size_t& count,
+   inline void replicate(const std::size_t& n,
                          const std::string& str,
                          std::string& output)
    {
-      if (0 == count) return;
-      output.reserve(output.size() + (str.size() * count));
-      for (std::size_t i = 0; i < count; ++i)
+      if (0 == n) return;
+      output.reserve(output.size() + (str.size() * n));
+      for (std::size_t i = 0; i < n; ++i)
       {
          output.append(str);
       }
    }
 
-   inline std::string replicate(const std::size_t& count,
+   inline std::string replicate(const std::size_t& n,
                                 const std::string& str)
    {
       std::string output;
-      replicate(count,str,output);
+      replicate(n,str,output);
       return output;
+   }
+
+   inline void replicate_inplace(const std::size_t& n,
+                                 std::string& str)
+   {
+      std::string temp = str;
+      str.reserve(str.size() + (str.size() * n));
+
+      for (std::size_t i = 0; i < n; ++i)
+      {
+         str.append(str);
+      }
    }
 
    template<typename InputIterator>
@@ -7049,6 +7078,9 @@ namespace strtk
       template<> struct supported_conversion_to_type<std::string> { typedef stdstring_type_tag type; };
       template<> struct supported_iterator_type<std::string> { enum { value = true }; };
 
+      #define register_stdstring_range_type_tag(T)\
+      template<> struct supported_conversion_to_type< std::pair<T,T> >{ typedef stdstring_range_type_tag type; };
+
       #define register_sequence_iterator_type(sequence)\
       register_supported_iterator_type(sequence<char>::iterator)\
       register_supported_iterator_type(sequence<char>::const_iterator)\
@@ -7086,6 +7118,13 @@ namespace strtk
       register_base64_type_tag(base64_to_number_sink<unsigned int>)
       register_base64_type_tag(base64_to_number_sink<unsigned long>)
       register_base64_type_tag(base64_to_number_sink<unsigned long long>)
+
+      register_stdstring_range_type_tag(std::string::iterator)
+      register_stdstring_range_type_tag(std::string::const_iterator)
+      register_stdstring_range_type_tag(char*)
+      register_stdstring_range_type_tag(unsigned char*)
+      register_stdstring_range_type_tag(const char*)
+      register_stdstring_range_type_tag(const unsigned char*)
 
       register_supported_iterator_type(char*)
       register_supported_iterator_type(unsigned char*)
@@ -7603,6 +7642,13 @@ namespace strtk
          return true;
       }
 
+      template<typename Iterator>
+      inline bool type_to_string_converter_impl(const std::pair<Iterator,Iterator> range, std::string& result, stdstring_range_type_tag)
+      {
+         result.assign(range.first,range.second);
+         return true;
+      }
+
       template <typename T>
       inline std::string type_name() { static std::string s("Unknown"); return s; }
 
@@ -7637,6 +7683,13 @@ namespace strtk
       return details::type_name<T>();
    }
 
+   template <typename T1, typename T2>
+   inline std::string type_name(const std::pair<T1,T2>&)
+   {
+      static std::string s = std::string("std::pair<" + details::type_name<T1>() + "," + details::type_name<T2>() + ">");
+      return s;
+   }
+
    #define register_sequence_type_name(Type)\
    template <typename T, typename Allocator>\
    inline std::string type_name(const Type<T,Allocator>&)\
@@ -7657,6 +7710,270 @@ namespace strtk
    register_sequence_type_name(std::deque)
    register_sequence_type_name(std::list)
    register_set_type_name(std::set)
+
+   class ext_string
+   {
+   public:
+
+      explicit ext_string(const std::string& s)
+      : s_(s)
+      {}
+
+      explicit ext_string(const char* s)
+      : s_(s)
+      {}
+
+      ext_string(const ext_string& es)
+      : s_(es.s_)
+      {}
+
+      template <typename T>
+      inline ext_string& operator << (const T& t)
+      {
+         s_ += type_to_string(t);
+         return *this;
+      }
+
+      template<typename T>
+      inline operator T () const
+      {
+         return string_to_type_converter<T>(s_);
+      }
+
+      inline operator std::string () const
+      {
+         return s_;
+      }
+
+      inline operator const char* () const
+      {
+         return s_.c_str();
+      }
+
+      inline std::string clone() const
+      {
+         return s_;
+      }
+
+      inline const std::string& as_string() const
+      {
+         return s_;
+      }
+
+      inline std::string& as_string()
+      {
+         return s_;
+      }
+
+      template<typename T>
+      inline T as_type() const
+      {
+         return string_to_type_converter<T>(s_);
+      }
+
+      template<typename T>
+      inline bool as_type(T& t) const
+      {
+         return string_to_type_converter(s_,t);
+      }
+
+      inline bool imatch(const std::string& s) const
+      {
+         return strtk::imatch(s_,s);
+      }
+
+      inline bool imatch(const ext_string& es) const
+      {
+         return strtk::imatch(s_,es.s_);
+      }
+
+      inline ext_string& to_lowercase()
+      {
+         convert_to_lowercase(s_);
+         return *this;
+      }
+
+      inline ext_string& to_uppercase()
+      {
+         convert_to_uppercase(s_);
+         return *this;
+      }
+
+      template<typename Predicate>
+      inline ext_string& remove_leading(const Predicate& p)
+      {
+         if (s_.empty()) return *this;
+         strtk::remove_leading(p,s_);
+         return *this;
+      }
+
+      inline ext_string& remove_leading(const std::string& removal_set)
+      {
+         if (removal_set.empty())
+            return *this;
+         else if (1 == removal_set.size())
+            strtk::remove_leading(single_delimiter_predicate<std::string::value_type>(removal_set[0]),s_);
+         else
+            strtk::remove_leading(multiple_char_delimiter_predicate(removal_set),s_);
+         return *this;
+      }
+
+      template<typename Predicate>
+      inline ext_string& remove_trailing(const Predicate& p)
+      {
+         if (s_.empty()) return *this;
+         strtk::remove_trailing(p,s_);
+         return *this;
+      }
+
+      inline ext_string& remove_trailing(const std::string& removal_set)
+      {
+         if (removal_set.empty())
+            return *this;
+         else if (1 == removal_set.size())
+            strtk::remove_trailing(single_delimiter_predicate<std::string::value_type>(removal_set[0]),s_);
+         else
+            strtk::remove_trailing(multiple_char_delimiter_predicate(removal_set),s_);
+         return *this;
+      }
+
+      template<typename T>
+      inline ext_string& operator += (const T& t)
+      {
+         s_.append(type_to_string(t));
+         return *this;
+      }
+
+      inline ext_string& operator -= (const std::string& pattern)
+      {
+         replace(pattern,"");
+         return *this;
+      }
+
+      inline ext_string& operator *= (const std::size_t& n)
+      {
+         strtk::replicate_inplace(n, s_);
+         return *this;
+      }
+
+      inline void replace(const std::string& pattern, const std::string& replace_pattern)
+      {
+         std::string result;
+         result.reserve(s_.size());
+         strtk::replace_pattern(s_,pattern,replace_pattern,result);
+         s_.assign(result);
+      }
+
+      template<typename DelimiterPredicate, typename OutputIterator>
+      inline std::size_t split(const DelimiterPredicate& p,
+                               OutputIterator out,
+                               const split_options::type split_option = split_options::default_mode) const
+      {
+         return split(p,s_,out,split_option);
+      }
+
+      template<typename DelimiterPredicate,
+               typename Allocator,
+               template <typename, typename> class Sequence>
+      inline std::size_t split(const DelimiterPredicate& p,
+                               Sequence<std::string,Allocator>& seq,
+                               const split_options::type split_option = split_options::default_mode) const
+      {
+         return strtk::split(p,s_,range_to_type_back_inserter(seq),split_option);
+      }
+
+      template<typename DelimiterPredicate, typename OutputIterator>
+      inline std::size_t split_n(const DelimiterPredicate& p,
+                                 const std::size_t& n,
+                                 OutputIterator out,
+                                 const split_options::type split_option = split_options::default_mode) const
+      {
+         return strtk::split_n(p,n,s_,out,split_option);
+      }
+
+      template<typename DelimiterPredicate,
+               typename Allocator,
+               template <typename, typename> class Sequence>
+      inline std::size_t split_n(const DelimiterPredicate& p,
+                                 const std::size_t& n,
+                                 Sequence<std::string,Allocator>& seq,
+                                 const split_options::type split_option = split_options::default_mode) const
+      {
+         return strtk::split_n(p,n,s_,range_to_type_back_inserter(seq),split_option);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template <typename, typename> class Sequence>
+      inline std::size_t parse(const std::string& delimiters, Sequence<T,Allocator>& seq) const
+      {
+         return strtk::parse(s_,delimiters,seq);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template <typename, typename> class Sequence>
+      inline std::size_t parse(const char* delimiters, Sequence<T,Allocator>& seq) const
+      {
+         return parse(std::string(delimiters),seq);
+      }
+
+      friend inline ext_string operator * (const std::size_t& n, const ext_string& s);
+      friend inline ext_string operator * (const ext_string& s, const std::size_t& n);
+
+      template<typename T>
+      friend inline ext_string operator + (const ext_string& s, const T& t);
+
+      template<typename T>
+      friend inline ext_string operator + (const T& t, const ext_string& s);
+
+      friend inline ext_string operator - (const ext_string& s, const std::string& pattern);
+      friend inline ext_string operator - (const ext_string& s, const char* pattern);
+
+   private:
+      std::string s_;
+   };
+
+   inline ext_string operator * (const std::size_t& n, const ext_string& s)
+   {
+      return ext_string(strtk::replicate(n, s.s_));
+   }
+
+   inline ext_string operator * (const ext_string& s, const std::size_t& n)
+   {
+      return ext_string(strtk::replicate(n, s.s_));
+   }
+
+   template<typename T>
+   inline ext_string operator + (const ext_string& s, const T& t)
+   {
+      return ext_string(type_to_string(t) + s.s_);
+   }
+
+   template<typename T>
+   inline ext_string operator + (const T& t, const ext_string& s)
+   {
+      return ext_string(s.s_ + type_to_string(t));
+   }
+
+   inline ext_string operator - (const ext_string& s, const std::string& pattern)
+   {
+      std::string tmp;
+      tmp.reserve(s.s_.size());
+      replace_pattern(s,pattern,std::string(),tmp);
+      return ext_string(tmp);
+   }
+
+   inline ext_string operator - (const ext_string& s, const char* pattern)
+   {
+      return s - std::string(pattern);
+   }
+
+   std::ostream& operator<<(std::ostream& os, const strtk::ext_string& es)
+   {
+      os << es.as_string();
+      return os;
+   }
 
    namespace fileio
    {

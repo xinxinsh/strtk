@@ -39,31 +39,32 @@ public:
    : predicate_("DHRMINSECdhrminsec :")
    {}
 
-   bool operator()(const std::string& s, long long& period)
+   bool operator()(const std::string s, long long& period)
    {
       if (s.empty())
          return false;
+      return operator ()(const_cast<char*>(s.c_str()),const_cast<char*>(s.c_str() + s.size()),period);
+   }
 
+   template<typename Iterator>
+   bool operator()(Iterator begin, Iterator end, long long& period)
+   {
       static const strtk::split_options::type split_options = strtk::split_options::compress_delimiters +
-                                                              strtk::split_options::include_delimiters;
-      std::size_t token_count = split_n(predicate_,
-                                        const_cast<char*>(s.c_str()),
-                                        const_cast<char*>(s.c_str() + s.size()),
-                                        max_token_count,
-                                        token_list,
-                                        split_options);
+                                                              strtk::split_options::include_1st_delimiter;
+      std::size_t token_count = split_n(predicate_,begin,end,max_token_count,token_list,split_options);
       period = 0;
       double t = 0.0;
+      bool encounterd [] = { false, false, false, false };
       for (std::size_t i = 0; i < token_count; ++i)
       {
          if (!strtk::string_to_type_converter(token_list[i].first,token_list[i].second - 1,t))
             return false;
          switch (std::toupper(*(token_list[i].second - 1)))
          {
-            case 'D' : t = 86400000.0 * t; break;
-            case 'H' : t =  3600000.0 * t; break;
-            case 'M' : t =    60000.0 * t; break;
-            case 'S' : t =     1000.0 * t; break;
+            case 'D' : if (encounterd[0]) return false; else { t = 86400000.0 * t; encounterd[0] = true; } break;
+            case 'H' : if (encounterd[1]) return false; else { t =  3600000.0 * t; encounterd[1] = true; } break;
+            case 'M' : if (encounterd[2]) return false; else { t =    60000.0 * t; encounterd[2] = true; } break;
+            case 'S' : if (encounterd[3]) return false; else { t =     1000.0 * t; encounterd[3] = true; } break;
             default  : return false;
          }
          if (('D' != std::toupper(*(token_list[i].second - 1))) && (t < 0.0))
@@ -74,6 +75,7 @@ public:
    }
 
 private:
+
    static const std::size_t max_token_count = 4;
    typedef std::pair<char*,char*> iterator_type;
 
@@ -114,9 +116,9 @@ int main()
    for (std::size_t i = 0; i < period_string_size; ++i)
    {
       if (parser(period_string[i],t))
-      {
          std::cout << "Period: " << t << "msec" << std::endl;
-      }
+      else
+         std::cout << "Failed to parse: " << period_string[i] << std::endl;
    }
    return 0;
 }

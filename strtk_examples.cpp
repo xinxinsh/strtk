@@ -1008,6 +1008,60 @@ void find_example()
    }
 }
 
+void ext_string_example()
+{
+   {
+      strtk::ext_string es("ext_string");
+      std::cout << "es + 123 = " << es + 123 << std::endl;
+      std::cout << "456 + es = " << 456 + es << std::endl;
+      std::cout << "es * 3   = " << es * 3   << std::endl;
+      std::cout << "3  * es  = " << 3 * es   << std::endl;
+   }
+
+   {
+      strtk::ext_string es("abc1234-abc1234-abc1234");
+      std::cout << "original:  " << es << std::endl;
+      std::cout << "es - abc = " << es - "abc"  << std::endl;
+      std::cout << "es - 123 = " << es - "1234" << std::endl;
+      std::cout << "es - 123 = " << es - "-"    << std::endl;
+   }
+
+   {
+      strtk::ext_string es1("ext_string");
+      strtk::ext_string es2("eXt_StRiNg");
+      if (es1.imatch(es2))
+         std::cout << es1 << " == " << es2 << std::endl;
+   }
+
+   {
+      strtk::ext_string es("eXt_StRiNg");
+      std::cout << "original:  " << es << std::endl;
+      std::cout << "lowercase: " << es.to_lowercase() << std::endl;
+      std::cout << "uppercase: " << es.to_uppercase() << std::endl;
+   }
+
+   {
+      strtk::ext_string es("   ext_string   ");
+      std::cout << "original:              [" << es << "]" << std::endl;
+      std::cout << "remove leading space:  [" << es.remove_leading(" ")  << "]" << std::endl;
+      std::cout << "remove trailing space: [" << es.remove_trailing(" ") << "]" << std::endl;
+   }
+
+   {
+      strtk::ext_string es("abc, ijl, xyz");
+      std::deque<std::string> str_list;
+      es.split(" ,",str_list,strtk::split_options::compress_delimiters);
+      std::cout << "es: " << es << " ---> Split: " << strtk::bracketize("(",") ",str_list) << std::endl;
+   }
+
+   {
+      strtk::ext_string es("1, -23, 456, -7890");
+      std::deque<int> int_list;
+      es.parse(" ,",int_list);
+      std::cout << "es: " << es << " ---> Parsed: " << strtk::bracketize("(",") ",int_list) << std::endl;
+   }
+}
+
 int main()
 {
    tokenizer_example01();
@@ -1066,5 +1120,6 @@ int main()
    globbing_example();
    example_replace();
    find_example();
+   ext_string_example();
    return 0;
 }
