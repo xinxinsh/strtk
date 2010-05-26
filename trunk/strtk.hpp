@@ -7734,12 +7734,6 @@ namespace strtk
          return *this;
       }
 
-      template<typename T>
-      inline operator T () const
-      {
-         return string_to_type_converter<T>(s_);
-      }
-
       inline operator std::string () const
       {
          return s_;
