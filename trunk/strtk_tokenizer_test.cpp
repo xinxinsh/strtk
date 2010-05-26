@@ -359,6 +359,71 @@ bool test_split_and_tokenizer()
    return true;
 }
 
+bool test_split_options()
+{
+   {
+      std::string s = "1xyz23ijk456abc";
+      std::string expected_token[] = { "1x", "23i", "456a", "" };
+      std::size_t expected_token_size = sizeof(expected_token) / sizeof(std::string);
+
+      std::deque<std::string> token_list;
+
+      strtk::split_options::type split_options = strtk::split_options::include_1st_delimiter +
+                                                 strtk::split_options::compress_delimiters;
+
+      strtk::split(strtk::multiple_char_delimiter_predicate("abcijkxyz"),
+                   s,
+                   strtk::range_to_type_back_inserter(token_list),
+                   split_options);
+
+      if (token_list.size() != expected_token_size)
+      {
+         std::cout << "test_split_options() - I1stD expected number of tokens does not match parsed amount!" << std::endl;
+         return false;
+      }
+
+      for(std::size_t i = 0; i < expected_token_size; ++i)
+      {
+         if (expected_token[i] != token_list[i])
+         {
+            std::cout << "test_split_options() - I1stD Failed match @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      std::string s = "1xyz23ijk456abc";
+      std::string expected_token[] = { "1xyz", "23ijk", "456abc", "" };
+      std::size_t expected_token_size = sizeof(expected_token) / sizeof(std::string);
+
+      std::deque<std::string> token_list;
+
+      strtk::split_options::type split_options = strtk::split_options::include_all_delimiters;
+
+      strtk::split(strtk::multiple_char_delimiter_predicate("abcijkxyz"),
+                   s,
+                   strtk::range_to_type_back_inserter(token_list),
+                   split_options);
+
+      if (token_list.size() != expected_token_size)
+      {
+         std::cout << "test_split_options() - IAD expected number of tokens does not match parsed amount!" << std::endl;
+         return false;
+      }
+
+      for(std::size_t i = 0; i < expected_token_size; ++i)
+      {
+         if (expected_token[i] != token_list[i])
+         {
+            std::cout << "test_split_options() - IAD Failed match @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
+   return true;
+}
+
 bool test_split_n()
 {
    std::string delimiters = " ,|\t_:!";
@@ -1252,6 +1317,7 @@ int main()
 {
    bool result = true;
    result &= test_split_and_tokenizer();
+   result &= test_split_options();
    result &= test_split_n();
    result &= test_empty_filter_itr();
    result &= test_construct_and_parse();

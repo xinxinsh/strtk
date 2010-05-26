@@ -72,6 +72,7 @@ public:
    void start() { QueryPerformanceCounter(&start_time);        }
    void stop()  { QueryPerformanceCounter(&stop_time);         }
    double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
+
 private:
    LARGE_INTEGER start_time;
    LARGE_INTEGER stop_time;
@@ -138,7 +139,7 @@ void strtk_tokenizer_timed_test()
    printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           token_count,
           t.time(),
-          token_count / (1.0 * t.time()));
+          token_count / t.time());
 }
 
 void boost_tokenizer_timed_test()
@@ -165,7 +166,7 @@ void boost_tokenizer_timed_test()
    printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           token_count,
           t.time(),
-          token_count / (1.0 * t.time()));
+          token_count / t.time());
 }
 
 void strtk_split_timed_test()
@@ -182,7 +183,7 @@ void strtk_split_timed_test()
    printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
-          token_list.size() / (1.0 * t.time()));
+          token_list.size() / t.time());
 }
 
 void boost_split_timed_test()
@@ -199,7 +200,7 @@ void boost_split_timed_test()
    printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
-          token_list.size() / (1.0 * t.time()));
+          token_list.size() / t.time());
 }
 
 static const int max_i2s = 50000000;
@@ -222,7 +223,7 @@ void sprintf_lexical_cast_test_i2s()
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max_i2s / (1.0 * t.time()));
+          max_i2s / t.time());
 }
 
 void boost_lexical_cast_test_i2s()
@@ -243,7 +244,7 @@ void boost_lexical_cast_test_i2s()
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max_i2s / (1.0 * t.time()));
+          max_i2s / t.time());
 }
 
 #ifdef INCLUDE_KARMA
@@ -278,7 +279,7 @@ void karma_lexical_cast_test_i2s()
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max_i2s / (1.0 * t.time()));
+          max_i2s / t.time());
 }
 #else
 void karma_lexical_cast_test_i2s(){}
@@ -302,7 +303,7 @@ void strtk_lexical_cast_test_i2s()
           static_cast<unsigned long>(max_i2s),
           static_cast<unsigned long>(total_length),
           t.time(),
-          max_i2s / (1.0 * t.time()));
+          max_i2s / t.time());
 }
 
 static const std::string strint_list[] =
@@ -427,7 +428,7 @@ void atoi_lexical_cast_test_s2i()
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / t.time());
 }
 
 void boost_lexical_cast_test_s2i()
@@ -450,7 +451,7 @@ void boost_lexical_cast_test_s2i()
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / t.time());
 }
 
 #ifdef INCLUDE_QI_S2I
@@ -483,7 +484,7 @@ void qi_lexical_cast_test_s2i()
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / t.time());
 }
 #else
  void qi_lexical_cast_test_s2i() {}
@@ -509,7 +510,7 @@ void strtk_lexical_cast_test_s2i()
           static_cast<unsigned long>(s2i_rounds * strint_list_size),
           total,
           t.time(),
-          (s2i_rounds * strint_list_size) / (1.0 * t.time()));
+          (s2i_rounds * strint_list_size) / t.time());
 }
 
 static const std::string v[] = {
@@ -670,7 +671,7 @@ void atof_cast_test_s2d()
           static_cast<unsigned long long>(s2d_rounds * v_size),
           std::abs(sum),
           t.time(),
-          (s2d_rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / t.time());
 }
 
 void boost_cast_test_s2d()
@@ -696,7 +697,7 @@ void boost_cast_test_s2d()
           static_cast<unsigned long long>(s2d_rounds * v_size),
           std::abs(sum),
           t.time(),
-          (s2d_rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / t.time());
 }
 
 #ifdef INCLUDE_QI_S2D
@@ -732,7 +733,7 @@ void qi_cast_test_s2d()
           static_cast<unsigned long long>(s2d_rounds * v_size),
           std::abs(sum),
           t.time(),
-          (s2d_rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / t.time());
 }
 #else
  void qi_cast_test_s2d(){}
@@ -761,7 +762,7 @@ void strtk_cast_test_s2d()
           static_cast<unsigned long long>(s2d_rounds * v_size),
           std::abs(sum),
           t.time(),
-          (s2d_rounds * v_size) / (1.0 * t.time()));
+          (s2d_rounds * v_size) / t.time());
 }
 
 int main()
