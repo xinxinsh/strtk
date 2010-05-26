@@ -1019,11 +1019,11 @@ void ext_string_example()
    }
 
    {
-      strtk::ext_string es("abc1234-abc1234-abc1234");
+      strtk::ext_string es("abc1234?abc1234?abc1234");
       std::cout << "original:  " << es << std::endl;
       std::cout << "es - abc = " << es - "abc"  << std::endl;
       std::cout << "es - 123 = " << es - "1234" << std::endl;
-      std::cout << "es - 123 = " << es - "-"    << std::endl;
+      std::cout << "es -   ? = " << es - "?"    << std::endl;
    }
 
    {
