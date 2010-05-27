@@ -182,7 +182,7 @@ void strtk_split_timed_test()
    token_list.reserve(split_reserve_size);
    timer t;
    t.start();
-   strtk::split(delimiters,s,strtk::range_to_type_back_inserter(token_list));
+   strtk::parse(s,delimiters,token_list);
    t.stop();
    printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
