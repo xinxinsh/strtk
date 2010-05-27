@@ -1140,6 +1140,14 @@ namespace strtk
       return new_size;
    }
 
+   inline void remove_pattern(const std::string& s,
+                              const std::string& p,
+                               std::string& n)
+   {
+      static const std::string r("");
+      replace_pattern(s,p,r,n);
+   }
+
    template<typename Iterator>
    inline bool match(const Iterator pattern_begin,
                      const Iterator pattern_end,
@@ -7846,7 +7854,7 @@ namespace strtk
 
       inline ext_string& operator *= (const std::size_t& n)
       {
-         strtk::replicate_inplace(n, s_);
+         strtk::replicate_inplace(n,s_);
          return *this;
       }
 
@@ -7863,7 +7871,7 @@ namespace strtk
                                OutputIterator out,
                                const split_options::type split_option = split_options::default_mode) const
       {
-         return split(p,s_,out,split_option);
+         return strtk::split(p,s_,out,split_option);
       }
 
       template<typename DelimiterPredicate,
@@ -7882,7 +7890,7 @@ namespace strtk
                                  OutputIterator out,
                                  const split_options::type split_option = split_options::default_mode) const
       {
-         return strtk::split_n(p,n,s_,out,split_option);
+         return strtk::split_n(p,s_,n,out,split_option);
       }
 
       template<typename DelimiterPredicate,
@@ -7893,7 +7901,7 @@ namespace strtk
                                  Sequence<std::string,Allocator>& seq,
                                  const split_options::type split_option = split_options::default_mode) const
       {
-         return strtk::split_n(p,n,s_,range_to_type_back_inserter(seq),split_option);
+         return strtk::split_n(p,s_,n,range_to_type_back_inserter(seq),split_option);
       }
 
       template<typename T,
@@ -7941,20 +7949,20 @@ namespace strtk
    template<typename T>
    inline ext_string operator + (const ext_string& s, const T& t)
    {
-      return ext_string(type_to_string(t) + s.s_);
+      return ext_string(s.s_ + type_to_string(t));
    }
 
    template<typename T>
    inline ext_string operator + (const T& t, const ext_string& s)
    {
-      return ext_string(s.s_ + type_to_string(t));
+      return ext_string(type_to_string(t) + s.s_);
    }
 
    inline ext_string operator - (const ext_string& s, const std::string& pattern)
    {
       std::string tmp;
       tmp.reserve(s.s_.size());
-      replace_pattern(s,pattern,std::string(),tmp);
+      remove_pattern(s,pattern,tmp);
       return ext_string(tmp);
    }
 

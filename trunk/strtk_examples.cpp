@@ -1048,18 +1048,33 @@ void ext_string_example()
    }
 
    {
-      strtk::ext_string es("abc, ijl, xyz");
+      strtk::ext_string es("abc, ijk, pqr, xyz");
       std::deque<std::string> str_list;
       es.split(" ,",str_list,strtk::split_options::compress_delimiters);
-      std::cout << "es: " << es << " ---> Split: " << strtk::bracketize("(",") ",str_list) << std::endl;
+      std::cout << "es: " << es << " ---> split: " << strtk::bracketize("(",") ",str_list) << std::endl;
+   }
+
+   {
+      strtk::ext_string es("abc, ijk, pqr, xyz");
+      std::deque<std::string> str_list;
+      es.split_n(" ,",3,str_list,strtk::split_options::compress_delimiters);
+      std::cout << "es: " << es << " ---> split_n(3): " << strtk::bracketize("(",") ",str_list) << std::endl;
    }
 
    {
       strtk::ext_string es("1, -23, 456, -7890");
       std::deque<int> int_list;
       es.parse(" ,",int_list);
-      std::cout << "es: " << es << " ---> Parsed: " << strtk::bracketize("(",") ",int_list) << std::endl;
+      std::cout << "es: " << es << " ---> parse: " << strtk::bracketize("(",") ",int_list) << std::endl;
    }
+
+   {
+      strtk::ext_string es("1.1, -23.32, 456.654, -7890.0987");
+      std::deque<double> int_list;
+      es.parse(" ,",int_list);
+      std::cout << "es: " << es << " ---> parsed: " << strtk::bracketize("(",") ",int_list) << std::endl;
+   }
+
 }
 
 int main()
