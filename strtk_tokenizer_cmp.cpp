@@ -47,7 +47,7 @@
 #include <boost/lexical_cast.hpp>
 
 //Note: Define USE_SPIRIT to include Karma and Qi (requires Boost 1.42+)
-//#define USE_SPIRIT
+#define USE_SPIRIT
 #ifdef USE_SPIRIT
  #define INCLUDE_KARMA
  #define INCLUDE_QI_S2I
@@ -169,16 +169,20 @@ void boost_tokenizer_timed_test()
           token_count / t.time());
 }
 
+static const std::size_t split_replicate_count = 500000;
+static const std::size_t split_reserve_size = 11000005;
+
 void strtk_split_timed_test()
 {
    print_mode("[strtk]");
    std::string s = "";
-   s.reserve(base.size() * replicate_count);
-   for (unsigned int i = 0; i < replicate_count; ++i) s += base;
-   std::deque<std::string> token_list;
+   s.reserve(base.size() * split_replicate_count);
+   for (unsigned int i = 0; i < split_replicate_count; ++i) s += base;
+   std::vector<std::string> token_list;
+   token_list.reserve(split_reserve_size);
    timer t;
    t.start();
-   strtk::parse(s,delimiters,token_list);
+   strtk::split(delimiters,s,strtk::range_to_type_back_inserter(token_list));
    t.stop();
    printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
           static_cast<unsigned long>(token_list.size()),
@@ -190,9 +194,10 @@ void boost_split_timed_test()
 {
    print_mode("[boost]");
    std::string s = "";
-   s.reserve(base.size() * replicate_count);
-   for (unsigned int i = 0; i < replicate_count; ++i) s += base;
-   std::deque<std::string> token_list;
+   s.reserve(base.size() * split_replicate_count);
+   for (unsigned int i = 0; i < split_replicate_count; ++i) s += base;
+   std::vector<std::string> token_list;
+   token_list.reserve(split_reserve_size);
    timer t;
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
