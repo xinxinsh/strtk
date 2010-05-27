@@ -107,6 +107,7 @@ strip_bin :
 	strip -s strtk_text_parser_example02
 	strip -s strtk_tokenizer_test
 	strip -s strtk_parse_test
+	strip -s strtk_period_parser
 	strip -s strtk_hexview
 	strip -s strtk_converters_example
 	strip -s strtk_tokengrid_example
@@ -123,6 +124,7 @@ valgrind_check :
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_text_parser_example02
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_test
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_parse_test
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_period_parser
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_hexview
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_converters_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokengrid_example
