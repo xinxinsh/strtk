@@ -1464,7 +1464,7 @@ namespace strtk
 
          inline tokenizer_iterator& operator+=(const int inc)
          {
-            if (i > 0)
+            if (inc > 0)
             {
                for (int i = 0; i < inc; ++i, ++(*this)) ;
             }
