@@ -359,6 +359,85 @@ bool test_split_and_tokenizer()
    return true;
 }
 
+bool test_tokenizer_options()
+{
+   {
+      std::string s = "1xyz23ijk456abc";
+      std::string expected_token[] = { "1x", "23i", "456a", "" };
+      std::size_t expected_token_size = sizeof(expected_token) / sizeof(std::string);
+
+      std::deque<std::string> token_list;
+
+      strtk::tokenize_options::type tokenize_options = strtk::tokenize_options::include_1st_delimiter +
+                                                       strtk::tokenize_options::compress_delimiters;
+
+      typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
+
+      tokenizer_type tokenizer(s,strtk::multiple_char_delimiter_predicate("abcijkxyz"),tokenize_options);
+      tokenizer_type::iterator itr = tokenizer.begin();
+      tokenizer_type::iterator end = tokenizer.end();
+
+      while(end != itr)
+      {
+         token_list.push_back(std::string((*itr).first,(*itr).second));
+         ++itr;
+      }
+
+      if (token_list.size() != expected_token_size)
+      {
+         std::cout << "test_tokenizer_options() - I1stD expected number of tokens does not match parsed amount!" << std::endl;
+         return false;
+      }
+
+      for(std::size_t i = 0; i < expected_token_size; ++i)
+      {
+         if (expected_token[i] != token_list[i])
+         {
+            std::cout << "test_tokenizer_options() - I1stD Failed match @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      std::string s = "1xyz23ijk456abc";
+      std::string expected_token[] = { "1xyz", "23ijk", "456abc", "" };
+      std::size_t expected_token_size = sizeof(expected_token) / sizeof(std::string);
+
+      std::deque<std::string> token_list;
+
+      strtk::tokenize_options::type tokenize_options = strtk::tokenize_options::include_all_delimiters;
+
+      typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
+
+      tokenizer_type tokenizer(s,strtk::multiple_char_delimiter_predicate("abcijkxyz"),tokenize_options);
+      tokenizer_type::iterator itr = tokenizer.begin();
+      tokenizer_type::iterator end = tokenizer.end();
+
+      while(end != itr)
+      {
+         token_list.push_back(std::string((*itr).first,(*itr).second));
+         ++itr;
+      }
+
+      if (token_list.size() != expected_token_size)
+      {
+         std::cout << "test_tokenizer_options() - IAD expected number of tokens does not match parsed amount!" << std::endl;
+         return false;
+      }
+
+      for(std::size_t i = 0; i < expected_token_size; ++i)
+      {
+         if (expected_token[i] != token_list[i])
+         {
+            std::cout << "test_tokenizer_options() - IAD Failed match @ " << i << std::endl;
+            return false;
+         }
+      }
+   }
+   return true;
+}
+
 bool test_split_options()
 {
    {
@@ -1317,6 +1396,7 @@ int main()
 {
    bool result = true;
    result &= test_split_and_tokenizer();
+   result &= test_tokenizer_options();
    result &= test_split_options();
    result &= test_split_n();
    result &= test_empty_filter_itr();
