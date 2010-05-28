@@ -1333,6 +1333,34 @@ namespace strtk
                        out);
    }
 
+   namespace tokenize_options
+   {
+      typedef std::size_t type;
+      enum
+      {
+         default_mode            = 0,
+         compress_delimiters     = 1,
+         include_1st_delimiter   = 2,
+         include_all_delimiters  = 4
+      };
+
+      static inline bool perform_compress_delimiters(const type& split_opt)
+      {
+         return compress_delimiters == (split_opt & compress_delimiters);
+      }
+
+      static inline bool perform_include_1st_delimiter(const type& split_opt)
+      {
+         return include_1st_delimiter == (split_opt & include_1st_delimiter);
+      }
+
+      static inline bool perform_include_all_delimiters(const type& split_opt)
+      {
+         return include_all_delimiters == (split_opt & include_all_delimiters);
+      }
+
+   }
+
    template<typename Iterator, typename DelimiterPredicate>
    class tokenizer
    {
@@ -1346,63 +1374,84 @@ namespace strtk
       protected:
          typedef Iterator iterator;
          typedef const iterator const_iterator;
+         typedef typename std::pair<iterator,iterator> range_type;
 
       public:
 
          inline tokenizer_iterator(const iterator begin,
                                    const iterator end,
                                    const Predicate& predicate,
-                                   const bool compress_delimiters = false)
+                                   const tokenize_options::type tokenize_option = tokenize_options::default_mode)
          : predicate_(predicate),
-           itr_(begin),
            end_(end),
-           prev_(begin),
-           curr_tok_begin_(end_),
-           curr_tok_end_(end_),
-           last_token_(false),
-           compress_delimiters_(compress_delimiters)
+           range_(begin,begin),
+           current_token_(end,end),
+           compress_delimiters_(tokenize_options::perform_compress_delimiters(tokenize_option)),
+           include_1st_delimiter_(tokenize_options::perform_include_1st_delimiter(tokenize_option)),
+           include_all_delimiters_(tokenize_options::perform_include_all_delimiters(tokenize_option)),
+           include_delimiters_(include_1st_delimiter_ || include_all_delimiters_),
+           last_token_done_(false)
          {
-            this->operator++();
+            if (end != begin)
+            {
+               this->operator++();
+            }
          };
 
          inline tokenizer_iterator& operator++()
          {
-            if (end_ != itr_)
+            if (last_token_done_)
             {
-               prev_ = itr_;
+               range_.first = range_.second;
+               return *this;
+            }
+            else if (end_ != range_.second)
+            {
+               range_.first = range_.second;
             }
 
-            while (end_ != itr_)
+            while (end_ != range_.second)
             {
-               if (predicate_(*itr_))
+              if (predicate_(*(range_.second)))
+              {
+                 if (include_delimiters_)
+                 {
+                    if (include_1st_delimiter_)
+                       ++range_.second;
+                    else if (include_all_delimiters_)
+                       while ((end_ != range_.second) && predicate_(*(range_.second))) ++range_.second;
+                    current_token_ = range_;
+                    if ((!include_all_delimiters_) && compress_delimiters_)
+                       while ((end_ != range_.second) && predicate_(*(range_.second))) ++range_.second;
+                 }
+                 else
+                 {
+                    current_token_ = range_;
+                    if (compress_delimiters_)
+                       while ((end_ != (++range_.second)) && predicate_(*(range_.second))) ;
+                    else
+                       ++range_.second;
+                 }
+                 return *this;
+              }
+              else
+                 ++range_.second;
+            }
+
+            if (range_.first != range_.second)
+            {
+               current_token_.second = range_.second;
+               if (!last_token_done_)
                {
-                  curr_tok_begin_ = prev_;
-                  curr_tok_end_ = itr_;
-                  if (compress_delimiters_)
-                     while ((end_ != ++itr_) && predicate_(*itr_)) ;
+                  if (predicate_(*(range_.second - 1)))
+                     current_token_.first = range_.second;
                   else
-                     ++itr_;
-                  return *this;
+                     current_token_.first = range_.first;
+                  last_token_done_ = true;
                }
                else
-                 ++itr_;
+                  range_.first = range_.second;
             }
-
-            if (prev_ != itr_)
-            {
-               curr_tok_end_ = itr_;
-               if (!last_token_)
-               {
-                  if (predicate_(*(itr_ - 1)))
-                     curr_tok_begin_ = itr_;
-                  else
-                     curr_tok_begin_ = prev_;
-                  last_token_ = true;
-               }
-               else
-                  prev_ = itr_;
-            }
-
             return *this;
          }
 
@@ -1415,58 +1464,58 @@ namespace strtk
 
          inline tokenizer_iterator& operator+=(const int inc)
          {
-            for (int i = 0; i < inc; ++i)
+            if (i > 0)
             {
-               ++(*this);
+               for (int i = 0; i < inc; ++i, ++(*this)) ;
             }
             return *this;
          }
 
          inline T operator*() const
          {
-            return std::make_pair<iterator,iterator>(curr_tok_begin_,curr_tok_end_);
+            return current_token_;
          }
 
-         inline bool operator==(const tokenizer_iterator& it) const
+         inline bool operator==(const tokenizer_iterator& itr) const
          {
-            return (itr_  == it.itr_ ) &&
-                   (prev_ == it.prev_) &&
-                   (end_  == it.end_ );
+            return (range_ == itr.range_) && (end_ == itr.end_);
          }
 
          inline bool operator!=(const tokenizer_iterator& itr) const
          {
-            return !this->operator==(itr);
+            return (range_ != itr.range_) || (end_ != itr.end_);
          }
 
          inline tokenizer_iterator& operator=(const tokenizer_iterator& itr)
          {
             if (this != &itr)
             {
-               itr_            = itr.itr_;
-               end_            = itr.end_;
-               prev_           = itr.prev_;
-               curr_tok_begin_ = itr.curr_tok_begin_;
-               curr_tok_end_   = itr.curr_tok_end_;
-               last_token_     = itr.last_token_;
+               range_                  = itr.range_;
+               current_token_          = itr.current_token_;
+               end_                    = itr.end_;
+               compress_delimiters_    = itr.compress_delimiters_;
+               include_1st_delimiter_  = itr.include_1st_delimiter_;
+               include_all_delimiters_ = itr.include_all_delimiters_;
+               include_delimiters_     = itr.include_delimiters_;
             }
             return *this;
          }
 
          inline std::string remaining() const
          {
-            return std::string(curr_tok_begin_,end_);
+            return std::string(current_token_.first,end_);
          }
 
       protected:
          const Predicate& predicate_;
-         iterator itr_;
          iterator end_;
-         iterator prev_;
-         iterator curr_tok_begin_;
-         iterator curr_tok_end_;
-         bool last_token_;
+         range_type range_;
+         range_type current_token_;
          bool compress_delimiters_;
+         bool include_1st_delimiter_;
+         bool include_all_delimiters_;
+         bool include_delimiters_;
+         bool last_token_done_;
       };
 
    public:
@@ -1481,35 +1530,35 @@ namespace strtk
       inline tokenizer(const Iterator begin,
                        const Iterator end,
                        const DelimiterPredicate& predicate,
-                       const bool compress_delimiters = false)
-      : predicate_(predicate),
+                       const tokenize_options::type tokenize_options = tokenize_options::default_mode)
+      : tokenize_options_(tokenize_options),
+        predicate_(predicate),
         begin_(begin),
         end_(end),
-        begin_itr_(begin_,end_,predicate_,compress_delimiters),
-        end_itr_(end_,end_,predicate_,compress_delimiters),
-        compress_delimiters_(compress_delimiters)
+        begin_itr_(begin_,end_,predicate_,tokenize_options_),
+        end_itr_(end_,end_,predicate_,compress_delimiters)
       {}
 
       inline tokenizer(const std::string& s,
                        const DelimiterPredicate& predicate,
-                       const bool compress_delimiters = false)
-      : predicate_(predicate),
+                       const tokenize_options::type tokenize_options = tokenize_options::default_mode)
+      : tokenize_options_(tokenize_options),
+        predicate_(predicate),
         begin_(s.begin()),
         end_(s.end()),
-        begin_itr_(begin_,end_,predicate_,compress_delimiters),
-        end_itr_(end_,end_,predicate_,compress_delimiters),
-        compress_delimiters_(compress_delimiters)
+        begin_itr_(begin_,end_,predicate_,tokenize_options_),
+        end_itr_(end_,end_,predicate_,tokenize_options_)
       {}
 
       inline tokenizer& operator=(const tokenizer& t)
       {
          if (this != &t)
          {
-            begin_               = t.begin_;
-            end_                 = t.end_;
-            end_itr_             = t.end_itr_;
-            begin_itr_           = t.begin_itr_;
-            compress_delimiters_ = t.compress_delimiters_;
+            begin_            = t.begin_;
+            end_              = t.end_;
+            end_itr_          = t.end_itr_;
+            begin_itr_        = t.begin_itr_;
+            tokenize_options_ = t.tokenize_options_;
          }
          return *this;
       }
@@ -1528,8 +1577,8 @@ namespace strtk
       {
         begin_ = begin;
         end_ = end;
-        begin_itr_ = iterator(begin_,end_,predicate_,compress_delimiters_);
-        end_itr_ = iterator(end_,end_,predicate_,compress_delimiters_);
+        begin_itr_ = iterator(begin_,end_,predicate_,tokenize_options_);
+        end_itr_ = iterator(end_,end_,predicate_,tokenize_options_);
       }
 
       inline const_iterator_ref begin() const
@@ -1544,12 +1593,12 @@ namespace strtk
 
    private:
 
+      tokenize_options::type tokenize_options_;
       const DelimiterPredicate& predicate_;
       Iterator begin_;
       Iterator end_;
       iterator begin_itr_;
       iterator end_itr_;
-      bool compress_delimiters_;
    };
 
    namespace std_string
