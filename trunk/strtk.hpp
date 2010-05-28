@@ -1536,7 +1536,7 @@ namespace strtk
         begin_(begin),
         end_(end),
         begin_itr_(begin_,end_,predicate_,tokenize_options_),
-        end_itr_(end_,end_,predicate_,compress_delimiters)
+        end_itr_(end_,end_,predicate_,tokenize_options_)
       {}
 
       inline tokenizer(const std::string& s,
