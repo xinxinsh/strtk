@@ -156,10 +156,10 @@ void parse_test01()
       s_list.push_back(str2);
    }
 
-   const std::size_t count = 1000000;
+   const std::size_t rounds = 1000000;
    timer t;
    t.start();
-   for (std::size_t i = 0; i < count; ++i)
+   for (std::size_t i = 0; i < rounds; ++i)
    {
       for (std::size_t j = 0; j < s_list.size(); ++j)
       {
@@ -173,9 +173,9 @@ void parse_test01()
    }
    t.stop();
    printf("Token Count: %lu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
-          static_cast<unsigned long>(s_list.size() * 12 * count),
+          static_cast<unsigned long>(s_list.size() * 12 * rounds),
           t.time(),
-          (s_list.size() * count) / t.time());
+          (s_list.size() * rounds) / t.time());
 }
 
 void parse_test02()
@@ -198,17 +198,17 @@ void parse_test02()
 
    timer t;
    t.start();
-   static const std::size_t count = 1000000;
-   for (std::size_t i = 0; i < count; ++i)
+   static const std::size_t rounds = 1000000;
+   for (std::size_t i = 0; i < rounds; ++i)
    {
       vec_int.clear();
       strtk::parse(data," ",vec_int);
    }
    t.stop();
    printf("Token Count: %lu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
-          static_cast<unsigned long>(vec_int.size() * count),
+          static_cast<unsigned long>(vec_int.size() * rounds),
           t.time(),
-          (vec_int.size() * count) / t.time());
+          (vec_int.size() * rounds) / t.time());
 }
 
 void parse_test03()
@@ -231,30 +231,30 @@ void parse_test03()
 
    timer t;
    t.start();
-   static const std::size_t count = 1000000;
-   for (std::size_t i = 0; i < count; ++i)
+   static const std::size_t rounds = 1000000;
+   for (std::size_t i = 0; i < rounds; ++i)
    {
       vec_double.clear();
       strtk::parse(data," ",vec_double);
    }
    t.stop();
    printf("Token Count: %lu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
-          static_cast<unsigned long>(vec_double.size() * count),
+          static_cast<unsigned long>(vec_double.size() * rounds),
           t.time(),
-          (vec_double.size() * count) / t.time());
+          (vec_double.size() * rounds) / t.time());
 }
 
 static const std::string base = "a|bc?def,ghij;klmno_p|qr?stu,vwxy;z1234_56789 0 A|BC?DEF,GHIJ;KLMNO_P|QR?STU,VWXY;Z1234_56789";
 static const std::size_t replicate_count = 1000000;
-static const std::string delimiters = "-+~&*[]{}()<>|!?@^%$#:\",;_ \\\t\r\n";
-static const std::size_t rounds = 5;
+static const std::string delimiters = "-+=~&*[]{}()<>|!?@^%$#\".,;:_ \\\t\r\n";
+static const std::size_t rounds = 8;
 
 void raw_tokenizer_speed_test()
 {
    std::cout << "[tokenizer raw speed test] ";
    std::string s = "";
    s.reserve(base.size() * replicate_count);
-   for (unsigned int i = 0; i < replicate_count; s.append(base), ++i) ;
+   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
    tokenizer_type tokenizer(s,predicate);
@@ -284,7 +284,7 @@ void raw_split_speed_test()
    std::cout << "[split raw speed test]     ";
    std::string s = "";
    s.reserve(base.size() * replicate_count);
-   for (unsigned int i = 0; i < replicate_count; s.append(base), ++i) ;
+   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    std::size_t token_count = 0;
    timer t;

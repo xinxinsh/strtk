@@ -122,7 +122,7 @@ void strtk_tokenizer_timed_test()
    std::string so = "";
    s.reserve(base.size() * replicate_count);
    so.reserve(s.size());
-   for (unsigned int i = 0; i < replicate_count; ++i) s += base;
+   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate);
    strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator itr = tokenizer.begin();
@@ -149,7 +149,7 @@ void boost_tokenizer_timed_test()
    std::string so = "";
    s.reserve(base.size() * replicate_count);
    so.reserve(s.size());
-   for (unsigned int i = 0; i < replicate_count; ++i) s += base;
+   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
    typedef boost::tokenizer<boost::char_separator<char> > tokenizer_type;
    tokenizer_type tokenizer(s,boost::char_separator<char>(delimiters.c_str()));
    tokenizer_type::iterator itr = tokenizer.begin();
@@ -177,7 +177,7 @@ void strtk_split_timed_test()
    print_mode("[strtk]");
    std::string s = "";
    s.reserve(base.size() * split_replicate_count);
-   for (unsigned int i = 0; i < split_replicate_count; ++i) s += base;
+   for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
    timer t;
@@ -195,7 +195,7 @@ void boost_split_timed_test()
    print_mode("[boost]");
    std::string s = "";
    s.reserve(base.size() * split_replicate_count);
-   for (unsigned int i = 0; i < split_replicate_count; ++i) s += base;
+   for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
    timer t;

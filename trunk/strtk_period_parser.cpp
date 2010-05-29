@@ -25,8 +25,10 @@
 
 
 #include <cstddef>
+#include <iostream>
 #include <vector>
 #include <string>
+#include <utility>
 
 #include "strtk.hpp"
 
@@ -52,6 +54,8 @@ public:
       static const strtk::split_options::type split_options = strtk::split_options::compress_delimiters +
                                                               strtk::split_options::include_1st_delimiter;
       std::size_t token_count = split_n(predicate_,begin,end,max_token_count,token_list,split_options);
+      if (0 == token_count)
+         return false;
       period = 0;
       double t = 0.0;
       bool encounterd [] = { false, false, false, false };
