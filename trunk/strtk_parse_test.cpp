@@ -244,10 +244,70 @@ void parse_test03()
           (vec_double.size() * count) / t.time());
 }
 
+static const std::string base = "a|bc?def,ghij;klmno_p|qr?stu,vwxy;z1234_56789 0 A|BC?DEF,GHIJ;KLMNO_P|QR?STU,VWXY;Z1234_56789";
+static const std::size_t replicate_count = 1000000;
+static const std::string delimiters = "-+~&*[]{}()<>|!?@^%$#:\",;_ \\\t\r\n";
+static const std::size_t rounds = 5;
+
+void raw_tokenizer_speed_test()
+{
+   std::cout << "[tokenizer raw speed test] ";
+   std::string s = "";
+   s.reserve(base.size() * replicate_count);
+   for (unsigned int i = 0; i < replicate_count; s.append(base), ++i) ;
+   strtk::multiple_char_delimiter_predicate predicate(delimiters);
+   typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
+   tokenizer_type tokenizer(s,predicate);
+   std::size_t token_count = 0;
+   timer t;
+   t.start();
+   for (std::size_t i = 0; i < rounds; ++i)
+   {
+      tokenizer.assign(s);
+      tokenizer_type::iterator itr = tokenizer.begin();
+      tokenizer_type::iterator end = tokenizer.end();
+      while (end != itr)
+      {
+         ++token_count;
+         ++itr;
+      }
+   }
+   t.stop();
+   printf("Token Count:%llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
+          static_cast<unsigned long long>(token_count),
+          t.time(),
+          token_count / t.time());
+}
+
+void raw_split_speed_test()
+{
+   std::cout << "[split raw speed test]     ";
+   std::string s = "";
+   s.reserve(base.size() * replicate_count);
+   for (unsigned int i = 0; i < replicate_count; s.append(base), ++i) ;
+   strtk::multiple_char_delimiter_predicate predicate(delimiters);
+   std::size_t token_count = 0;
+   timer t;
+   t.start();
+   for (std::size_t i = 0; i < rounds; ++i)
+   {
+      strtk::split(predicate,
+                   s,
+                   strtk::counting_back_inserter<strtk::std_string::iterator_type>(token_count));
+   }
+   t.stop();
+   printf("Token Count:%llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
+          static_cast<unsigned long long>(token_count),
+          t.time(),
+          token_count / t.time());
+}
+
 int main()
 {
    parse_test01();
    parse_test02();
    parse_test03();
+   raw_tokenizer_speed_test();
+   raw_split_speed_test();
    return 0;
 }
