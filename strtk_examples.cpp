@@ -981,11 +981,8 @@ void find_example()
    {
       typedef strtk::std_string::token_deque_type match_list_type;
       match_list_type match_list;
-
       strtk::find_all(pattern,data,std::back_inserter(match_list));
-
       match_list_type::iterator itr = match_list.begin();
-
       while (match_list.end() != itr)
       {
          std::cout << "(" << std::string(itr->first,itr->second) << ")\t";
@@ -997,11 +994,34 @@ void find_example()
    {
       typedef strtk::std_string::token_deque_type match_list_type;
       match_list_type match_list;
-
       strtk::ifind_all(pattern,data,std::back_inserter(match_list));
-
       match_list_type::iterator itr = match_list.begin();
+      while (match_list.end() != itr)
+      {
+         std::cout << "(" << std::string(itr->first,itr->second) << ")\t";
+         ++itr;
+      }
+      std::cout << std::endl;
+   }
 
+   {
+      typedef strtk::std_string::token_deque_type match_list_type;
+      match_list_type match_list;
+      strtk::find_all(pattern,data,match_list);
+      match_list_type::iterator itr = match_list.begin();
+      while (match_list.end() != itr)
+      {
+         std::cout << "(" << std::string(itr->first,itr->second) << ")\t";
+         ++itr;
+      }
+      std::cout << std::endl;
+   }
+
+   {
+      typedef strtk::std_string::token_deque_type match_list_type;
+      match_list_type match_list;
+      strtk::ifind_all(pattern,data,match_list);
+      match_list_type::iterator itr = match_list.begin();
       while (match_list.end() != itr)
       {
          std::cout << "(" << std::string(itr->first,itr->second) << ")\t";
