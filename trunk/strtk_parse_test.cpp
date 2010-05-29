@@ -70,7 +70,6 @@ public:
          diff += (1.0 * (stop_time.tv_usec - start_time.tv_usec));
       else if (stop_time.tv_usec < start_time.tv_usec)
          diff -= (1.0 * (start_time.tv_usec - stop_time.tv_usec));
-
       return (diff / 1000000.0);
    }
  private:
@@ -282,7 +281,7 @@ void raw_tokenizer_md_speed_test()
 {
    std::cout << strtk::text::left_align(title_length(),' ',"[tokenizer(md) raw speed test]");
 
-   std::string s = "";
+   std::string s;
    s.reserve(md_base.size() * md_replicate_count);
    for (std::size_t i = 0; i < md_replicate_count; s.append(md_base), ++i) ;
    s.resize(s.size() - 1);
@@ -314,7 +313,7 @@ void raw_tokenizer_md_speed_test()
 void raw_split_md_speed_test()
 {
    std::cout << strtk::text::left_align(title_length(),' ',"[split(md) raw speed test]");
-   std::string s = "";
+   std::string s;
    s.reserve(md_base.size() * md_replicate_count);
    for (std::size_t i = 0; i < md_replicate_count; s.append(md_base), ++i) ;
    s.resize(s.size() - 1);
@@ -343,7 +342,7 @@ static const std::size_t sd_rounds = 10;
 void raw_tokenizer_sd_speed_test()
 {
    std::cout << strtk::text::left_align(title_length(),' ',"[tokenizer(sd) raw speed test]");
-   std::string s = "";
+   std::string s;
    s.reserve(sd_base.size() * sd_replicate_count);
    for (std::size_t i = 0; i < sd_replicate_count; s.append(sd_base), ++i) ;
    s.resize(s.size() - 1);
@@ -375,7 +374,7 @@ void raw_tokenizer_sd_speed_test()
 void raw_split_sd_speed_test()
 {
    std::cout << strtk::text::left_align(title_length(),' ',"[split(sd) raw speed test]");
-   std::string s = "";
+   std::string s;
    s.reserve(sd_base.size() * sd_replicate_count);
    for (std::size_t i = 0; i < sd_replicate_count; s.append(sd_base), ++i) ;
    s.resize(s.size() - 1);

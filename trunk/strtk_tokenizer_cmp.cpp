@@ -93,7 +93,6 @@ public:
          diff += (1.0 * (stop_time.tv_usec - start_time.tv_usec));
       else if (stop_time.tv_usec < start_time.tv_usec)
          diff -= (1.0 * (start_time.tv_usec - stop_time.tv_usec));
-
       return (diff / 1000000.0);
    }
 private:
@@ -118,7 +117,7 @@ void print_mode(const std::string& mode)
 void strtk_tokenizer_timed_test()
 {
    print_mode("[strtk]");
-   std::string s = "";
+   std::string s;
    std::string so = "";
    s.reserve(base.size() * replicate_count);
    so.reserve(s.size());
@@ -145,7 +144,7 @@ void strtk_tokenizer_timed_test()
 void boost_tokenizer_timed_test()
 {
    print_mode("[boost]");
-   std::string s = "";
+   std::string s;
    std::string so = "";
    s.reserve(base.size() * replicate_count);
    so.reserve(s.size());
@@ -175,7 +174,7 @@ static const std::size_t split_reserve_size = 11000005;
 void strtk_split_timed_test()
 {
    print_mode("[strtk]");
-   std::string s = "";
+   std::string s;
    s.reserve(base.size() * split_replicate_count);
    for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
    std::vector<std::string> token_list;
@@ -193,7 +192,7 @@ void strtk_split_timed_test()
 void boost_split_timed_test()
 {
    print_mode("[boost]");
-   std::string s = "";
+   std::string s;
    s.reserve(base.size() * split_replicate_count);
    for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
    std::vector<std::string> token_list;
