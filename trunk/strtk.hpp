@@ -1294,6 +1294,19 @@ namespace strtk
       return match_count;
    }
 
+   template<typename Iterator,
+            typename Range,
+            typename Allocator,
+            template<typename, typename> class Sequence>
+   inline std::size_t find_all(const Iterator pattern_begin,
+                               const Iterator pattern_end,
+                               const Iterator begin,
+                               const Iterator end,
+                               Sequence<Range,Allocator>& seq)
+   {
+      return find_all(pattern_begin,pattern_end,begin,end,std::back_inserter(seq));
+   }
+
    template<typename Iterator, typename OutputIterator>
    inline std::size_t ifind_all(const Iterator pattern_begin,
                                 const Iterator pattern_end,
@@ -1323,6 +1336,16 @@ namespace strtk
                       out);
    }
 
+   template<typename Range,
+            typename Allocator,
+            template<typename, typename> class Sequence>
+   inline std::size_t find_all(const std::string& pattern,
+                               const std::string& data,
+                               Sequence<Range,Allocator>& seq)
+   {
+      return find_all(pattern,data,std::back_inserter(seq));
+   }
+
    template<typename OutputIterator>
    inline std::size_t ifind_all(const std::string& pattern,
                                 const std::string& data,
@@ -1331,6 +1354,16 @@ namespace strtk
       return ifind_all(pattern.begin(),pattern.end(),
                        data.begin(),data.end(),
                        out);
+   }
+
+   template<typename Range,
+            typename Allocator,
+            template<typename, typename> class Sequence>
+   inline std::size_t ifind_all(const std::string& pattern,
+                                const std::string& data,
+                                Sequence<Range,Allocator>& seq)
+   {
+      return ifind_all(pattern,data,std::back_inserter(seq));
    }
 
    namespace tokenize_options
