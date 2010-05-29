@@ -9191,9 +9191,9 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.718281828459045235";
-      static const char* date    = "20100401";
-      static const char* epoch   = "Pre-C++0x EC214AEB:9DE13587";
+      static const char* version = "2.71828182845904523536";
+      static const char* date    = "20100601";
+      static const char* epoch   = "Pre-C++0x BC214AEF:9DE17581";
 
       static inline std::string data()
       {
