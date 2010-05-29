@@ -32,8 +32,9 @@ void tokenizer_example01()
 {
    std::string s = "abc|123|xyz|789";
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
-   strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate);
-   strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type::iterator it = tokenizer.begin();
+   typedef strtk::std_string::tokenizer<>::type tokenizer_type;
+   tokenizer_type tokenizer(s,predicate);
+   tokenizer_type::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -46,8 +47,9 @@ void tokenizer_example02()
 {
    std::string s = "abc.123 xyz?789";
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate,true);
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator it = tokenizer.begin();
+   typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
+   tokenizer_type tokenizer(s,predicate,strtk::tokenize_options::compress_delimiters);
+   tokenizer_type::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -60,8 +62,9 @@ void tokenizer_example03()
 {
    std::string s = "abc||123|||||xyz|789";
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
-   strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate,true);
-   strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type::iterator it = tokenizer.begin();
+   typedef strtk::std_string::tokenizer<>::type tokenizer_type;
+   tokenizer_type tokenizer(s,predicate,strtk::tokenize_options::compress_delimiters);
+   tokenizer_type::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -74,8 +77,9 @@ void tokenizer_example04()
 {
    std::string s = "abc.;123? xyz;?789";
    strtk::multiple_char_delimiter_predicate predicate(" .;?");
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate,true);
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate >::type::iterator it = tokenizer.begin();
+   typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
+   tokenizer_type tokenizer(s,predicate,strtk::tokenize_options::compress_delimiters);
+   tokenizer_type::iterator it = tokenizer.begin();
    while (it != tokenizer.end())
    {
       std::cout << "[" << std::string((*it).first,(*it).second) << "]\t";
@@ -150,7 +154,7 @@ void tokenizer_example09()
 {
    std::string s = "abc|123|xyz|789";
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
-   strtk::std_string::tokenizer<strtk::single_delimiter_predicate<std::string::value_type> >::type tokenizer(s,predicate);
+   strtk::std_string::tokenizer<>::type tokenizer(s,predicate);
    std::deque<std::string> token_list;
    std::copy(tokenizer.begin(),tokenizer.end(),strtk::range_to_type_back_inserter(token_list));
    std::cout << strtk::join("\t",token_list) << std::endl;
@@ -340,7 +344,6 @@ void split_n_example03()
    }
    std::cout << std::endl;
 }
-
 
 void split_regex_n_example()
 {
@@ -1074,7 +1077,6 @@ void ext_string_example()
       es.parse(" ,",int_list);
       std::cout << "es: " << es << " ---> parsed: " << strtk::bracketize("(",") ",int_list) << std::endl;
    }
-
 }
 
 int main()

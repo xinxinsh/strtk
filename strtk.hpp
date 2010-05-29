@@ -1935,7 +1935,7 @@ namespace strtk
          return *this;
       }
 
-      inline counting_back_inserter_iterator& operator=(const T& v)
+      inline counting_back_inserter_iterator& operator=(const T&)
       {
          ++counter_;
          return (*this);
