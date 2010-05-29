@@ -81,6 +81,29 @@ public:
 
 #endif
 
+std::size_t title_length()
+{
+   static const std::string s[] = 
+                            {
+                               "[data into struct] ",
+                               "[integer into " + strtk::type_name(std::vector<int>()) + "] ",
+                               "[double into " + strtk::type_name(std::vector<double>()) + "] ",
+                               "[tokenizer(md) raw speed test] ",
+                               "[tokenizer(sd) raw speed test] ",
+                               "[split(md) raw speed test] ",
+                               "[split(sd) raw speed test] "
+                            };
+   std::size_t length = 0;
+   length = std::max<std::size_t>(length,s[0].size());
+   length = std::max<std::size_t>(length,s[1].size());
+   length = std::max<std::size_t>(length,s[2].size());
+   length = std::max<std::size_t>(length,s[3].size());
+   length = std::max<std::size_t>(length,s[4].size());
+   length = std::max<std::size_t>(length,s[5].size());
+   length = std::max<std::size_t>(length,s[6].size());
+   return length;
+}
+
 struct data_block
 {
    std::string    d1;
@@ -100,6 +123,7 @@ struct data_block
 
 void parse_test01()
 {
+   std::cout << strtk::text::left_align(title_length(),' ',"[data into struct]");
    data_block i1;
    i1.d1  = "The1 quick2 brown3 fox4 jumps5 over6 the7 lazy8 dog9";
    i1.d2  = 'x';
@@ -172,8 +196,8 @@ void parse_test01()
       }
    }
    t.stop();
-   printf("Token Count: %lu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
-          static_cast<unsigned long>(s_list.size() * 12 * rounds),
+   printf("Token Count:%10llu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
+          static_cast<unsigned long long>(s_list.size() * 12 * rounds),
           t.time(),
           (s_list.size() * rounds) / t.time());
 }
@@ -194,7 +218,7 @@ void parse_test02()
    std::vector<int> vec_int;
    vec_int.reserve(100);
 
-   std::cout << "[integer into "<< strtk::type_name(vec_int) << "] ";
+   std::cout << strtk::text::left_align(title_length(),' ',"[integer into " + strtk::type_name(vec_int) + "]");
 
    timer t;
    t.start();
@@ -205,8 +229,8 @@ void parse_test02()
       strtk::parse(data," ",vec_int);
    }
    t.stop();
-   printf("Token Count: %lu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
-          static_cast<unsigned long>(vec_int.size() * rounds),
+   printf("Token Count:%10llu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
+          static_cast<unsigned long long>(vec_int.size() * rounds),
           t.time(),
           (vec_int.size() * rounds) / t.time());
 }
@@ -227,7 +251,7 @@ void parse_test03()
    std::vector<double> vec_double;
    vec_double.reserve(50);
 
-   std::cout << "[double into "<< strtk::type_name(vec_double) << "] ";
+   std::cout << strtk::text::left_align(title_length(),' ',"[double into " + strtk::type_name(vec_double) + "]");
 
    timer t;
    t.start();
@@ -238,30 +262,32 @@ void parse_test03()
       strtk::parse(data," ",vec_double);
    }
    t.stop();
-   printf("Token Count: %lu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
-          static_cast<unsigned long>(vec_double.size() * rounds),
+   printf("Token Count:%10llu\tTotal time:%8.4f\tRate:%14.4fprs/s\n",
+          static_cast<unsigned long long>(vec_double.size() * rounds),
           t.time(),
           (vec_double.size() * rounds) / t.time());
 }
 
-static const std::string base = "a|bc?def,ghij;klmno_p|qr?stu,vwxy;z1234_56789 0 A|BC?DEF,GHIJ;KLMNO_P|QR?STU,VWXY;Z1234_56789";
-static const std::size_t replicate_count = 1000000;
-static const std::string delimiters = "-+=~&*[]{}()<>|!?@^%$#\".,;:_ \\\t\r\n";
-static const std::size_t rounds = 8;
+static const std::string md_base = "a+bc=def ghij-klmno?pqrstu&vwxyzAB@CDEFGHIJ~KLMNOPQRS#TUVWXYZ012|3456789abcd|efghijklmnopqrsdu!";
+static const std::size_t md_replicate_count = 1000000;
+static const std::string md_delimiters = "-+=~&*[]{}()<>|!?@^%$#\".,;:_ \\\t\r\n";
+static const std::size_t md_rounds = 10;
 
-void raw_tokenizer_speed_test()
+void raw_tokenizer_md_speed_test()
 {
-   std::cout << "[tokenizer raw speed test] ";
+   std::cout << strtk::text::left_align(title_length(),' ',"[tokenizer(md) raw speed test]");
+
    std::string s = "";
-   s.reserve(base.size() * replicate_count);
-   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
-   strtk::multiple_char_delimiter_predicate predicate(delimiters);
+   s.reserve(md_base.size() * md_replicate_count);
+   for (std::size_t i = 0; i < md_replicate_count; s.append(md_base), ++i) ;
+   s.resize(s.size() - 1);
+   strtk::multiple_char_delimiter_predicate predicate(md_delimiters);
    typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
    tokenizer_type tokenizer(s,predicate);
    std::size_t token_count = 0;
    timer t;
    t.start();
-   for (std::size_t i = 0; i < rounds; ++i)
+   for (std::size_t i = 0; i < md_rounds; ++i)
    {
       tokenizer.assign(s);
       tokenizer_type::iterator itr = tokenizer.begin();
@@ -273,30 +299,90 @@ void raw_tokenizer_speed_test()
       }
    }
    t.stop();
-   printf("Token Count:%llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
+   printf("Token Count:%10llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
           static_cast<unsigned long long>(token_count),
           t.time(),
           token_count / t.time());
 }
 
-void raw_split_speed_test()
+void raw_split_md_speed_test()
 {
-   std::cout << "[split raw speed test]     ";
+   std::cout << strtk::text::left_align(title_length(),' ',"[split(md) raw speed test]");
    std::string s = "";
-   s.reserve(base.size() * replicate_count);
-   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
-   strtk::multiple_char_delimiter_predicate predicate(delimiters);
+   s.reserve(md_base.size() * md_replicate_count);
+   for (std::size_t i = 0; i < md_replicate_count; s.append(md_base), ++i) ;
+   s.resize(s.size() - 1);
+   strtk::multiple_char_delimiter_predicate predicate(md_delimiters);
    std::size_t token_count = 0;
    timer t;
    t.start();
-   for (std::size_t i = 0; i < rounds; ++i)
+   for (std::size_t i = 0; i < md_rounds; ++i)
    {
       strtk::split(predicate,
                    s,
                    strtk::counting_back_inserter<strtk::std_string::iterator_type>(token_count));
    }
    t.stop();
-   printf("Token Count:%llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
+   printf("Token Count:%10llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
+          static_cast<unsigned long long>(token_count),
+          t.time(),
+          token_count / t.time());
+}
+
+static const std::string sd_base = "a|bc|def|ghij|klmno|pqrstu|vwxyzAB|CDEFGHIJ|KLMNOPQRS|TUVWXYZ012|3456789!@#$|^&*(){}[]<>?:;,~|";
+static const std::size_t sd_replicate_count = 1000000;
+static const std::size_t sd_rounds = 10;
+
+void raw_tokenizer_sd_speed_test()
+{
+   std::cout << strtk::text::left_align(title_length(),' ',"[tokenizer(sd) raw speed test]");
+   std::string s = "";
+   s.reserve(sd_base.size() * sd_replicate_count);
+   for (std::size_t i = 0; i < sd_replicate_count; s.append(sd_base), ++i) ;
+   s.resize(s.size() - 1);
+   strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
+   typedef strtk::std_string::tokenizer<>::type tokenizer_type;
+   tokenizer_type tokenizer(s,predicate);
+   std::size_t token_count = 0;
+   timer t;
+   t.start();
+   for (std::size_t i = 0; i < sd_rounds; ++i)
+   {
+      tokenizer.assign(s);
+      tokenizer_type::iterator itr = tokenizer.begin();
+      tokenizer_type::iterator end = tokenizer.end();
+      while (end != itr)
+      {
+         ++token_count;
+         ++itr;
+      }
+   }
+   t.stop();
+   printf("Token Count:%10llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
+          static_cast<unsigned long long>(token_count),
+          t.time(),
+          token_count / t.time());
+}
+
+void raw_split_sd_speed_test()
+{
+   std::cout << strtk::text::left_align(title_length(),' ',"[split(sd) raw speed test]");
+   std::string s = "";
+   s.reserve(sd_base.size() * sd_replicate_count);
+   for (std::size_t i = 0; i < sd_replicate_count; s.append(sd_base), ++i) ;
+   s.resize(s.size() - 1);
+   strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
+   std::size_t token_count = 0;
+   timer t;
+   t.start();
+   for (std::size_t i = 0; i < sd_rounds; ++i)
+   {
+      strtk::split(predicate,
+                   s,
+                   strtk::counting_back_inserter<strtk::std_string::iterator_type>(token_count));
+   }
+   t.stop();
+   printf("Token Count:%10llu\tTotal time:%8.4f\tRate:%14.4ftks/s\n",
           static_cast<unsigned long long>(token_count),
           t.time(),
           token_count / t.time());
@@ -307,7 +393,9 @@ int main()
    parse_test01();
    parse_test02();
    parse_test03();
-   raw_tokenizer_speed_test();
-   raw_split_speed_test();
+   raw_tokenizer_sd_speed_test();
+   raw_tokenizer_md_speed_test();
+   raw_split_sd_speed_test();
+   raw_split_md_speed_test();
    return 0;
 }
