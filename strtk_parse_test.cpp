@@ -198,7 +198,7 @@ void parse_test01()
       }
    }
    t.stop();
-   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4fprs/s %4.2fMB/s\n",
+   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4fprs/s %5.2fMB/s\n",
           static_cast<unsigned long long>(s_list.size() * 12 * rounds),
           t.time(),
           (s_list.size() * rounds) / t.time(),
@@ -232,7 +232,7 @@ void parse_test02()
       strtk::parse(data," ",vec_int);
    }
    t.stop();
-   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4fprs/s %4.2fMB/s\n",
+   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4fprs/s %5.2fMB/s\n",
           static_cast<unsigned long long>(vec_int.size() * rounds),
           t.time(),
           (vec_int.size() * rounds) / t.time(),
@@ -266,7 +266,7 @@ void parse_test03()
       strtk::parse(data," ",vec_double);
    }
    t.stop();
-   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4fprs/s %4.2fMB/s\n",
+   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4fprs/s %5.2fMB/s\n",
           static_cast<unsigned long long>(vec_double.size() * rounds),
           t.time(),
           (vec_double.size() * rounds) / t.time(),
@@ -304,7 +304,7 @@ void raw_tokenizer_md_speed_test()
       }
    }
    t.stop();
-   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %4.2fMB/s\n",
+   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %5.2fMB/s\n",
           static_cast<unsigned long long>(token_count),
           t.time(),
           token_count / t.time(),
@@ -329,7 +329,7 @@ void raw_split_md_speed_test()
                    strtk::counting_back_inserter<strtk::std_string::iterator_type>(token_count));
    }
    t.stop();
-   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %4.2fMB/s\n",
+   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %5.2fMB/s\n",
           static_cast<unsigned long long>(token_count),
           t.time(),
           token_count / t.time(),
@@ -365,7 +365,7 @@ void raw_tokenizer_sd_speed_test()
       }
    }
    t.stop();
-   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %4.2fMB/s\n",
+   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %5.2fMB/s\n",
           static_cast<unsigned long long>(token_count),
           t.time(),
           token_count / t.time(),
@@ -390,7 +390,7 @@ void raw_split_sd_speed_test()
                    strtk::counting_back_inserter<strtk::std_string::iterator_type>(token_count));
    }
    t.stop();
-   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %4.2fMB/s\n",
+   printf("Token Count:%10llu  Total time:%8.4f  Rate:%14.4ftks/s %5.2fMB/s\n",
           static_cast<unsigned long long>(token_count),
           t.time(),
           token_count / t.time(),
