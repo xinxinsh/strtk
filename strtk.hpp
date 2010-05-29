@@ -509,7 +509,7 @@ namespace strtk
 
    private:
 
-      T delimiter_;
+      const T delimiter_;
    };
 
    template<typename T>
@@ -1474,6 +1474,11 @@ namespace strtk
          inline T operator*() const
          {
             return current_token_;
+         }
+
+         inline std::string as_string() const
+         {
+            return std::string(current_token_.first,current_token_.second);
          }
 
          inline bool operator==(const tokenizer_iterator& itr) const
