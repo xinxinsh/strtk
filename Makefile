@@ -134,4 +134,4 @@ valgrind_check :
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_numstats
 
 clean:
-	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda
+	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda *.gcno
