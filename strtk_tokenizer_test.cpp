@@ -45,7 +45,7 @@ bool test_tokenizer_split(const Predicate& p,
                           const std::string& expected_result,
                           const bool compressed_delimiters = false)
 {
-   std::string result = "";
+   std::string result;
    std::vector< std::pair<std::string::const_iterator , std::string::const_iterator> > tok_list;
    strtk::split(p,
                 s,
@@ -77,7 +77,7 @@ bool test_tokenizer_itr(const Predicate& p,
                         const std::string& expected_result,
                         const bool compressed_delimiters = false)
 {
-   std::string result = "";
+   std::string result;
    Tokenizer stk(s,p,compressed_delimiters);
    typename Tokenizer::iterator it = stk.begin();
    while (stk.end() != it)
@@ -1227,7 +1227,7 @@ bool test_parse1()
    std::string data = "1 ,|\t987.654 ,|\t abc ,|\t";
    int i = 0;
    double d = 0;
-   std::string s = "";
+   std::string s;
    if (!strtk::parse(data,",|\t ",i,d,s))
    {
       std::cout << "test_parse() - parse fail 1" << std::endl;
