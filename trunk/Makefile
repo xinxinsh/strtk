@@ -21,12 +21,7 @@ BASE_OPTIONS     = -pedantic-errors -ansi -Wall -Wextra -Werror -Wno-long-long
 OPTIONS          = $(BASE_OPTIONS) $(OPTIMIZATION_OPT) -o
 REGEX            = -lboost_regex
 PTHREAD          = -lpthread
-LINKER_OPT       = -L/usr/lib -lstdc++ 
-
-OBJECTS = $(CPP_SRC:.cpp=.o)
-
-%.o: %.hpp %.cpp
-	$(COMPILER) $(OPTIONS_LIBS) $*.cpp
+LINKER_OPT       = -L/usr/lib -lstdc++
 
 BUILD_LIST+=strtk_tokenizer_cmp
 BUILD_LIST+=strtk_examples
@@ -73,25 +68,25 @@ strtk_period_parser: strtk_period_parser.cpp strtk.hpp
 strtk_hexview: strtk_hexview.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_hexview strtk_hexview.cpp $(LINKER_OPT)
 
-strtk_converters_example : strtk_converters_example.cpp strtk.hpp
+strtk_converters_example: strtk_converters_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_converters_example strtk_converters_example.cpp $(LINKER_OPT)
-	
-strtk_tokengrid_example : strtk_tokengrid_example.cpp strtk.hpp
+
+strtk_tokengrid_example: strtk_tokengrid_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_tokengrid_example strtk_tokengrid_example.cpp $(LINKER_OPT)
 
-strtk_serializer_example : strtk_serializer_example.cpp strtk.hpp
+strtk_serializer_example: strtk_serializer_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_serializer_example strtk_serializer_example.cpp $(LINKER_OPT)
 
-strtk_randomizer : strtk_randomizer.cpp strtk.hpp
+strtk_randomizer: strtk_randomizer.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_randomizer strtk_randomizer.cpp $(LINKER_OPT)
 
-strtk_random_line : strtk_random_line.cpp strtk.hpp
+strtk_random_line: strtk_random_line.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_random_line strtk_random_line.cpp $(LINKER_OPT)
 
-strtk_numstats : strtk_numstats.cpp strtk.hpp
+strtk_numstats: strtk_numstats.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_numstats strtk_numstats.cpp $(LINKER_OPT)
 
-pgo : strtk_parse_test.cpp strtk_tokenizer_cmp.cpp strtk.hpp
+pgo: strtk_parse_test.cpp strtk_tokenizer_cmp.cpp strtk.hpp
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -pg -fprofile-generate -DUSE_SPIRIT -o strtk_tokenizer_cmp strtk_tokenizer_cmp.cpp $(LINKER_OPT)
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -pg -fprofile-generate -o strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
 	./strtk_tokenizer_cmp
@@ -99,7 +94,7 @@ pgo : strtk_parse_test.cpp strtk_tokenizer_cmp.cpp strtk.hpp
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -fprofile-use -DUSE_SPIRIT -o strtk_tokenizer_cmp strtk_tokenizer_cmp.cpp $(LINKER_OPT)
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -fprofile-use -o strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
 
-strip_bin :
+strip_bin:
 	strip -s strtk_tokenizer_cmp
 	strip -s strtk_examples
 	strip -s strtk_keyvalue_example
@@ -116,7 +111,7 @@ strip_bin :
 	strip -s strtk_random_line
 	strip -s strtk_numstats
 
-valgrind_check :
+valgrind_check:
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_cmp
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_examples
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_keyvalue_example
@@ -134,4 +129,4 @@ valgrind_check :
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_numstats
 
 clean:
-	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda *.gcno
+	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda *.gcnor
