@@ -103,9 +103,9 @@ private:
 
 #endif
 
-static const std::string base = "a|bc?def,ghij;klmno_p|qr?stu,vwxy;z1234_56789 0 A|BC?DEF,GHIJ;KLMNO_P|QR?STU,VWXY;Z1234_56789";
-static const std::size_t replicate_count = 1000000;
-static const std::string delimiters = "|?,;_ ";
+static const std::string base = "a+bc=def ghij-klmno?pqrstu&vwxyzAB@CDEFGHIJ~KLMNOPQRS#TUVWXYZ012|3456789abcd|efghijklmnopqrsdu!";
+static const std::size_t replicate_count = 2000000;
+static const std::string delimiters = "-+=~&*[]{}()<>|!?@^%$#\".,;:_ /\\\t\r\n";
 
 void print_mode(const std::string& mode)
 {
@@ -122,23 +122,27 @@ void strtk_tokenizer_timed_test()
    s.reserve(base.size() * replicate_count);
    so.reserve(s.size());
    for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
+   s.resize(s.size() - 1);
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer(s,predicate);
-   strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator itr = tokenizer.begin();
+   typedef strtk::std_string::tokenizer<>::md_type tokenizer_type;
+   tokenizer_type tokenizer(s,predicate);
+   tokenizer_type::iterator itr = tokenizer.begin();
+   tokenizer_type::const_iterator end = tokenizer.end();
    unsigned int token_count = 0;
    timer t;
    t.start();
-   while (itr != tokenizer.end())
+   while (end != itr)
    {
       so += std::string((*itr).first,(*itr).second);
       ++itr;
       ++token_count;
    }
    t.stop();
-   printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec %5.2fMB/s\n",
           token_count,
           t.time(),
-          token_count / t.time());
+          token_count / t.time(),
+          s.size() / (1048576.0 * t.time()));
 }
 
 void boost_tokenizer_timed_test()
@@ -149,27 +153,30 @@ void boost_tokenizer_timed_test()
    s.reserve(base.size() * replicate_count);
    so.reserve(s.size());
    for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
+   s.resize(s.size() - 1);
    typedef boost::tokenizer<boost::char_separator<char> > tokenizer_type;
    tokenizer_type tokenizer(s,boost::char_separator<char>(delimiters.c_str()));
    tokenizer_type::iterator itr = tokenizer.begin();
+   tokenizer_type::const_iterator end = tokenizer.end();
    unsigned int token_count = 0;
    timer t;
    t.start();
-   while (itr != tokenizer.end())
+   while (end != itr)
    {
       so += *itr;
       ++itr;
       ++token_count;
    }
    t.stop();
-   printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10u\tTime:%8.4fsec\tRate:%14.4ftks/sec %5.2fMB/s\n",
           token_count,
           t.time(),
-          token_count / t.time());
+          token_count / t.time(),
+          s.size() / (1048576.0 * t.time()));
 }
 
-static const std::size_t split_replicate_count = 500000;
-static const std::size_t split_reserve_size = 11000005;
+static const std::size_t split_replicate_count = 1000000;
+static const std::size_t split_reserve_size = 12000000;
 
 void strtk_split_timed_test()
 {
@@ -177,16 +184,18 @@ void strtk_split_timed_test()
    std::string s;
    s.reserve(base.size() * split_replicate_count);
    for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
+   s.resize(s.size() - 1);
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
    timer t;
    t.start();
    strtk::parse(s,delimiters,token_list);
    t.stop();
-   printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec %5.2fMB/s\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
-          token_list.size() / t.time());
+          token_list.size() / t.time(),
+          s.size() / (1048576.0 * t.time()));
 }
 
 void boost_split_timed_test()
@@ -195,19 +204,21 @@ void boost_split_timed_test()
    std::string s;
    s.reserve(base.size() * split_replicate_count);
    for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
+   s.resize(s.size() - 1);
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
    timer t;
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
    t.stop();
-   printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec\n",
+   printf("Tokens:%10lu\tTime:%8.4fsec\tRate:%14.4ftks/sec %5.2fMB/s\n",
           static_cast<unsigned long>(token_list.size()),
           t.time(),
-          token_list.size() / t.time());
+          token_list.size() / t.time(),
+          s.size() / (1048576.0 * t.time()));
 }
 
-static const int max_i2s = 50000000;
+static const int max_i2s = 60000000;
 
 void sprintf_lexical_cast_test_i2s()
 {

@@ -295,7 +295,7 @@ void raw_tokenizer_md_speed_test()
    {
       tokenizer.assign(s);
       tokenizer_type::iterator itr = tokenizer.begin();
-      tokenizer_type::iterator end = tokenizer.end();
+      tokenizer_type::const_iterator end = tokenizer.end();
       while (end != itr)
       {
          ++token_count;
@@ -356,7 +356,7 @@ void raw_tokenizer_sd_speed_test()
    {
       tokenizer.assign(s);
       tokenizer_type::iterator itr = tokenizer.begin();
-      tokenizer_type::iterator end = tokenizer.end();
+      tokenizer_type::const_iterator end = tokenizer.end();
       while (end != itr)
       {
          ++token_count;
