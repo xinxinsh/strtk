@@ -55,6 +55,7 @@
 
 #include "strtk.hpp"
 
+
 template<typename Allocator,
          template<typename,typename> class Sequence>
 void compute_stats(Sequence<double,Allocator>& value_list)

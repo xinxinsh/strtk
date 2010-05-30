@@ -36,7 +36,6 @@
 #include <boost/random.hpp>
 //#include <random>
 
-
 #include "strtk.hpp"
 
 #ifndef ENABLE_RANDOM

@@ -72,10 +72,11 @@ public:
          diff -= (1.0 * (start_time.tv_usec - stop_time.tv_usec));
       return (diff / 1000000.0);
    }
- private:
-  struct timeval start_time;
-  struct timeval stop_time;
-  struct timeval clock_frequency;
+
+private:
+   struct timeval start_time;
+   struct timeval stop_time;
+   struct timeval clock_frequency;
 };
 
 #endif

@@ -32,6 +32,7 @@
 
 #include "strtk.hpp"
 
+
 template<typename Container, typename Predicate>
 struct parse_line
 {

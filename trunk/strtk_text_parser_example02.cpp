@@ -33,6 +33,7 @@
 
 #include "strtk.hpp"
 
+
 const std::string not_of_interest_list [] = { "as", "at", "but", "by", "for",
                                               "in", "like", "next", "of", "on",
                                               "opposite", "out", "past", "to",
