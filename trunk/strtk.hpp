@@ -1646,7 +1646,8 @@ namespace strtk
       {
          typedef DelimiterPredicate predicate_type;
          typedef strtk::tokenizer<std::string::const_iterator,DelimiterPredicate> type;
-         typedef std::pair<std::string::const_iterator , std::string::const_iterator> iterator_type;
+         typedef strtk::tokenizer<std::string::const_iterator,multiple_char_delimiter_predicate> md_type;
+         typedef std::pair<std::string::const_iterator,std::string::const_iterator> iterator_type;
       };
 
       typedef tokenizer<>::iterator_type iterator_type;
