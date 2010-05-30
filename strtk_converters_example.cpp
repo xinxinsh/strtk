@@ -26,6 +26,7 @@
 
 #include "strtk.hpp"
 
+
 void example01()
 {
    std::string text = "A professional is a person who knows more and more about less and less "
