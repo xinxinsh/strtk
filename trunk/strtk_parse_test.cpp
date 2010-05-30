@@ -283,7 +283,7 @@ void raw_tokenizer_md_speed_test()
 
    std::string s;
    s.reserve(md_base.size() * md_replicate_count);
-   for (std::size_t i = 0; i < md_replicate_count; s.append(md_base), ++i) ;
+   strtk::replicate(md_replicate_count,md_base,s);
    s.resize(s.size() - 1);
    strtk::multiple_char_delimiter_predicate predicate(md_delimiters);
    typedef strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type tokenizer_type;
@@ -315,7 +315,7 @@ void raw_split_md_speed_test()
    std::cout << strtk::text::left_align(title_length(),' ',"[split(md) raw speed test]");
    std::string s;
    s.reserve(md_base.size() * md_replicate_count);
-   for (std::size_t i = 0; i < md_replicate_count; s.append(md_base), ++i) ;
+   strtk::replicate(md_replicate_count,md_base,s);
    s.resize(s.size() - 1);
    strtk::multiple_char_delimiter_predicate predicate(md_delimiters);
    std::size_t token_count = 0;
@@ -344,7 +344,7 @@ void raw_tokenizer_sd_speed_test()
    std::cout << strtk::text::left_align(title_length(),' ',"[tokenizer(sd) raw speed test]");
    std::string s;
    s.reserve(sd_base.size() * sd_replicate_count);
-   for (std::size_t i = 0; i < sd_replicate_count; s.append(sd_base), ++i) ;
+   strtk::replicate(sd_replicate_count,sd_base,s);
    s.resize(s.size() - 1);
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    typedef strtk::std_string::tokenizer<>::type tokenizer_type;
@@ -376,7 +376,7 @@ void raw_split_sd_speed_test()
    std::cout << strtk::text::left_align(title_length(),' ',"[split(sd) raw speed test]");
    std::string s;
    s.reserve(sd_base.size() * sd_replicate_count);
-   for (std::size_t i = 0; i < sd_replicate_count; s.append(sd_base), ++i) ;
+   strtk::replicate(sd_replicate_count,sd_base,s);
    s.resize(s.size() - 1);
    strtk::single_delimiter_predicate<std::string::value_type> predicate('|');
    std::size_t token_count = 0;

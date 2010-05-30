@@ -104,7 +104,7 @@ private:
 #endif
 
 static const std::string base = "a+bc=def ghij-klmno?pqrstu&vwxyzAB@CDEFGHIJ~KLMNOPQRS#TUVWXYZ012|3456789abcd|efghijklmnopqrsdu!";
-static const std::size_t replicate_count = 2000000;
+static const std::size_t tokenizer_replicate_count = 2000000;
 static const std::string delimiters = "-+=~&*[]{}()<>|!?@^%$#\".,;:_ /\\\t\r\n";
 
 void print_mode(const std::string& mode)
@@ -119,9 +119,9 @@ void strtk_tokenizer_timed_test()
    print_mode("[strtk]");
    std::string s;
    std::string so = "";
-   s.reserve(base.size() * replicate_count);
+   s.reserve(base.size() * tokenizer_replicate_count);
    so.reserve(s.size());
-   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
+   strtk::replicate(tokenizer_replicate_count,base,s);
    s.resize(s.size() - 1);
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    typedef strtk::std_string::tokenizer<>::md_type tokenizer_type;
@@ -150,9 +150,9 @@ void boost_tokenizer_timed_test()
    print_mode("[boost]");
    std::string s;
    std::string so = "";
-   s.reserve(base.size() * replicate_count);
+   s.reserve(base.size() * tokenizer_replicate_count);
    so.reserve(s.size());
-   for (std::size_t i = 0; i < replicate_count; s.append(base), ++i) ;
+   strtk::replicate(tokenizer_replicate_count,base,s);
    s.resize(s.size() - 1);
    typedef boost::tokenizer<boost::char_separator<char> > tokenizer_type;
    tokenizer_type tokenizer(s,boost::char_separator<char>(delimiters.c_str()));
@@ -175,7 +175,7 @@ void boost_tokenizer_timed_test()
           s.size() / (1048576.0 * t.time()));
 }
 
-static const std::size_t split_replicate_count = 1000000;
+static const std::size_t split_replicate_count = 800000;
 static const std::size_t split_reserve_size = 12000000;
 
 void strtk_split_timed_test()
@@ -183,7 +183,7 @@ void strtk_split_timed_test()
    print_mode("[strtk]");
    std::string s;
    s.reserve(base.size() * split_replicate_count);
-   for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
+   strtk::replicate(split_replicate_count,base,s);
    s.resize(s.size() - 1);
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
@@ -203,7 +203,7 @@ void boost_split_timed_test()
    print_mode("[boost]");
    std::string s;
    s.reserve(base.size() * split_replicate_count);
-   for (std::size_t i = 0; i < split_replicate_count; s.append(base), ++i) ;
+   strtk::replicate(split_replicate_count,base,s);
    s.resize(s.size() - 1);
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
