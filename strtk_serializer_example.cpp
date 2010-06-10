@@ -174,6 +174,7 @@ bool test02(char* buffer, const unsigned int buffer_size)
          }
       }
    }
+
    return true;
 }
 
@@ -253,6 +254,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
          p_expected.is_insane = !p_expected.is_insane;
       }
    }
+
    return true;
 }
 
@@ -297,9 +299,11 @@ bool test04(char* buffer, const unsigned int buffer_size)
       // Write out and then read back in an array of floats.
       std::vector<float> lst;
       const unsigned int max_count = 2000;
-      const std::size_t magic_count = 6;
-      const float magic[magic_count] = { 111.111f, 333.333f, 555.555f,
-                                         777.777f, 135.531f, 357.753f };
+      const float magic[] = {
+                              111.111f, 333.333f, 555.555f,
+                              777.777f, 135.531f, 357.753f
+                            };
+      const std::size_t magic_count = sizeof(magic) / sizeof(float);
 
       {
          strtk::binary::writer writer(buffer,buffer_size);
@@ -310,7 +314,7 @@ bool test04(char* buffer, const unsigned int buffer_size)
          }
          if (!writer(lst))
          {
-            std::cout << "test04() - Failed to write list of 'float'" << std::endl;
+            std::cout << "test04() - Failed to write list of " << strtk::type_name(lst) << std::endl;
             return false;
          }
          lst.clear();
@@ -320,7 +324,7 @@ bool test04(char* buffer, const unsigned int buffer_size)
          strtk::binary::reader reader(buffer,buffer_size);
          if (!reader(lst))
          {
-            std::cout << "test04() - Failed to read list of 'float'" << std::endl;
+            std::cout << "test04() - Failed to read list of " << strtk::type_name(lst) << std::endl;
             return false;
          }
 
@@ -341,9 +345,12 @@ bool test04(char* buffer, const unsigned int buffer_size)
       // Write out and then read back in an array of doubles.
       std::list<double> lst;
       const unsigned int max_count = 1000;
-      const std::size_t magic_count = 6;
-      const double magic[magic_count] = { 111.111, 333.333, 555.555,
-                                          777.777, 135.531, 357.753 };
+      const double magic[] = {
+                                111.111, 333.333, 555.555,
+                                777.777, 135.531, 357.753
+                             };
+      const std::size_t magic_count = sizeof(magic) / sizeof(double);
+
       {
          strtk::binary::writer writer(buffer,buffer_size);
          writer.clear();
@@ -351,7 +358,11 @@ bool test04(char* buffer, const unsigned int buffer_size)
          {
             lst.push_back(magic[i % magic_count] * i);
          }
-         writer(lst);
+         if (!writer(lst))
+         {
+            std::cout << "test04() - Failed to write list of " << strtk::type_name(lst) << std::endl;
+            return false;
+         }
          lst.clear();
       }
 
@@ -359,7 +370,7 @@ bool test04(char* buffer, const unsigned int buffer_size)
          strtk::binary::reader reader(buffer,buffer_size);
          if (!reader(lst))
          {
-            std::cout << "test04() - Failed to read list of 'double'" << std::endl;
+            std::cout << "test04() - Failed to read list of " << strtk::type_name(lst) << std::endl;
             return false;
          }
 
@@ -377,10 +388,119 @@ bool test04(char* buffer, const unsigned int buffer_size)
       }
    }
 
+   {
+      // Write out and then read back in a set of int.
+      std::set<int> lst;
+      const int max_count = 10000;
+      {
+         strtk::binary::writer writer(buffer,buffer_size);
+         writer.clear();
+         for (int i = -(max_count / 2); i < (max_count / 2); ++i)
+         {
+            lst.insert(i);
+         }
+         if (!writer(lst))
+         {
+            std::cout << "test04() - Failed to write list of " << strtk::type_name(lst) << std::endl;
+            return false;
+         }
+         lst.clear();
+      }
+
+      {
+         strtk::binary::reader reader(buffer,buffer_size);
+         if (!reader(lst))
+         {
+            std::cout << "test04() - Failed to read list of " << strtk::type_name(lst) << std::endl;
+            return false;
+         }
+         int i = -(max_count / 2);
+         std::set<int>::iterator itr = lst.begin();
+         while (lst.end() != itr)
+         {
+            if (i != *itr)
+            {
+               std::cout << "test04() - expected value: " << i
+                         << " read value: " << *itr << std::endl;
+               return false;
+
+            }
+            ++i;
+            ++itr;
+         }
+      }
+   }
+
    return true;
 }
 
-bool test05(char* buffer)
+bool test05(char* buffer, const unsigned int buffer_size)
+{
+   const std::size_t rounds = 10000;
+   const std::size_t person_count = 1000;
+   person p;
+   p.name      = "Mr. Rumpelstilzchen";
+   p.age       = 637;
+   p.height    = 123.4567;
+   p.weight    = 765.345f;
+   p.is_insane = true;
+
+   {
+      strtk::binary::writer writer(buffer,buffer_size);
+      std::size_t total_written = 0;
+      strtk::util::timer t;
+      t.start();
+      for (std::size_t r = 0; r < rounds; ++r)
+      {
+         writer.reset();
+         for (std::size_t i = 0; i < person_count; ++i)
+         {
+            if (!writer(p))
+            {
+               std::cout << "test05() - Failed to write index " << i << " @ round " << r << std::endl;
+               return false;
+            }
+         }
+         total_written += writer.write_size();
+      }
+      t.stop();
+      printf("[strtk::binary::writer] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %6.2fMB/s\n",
+             static_cast<unsigned long long>(rounds * person_count),
+             t.time(),
+             (rounds * person_count) / t.time(),
+             total_written / (1048576.0 * t.time()));
+   }
+
+   {
+      strtk::binary::reader reader(buffer,buffer_size);
+      std::size_t total_read = 0;
+      strtk::util::timer t;
+      t.start();
+      for (std::size_t r = 0; r < rounds; ++r)
+      {
+         reader.reset();
+         for (std::size_t i = 0; i < person_count; ++i)
+         {
+            if (!reader(p))
+            {
+               std::cout << "test05() - Failed to read index " << i << " @ round " << r << std::endl;
+               return false;
+            }
+         }
+         total_read += reader.read_size();
+      }
+      t.stop();
+      printf("[strtk::binary::reader] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %6.2fMB/s\n",
+             static_cast<unsigned long long>(rounds * person_count),
+             t.time(),
+             (rounds * person_count) / t.time(),
+             total_read / (1048576.0 * t.time()));
+   }
+
+   return true;
+}
+
+bool test06(char* buffer)
 {
    char in_char = -17;
    unsigned char in_uchar = 200;
@@ -434,22 +554,22 @@ bool test05(char* buffer)
                    out_double,
                    out_ldouble);
 
-   if (in_char    != out_char)    { std::cout << "test05() - Failed char"    << std::endl; return false; }
-   if (in_uchar   != out_uchar)   { std::cout << "test05() - Failed uchar"   << std::endl; return false; }
-   if (in_short   != out_short)   { std::cout << "test05() - Failed short"   << std::endl; return false; }
-   if (in_ushort  != out_ushort)  { std::cout << "test05() - Failed ushort"  << std::endl; return false; }
-   if (in_int     != out_int)     { std::cout << "test05() - Failed int"     << std::endl; return false; }
-   if (in_uint    != out_uint)    { std::cout << "test05() - Failed uint"    << std::endl; return false; }
-   if (in_long    != out_long)    { std::cout << "test05() - Failed long"    << std::endl; return false; }
-   if (in_ulong   != out_ulong)   { std::cout << "test05() - Failed ulong"   << std::endl; return false; }
-   if (in_float   != out_float)   { std::cout << "test05() - Failed float"   << std::endl; return false; }
-   if (in_double  != out_double)  { std::cout << "test05() - Failed double"  << std::endl; return false; }
-   if (in_ldouble != out_ldouble) { std::cout << "test05() - Failed ldouble" << std::endl; return false; }
+   if (in_char    != out_char)    { std::cout << "test06() - Failed char"    << std::endl; return false; }
+   if (in_uchar   != out_uchar)   { std::cout << "test06() - Failed uchar"   << std::endl; return false; }
+   if (in_short   != out_short)   { std::cout << "test06() - Failed short"   << std::endl; return false; }
+   if (in_ushort  != out_ushort)  { std::cout << "test06() - Failed ushort"  << std::endl; return false; }
+   if (in_int     != out_int)     { std::cout << "test06() - Failed int"     << std::endl; return false; }
+   if (in_uint    != out_uint)    { std::cout << "test06() - Failed uint"    << std::endl; return false; }
+   if (in_long    != out_long)    { std::cout << "test06() - Failed long"    << std::endl; return false; }
+   if (in_ulong   != out_ulong)   { std::cout << "test06() - Failed ulong"   << std::endl; return false; }
+   if (in_float   != out_float)   { std::cout << "test06() - Failed float"   << std::endl; return false; }
+   if (in_double  != out_double)  { std::cout << "test06() - Failed double"  << std::endl; return false; }
+   if (in_ldouble != out_ldouble) { std::cout << "test06() - Failed ldouble" << std::endl; return false; }
 
    return true;
 }
 
-bool test06(char* buffer)
+bool test07(char* buffer)
 {
    const size_t size = 10;
    const int intlst[size] = { -1, 2, -3, 4, -5, 6, -7, 8, -9, 10 };
@@ -479,25 +599,25 @@ bool test06(char* buffer)
 
    if (!std::equal(intlst, intlst + size, r_intlst))
    {
-      std::cout << "test06() - failed int list compare." << std::endl;
+      std::cout << "test07() - failed int list compare." << std::endl;
       return false;
    }
 
    if (!std::equal(uintlst, uintlst + size, r_uintlst))
    {
-      std::cout << "test06() - failed unsigned int list compare." << std::endl;
+      std::cout << "test07() - failed unsigned int list compare." << std::endl;
       return false;
    }
 
    if (!std::equal(fltlst, fltlst + size, r_fltlst))
    {
-      std::cout << "test06() - failed float list compare." << std::endl;
+      std::cout << "test07() - failed float list compare." << std::endl;
       return false;
    }
 
    if (!std::equal(dbllst, dbllst + size, r_dbllst))
    {
-      std::cout << "test06() - failed double list compare." << std::endl;
+      std::cout << "test07() - failed double list compare." << std::endl;
       return false;
    }
 
@@ -506,14 +626,15 @@ bool test06(char* buffer)
 
 int main()
 {
-   static const std::size_t max_buffer_size = 128 * strtk::one_kilobyte; // 128KB
+   static const std::size_t max_buffer_size = 512 * strtk::one_kilobyte; // 512KB
    char* buffer = new char[max_buffer_size];
    test01(buffer,max_buffer_size);
    test02(buffer,max_buffer_size);
    test03(buffer,max_buffer_size);
    test04(buffer,max_buffer_size);
-   test05(buffer);
+   test05(buffer,max_buffer_size);
    test06(buffer);
+   test07(buffer);
    delete[] buffer;
    return 0;
 }

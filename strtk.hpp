@@ -6658,7 +6658,8 @@ namespace strtk
       public:
 
          template<typename T>
-         reader(T* buffer, const std::size_t& buffer_length)
+         reader(T* buffer,
+                const std::size_t& buffer_length)
          : original_buffer_(reinterpret_cast<char*>(buffer)),
            buffer_(reinterpret_cast<char*>(buffer)),
            buffer_length_(buffer_length * sizeof(T)),
@@ -6675,12 +6676,18 @@ namespace strtk
          inline void reset()
          {
             read_buffer_size_ = 0;
+            buffer_ = original_buffer_;
          }
 
          inline void clear()
          {
             reset();
             std::memset(buffer_,0x00,buffer_length_);
+         }
+
+         std::size_t read_size() const
+         {
+            return read_buffer_size_;
          }
 
          template<typename T>
@@ -6807,7 +6814,7 @@ namespace strtk
             return ((required_read_qty + read_buffer_size_) < buffer_length_);
          }
 
-         template<typename T, typename IsPod>
+         template<typename T, typename IsPOD>
          struct selector
          { template<typename R> static bool run(R& r,T& t) { return t(r); } };
 
@@ -6856,12 +6863,18 @@ namespace strtk
          inline void reset()
          {
             written_buffer_size_ = 0;
+            buffer_ = original_buffer_;
          }
 
          inline void clear()
          {
             reset();
             std::memset(buffer_,0x00,buffer_length_);
+         }
+
+         std::size_t write_size() const
+         {
+            return written_buffer_size_;
          }
 
          template<typename T>
@@ -6921,6 +6934,7 @@ namespace strtk
                   return false;
                ++itr;
             }
+            return true;
          }
 
          inline std::size_t operator()(std::ofstream& stream)
@@ -6946,7 +6960,7 @@ namespace strtk
             return ((required_read_qty + written_buffer_size_) < buffer_length_);
          }
 
-         template<typename T, typename IsPod>
+         template<typename T, typename IsPOD>
          struct selector
          { template<typename W> static bool run(W& w, const T& t) { return t(w); } };
 
