@@ -6988,6 +6988,27 @@ namespace strtk
          std::size_t buffer_length_;
          std::size_t written_buffer_size_;
       };
+
+      #define strtk_binary_reader_begin()\
+      bool operator()(strtk::binary::reader& reader)\
+      { return true\
+
+      #define strtk_binary_reader(T)\
+      && reader(T)\
+
+      #define strtk_binary_reader_end()\
+      ;}\
+
+      #define strtk_binary_writer_begin()\
+      bool operator()(strtk::binary::writer& writer) const\
+      { return true\
+
+      #define strtk_binary_writer(T)\
+      && writer(T)\
+
+      #define strtk_binary_writer_end()\
+      ;}\
+
    } // namespace binary
 
    template<typename T>
@@ -9938,7 +9959,7 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.71828182845904523536";
+      static const char* version = "2.7182818284590452353602";
       static const char* date    = "20100601";
       static const char* epoch   = "Pre-C++0x BC214AEF:9DE17581";
 

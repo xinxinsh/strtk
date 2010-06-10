@@ -65,6 +65,23 @@ public:
       is_insane = false;
    }
 
+   strtk_binary_reader_begin()
+     strtk_binary_reader(name)
+     strtk_binary_reader(age)
+     strtk_binary_reader(height)
+     strtk_binary_reader(weight)
+     strtk_binary_reader(is_insane)
+   strtk_binary_reader_end()
+
+   strtk_binary_writer_begin()
+     strtk_binary_writer(name)
+     strtk_binary_writer(age)
+     strtk_binary_writer(height)
+     strtk_binary_writer(weight)
+     strtk_binary_writer(is_insane)
+   strtk_binary_writer_end()
+
+/*
    bool operator()(strtk::binary::reader& reader)
    {
       return reader(     name) &&
@@ -73,7 +90,8 @@ public:
              reader(   weight) &&
              reader(is_insane);
    }
-
+*/
+/*
    bool operator()(strtk::binary::writer& writer) const
    {
       return writer(     name) &&
@@ -82,6 +100,7 @@ public:
              writer(   weight) &&
              writer(is_insane);
    }
+*/
 };
 
 bool test01(char* buffer, const unsigned int buffer_size)
@@ -436,7 +455,7 @@ bool test04(char* buffer, const unsigned int buffer_size)
 
 bool test05(char* buffer, const unsigned int buffer_size)
 {
-   const std::size_t rounds = 10000;
+   const std::size_t rounds = 50000;
    const std::size_t person_count = 1000;
    person p;
    p.name      = "Mr. Rumpelstilzchen";
