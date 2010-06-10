@@ -169,7 +169,7 @@ void tokenizer_example10()
                                            "lmn" , "delimiter" , "opq", "rst" ,"uvw" ,
                                            "delimiter" , "xyz" , "123" };
 
-   strtk::range_adapter<std::string> range(str_list,str_list_size);
+   strtk::range::adapter<std::string> range(str_list,str_list_size);
    strtk::single_delimiter_predicate<std::string> predicate("delimiter");
    strtk::tokenizer< std::string*,strtk::single_delimiter_predicate<std::string> > tokenizer(range.begin(),range.end(),predicate);
    strtk::tokenizer< std::string*,strtk::single_delimiter_predicate<std::string> >::iterator it = tokenizer.begin();
@@ -758,25 +758,42 @@ void combination_example()
 
 void typename_example()
 {
-   char           t0;
-   unsigned char  t1;
-   short          t2;
-   int            t3;
-   long           t4;
-   unsigned short t5;
-   unsigned int   t6;
-   unsigned long  t7;
-   std::string    t8;
+   char           t00;
+   unsigned char  t01;
+   short          t02;
+   int            t03;
+   long           t04;
+   unsigned short t05;
+   unsigned int   t06;
+   unsigned long  t07;
+   std::string    t08;
 
-   std::cout << strtk::type_name(t0) << std::endl;
-   std::cout << strtk::type_name(t1) << std::endl;
-   std::cout << strtk::type_name(t2) << std::endl;
-   std::cout << strtk::type_name(t3) << std::endl;
-   std::cout << strtk::type_name(t4) << std::endl;
-   std::cout << strtk::type_name(t5) << std::endl;
-   std::cout << strtk::type_name(t6) << std::endl;
-   std::cout << strtk::type_name(t7) << std::endl;
-   std::cout << strtk::type_name(t8) << std::endl;
+   char           t09[1] = { 1 };
+   unsigned char  t10[2] = { 1, 2 };
+   short          t11[3] = { 1, 2, 3 };
+   int            t12[4] = { 1, 2, 3, 4, };
+   long           t13[5] = { 1, 2, 3, 4, 5 };
+   unsigned short t14[6] = { 1, 2, 3, 4, 5, 6 };
+   unsigned int   t15[7] = { 1, 2, 3, 4, 5, 6, 7 };
+   unsigned long  t16[8] = { 2, 2, 3, 4, 5, 7, 7, 8 };
+
+   std::cout << strtk::type_name(t00) << std::endl;
+   std::cout << strtk::type_name(t01) << std::endl;
+   std::cout << strtk::type_name(t02) << std::endl;
+   std::cout << strtk::type_name(t03) << std::endl;
+   std::cout << strtk::type_name(t04) << std::endl;
+   std::cout << strtk::type_name(t05) << std::endl;
+   std::cout << strtk::type_name(t06) << std::endl;
+   std::cout << strtk::type_name(t07) << std::endl;
+   std::cout << strtk::type_name(t08) << std::endl;
+   std::cout << strtk::type_name(t09) << std::endl;
+   std::cout << strtk::type_name(t10) << std::endl;
+   std::cout << strtk::type_name(t11) << std::endl;
+   std::cout << strtk::type_name(t12) << std::endl;
+   std::cout << strtk::type_name(t13) << std::endl;
+   std::cout << strtk::type_name(t14) << std::endl;
+   std::cout << strtk::type_name(t15) << std::endl;
+   std::cout << strtk::type_name(t16) << std::endl;
 
    std::vector<unsigned int> vui;
    std::vector<std::string> vs;
@@ -791,13 +808,13 @@ void typename_example()
    std::set<std::string> ss;
 
    std::cout << strtk::type_name(vui) << std::endl;
-   std::cout << strtk::type_name(vs)  << std::endl;
-   std::cout << strtk::type_name(dd)  << std::endl;
-   std::cout << strtk::type_name(ds)  << std::endl;
-   std::cout << strtk::type_name(lf)  << std::endl;
-   std::cout << strtk::type_name(ls)  << std::endl;
-   std::cout << strtk::type_name(sf)  << std::endl;
-   std::cout << strtk::type_name(ss)  << std::endl;
+   std::cout << strtk::type_name( vs) << std::endl;
+   std::cout << strtk::type_name( dd) << std::endl;
+   std::cout << strtk::type_name( ds) << std::endl;
+   std::cout << strtk::type_name( lf) << std::endl;
+   std::cout << strtk::type_name( ls) << std::endl;
+   std::cout << strtk::type_name( sf) << std::endl;
+   std::cout << strtk::type_name( ss) << std::endl;
 }
 
 void iota_example()
@@ -865,10 +882,10 @@ void make_key_lists()
    std::deque<std::string> key_deq;
    std::list<std::string> key_lst;
 
-   strtk::make_key_list(map,key_set);
-   strtk::make_key_list(map,key_vec);
-   strtk::make_key_list(map,key_deq);
-   strtk::make_key_list(map,key_lst);
+   strtk::util::make_key_list(map,key_set);
+   strtk::util::make_key_list(map,key_vec);
+   strtk::util::make_key_list(map,key_deq);
+   strtk::util::make_key_list(map,key_lst);
 
    std::cout << "Keys(set): " << strtk::join(", ",key_set) << std::endl;
    std::cout << "Keys(vec): " << strtk::join(", ",key_vec) << std::endl;
@@ -897,9 +914,9 @@ void make_value_lists()
    std::string key2 = "two";
    std::string key3 = "three";
 
-   strtk::make_value_list(map,key1,val_vec);
-   strtk::make_value_list(map,key2,val_deq);
-   strtk::make_value_list(map,key3,val_lst);
+   strtk::util::make_value_list(map,key1,val_vec);
+   strtk::util::make_value_list(map,key2,val_deq);
+   strtk::util::make_value_list(map,key3,val_lst);
 
    std::cout << "Values(vec): " << strtk::join(", ",val_vec) << std::endl;
    std::cout << "Values(deq): " << strtk::join(", ",val_deq) << std::endl;
