@@ -81,26 +81,6 @@ public:
      strtk_binary_writer(is_insane)
    strtk_binary_writer_end()
 
-/*
-   bool operator()(strtk::binary::reader& reader)
-   {
-      return reader(     name) &&
-             reader(      age) &&
-             reader(   height) &&
-             reader(   weight) &&
-             reader(is_insane);
-   }
-*/
-/*
-   bool operator()(strtk::binary::writer& writer) const
-   {
-      return writer(     name) &&
-             writer(      age) &&
-             writer(   height) &&
-             writer(   weight) &&
-             writer(is_insane);
-   }
-*/
 };
 
 bool test01(char* buffer, const unsigned int buffer_size)
