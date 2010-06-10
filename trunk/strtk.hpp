@@ -6793,7 +6793,7 @@ namespace strtk
          template<typename T>
          inline bool operator()(T& output)
          {
-            return selector<T,details::is_pod<T>::result_t>::run(*this,output);
+            return selector<T,typename details::is_pod<T>::result_t>::run(*this,output);
          }
 
       private:
@@ -6932,7 +6932,7 @@ namespace strtk
          template<typename T>
          inline bool operator()(const T& input)
          {
-            return selector<T,details::is_pod<T>::result_t>::run(*this,input);
+            return selector<T,typename details::is_pod<T>::result_t>::run(*this,input);
          }
 
       private:
