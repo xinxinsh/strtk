@@ -56,53 +56,6 @@
  #include <boost/spirit/include/karma.hpp>
 #endif
 
-#ifdef WIN32
- #include <windows.h>
-#else
- #include <sys/time.h>
- #include <sys/types.h>
-#endif
-
-#ifdef WIN32
-
-class timer
-{
-public:
-   timer()      { QueryPerformanceFrequency(&clock_frequency); }
-   void start() { QueryPerformanceCounter(&start_time);        }
-   void stop()  { QueryPerformanceCounter(&stop_time);         }
-   double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
-
-private:
-   LARGE_INTEGER start_time;
-   LARGE_INTEGER stop_time;
-   LARGE_INTEGER clock_frequency;
-};
-
-#else
-
-class timer
-{
-public:
-   void start() { gettimeofday(&start_time, 0); }
-   void stop()  { gettimeofday(&stop_time,  0); }
-   double time()
-   {
-      double diff = (stop_time.tv_sec - start_time.tv_sec) * 1000000.0;
-      if (stop_time.tv_usec > start_time.tv_usec)
-         diff += (1.0 * (stop_time.tv_usec - start_time.tv_usec));
-      else if (stop_time.tv_usec < start_time.tv_usec)
-         diff -= (1.0 * (start_time.tv_usec - stop_time.tv_usec));
-      return (diff / 1000000.0);
-   }
-private:
-   struct timeval start_time;
-   struct timeval stop_time;
-   struct timeval clock_frequency;
-};
-
-#endif
-
 static const std::string base = "a+bc=def ghij-klmno?pqrstu&vwxyzAB@CDEFGHIJ~KLMNOPQRS#TUVWXYZ012|3456789abcd|efghijklmnopqrsdu!";
 static const std::size_t tokenizer_replicate_count = 2000000;
 static const std::string delimiters = "-+=~&*[]{}()<>|!?@^%$#\".,;:_ /\\\t\r\n";
@@ -129,7 +82,7 @@ void strtk_tokenizer_timed_test()
    tokenizer_type::iterator itr = tokenizer.begin();
    tokenizer_type::const_iterator end = tokenizer.end();
    unsigned int token_count = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    while (end != itr)
    {
@@ -159,7 +112,7 @@ void boost_tokenizer_timed_test()
    tokenizer_type::iterator itr = tokenizer.begin();
    tokenizer_type::const_iterator end = tokenizer.end();
    unsigned int token_count = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    while (end != itr)
    {
@@ -187,7 +140,7 @@ void strtk_split_timed_test()
    s.resize(s.size() - 1);
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
-   timer t;
+   strtk::util::timer t;
    t.start();
    strtk::parse(s,delimiters,token_list);
    t.stop();
@@ -207,7 +160,7 @@ void boost_split_timed_test()
    s.resize(s.size() - 1);
    std::vector<std::string> token_list;
    token_list.reserve(split_reserve_size);
-   timer t;
+   strtk::util::timer t;
    t.start();
    boost::split(token_list, s, boost::is_any_of(delimiters));
    t.stop();
@@ -226,7 +179,7 @@ void sprintf_lexical_cast_test_i2s()
    std::string s;
    s.reserve(32);
    std::size_t total_length = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
@@ -247,7 +200,7 @@ void boost_lexical_cast_test_i2s()
    std::string s;
    s.reserve(32);
    std::size_t total_length = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
@@ -282,7 +235,7 @@ void karma_lexical_cast_test_i2s()
    std::string s;
    s.reserve(32);
    std::size_t total_length = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
@@ -306,7 +259,7 @@ void strtk_lexical_cast_test_i2s()
    std::string s;
    s.reserve(32);
    std::size_t total_length = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (int i = (-max_i2s / 2); i < (max_i2s / 2); ++i)
    {
@@ -428,7 +381,7 @@ void atoi_lexical_cast_test_s2i()
    print_mode("[atoi]");
    int total = 0;
    int n = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
@@ -451,7 +404,7 @@ void boost_lexical_cast_test_s2i()
    print_mode("[boost]");
    int total = 0;
    int n = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
@@ -484,7 +437,7 @@ void qi_lexical_cast_test_s2i()
    print_mode("[qi]");
    int total = 0;
    int n = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
@@ -510,7 +463,7 @@ void strtk_lexical_cast_test_s2i()
    print_mode("[strtk]");
    int total = 0;
    int n = 0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t x = 0; x < s2i_rounds; ++x)
    {
@@ -668,7 +621,7 @@ void atof_cast_test_s2d()
    print_mode("[atof]");
    double sum = 0.0;
    double d   = 0.0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t r = 0; r < s2d_rounds; ++r)
    {
@@ -694,7 +647,7 @@ void boost_cast_test_s2d()
    print_mode("[boost]");
    double sum = 0.0;
    double d   = 0.0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t r = 0; r < s2d_rounds; ++r)
    {
@@ -730,7 +683,7 @@ void qi_cast_test_s2d()
    print_mode("[qi]");
    double sum = 0.0;
    double d   = 0.0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t r = 0; r < s2d_rounds; ++r)
    {
@@ -759,7 +712,7 @@ void strtk_cast_test_s2d()
    print_mode("[strtk]");
    double sum = 0.0;
    double d   = 0.0;
-   timer t;
+   strtk::util::timer t;
    t.start();
    for (std::size_t r = 0; r < s2d_rounds; ++r)
    {

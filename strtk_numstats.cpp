@@ -114,20 +114,24 @@ int main(int argc, char* argv[])
                           buffer.size(),
                           strtk::token_grid::options());
 
-   for (std::size_t c = 0; c < grid.max_column_count(); ++c)
+   for (std::size_t column = 0; column < grid.max_column_count(); ++column)
    {
-      std::cout << "C["<< c << "]" << "\t";
       value_list.clear();
-      grid.extract_column_checked(c,value_list);
+      grid.extract_column_checked(column,value_list);
+      if (value_list.empty())
+         continue;
+      std::cout << "C["<< column << "]" << "\t";
       compute_stats(value_list);
       std::cout << std::endl;
    }
 
-   for (std::size_t r = 0; r < grid.row_count(); ++r)
+   for (std::size_t row = 0; row < grid.row_count(); ++row)
    {
-      std::cout << "R["<< r << "]" << "\t";
       value_list.clear();
-      grid.row(r).parse_checked(value_list);
+      grid.row(row).parse_checked(value_list);
+      if (value_list.empty())
+         continue;
+      std::cout << "R["<< row << "]" << "\t";
       compute_stats(value_list);
       std::cout << std::endl;
    }

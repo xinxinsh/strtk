@@ -83,10 +83,12 @@ namespace strtk
    }
 
    template<typename Function>
-   inline std::size_t for_each_line(std::istream& stream, Function function)
+   inline std::size_t for_each_line(std::istream& stream,
+                                    Function function,
+                                    const std::size_t& buffer_size = one_kilobyte)
    {
       std::string buffer;
-      buffer.reserve(one_kilobyte);
+      buffer.reserve(buffer_size);
       std::size_t line_count = 0;
       while (std::getline(stream,buffer))
       {
@@ -97,10 +99,13 @@ namespace strtk
    }
 
    template<typename Function>
-   inline std::size_t for_each_line_n(std::istream& stream, const std::size_t& n, Function function)
+   inline std::size_t for_each_line_n(std::istream& stream,
+                                      const std::size_t& n,
+                                      Function function,
+                                      const std::size_t& buffer_size = one_kilobyte)
    {
       std::string buffer;
-      buffer.reserve(one_kilobyte);
+      buffer.reserve(buffer_size);
       std::size_t line_count = 0;
       while (std::getline(stream,buffer))
       {
@@ -112,30 +117,37 @@ namespace strtk
    }
 
    template<typename Function>
-   inline std::size_t for_each_line(const std::string& file_name, Function function)
+   inline std::size_t for_each_line(const std::string& file_name,
+                                    Function function,
+                                    const std::size_t& buffer_size = one_kilobyte)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
-         return for_each_line(stream,function);
+         return for_each_line(stream,function,buffer_size);
       else
          return 0;
    }
 
    template<typename Function>
-   inline std::size_t for_each_line_n(const std::string& file_name, const std::size_t& n, Function function)
+   inline std::size_t for_each_line_n(const std::string& file_name,
+                                      const std::size_t& n,
+                                      Function function,
+                                      const std::size_t& buffer_size = one_kilobyte)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
-         return for_each_line_n(stream,n,function);
+         return for_each_line_n(stream,n,function,buffer_size);
       else
          return 0;
    }
 
    template<typename Function>
-   inline std::size_t for_each_line_conditional(std::istream& stream, Function function)
+   inline std::size_t for_each_line_conditional(std::istream& stream,
+                                                Function function,
+                                                const std::size_t& buffer_size = one_kilobyte)
    {
       std::string buffer;
-      buffer.reserve(one_kilobyte);
+      buffer.reserve(buffer_size);
       std::size_t line_count = 0;
       while (std::getline(stream,buffer))
       {
@@ -149,10 +161,13 @@ namespace strtk
    }
 
    template<typename Function>
-   inline std::size_t for_each_line_n_conditional(std::istream& stream, const std::size_t& n, Function function)
+   inline std::size_t for_each_line_n_conditional(std::istream& stream,
+                                                  const std::size_t& n,
+                                                  Function function,
+                                                  const std::size_t& buffer_size = one_kilobyte)
    {
       std::string buffer;
-      buffer.reserve(one_kilobyte);
+      buffer.reserve(buffer_size);
       std::size_t line_count = 0;
       while (std::getline(stream,buffer))
       {
@@ -167,23 +182,40 @@ namespace strtk
    }
 
    template<typename Function>
-   inline std::size_t for_each_line_conditional(const std::string& file_name, Function function)
+   inline std::size_t for_each_line_conditional(const std::string& file_name,
+                                                Function function,
+                                                const std::size_t& buffer_size = one_kilobyte)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
-         return for_each_line_conditional(stream,function);
+         return for_each_line_conditional(stream,function,buffer_size);
       else
          return 0;
    }
 
    template<typename Function>
-   inline std::size_t for_each_line_n_conditional(const std::string& file_name, const std::size_t& n, Function function)
+   inline std::size_t for_each_line_n_conditional(const std::string& file_name,
+                                                  const std::size_t& n,
+                                                  Function function,
+                                                  const std::size_t& buffer_size = one_kilobyte)
    {
       std::ifstream stream(file_name.c_str());
       if (stream)
-         return for_each_line_n_conditional(stream,n,function);
+         return for_each_line_n_conditional(stream,n,function,buffer_size);
       else
          return 0;
+   }
+
+   template<typename T>
+   inline bool read_line_as_value(std::istream& stream,
+                                   T& t,
+                                  const std::size_t& buffer_size = one_kilobyte)
+   {
+      std::string buffer;
+      buffer.reserve(buffer_size);
+      if (!std::getline(stream,buffer))
+         return false;
+      return string_to_type_converter(buffer,t);
    }
 
    namespace details
@@ -228,6 +260,19 @@ namespace strtk
       {
          typedef typename details::enable_if<details::supported_iterator_type<T>::value,T>::type type;
       };
+
+      template<typename T> struct numeric;
+      template<typename T> inline std::size_t type_length(const T& t);
+
+      struct no_t {};
+      struct yes_t {};
+      template<typename T> struct is_pod
+      {
+         typedef no_t result_t;
+         static const bool result;
+      };
+      template<typename T>
+      const bool is_pod<T>::result = false;
    }
 
    template<typename Iterator, typename T>
@@ -235,7 +280,8 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<Iterator>::type itr_type;
       typename details::supported_conversion_to_type<T>::type type;
-      return string_to_type_converter_impl(begin,end,t,type);
+      Iterator itr = begin;
+      return string_to_type_converter_impl(itr,end,t,type);
    }
 
    template<typename T, typename Iterator>
@@ -244,7 +290,8 @@ namespace strtk
       typedef typename details::is_valid_iterator<Iterator>::type itr_type;
       typename details::supported_conversion_to_type<T>::type type;
       T t;
-      if (string_to_type_converter_impl(begin,end,t,type))
+      Iterator itr = begin;
+      if (string_to_type_converter_impl(itr,end,t,type))
          return t;
       else
          throw;
@@ -253,7 +300,7 @@ namespace strtk
    template<typename T>
    inline bool string_to_type_converter(const std::string& s, T& t)
    {
-      return string_to_type_converter<const char*, T>(s.c_str(),s.c_str() + s.size(),t);
+      return string_to_type_converter<const char*,T>(s.c_str(),s.c_str() + s.size(),t);
    }
 
    template<typename T>
@@ -283,11 +330,12 @@ namespace strtk
              typename Allocator,
              template <typename,typename> class Sequence>
    inline std::size_t load_from_text_file(std::istream& stream,
-                                          Sequence<T,Allocator>& sequence)
+                                          Sequence<T,Allocator>& sequence,
+                                          const std::size_t& buffer_size = one_kilobyte)
    {
      if (!stream) return 0;
      std::string buffer;
-     buffer.reserve(one_kilobyte);
+     buffer.reserve(buffer_size);
      std::size_t line_count = 0;
      while (std::getline(stream,buffer))
      {
@@ -301,11 +349,12 @@ namespace strtk
              typename Comparator,
              typename Allocator>
    inline std::size_t load_from_text_file(std::istream& stream,
-                                          std::set<T,Comparator,Allocator>& set)
+                                          std::set<T,Comparator,Allocator>& set,
+                                          const std::size_t& buffer_size = one_kilobyte)
    {
      if (!stream) return 0;
      std::string buffer;
-     buffer.reserve(one_kilobyte);
+     buffer.reserve(buffer_size);
      std::size_t line_count = 0;
      while (std::getline(stream,buffer))
      {
@@ -319,26 +368,28 @@ namespace strtk
              typename Allocator,
              template <typename,typename> class Sequence>
    inline std::size_t load_from_text_file(const std::string& file_name,
-                                          Sequence<T,Allocator>& sequence)
+                                          Sequence<T,Allocator>& sequence,
+                                          const std::size_t& buffer_size = one_kilobyte)
    {
      std::ifstream stream(file_name.c_str());
      if (!stream)
         return 0;
      else
-        return load_from_text_file(stream,sequence);
+        return load_from_text_file(stream,sequence,buffer_size);
    }
 
    template <typename T,
              typename Comparator,
              typename Allocator>
    inline std::size_t load_from_text_file(const std::string& file_name,
-                                          std::set<T,Comparator,Allocator>& set)
+                                          std::set<T,Comparator,Allocator>& set,
+                                          const std::size_t& buffer_size = one_kilobyte)
    {
      std::ifstream stream(file_name.c_str());
      if (!stream)
         return 0;
      else
-        return load_from_text_file(stream,set);
+        return load_from_text_file(stream,set,buffer_size);
    }
 
    template <typename T,
@@ -456,10 +507,10 @@ namespace strtk
       while (end != itr)
       {
          if (!predicate(*itr))
-            break;
+            return itr;
          *(out++) = *(itr++);
       }
-      return itr;
+      return end;
    }
 
    template<typename Predicate, typename InputIterator, typename OutputIterator>
@@ -471,14 +522,16 @@ namespace strtk
       while (end != itr)
       {
          if (predicate(*itr))
-            break;
+            return itr;
          *(out++) = *(itr++);
       }
-      return itr;
+      return end;
    }
 
    template<typename Predicate, typename InputIterator>
-   inline bool range_only_contains(Predicate predicate, const InputIterator begin, const InputIterator end)
+   inline bool range_only_contains(Predicate predicate,
+                                   const InputIterator begin,
+                                   const InputIterator end)
    {
       InputIterator itr = begin;
       while (end != itr)
@@ -491,6 +544,68 @@ namespace strtk
       }
       return true;
    }
+
+   namespace range
+   {
+      template<typename T>
+      class adapter
+      {
+      public:
+
+         typedef T value_type;
+         typedef T* iterator;
+         typedef const iterator const_iterator;
+
+         adapter(T* const begin, T* const end)
+         : begin_(begin),
+           end_(end)
+         {}
+
+         adapter(T* const begin, const std::size_t length)
+         : begin_(begin),
+           end_(begin_ + length)
+         {}
+
+         inline iterator begin() const
+         {
+            return begin_;
+         }
+
+         inline iterator end() const
+         {
+            return end_;
+         }
+
+      private:
+         iterator begin_;
+         iterator end_;
+      };
+
+      template<typename T>
+      adapter<T> type(const T* begin, const T* end)
+      {
+         return adapter<T>(begin,end);
+      }
+
+      template<typename T, std::size_t N>
+      adapter<T> type(const T (&t)[N])
+      {
+         return adapter<T>(t,N);
+      }
+
+      adapter<const char> type(const std::string& s)
+      {
+         return adapter<const char>(s.c_str(),s.size());
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      adapter<typename Sequence<T,Allocator>::iterator> type(const Sequence<T,Allocator>& seq)
+      {
+         return adapter<typename Sequence<T,Allocator>::iterator>(seq.begin(),seq.end());
+      }
+   } // namespace range
 
    template<typename T>
    struct single_delimiter_predicate
@@ -543,6 +658,16 @@ namespace strtk
       {
          //static_assert(T == std::iterator_traits<Iterator>::value_type);
          std::copy(begin,end, delimiter_);
+      }
+
+      template<typename Type>
+      multiple_delimiter_predicate(const range::adapter<Type>& r)
+      : length_(std::distance(r.begin(),r.end())),
+        delimiter_(new T[length_]),
+        delimiter_end_(delimiter_ + length_)
+      {
+         //static_assert(T == std::iterator_traits<Iterator>::value_type);
+         std::copy(r.begin(),r.end(), delimiter_);
       }
 
      ~multiple_delimiter_predicate()
@@ -609,56 +734,6 @@ namespace strtk
       bool delimiter_table_[table_size];
    };
 
-   template<typename DelimiterPredicate>
-   class char_delimiter_set
-   {
-   public:
-      char_delimiter_set(const bool rotate = false)
-      : rotate_(rotate),
-        transition_(false),
-        index_(0)
-      {}
-
-      inline void add_predicate(const DelimiterPredicate& predicate)
-      {
-         predicate_.push_back(predicate);
-      }
-
-      inline bool operator()(const unsigned char& c) const
-      {
-         if (predicate_.empty()) return false;
-
-         const bool result = predicate_[index_](c);
-
-         if (result) transition_ = true;
-
-         if (!result && transition_)
-         {
-            transition_ = false;
-            ++index_;
-            if (index_ >= predicate_.size())
-            {
-               if (rotate_)
-                  index_ = 0;
-               else
-                  --index_;
-            }
-         }
-         return result;
-      }
-
-      inline bool operator()(const char& c) const
-      {
-         return operator()(static_cast<unsigned char>(c));
-      }
-
-   private:
-      bool rotate_;
-      mutable bool transition_;
-      mutable std::size_t index_;
-      std::vector<DelimiterPredicate> predicate_;
-   };
-
    template<typename Iterator, typename Predicate>
    inline std::size_t remove_inplace(Predicate predicate,
                                      Iterator begin,
@@ -685,6 +760,12 @@ namespace strtk
          }
       }
       return removal_count;
+   }
+
+   template<typename T, typename Predicate>
+   inline std::size_t remove_inplace(Predicate predicate, const range::adapter<T>& r)
+   {
+      return remove_inplace(predicate,r.begin(),r.end());
    }
 
    template<typename T,
@@ -744,6 +825,12 @@ namespace strtk
          }
       }
       return removal_count;
+   }
+
+   template<typename T, typename Predicate>
+   inline std::size_t remove_consecutives_inplace(Predicate predicate, const range::adapter<T>& r)
+   {
+      return remove_consecutives_inplace(predicate,r.begin(),r.end());
    }
 
    inline void remove_consecutives_inplace(const std::string::value_type c, std::string& s)
@@ -824,6 +911,12 @@ namespace strtk
       return removal_count;
    }
 
+   template<typename T>
+   inline std::size_t remove_consecutives_inplace(const range::adapter<T>& r)
+   {
+      return remove_consecutives_inplace(r.begin(),r.end());
+   }
+
    template<typename T,
             typename Allocator,
             template<typename,typename> class Sequence>
@@ -859,6 +952,12 @@ namespace strtk
          ++removal_count;
       }
       return removal_count;
+   }
+
+   template<typename T, typename Predicate>
+   inline std::size_t remove_trailing(Predicate predicate, const range::adapter<T>& r)
+   {
+      return remove_trailing(predicate,r.begin(),r.end());
    }
 
    inline void remove_trailing(const std::string::value_type c, std::string& s)
@@ -928,6 +1027,12 @@ namespace strtk
       return removal_count;
    }
 
+   template<typename T, typename Predicate>
+   inline std::size_t remove_leading(Predicate predicate, const range::adapter<T>& r)
+   {
+      return remove_leading(predicate,r.begin(),r.end());
+   }
+
    inline void remove_leading(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
@@ -987,6 +1092,12 @@ namespace strtk
       {
          if (c1 == *itr) *itr = c2;
       }
+   }
+
+   template<typename T>
+   inline void replace(const T& c1, const T& c2, const range::adapter<T>& r)
+   {
+      replace(c1,c2,r.begin(),r.end());
    }
 
    inline void replace_pattern(const std::string& s,
@@ -1242,6 +1353,12 @@ namespace strtk
          ++itr2;
       }
       return true;
+   }
+
+   template<typename T>
+   inline bool imatch(const range::adapter<T>& r1, const range::adapter<T>& r2)
+   {
+      return imatch(r1.begin(),r1.end(),r2.begin(),r2.end());
    }
 
    inline bool imatch(const std::string& s1, const std::string s2)
@@ -1656,41 +1773,6 @@ namespace strtk
       typedef std::list<iterator_type> token_list_type;
    }
 
-   template<typename T>
-   class range_adapter
-   {
-   public:
-
-      typedef T value_type;
-      typedef T* iterator;
-      typedef const iterator const_iterator;
-
-      range_adapter(T* const begin, T* const end)
-      : begin_(begin),
-        end_(end)
-      {}
-
-      range_adapter(T* const begin, const std::size_t length)
-      : begin_(begin),
-        end_(begin_ + length)
-      {}
-
-      inline iterator begin() const
-      {
-         return begin_;
-      }
-
-      inline iterator end() const
-      {
-         return end_;
-      }
-
-   private:
-
-      iterator begin_;
-      iterator end_;
-   };
-
    template <typename Sequence>
    class range_to_type_back_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
    {
@@ -2012,7 +2094,11 @@ namespace strtk
    }
 
    template<typename Function>
-   class functional_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
+   class functional_inserter_iterator : public std::iterator<std::output_iterator_tag,
+                                                             void,
+                                                             void,
+                                                             void,
+                                                             void>
    {
    public:
       functional_inserter_iterator(Function& function)
@@ -2356,12 +2442,13 @@ namespace strtk
    inline std::size_t split_regex(const boost::regex& delimiter_expression,
                                   const InputIterator begin,
                                   const InputIterator end,
-                                  OutputIterator out)
+                                  OutputIterator out,
+                                  const std::size_t& buffer_size = one_kilobyte)
    {
       boost::sregex_iterator itr(begin,end,delimiter_expression);
       boost::sregex_iterator it_end;
       std::string token;
-      token.reserve(one_kilobyte);
+      token.reserve(buffer_size);
       std::size_t match_count = 0;
       while (it_end != itr)
       {
@@ -2377,26 +2464,38 @@ namespace strtk
    inline std::size_t split_regex(const std::string& delimiter_expression,
                                   const InputIterator begin,
                                   const InputIterator end,
-                                  OutputIterator out)
+                                  OutputIterator out,
+                                  const std::size_t& buffer_size = one_kilobyte)
    {
       const boost::regex regex_expression(delimiter_expression);
-      return split_regex(regex_expression,begin,end,out);
+      return split_regex(regex_expression,
+                         begin,end,
+                         out,
+                         buffer_size);
    }
 
    template<typename OutputIterator>
    inline std::size_t split_regex(const std::string& delimiter_expression,
                                   const std::string& text,
-                                  OutputIterator out)
+                                  OutputIterator out,
+                                  const std::size_t& buffer_size = one_kilobyte)
    {
-      return split_regex(delimiter_expression,text.begin(),text.end(),out);
+      return split_regex(delimiter_expression,
+                         text.begin(),text.end(),
+                         out,
+                         buffer_size);
    }
 
    template<typename OutputIterator>
    inline std::size_t split_regex(const boost::regex& delimiter_expression,
                                   const std::string& text,
-                                  OutputIterator out)
+                                  OutputIterator out,
+                                  const std::size_t& buffer_size = one_kilobyte)
    {
-      return split_regex(delimiter_expression,text.begin(),text.end(),out);
+      return split_regex(delimiter_expression,
+                         text.begin(),text.end(),
+                         out,
+                         buffer_size);
    }
 
    template<typename InputIterator, typename OutputIterator>
@@ -2404,12 +2503,13 @@ namespace strtk
                                     const InputIterator begin,
                                     const InputIterator end,
                                     const std::size_t& token_count,
-                                    OutputIterator out)
+                                    OutputIterator out,
+                                    const std::size_t& buffer_size = one_kilobyte)
    {
       boost::sregex_iterator itr(begin,end,delimiter_expression);
-      boost::sregex_iterator itr_end;
+      const boost::sregex_iterator itr_end;
       std::string token;
-      token.reserve(one_kilobyte);
+      token.reserve(buffer_size);
       std::size_t match_count = 0;
       while (itr_end != itr)
       {
@@ -2427,37 +2527,43 @@ namespace strtk
                                     const InputIterator begin,
                                     const InputIterator end,
                                     const std::size_t& token_count,
-                                    OutputIterator out)
+                                    OutputIterator out,
+                                    const std::size_t& buffer_size = one_kilobyte)
    {
       const boost::regex regex_expression(delimiter_expression);
       return split_regex_n(regex_expression,
                            begin,end,
                            token_count,
-                           out);
+                           out,
+                           buffer_size);
    }
 
    template<typename OutputIterator>
    inline std::size_t split_regex_n(const std::string& delimiter_expression,
                                     const std::string& text,
                                     const std::size_t& token_count,
-                                    OutputIterator out)
+                                    OutputIterator out,
+                                    const std::size_t& buffer_size = one_kilobyte)
    {
       return split_regex_n(delimiter_expression,
                            text.begin(),text.end(),
                            token_count,
-                           out);
+                           out,
+                           buffer_size);
    }
 
    template<typename OutputIterator>
    inline std::size_t split_regex_n(const boost::regex& delimiter_expression,
                                     const std::string& text,
                                     const std::size_t& token_count,
-                                    OutputIterator out)
+                                    OutputIterator out,
+                                    const std::size_t& buffer_size = one_kilobyte)
    {
       return split_regex_n(delimiter_expression,
                            text.begin(),text.end(),
                            token_count,
-                           out);
+                           out,
+                           buffer_size);
    }
 
    #endif // ENABLE_REGEX
@@ -3224,7 +3330,7 @@ namespace strtk
    template<> struct interleave_ary<sizeof(unsigned short)>     { typedef unsigned short type; };
    template<> struct interleave_ary<sizeof(unsigned int  )>     { typedef unsigned int   type; };
  //template<> struct interleave_ary<sizeof(unsigned long )>     { typedef unsigned long  type; };
-   template<> struct interleave_ary<sizeof(unsigned long long)> { typedef long long      type; }; //Note: atm not supported by ISO C++ (N1811)
+   template<> struct interleave_ary<sizeof(unsigned long long)> { typedef long long      type; };
 
    template<std::size_t n>
    inline void create_nway_interleave_table(typename interleave_ary<n>::type table[256])
@@ -6434,7 +6540,7 @@ namespace strtk
    template <typename Iterator>
    inline bool next_combination(const Iterator first, Iterator k, const Iterator last)
    {
-      /* Credits: Mark Nelson http://marknelson.us */
+      /* Credits: Thomas Draper */
       if ((first == last) || (first == k) || (last == k))
          return false;
       Iterator itr1 = first;
@@ -6545,256 +6651,330 @@ namespace strtk
       return true;
    }
 
-   class serializer
+   namespace binary
    {
-   public:
-
-      serializer(char* buffer, const std::size_t& buffer_length)
-      : original_buffer_(buffer),
-        buffer_(buffer),
-        buffer_length_(buffer_length),
-        to_be_written_buffer_size_(0),
-        read_buffer_size_(0)
-      {}
-
-      serializer(unsigned char* buffer, const std::size_t& buffer_length)
-      : original_buffer_(reinterpret_cast<char*>(buffer)),
-        buffer_(reinterpret_cast<char*>(buffer)),
-        buffer_length_(buffer_length),
-        to_be_written_buffer_size_(0),
-        read_buffer_size_(0)
-      {}
-
-      inline bool operator!() const
+      class reader
       {
-         return (0 == buffer_length_)   ||
-                (0 == original_buffer_) ||
-                (0 == buffer_);
-      }
+      public:
 
-      inline void reset()
-      {
-         to_be_written_buffer_size_ = 0;
-         read_buffer_size_ = 0;
-         buffer_ = original_buffer_;
-      }
+         template<typename T>
+         reader(T* buffer, const std::size_t& buffer_length)
+         : original_buffer_(reinterpret_cast<char*>(buffer)),
+           buffer_(reinterpret_cast<char*>(buffer)),
+           buffer_length_(buffer_length * sizeof(T)),
+           read_buffer_size_(0)
+         {}
 
-      inline void clear()
-      {
-         reset();
-         std::memset(buffer_,0x00,buffer_length_);
-      }
-
-      inline std::size_t length() const
-      {
-         return to_be_written_buffer_size_;
-      }
-
-      template<typename T> inline bool operator >> (T& output) { return read (output); }
-      template<typename T> inline bool operator << (T& output) { return write(output); }
-
-      template<typename T>
-      inline bool read(T&                   output) { return output.read(*this); }
-      inline bool read(char&                output) { return read_pod(output);   }
-      inline bool read(short&               output) { return read_pod(output);   }
-      inline bool read(unsigned short&      output) { return read_pod(output);   }
-      inline bool read(int&                 output) { return read_pod(output);   }
-      inline bool read(unsigned int&        output) { return read_pod(output);   }
-      inline bool read(long&                output) { return read_pod(output);   }
-      inline bool read(unsigned long&       output) { return read_pod(output);   }
-      inline bool read(long long&           output) { return read_pod(output);   }
-      inline bool read(unsigned long long&  output) { return read_pod(output);   }
-      inline bool read(float&               output) { return read_pod(output);   }
-      inline bool read(double&              output) { return read_pod(output);   }
-      inline bool read(bool&                output) { return read_pod(output);   }
-
-      inline bool read(std::string& output)
-      {
-         std::size_t length = 0;
-         if (!read_pod(length))
+         inline bool operator!() const
          {
-            return false;
+            return (0 == buffer_length_)   ||
+                   (0 == original_buffer_) ||
+                   (0 == buffer_);
          }
 
-         if ((length + sizeof(std::size_t) + read_buffer_size_) > buffer_length_)
+         inline void reset()
          {
-            return false;
+            read_buffer_size_ = 0;
          }
-         output.resize(length);
-         std::copy(buffer_, buffer_ + length,output.begin());
-         buffer_ += length;
-         read_buffer_size_ += length;
-         return true;
-      }
 
-      template<typename T>
-      inline bool write(const T&                   input) { return input.write(*this); }
-      inline bool write(const char&                input) { return write_pod(input);   }
-      inline bool write(const short&               input) { return write_pod(input);   }
-      inline bool write(const unsigned short&      input) { return write_pod(input);   }
-      inline bool write(const int&                 input) { return write_pod(input);   }
-      inline bool write(const unsigned int&        input) { return write_pod(input);   }
-      inline bool write(const long&                input) { return write_pod(input);   }
-      inline bool write(const unsigned long&       input) { return write_pod(input);   }
-      inline bool write(const long long&           input) { return write_pod(input);   }
-      inline bool writw(const unsigned long long&  input) { return write_pod(input);   }
-      inline bool write(const float&               input) { return write_pod(input);   }
-      inline bool write(const double&              input) { return write_pod(input);   }
-      inline bool write(const bool&                input) { return write_pod(input);   }
-
-      inline bool write(const std::string& input)
-      {
-         return write(input.c_str(),static_cast<unsigned int>(input.size()));
-      }
-
-      inline bool write(const char* data, const unsigned int& length)
-      {
-         if ((length + sizeof(std::size_t) + to_be_written_buffer_size_) > buffer_length_)
+         inline void clear()
          {
-            return false;
+            reset();
+            std::memset(buffer_,0x00,buffer_length_);
          }
-         write(length);
-         std::copy(data,data + length,buffer_);
-         buffer_ += length;
-         to_be_written_buffer_size_ += length;
-         return true;
-      }
 
-      inline std::size_t write_to_stream(std::ofstream& stream)
-      {
-         stream.write(original_buffer_,static_cast<std::streamsize>(to_be_written_buffer_size_));
-         return to_be_written_buffer_size_;
-      }
-
-      inline bool read_from_stream(std::ifstream& stream, const std::size_t& length)
-      {
-         if (length > buffer_length_) return false;
-         stream.read(original_buffer_,static_cast<std::streamsize>(length));
-         return true;
-      }
-
-      inline bool copy_to_internal_buffer(const char* data, const std::size_t& length)
-      {
-         if (length > buffer_length_) return false;
-         std::copy(data, data + length,original_buffer_);
-         return true;
-      }
-
-      inline void write_to_external_buffer(char* data)
-      {
-         std::copy(original_buffer_,original_buffer_ + to_be_written_buffer_size_,data);
-      }
-
-      template <typename T,
-                typename Allocator,
-                template <typename,typename> class Sequence>
-      inline bool read_into_external_sequence(Sequence<T,Allocator>& sequence)
-      {
-         std::size_t list_size = 0;
-         if (!read(list_size))
-            return false;
-         T t;
-         for (std::size_t i = 0; i < list_size; ++i)
+         template<typename T>
+         inline bool operator()(T*& data, std::size_t& length)
          {
-            if (!read(t))
+            if (!operator()(length))
                return false;
-            sequence.push_back(t);
-         }
-         return true;
-      }
-
-      template <typename T,
-                typename Comparator,
-                typename Allocator>
-      inline bool read_into_external_sequence(std::set<T,Comparator,Allocator>& set)
-      {
-         std::size_t list_size = 0;
-         if (!read(list_size))
-            return false;
-         T t;
-         for (std::size_t i = 0; i < list_size; ++i)
-         {
-            if (!read(t))
+            std::size_t raw_size = length * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
                return false;
-            set.insert(t);
+            (*data) = new T[length];
+            std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(*data));
+            buffer_ += raw_size;
+            read_buffer_size_ += raw_size;
+            return true;
          }
-         return true;
-      }
 
-      template <typename T,
-                typename Allocator,
-                template <typename,typename> class Sequence>
-      inline bool write_from_external_sequence(const Sequence<T,Allocator>& sequence)
-      {
-         if (!write(static_cast<unsigned int>(sequence.size())))
-            return false;
-         typename Sequence<T,Allocator>::const_iterator itr = sequence.begin();
-         while (sequence.end() != itr)
+         inline bool operator()(std::string& output)
          {
-            if (!write(*itr++))
+            std::size_t length = 0;
+            if (!operator()(length))
                return false;
-         }
-         return true;
-      }
-
-      template <typename T,
-                typename Comparator,
-                typename Allocator>
-      inline bool write_from_external_sequence(const std::set<T,Comparator,Allocator>& set)
-      {
-         if (!write(static_cast<unsigned int>(set.size())))
-            return false;
-         typename std::set<T,Comparator,Allocator>::const_iterator itr = set.begin();
-         while (set.end() != itr)
-         {
-            if (!write(*itr++))
+            if (!buffer_capacity_ok(length))
                return false;
+            output.resize(length);
+            std::copy(buffer_, buffer_ + length,output.begin());
+            buffer_ += length;
+            read_buffer_size_ += length;
+            return true;
          }
-         return true;
-      }
 
-   private:
-
-      serializer();
-      serializer(const serializer& s);
-      serializer& operator=(const serializer& s);
-
-      template<typename T>
-      inline bool write_pod(const T& data)
-      {
-         static const std::size_t data_length = sizeof(T);
-         if ((data_length + to_be_written_buffer_size_) > buffer_length_)
+         template<typename T>
+         inline bool operator()(T* data, const std::size_t& length)
          {
-            return false;
+            const std::size_t raw_size = length * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(data));
+            buffer_ += length;
+            read_buffer_size_ += length;
+            return true;
          }
-         const char* ptr = reinterpret_cast<const char*>(&data);
-         std::copy(ptr,ptr + data_length,buffer_);
-         buffer_ += data_length;
-         to_be_written_buffer_size_ += data_length;
-         return true;
-      }
 
-      template<typename T>
-      inline bool read_pod(T& data)
-      {
-         static const std::size_t data_length = sizeof(T);
-         if ((data_length + read_buffer_size_) > buffer_length_)
+         template<typename T,
+                  typename Allocator,
+                  template<typename, typename> class Sequence>
+         inline bool operator()(Sequence<T,Allocator>& seq)
          {
-            return false;
+            std::size_t n = 0;
+            if (!read_pod(n))
+               return false;
+            const std::size_t raw_size = n * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            T t;
+            for(std::size_t i = 0; i < n; ++i)
+            {
+               operator()(t);
+               seq.push_back(t);
+            }
+            return true;
          }
-         char* ptr = reinterpret_cast<char*>(&data);
-         std::copy(buffer_,buffer_ + data_length, ptr);
-         buffer_ += data_length;
-         read_buffer_size_ += data_length;
-         return true;
-      }
 
-      char* const original_buffer_;
-      char* buffer_;
-      std::size_t buffer_length_;
-      std::size_t to_be_written_buffer_size_;
-      std::size_t read_buffer_size_;
-   };
+         template<typename T, typename Allocator>
+         inline bool operator()(std::vector<T,Allocator>& vec)
+         {
+            std::size_t n = 0;
+            if (!read_pod(n))
+               return false;
+            vec.reserve(n);
+            const std::size_t raw_size = n * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            T t;
+            for(std::size_t i = 0; i < n; ++i)
+            {
+               operator()(t);
+               vec.push_back(t);
+            }
+            return true;
+         }
+
+         template<typename T,
+                  typename Allocator,
+                  typename Comparator>
+         inline bool operator()(std::set<T,Allocator,Comparator>& set)
+         {
+            std::size_t n = 0;
+            if (!read_pod(n))
+               return false;
+            const std::size_t raw_size = n * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            T t;
+            for(std::size_t i = 0; i < n; ++i)
+            {
+               operator()(t);
+               set.insert(t);
+            }
+            return true;
+         }
+
+         inline bool operator()(std::ifstream& stream, const std::size_t& length)
+         {
+            if (length > buffer_length_) return false;
+            stream.read(original_buffer_,static_cast<std::streamsize>(length));
+            return true;
+         }
+
+         template<typename T>
+         inline bool operator()(T& output)
+         {
+            return selector<T,details::is_pod<T>::result_t>::run(*this,output);
+         }
+
+      private:
+
+         reader();
+         reader(const reader& s);
+         reader& operator=(const reader& s);
+
+         bool buffer_capacity_ok(const std::size_t& required_read_qty)
+         {
+            return ((required_read_qty + read_buffer_size_) < buffer_length_);
+         }
+
+         template<typename T, typename IsPod>
+         struct selector
+         { template<typename R> static bool run(R& r,T& t) { return t(r); } };
+
+         template<typename T>
+         struct selector<T,details::yes_t>
+         { template<typename R> static bool run(R& r, T& t) { return r.read_pod(t); } };
+
+         template<typename T>
+         inline bool read_pod(T& data)
+         {
+            static const std::size_t data_length = sizeof(T);
+            if (!buffer_capacity_ok(data_length))
+               return false;
+            char* ptr = reinterpret_cast<char*>(&data);
+            std::copy(buffer_,buffer_ + data_length, ptr);
+            buffer_ += data_length;
+            read_buffer_size_ += data_length;
+            return true;
+         }
+
+         char* const original_buffer_;
+         char* buffer_;
+         std::size_t buffer_length_;
+         std::size_t read_buffer_size_;
+      };
+
+      class writer
+      {
+      public:
+
+         template<typename T>
+         writer(T* buffer, const std::size_t& buffer_length)
+         : original_buffer_(reinterpret_cast<char*>(buffer)),
+           buffer_(reinterpret_cast<char*>(buffer)),
+           buffer_length_(buffer_length * sizeof(T)),
+           written_buffer_size_(0)
+         {}
+
+         inline bool operator!() const
+         {
+            return (0 == buffer_length_)   ||
+                   (0 == original_buffer_) ||
+                   (0 == buffer_);
+         }
+
+         inline void reset()
+         {
+            written_buffer_size_ = 0;
+         }
+
+         inline void clear()
+         {
+            reset();
+            std::memset(buffer_,0x00,buffer_length_);
+         }
+
+         template<typename T>
+         inline bool operator()(const T* data, const std::size_t& length)
+         {
+            if (!operator()(length))
+               return false;
+            std::size_t raw_size = length * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            const char* ptr = reinterpret_cast<const char*>(data);
+            std::copy(ptr, ptr + raw_size, buffer_);
+            buffer_ += raw_size;
+            written_buffer_size_ += raw_size;
+            return true;
+         }
+
+         inline bool operator()(const std::string& input)
+         {
+            return operator()(input.c_str(),input.size());
+         }
+
+         template<typename T,
+                  typename Allocator,
+                  template<typename, typename> class Sequence>
+         inline bool operator()(const Sequence<T,Allocator>& seq)
+         {
+            if (!operator()(seq.size()))
+               return false;
+            const std::size_t raw_size = seq.size() * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            typename Sequence<T,Allocator>::const_iterator itr = seq.begin();
+            while (seq.end() != itr)
+            {
+               if(!operator()(*itr))
+                  return false;
+               ++itr;
+            }
+            return true;
+         }
+
+         template<typename T,
+                  typename Allocator,
+                  typename Comparator>
+         inline bool operator()(const std::set<T,Allocator,Comparator>& set)
+         {
+            if (!operator()(set.size()))
+               return false;
+            const std::size_t raw_size = set.size() * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            typename std::set<T,Allocator,Comparator>::const_iterator itr = set.begin();
+            while (set.end() != itr)
+            {
+               if(!operator()(*itr))
+                  return false;
+               ++itr;
+            }
+         }
+
+         inline std::size_t operator()(std::ofstream& stream)
+         {
+            stream.write(original_buffer_,static_cast<std::streamsize>(written_buffer_size_));
+            return written_buffer_size_;
+         }
+
+         template<typename T>
+         inline bool operator()(const T& input)
+         {
+            return selector<T,details::is_pod<T>::result_t>::run(*this,input);
+         }
+
+      private:
+
+         writer();
+         writer(const writer& s);
+         writer& operator=(const writer& s);
+
+         bool buffer_capacity_ok(const std::size_t& required_read_qty)
+         {
+            return ((required_read_qty + written_buffer_size_) < buffer_length_);
+         }
+
+         template<typename T, typename IsPod>
+         struct selector
+         { template<typename W> static bool run(W& w, const T& t) { return t(w); } };
+
+         template<typename T>
+         struct selector<T,details::yes_t>
+         { template<typename W> static bool run(W& w, const T& t) { return w.write_pod(t); } };
+
+         template<typename T>
+         inline bool write_pod(const T& data)
+         {
+            static const std::size_t data_length = sizeof(T);
+            if ((data_length + written_buffer_size_) > buffer_length_)
+            {
+               return false;
+            }
+            const char* ptr = reinterpret_cast<const char*>(&data);
+            std::copy(ptr, ptr + data_length,buffer_);
+            buffer_ += data_length;
+            written_buffer_size_ += data_length;
+            return true;
+         }
+
+         char* const original_buffer_;
+         char* buffer_;
+         std::size_t buffer_length_;
+         std::size_t written_buffer_size_;
+      };
+   } // namespace binary
 
    template<typename T>
    class hex_to_number_sink
@@ -7038,6 +7218,27 @@ namespace strtk
          return left_align(width,pad,type_to_string(t));
       }
 
+      template<typename T>
+      inline std::string center(const std::string::value_type& pad,
+                                const T& t)
+      {
+         return center(details::type_length<T>(t),pad,type_to_string(t));
+      }
+
+      template<typename T>
+      inline std::string right_align(const std::string::value_type& pad,
+                                     const T& t)
+      {
+         return right_align(details::type_length<T>(t),pad,type_to_string(t));
+      }
+
+      template<typename T>
+      inline std::string left_align(const std::string::value_type& pad,
+                                    const T& t)
+      {
+         return left_align(details::type_length<T>(t),pad,type_to_string(t));
+      }
+
       inline std::string remaining_string(const std::size_t& index,
                                           const std::string& str)
       {
@@ -7050,6 +7251,7 @@ namespace strtk
       {
          result = (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }
+
    }
 
    namespace details
@@ -7125,6 +7327,31 @@ namespace strtk
                                     };
 
       static const std::size_t dbl_digitr_size = sizeof(dbl_digitr) / sizeof(unsigned char);
+
+      #define register_pod_type(T)\
+      template<> struct is_pod<T>{ typedef yes_t result_t; static const bool result; };\
+      const bool is_pod<T>::result = true;\
+      template<> struct is_pod<const T>{ typedef yes_t result_t; static const bool result; };\
+      const bool is_pod<const T>::result = true;\
+      template<> struct is_pod<volatile T>{ typedef yes_t result_t; static const bool result; };\
+      const bool is_pod<volatile T>::result = true;\
+      template<> struct is_pod<const volatile T>{ typedef yes_t result_t; static const bool result; };\
+      const bool is_pod<const volatile T>::result = true;
+
+      register_pod_type(bool)
+      register_pod_type(char)
+      register_pod_type(short)
+      register_pod_type(int)
+      register_pod_type(long int)
+      register_pod_type(long long int)
+      register_pod_type(unsigned char)
+      register_pod_type(unsigned short)
+      register_pod_type(unsigned int)
+      register_pod_type(unsigned long int)
+      register_pod_type(unsigned long long int)
+      register_pod_type(float)
+      register_pod_type(double)
+      register_pod_type(long double)
 
       template<typename>
       struct numeric { enum { length = 0, size = 32, bound_length = 0, min_exp = 0, max_exp = 0 }; };
@@ -7233,7 +7460,7 @@ namespace strtk
       register_sequence_iterator_type(std::deque)
 
       template<typename Iterator, typename T, typename Tag>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, not_supported_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& begin, const Iterator end, T& t, not_supported_type_tag)
       {
          #ifdef ENABLE_LEXICAL_CAST
             try
@@ -7244,6 +7471,7 @@ namespace strtk
             {
                return false;
             }
+            begin = end;
             return true;
          #else
             return false;
@@ -7251,18 +7479,17 @@ namespace strtk
       }
 
       template<typename Iterator>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, std::string& t, stdstring_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& begin, const Iterator end, std::string& t, stdstring_type_tag)
       {
          t.assign(begin,end);
+         begin = end;
          return true;
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& result, unsigned_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, T& result, unsigned_type_tag)
       {
-         if (end == begin) return false;
-
-         Iterator itr = begin;
+         if (end == itr) return false;
 
          if ('+' == *itr)
             ++itr;
@@ -7318,11 +7545,10 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& result, signed_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, T& result, signed_type_tag)
       {
-         if (end == begin) return false;
+         if (end == itr) return false;
 
-         Iterator itr = begin;
          bool negative = false;
 
          if ('+' == *itr)
@@ -7385,8 +7611,7 @@ namespace strtk
       template<typename Iterator, typename T>
       inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end, T& result, signed_type_tag)
       {
-         if (end == itr)
-            return false;
+         if (end == itr) return false;
 
          T t = 0;
          bool negative = false;
@@ -7439,12 +7664,10 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, real_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, T& t, real_type_tag)
       {
-         if (begin == end)
-            return false;
+         if (end == itr) return false;
          double d = 0.0;
-         Iterator itr = begin;
          bool negative = false;
          if ('+' == *itr)
             ++itr;
@@ -7582,35 +7805,43 @@ namespace strtk
       }
 
       template<typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, T& t, byte_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, T& t, byte_type_tag)
       {
-         if (1 != std::distance(begin,end))
+         if (1 != std::distance(itr,end))
             return false;
-         t = static_cast<T>(*begin);
+         t = static_cast<T>(*itr);
+         itr = end;
          return true;
       }
 
       template<typename Iterator>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, bool& t, bool_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, bool& t, bool_type_tag)
       {
-         if (1 != std::distance(begin,end))
+         if (1 != std::distance(itr,end))
             return false;
-         t = (('0' == *begin) ? false : true);
+         t = (('0' == *itr) ? false : true);
+         itr = end;
          return true;
       }
 
       template<typename Iterator, typename HexSinkType>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, HexSinkType& t, hex_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, HexSinkType& t, hex_type_tag)
       {
-         t = std::pair<Iterator,Iterator>(begin,end);
-         return t.valid();
+         t = std::pair<Iterator,Iterator>(itr,end);
+         if (!t.valid())
+            return false;
+         itr = end;
+         return true;
       }
 
       template<typename Iterator, typename Base64SinkType>
-      inline bool string_to_type_converter_impl(const Iterator begin, const Iterator end, Base64SinkType& t, base64_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, Base64SinkType& t, base64_type_tag)
       {
-         t = std::pair<Iterator,Iterator>(begin,end);
-         return t.valid();
+         t = std::pair<Iterator,Iterator>(itr,end);
+         if (!t.valid())
+            return false;
+         itr = end;
+         return true;
       }
 
       template<typename T>
@@ -7771,12 +8002,42 @@ namespace strtk
          return type_name<T>();
       }
 
+      template<typename T>
+      inline std::size_t type_length()
+      {
+         return numeric<T>::length;
+      }
+
+      template<typename T>
+      inline std::size_t type_length(const T&)
+      {
+         return type_length<T>();
+      }
+
+      inline std::size_t type_length(const std::string& s)
+      {
+         return s.size();
+      }
+
+      template<typename T1, typename T2>
+      inline std::size_t type_length(const std::pair<T1,T2>&)
+      {
+         return type_length<T1>() + type_length<T2>();
+      }
+
    } // namespace details
 
    template <typename T>
-   inline std::string type_name(const T&)
+   inline std::string type_name(const T& t)
    {
-      return details::type_name<T>();
+      return details::type_name<T>(t);
+   }
+
+   template<typename T, std::size_t N>
+   inline std::string type_name(const T(&)[N])
+   {
+      return details::type_name<T>() +
+             std::string("[") + type_to_string(N) + std::string("]");
    }
 
    template <typename T1, typename T2>
@@ -7807,9 +8068,24 @@ namespace strtk
    register_sequence_type_name(std::list)
    register_set_type_name(std::set)
 
+   template<typename T>
+   inline std::size_t type_length()
+   {
+      return details::type_length<T>();
+   }
+
+   template<typename T>
+   inline std::size_t type_length(const T& t)
+   {
+      return type_length<T>();
+   }
+
    class ext_string
    {
    public:
+
+      explicit ext_string()
+      {}
 
       explicit ext_string(const std::string& s)
       : s_(s)
@@ -7817,6 +8093,10 @@ namespace strtk
 
       explicit ext_string(const char* s)
       : s_(s)
+      {}
+
+      explicit ext_string(const range::adapter<char>& r)
+      : s_(r.begin(),r.end())
       {}
 
       ext_string(const ext_string& es)
@@ -8668,14 +8948,15 @@ namespace strtk
                                   T5& t5, T6& t6, T7& t7, T8& t8,
                                   T9& t9)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
-      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
-      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
-      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
-      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
-      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof(T7);
-      t8 = (*reinterpret_cast< T8*>(data)); data += sizeof(T8);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast<T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast<T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast<T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast<T6*>(data)); data += sizeof(T6);
+      t7 = (*reinterpret_cast<T7*>(data)); data += sizeof(T7);
+      t8 = (*reinterpret_cast<T8*>(data)); data += sizeof(T8);
+      t9 = (*reinterpret_cast<T9*>(data)); data += sizeof(T9);
       return data;
    }
 
@@ -8685,14 +8966,14 @@ namespace strtk
                                   T1& t1, T2& t2, T3& t3, T4& t4,
                                   T5& t5, T6& t6, T7& t7, T8& t8)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
-      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
-      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
-      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
-      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
-      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof(T7);
-      t8 = (*reinterpret_cast< T8*>(data)); data += sizeof(T8);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast<T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast<T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast<T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast<T6*>(data)); data += sizeof(T6);
+      t7 = (*reinterpret_cast<T7*>(data)); data += sizeof(T7);
+      t8 = (*reinterpret_cast<T8*>(data)); data += sizeof(T8);
       return data;
    }
 
@@ -8702,13 +8983,13 @@ namespace strtk
                                   T1& t1, T2& t2, T3& t3, T4& t4,
                                   T5& t5, T6& t6, T7& t7)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
-      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
-      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
-      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
-      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
-      t7 = (*reinterpret_cast< T7*>(data)); data += sizeof(T7);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast<T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast<T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast<T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast<T6*>(data)); data += sizeof(T6);
+      t7 = (*reinterpret_cast<T7*>(data)); data += sizeof(T7);
       return data;
    }
 
@@ -8718,12 +8999,12 @@ namespace strtk
                                   T1& t1, T2& t2, T3& t3, T4& t4,
                                   T5& t5, T6& t6)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
-      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
-      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
-      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
-      t6 = (*reinterpret_cast< T6*>(data)); data += sizeof(T6);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast<T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast<T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast<T5*>(data)); data += sizeof(T5);
+      t6 = (*reinterpret_cast<T6*>(data)); data += sizeof(T6);
       return data;
    }
 
@@ -8733,11 +9014,11 @@ namespace strtk
                                   T1& t1, T2& t2, T3& t3, T4& t4,
                                   T5& t5)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
-      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
-      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
-      t5 = (*reinterpret_cast< T5*>(data)); data += sizeof(T5);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast<T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast<T4*>(data)); data += sizeof(T4);
+      t5 = (*reinterpret_cast<T5*>(data)); data += sizeof(T5);
       return data;
    }
 
@@ -8745,10 +9026,10 @@ namespace strtk
    inline unsigned char* read_pod(unsigned char* data,
                                   T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
-      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
-      t4 = (*reinterpret_cast< T4*>(data)); data += sizeof(T4);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast<T3*>(data)); data += sizeof(T3);
+      t4 = (*reinterpret_cast<T4*>(data)); data += sizeof(T4);
       return data;
    }
 
@@ -8756,9 +9037,9 @@ namespace strtk
    inline unsigned char* read_pod(unsigned char* data,
                                   T1& t1, T2& t2, T3& t3)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
-      t3 = (*reinterpret_cast< T3*>(data)); data += sizeof(T3);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
+      t3 = (*reinterpret_cast<T3*>(data)); data += sizeof(T3);
       return data;
    }
 
@@ -8766,8 +9047,8 @@ namespace strtk
    inline unsigned char* read_pod(unsigned char* data,
                                   T1& t1, T2& t2)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
-      t2 = (*reinterpret_cast< T2*>(data)); data += sizeof(T2);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
+      t2 = (*reinterpret_cast<T2*>(data)); data += sizeof(T2);
       return data;
    }
 
@@ -8775,7 +9056,7 @@ namespace strtk
    inline unsigned char* read_pod(unsigned char* data,
                                   T1& t1)
    {
-      t1 = (*reinterpret_cast< T1*>(data)); data += sizeof(T1);
+      t1 = (*reinterpret_cast<T1*>(data)); data += sizeof(T1);
       return data;
    }
 
@@ -9028,6 +9309,254 @@ namespace strtk
       return data + (set.size() * sizeof(T));
    }
 
+   namespace trie
+   {
+      template<typename KeyIterator, typename ValueType>
+      class prefix
+      {
+
+         template <typename Iterator,
+                   typename Value,
+                   typename KeyValue = typename std::iterator_traits<Iterator>::value_type>
+         struct node
+         {
+         public:
+            typedef KeyValue key_value_t;
+            typedef Value value_t;
+
+            typedef node<Iterator,Value,KeyValue> node_t;
+            typedef node_t* node_ptr;
+            typedef const node_ptr const_node_ptr;
+
+            typedef std::vector<node_ptr> node_list_t;
+            typedef typename node_list_t::const_iterator node_list_iterator;
+
+            explicit node(const key_value_t& key_value)
+            : key_value_(key_value),
+              value_holder_(false)
+            {}
+
+            node(const key_value_t& key_value,
+                 const value_t& v)
+            : key_value_(key_value),
+              value_holder_(true),
+              value_(v)
+            {}
+
+           ~node()
+            {
+               if (!node_list_.empty())
+               {
+                  node_list_iterator itr = node_list_.begin();
+                  while(node_list_.end() != itr)
+                  {
+                     delete *itr++;
+                  }
+               }
+            }
+
+            inline node_ptr get_node(const key_value_t& key_value)
+            {
+               if (node_list_.empty())
+                  return 0;
+               node_list_iterator itr = node_list_.begin();
+               const node_list_iterator end = node_list_.end();
+               while(end != itr)
+               {
+                  if (key_value == (*itr)->key_value_)
+                     return *itr;
+                  else
+                     ++itr;
+               }
+               return 0;
+            }
+
+            inline void assign_value(const value_t& v)
+            {
+               value_ = v;
+               value_holder_ = true;
+            }
+
+            inline void add_node(node_ptr n)
+            {
+               node_list_.push_back(n);
+            }
+
+            inline bool value_holder() const
+            {
+               return value_holder_;
+            }
+
+            inline const value_t& value() const
+            {
+               return value_;
+            }
+
+            inline const key_value_t& key() const
+            {
+               return key_value_;
+            }
+
+         private:
+
+            node(const node_t& n);
+            node_t& operator=(const node_t& n);
+
+            key_value_t key_value_;
+            bool value_holder_;
+            value_t value_;
+            node_list_t node_list_;
+         };
+
+      public:
+
+         //typedef KeyIterator key_iterator_t;
+         typedef typename std::iterator_traits<KeyIterator>::value_type key_value_t;
+         typedef ValueType value_t;
+
+         typedef node<KeyIterator,value_t> node_t;
+         typedef node_t* node_ptr;
+
+         prefix()
+         : head_(0)
+         {}
+
+         template<typename key_iterator_t>
+         void insert(const key_iterator_t begin,
+                     const key_iterator_t end,
+                     const value_t& v)
+         {
+            if (0 == std::distance(begin,end))
+               return;
+            key_iterator_t itr = begin;
+            key_value_t key = *itr;
+            node_ptr parent = 0;
+            node_ptr n = head_;
+            node_ptr next_node = 0;
+            n = head_ = ((0 == head_) ? new node_t(*itr) : head_);
+            while (end != itr)
+            {
+               key = *itr;
+               if (0 == (next_node = n->get_node(key)))
+               {
+                  n->add_node(next_node = new node_t(key));
+               }
+               parent = n;
+               n = next_node;
+               ++itr;
+            }
+            parent->assign_value(v);
+         }
+
+         template<typename key_iterator_t>
+         inline bool find(const key_iterator_t begin,
+                          const key_iterator_t end,
+                          value_t& v) const
+         {
+            if ((0 == head_) || (0 == std::distance(begin,end)))
+               return false;
+            key_iterator_t itr = begin;
+            node_ptr parent = head_;
+            node_ptr n = head_;
+            while (end != itr)
+            {
+               node_ptr next_node = n->get_node(*itr);
+               if (0 == next_node)
+                  return false;
+               parent = n;
+               n = next_node;
+               ++itr;
+            }
+            if (!parent->value_holder())
+               return false;
+             v = parent->value();
+             return true;
+         }
+
+         template<typename key_iterator_t>
+         inline bool find_prefix(const key_iterator_t begin, const key_iterator_t end) const
+         {
+            if ((0 == head_) || (0 == std::distance(begin,end)))
+               return false;
+            key_iterator_t itr = begin;
+            node_ptr n = head_;
+            while (end != itr)
+            {
+               if (0 == (n = n->get_node(*itr)))
+                  return false;
+               ++itr;
+            }
+            return true;
+         }
+
+        ~prefix()
+         {
+            delete head_;
+         }
+
+      private:
+         node_ptr head_;
+      };
+
+      template<typename Value>
+      inline void insert(prefix<std::string::const_iterator,Value>& trie,
+                         const std::string& key,
+                         const Value& value = Value(0))
+      {
+         trie.insert(key.begin(),key.end(),value);
+      }
+
+      template<typename Value>
+      inline void insert(prefix<std::string::iterator,Value>& trie,
+                         const char* key,
+                         const Value& value = Value(0))
+      {
+         insert_into_trie(trie,std::string(key),value);
+      }
+
+      template<typename Value>
+      inline bool find(prefix<std::string::const_iterator,Value>& trie,
+                       const std::string& key,
+                       Value& v)
+      {
+         return trie.find(key.begin(),key.end(),v);
+      }
+
+      template<typename Value>
+      inline bool find(prefix<std::string::const_iterator,Value>& trie,
+                       const char* key,
+                       Value& v)
+      {
+         return find_prefix(trie,std::string(key),v);
+      }
+
+      template<typename Value>
+      inline bool find_prefix(prefix<std::string::const_iterator,Value>& trie,
+                              const std::string& key)
+      {
+         return trie.find_prefix(key.begin(),key.end());
+      }
+
+      template<typename Value>
+      inline bool find_prefix(prefix<std::string::const_iterator,Value>& trie,
+                              const char* key)
+      {
+         return find_prefix(trie,std::string(key));
+      }
+
+   } // namespace trie
+
+   template<typename ValueType, typename KeyIterator = std::string::const_iterator>
+   struct prefix_trie
+   {
+      typedef trie::prefix<KeyIterator,ValueType> type;
+      typedef trie::prefix<KeyIterator,ValueType> std_string;
+      typedef trie::prefix<char*,ValueType> char_ptr;
+      typedef trie::prefix<const char*,ValueType> const_char_ptr;
+      typedef trie::prefix<unsigned char*,ValueType> uchar_ptr;
+      typedef trie::prefix<const unsigned char*,ValueType> const_uchar_ptr;
+   };
+
    namespace details
    {
 
@@ -9156,76 +9685,241 @@ namespace strtk
       return hash(sequence.begin(),sequence.size(),hash_value);
    }
 
-   template<typename Key,
-            typename T,
-            typename Comparator,
-            typename MapAllocator,
-            typename OutputIterator>
-   void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
-                      OutputIterator out)
+   namespace util
    {
-      if (map.empty()) return;
-      typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
-      typename map_type::const_iterator itr = map.begin();
-      while (map.end() != itr)
+
+      template<typename Key,
+               typename T,
+               typename Comparator,
+               typename MapAllocator,
+               typename OutputIterator>
+      void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                         OutputIterator out)
       {
-         *out++ = (itr++)->first;
+         if (map.empty()) return;
+         typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
+         typename map_type::const_iterator itr = map.begin();
+         while (map.end() != itr)
+         {
+            *out++ = (itr++)->first;
+         }
       }
-   }
 
-   template<typename Key,
-            typename T,
-            typename Comparator,
-            typename MapAllocator,
-            typename SetAllocator>
-   void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
-                      std::set<Key,Comparator,SetAllocator>& set)
-   {
-      make_key_list(map,std::inserter(set,set.begin()));
-   }
-
-   template<typename Key,
-            typename T,
-            typename Comparator,
-            typename MapAllocator,
-            typename SequenceAllocator,
-            template<typename,typename> class Sequence>
-   void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
-                      Sequence<Key,SequenceAllocator>& sequence)
-   {
-      make_key_list(map,std::back_inserter(sequence));
-   }
-
-   template<typename Key,
-            typename T,
-            typename Comparator,
-            typename MapAllocator,
-            typename OutputIterator>
-   void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
-                        const Key& key,
-                        OutputIterator out)
-   {
-      if (map.empty()) return;
-      typedef typename std::multimap<Key,T,Comparator,MapAllocator> map_type;
-      typename map_type::const_iterator itr = map.find(key);
-      while (map.end() != itr && (key == itr->first))
+      template<typename Key,
+               typename T,
+               typename Comparator,
+               typename MapAllocator,
+               typename SetAllocator>
+      void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                         std::set<Key,Comparator,SetAllocator>& set)
       {
-         *out++ = (itr++)->second;
+         make_key_list(map,std::inserter(set,set.begin()));
       }
-   }
 
-   template<typename Key,
-            typename T,
-            typename Comparator,
-            typename MapAllocator,
-            typename SequenceAllocator,
-            template<typename,typename> class Sequence>
-   void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
-                        const Key& key,
-                        Sequence<T,SequenceAllocator>& sequence)
+      template<typename Key,
+               typename T,
+               typename Comparator,
+               typename MapAllocator,
+               typename SequenceAllocator,
+               template<typename,typename> class Sequence>
+      void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                         Sequence<Key,SequenceAllocator>& sequence)
+      {
+         make_key_list(map,std::back_inserter(sequence));
+      }
+
+      template<typename Key,
+               typename T,
+               typename Comparator,
+               typename MapAllocator,
+               typename OutputIterator>
+      void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
+                           const Key& key,
+                           OutputIterator out)
+      {
+         if (map.empty()) return;
+         typedef typename std::multimap<Key,T,Comparator,MapAllocator> map_type;
+         typename map_type::const_iterator itr = map.find(key);
+         while (map.end() != itr && (key == itr->first))
+         {
+            *out++ = (itr++)->second;
+         }
+      }
+
+      template<typename Key,
+               typename T,
+               typename Comparator,
+               typename MapAllocator,
+               typename SequenceAllocator,
+               template<typename,typename> class Sequence>
+      void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
+                           const Key& key,
+                           Sequence<T,SequenceAllocator>& sequence)
+      {
+         make_value_list(map,key,std::back_inserter(sequence));
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void delete_all(Sequence<T*,Allocator>& sequence)
+      {
+         typename Sequence<T*,Allocator>::iterator itr = sequence.begin();
+         while (sequence.end() != itr)
+         {
+            delete (*itr);
+            ++itr;
+         }
+         sequence.clear();
+      }
+
+      template<typename Key,
+               typename T,
+               typename Comparator,
+               typename Allocator,
+               template<typename,typename, typename, typename> class Container>
+      void delete_all(const std::map<Key,T*,Comparator,Allocator>& cont)
+      {
+         typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
+         while (cont.end() != itr)
+         {
+            delete (*itr).second;
+            ++itr;
+         }
+         cont.clear();
+      }
+
+      template<typename T,
+               typename Comparator,
+               typename Allocator,
+               template<typename,typename, typename, typename> class Container>
+      void delete_all(const std::set<T*,Comparator,Allocator>& cont)
+      {
+         typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
+         while (cont.end() != itr)
+         {
+            delete (*itr);
+            ++itr;
+         }
+         cont.clear();
+      }
+
+      template<typename Predicate,
+               typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void delete_if(const Predicate& p,
+                           Sequence<T*,Allocator>& sequence)
+      {
+         typename Sequence<T*,Allocator>::iterator itr = sequence.begin();
+         while (sequence.end() != itr)
+         {
+            if (p(*itr))
+            {
+               delete (*itr);
+               itr = sequence.erase(itr);
+            }
+            else
+               ++itr;
+         }
+      }
+
+      template<typename Predicate,
+               typename Key,
+               typename T,
+               typename Comparator,
+               typename Allocator,
+               template<typename,typename, typename, typename> class Container>
+      void delete_if(const Predicate& p,
+                     const std::map<Key,T*,Comparator,Allocator>& cont)
+      {
+         typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
+         while (cont.end() != itr)
+         {
+            if (p(*itr))
+            {
+               delete (*itr).second;
+               itr = cont.erase(itr);
+            }
+            else
+               ++itr;
+         }
+      }
+
+      template<typename Predicate,
+               typename T,
+               typename Comparator,
+               typename Allocator,
+               template<typename,typename, typename, typename> class Container>
+      void delete_if(const Predicate& p,
+                     const std::set<T*,Comparator,Allocator>& cont)
+      {
+         typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
+         while (cont.end() != itr)
+         {
+            if (p(*itr))
+            {
+               delete (*itr).second;
+               itr = cont.erase(itr);
+            }
+            else
+               ++itr;
+         }
+      }
+
+   } // namespace util
+
+} // namespace strtk
+
+#ifdef WIN32
+   #ifndef NOMINMAX
+      #define NOMINMAX
+   #endif
+   #ifndef WIN32_LEAN_AND_MEAN
+      #define WIN32_LEAN_AND_MEAN
+   #endif
+   #include <windows.h>
+#else
+   #include <sys/time.h>
+   #include <sys/types.h>
+#endif
+namespace strtk
+{
+   namespace util
    {
-      make_value_list(map,key,std::back_inserter(sequence));
-   }
+      class timer
+      {
+      public:
+         #ifdef WIN32
+            timer()      { QueryPerformanceFrequency(&clock_frequency); }
+            void start() { QueryPerformanceCounter(&start_time);        }
+            void stop()  { QueryPerformanceCounter(&stop_time);         }
+            double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
+         #else
+            void start() { gettimeofday(&start_time, 0); }
+            void stop()  { gettimeofday(&stop_time,  0); }
+            double time()
+            {
+               double diff = (stop_time.tv_sec - start_time.tv_sec) * 1000000.0;
+               if (stop_time.tv_usec > start_time.tv_usec)
+                  diff += (1.0 * (stop_time.tv_usec - start_time.tv_usec));
+               else if (stop_time.tv_usec < start_time.tv_usec)
+                  diff -= (1.0 * (start_time.tv_usec - stop_time.tv_usec));
+               return (diff / 1000000.0);
+            }
+         #endif
+      private:
+         #ifdef WIN32
+            LARGE_INTEGER start_time;
+            LARGE_INTEGER stop_time;
+            LARGE_INTEGER clock_frequency;
+         #else
+            struct timeval start_time;
+            struct timeval stop_time;
+            struct timeval clock_frequency;
+         #endif
+      };
+   } // namespace util
 
    namespace information
    {
@@ -9241,7 +9935,7 @@ namespace strtk
                                        std::string(" (") + date + std::string(" ") + epoch + std::string(")");
          return info_str;
       }
-   }
+   } // namespace information
 
 } // namespace strtk
 
