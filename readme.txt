@@ -16,8 +16,13 @@ http://www.opensource.org/licenses/cpl1.0.php
 
 
 [DOWNLOADS & UPDATES]
-(1) http://www.partow.net/programming/strtk/index.html
-(2) http://strtk.partow.net
+All updates can be found at:
+ (1) http://www.partow.net/programming/strtk/index.html
+ (2) http://strtk.partow.net
+
+Code repository:
+ (1) http://code.google.com/p/strtk/
+ (2) svn checkout http://strtk.googlecode.com/svn/trunk/ strtk
 
 
 [INSTALLATION]
@@ -37,7 +42,7 @@ c++ standard library. Installation of Boost on:
    (*) Win32  : http://www.boostpro.com/download
    (*) Ubuntu : boost packages via apt-get or synaptic
    (*) Fedora : yum -y install boost-devel
-
+   (*) http://www.boost.org/doc/libs/release/more/getting_started/index.html
 
 [COMPILATION]
 (1) For a full build: make clean all
@@ -48,7 +53,7 @@ c++ standard library. Installation of Boost on:
 
 
 [COMPILER COMPATIBILITY]
-(*) GNU Compiler Collection (4.1+)
+(*) GNU Compiler Collection (4.3+)
 (*) Intel® C++ Compiler (9.x+)
 (*) Microsoft Visual Studio C++ Compiler (8.1+)
 
