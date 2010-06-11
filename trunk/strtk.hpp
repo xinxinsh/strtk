@@ -6742,7 +6742,7 @@ namespace strtk
             const std::size_t raw_size = n * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
-            T t;
+            T t = T();
             for(std::size_t i = 0; i < n; ++i)
             {
                operator()(t);
@@ -6828,8 +6828,7 @@ namespace strtk
             static const std::size_t data_length = sizeof(T);
             if (!buffer_capacity_ok(data_length))
                return false;
-            char* ptr = reinterpret_cast<char*>(&data);
-            std::copy(buffer_,buffer_ + data_length, ptr);
+            data = (*reinterpret_cast<T*>(buffer_));
             buffer_ += data_length;
             read_buffer_size_ += data_length;
             return true;
@@ -6976,8 +6975,7 @@ namespace strtk
             {
                return false;
             }
-            const char* ptr = reinterpret_cast<const char*>(&data);
-            std::copy(ptr, ptr + data_length,buffer_);
+            *(reinterpret_cast<T*>(buffer_)) = data;
             buffer_ += data_length;
             written_buffer_size_ += data_length;
             return true;

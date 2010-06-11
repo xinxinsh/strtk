@@ -31,11 +31,12 @@
 struct person
 {
 public:
-   std::string  name;
-   unsigned int age;
-   double       height;
-   float        weight;
-   bool         is_insane;
+   unsigned long long id;
+   std::string      name;
+   unsigned int      age;
+   double         height;
+   float          weight;
+   bool        is_insane;
 
    person()
    {
@@ -44,11 +45,12 @@ public:
 
    bool operator==(const person& p)
    {
-      return (p.name       ==       name) &&
-             (p.age        ==        age) &&
-             (p.weight     ==     weight) &&
-             (p.height     ==     height) &&
-             (p.is_insane  ==  is_insane);
+      return (p.id         ==        id) &&
+             (p.name       ==      name) &&
+             (p.age        ==       age) &&
+             (p.weight     ==    weight) &&
+             (p.height     ==    height) &&
+             (p.is_insane  == is_insane);
    }
 
    bool operator!=(const person& p)
@@ -66,6 +68,7 @@ public:
    }
 
    strtk_binary_reader_begin()
+     strtk_binary_reader(id)
      strtk_binary_reader(name)
      strtk_binary_reader(age)
      strtk_binary_reader(height)
@@ -74,6 +77,7 @@ public:
    strtk_binary_reader_end()
 
    strtk_binary_writer_begin()
+     strtk_binary_writer(id)
      strtk_binary_writer(name)
      strtk_binary_writer(age)
      strtk_binary_writer(height)
@@ -92,6 +96,7 @@ bool test01(char* buffer, const unsigned int buffer_size)
       strtk::binary::writer writer(buffer,buffer_size);
       writer.clear();
 
+      p_out.id        = 12345678901234567890ULL;
       p_out.name      = "Mr. Rumpelstilzchen";
       p_out.age       = 637;
       p_out.height    = 123.4567;
@@ -122,15 +127,17 @@ bool test02(char* buffer, const unsigned int buffer_size)
       writer.clear();
 
       person p_out;
-      p_out.name       = "Mr. Rumpelstilzchen";
-      p_out.age        = 0;
-      p_out.height     = 0.0;
-      p_out.weight     = 0.0f;
-      p_out.is_insane  = false;
+      p_out.id        = 12345678901234567890ULL;
+      p_out.name      = "Mr. Rumpelstilzchen";
+      p_out.age       = 0;
+      p_out.height    = 0.0;
+      p_out.weight    = 0.0f;
+      p_out.is_insane = false;
 
       const std::size_t rounds = 1000;
       for (std::size_t i = 0; i < rounds; ++i)
       {
+         p_out.id++;
          p_out.age++;
          p_out.height += 1.23;
          p_out.weight += 4.567f;
@@ -147,6 +154,7 @@ bool test02(char* buffer, const unsigned int buffer_size)
       strtk::binary::reader reader(buffer,buffer_size);
       person p_in;
       person p_expected;
+      p_expected.id        = 12345678901234567890ULL;
       p_expected.name      = "Mr. Rumpelstilzchen";
       p_expected.age       = 0;
       p_expected.height    = 0.0;
@@ -156,6 +164,7 @@ bool test02(char* buffer, const unsigned int buffer_size)
       const std::size_t rounds = 1000;
       for (std::size_t i = 0; i < rounds; ++i)
       {
+         p_expected.id++;
          p_expected.age++;
          p_expected.height += 1.23;
          p_expected.weight += 4.567f;
@@ -187,6 +196,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
       writer.clear();
 
       person p;
+      p.id        = 12345678901234567890ULL;
       p.name      = "Mr. Rumpelstilzchen";
       p.age       = 0;
       p.height    = 123.4567;
@@ -195,7 +205,12 @@ bool test03(char* buffer, const unsigned int buffer_size)
 
       for (unsigned int i = 0; i < rounds; ++i)
       {
-         writer(p);
+         if (!writer(p))
+         {
+            std::cout << "test03() - Failed to write person:" << i << std::endl;
+            return false;
+         }
+         p.id++;
          p.age++;
          p.height += 1.23;
          p.weight += 4.567f;
@@ -230,6 +245,7 @@ bool test03(char* buffer, const unsigned int buffer_size)
       reader.reset();
 
       person p_expected;
+      p_expected.id        = 12345678901234567890ULL;
       p_expected.name      = "Mr. Rumpelstilzchen";
       p_expected.age       = 0;
       p_expected.height    = 123.4567;
@@ -241,12 +257,18 @@ bool test03(char* buffer, const unsigned int buffer_size)
       for (unsigned int i = 0; i < rounds; ++i)
       {
          p_in.clear();
-         reader(p_in);
+         if (!reader(p_in))
+         {
+            std::cout << "test03() - Failed to read person:" << i << std::endl;
+            return false;
+         }
+
          if (p_in != p_expected)
          {
             std::cout << "test03() - Comparison between expected and read failed @ " << i << std::endl;
             return false;
          }
+         p_expected.id++;
          p_expected.age++;
          p_expected.height += 1.23;
          p_expected.weight += 4.567f;
@@ -435,9 +457,10 @@ bool test04(char* buffer, const unsigned int buffer_size)
 
 bool test05(char* buffer, const unsigned int buffer_size)
 {
-   const std::size_t rounds = 50000;
+   const std::size_t rounds = 100000;
    const std::size_t person_count = 1000;
    person p;
+   p.id        = 12345678901234567890ULL;
    p.name      = "Mr. Rumpelstilzchen";
    p.age       = 637;
    p.height    = 123.4567;
@@ -446,7 +469,7 @@ bool test05(char* buffer, const unsigned int buffer_size)
 
    {
       strtk::binary::writer writer(buffer,buffer_size);
-      std::size_t total_written = 0;
+      unsigned long long total_written = 0;
       strtk::util::timer t;
       t.start();
       for (std::size_t r = 0; r < rounds; ++r)
@@ -463,7 +486,7 @@ bool test05(char* buffer, const unsigned int buffer_size)
          total_written += writer.write_size();
       }
       t.stop();
-      printf("[strtk::binary::writer] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %6.2fMB/s\n",
+      printf("[strtk::binary::writer] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %7.3fMB/s\n",
              static_cast<unsigned long long>(rounds * person_count),
              t.time(),
              (rounds * person_count) / t.time(),
@@ -472,7 +495,7 @@ bool test05(char* buffer, const unsigned int buffer_size)
 
    {
       strtk::binary::reader reader(buffer,buffer_size);
-      std::size_t total_read = 0;
+      unsigned long long total_read = 0;
       strtk::util::timer t;
       t.start();
       for (std::size_t r = 0; r < rounds; ++r)
@@ -489,11 +512,76 @@ bool test05(char* buffer, const unsigned int buffer_size)
          total_read += reader.read_size();
       }
       t.stop();
-      printf("[strtk::binary::reader] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %6.2fMB/s\n",
+      printf("[strtk::binary::reader] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %7.3fMB/s\n",
              static_cast<unsigned long long>(rounds * person_count),
              t.time(),
              (rounds * person_count) / t.time(),
              total_read / (1048576.0 * t.time()));
+   }
+
+   {
+      const std::size_t rounds = 100000;
+      const std::size_t max_count = 8000;
+      const double magic[] = {
+                                111.111, 333.333, 555.555,
+                                777.777, 135.531, 357.753
+                             };
+      const std::size_t magic_count = sizeof(magic) / sizeof(double);
+
+      std::vector<double> dbl_list;
+      dbl_list.reserve(max_count);
+
+      for (std::size_t i = 0; i < max_count; ++i)
+      {
+         dbl_list.push_back(magic[i % magic_count] * i);
+      }
+
+      {
+         strtk::binary::writer writer(buffer,buffer_size);
+         unsigned long long total_written = 0;
+         strtk::util::timer t;
+         t.start();
+         for(std::size_t r = 0; r < rounds; ++r)
+         {
+            writer.reset();
+            if (!writer(dbl_list))
+            {
+               std::cout << "test05() - Failed to write " << strtk::type_name(dbl_list) << " @ round " << r << std::endl;
+               return false;
+            }
+            total_written += writer.write_size();
+         }
+         t.stop();
+         printf("[strtk::binary::writer] Double Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %7.3fMB/s\n",
+                static_cast<unsigned long long>(rounds * max_count),
+                t.time(),
+                (rounds * max_count) / t.time(),
+                total_written / (1048576.0 * t.time()));
+      }
+
+      {
+         strtk::binary::reader reader(buffer,buffer_size);
+         unsigned long long total_read = 0;
+         strtk::util::timer t;
+         t.start();
+         for(std::size_t r = 0; r < rounds; ++r)
+         {
+            reader.reset();
+            if (!reader(dbl_list))
+            {
+               std::cout << "test05() - Failed to read " << strtk::type_name(dbl_list) << " @ round " << r << std::endl;
+               return false;
+            }
+            dbl_list.clear();
+            total_read += reader.read_size();
+         }
+         t.stop();
+         printf("[strtk::binary::reader] Double Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %7.3fMB/s\n",
+                static_cast<unsigned long long>(rounds * max_count),
+                t.time(),
+                (rounds * max_count) / t.time(),
+                total_read / (1048576.0 * t.time()));
+      }
    }
 
    return true;
