@@ -1815,6 +1815,12 @@ namespace strtk
             sequence_.push_back(t);
       }
 
+      template<typename Iterator>
+      inline void operator()(const Iterator begin, const Iterator end)
+      {
+         sequence_.push_back(string_to_type_converter<T>(begin,end));
+      }
+
       inline range_to_type_back_inserter_iterator& operator*()
       {
          return (*this);
@@ -6600,7 +6606,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   inline void for_each_combination(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline void for_each_combination(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       do
       {
@@ -6610,7 +6616,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   inline bool for_each_combination_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline bool for_each_combination_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       do
       {
@@ -6622,7 +6628,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   inline void for_each_combutation(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline void for_each_combutation(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       // for each permutation of each combination
       do
@@ -6637,7 +6643,7 @@ namespace strtk
    }
 
    template<typename Iterator, class Function>
-   inline bool for_each_combutation_conditional(Iterator begin, Iterator end, std::size_t size, Function function)
+   inline bool for_each_combutation_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       do
       {

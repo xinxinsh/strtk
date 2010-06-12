@@ -585,27 +585,14 @@ bool test05(char* buffer, const unsigned int buffer_size)
    }
 
    {
-      struct inserter
-      {
-         typedef std::string::iterator Iterator;
-         typedef std::vector<std::string> list_t;
-
-         inserter(list_t& str_list)
-         : str_list_(str_list)
-         {}
-
-         void operator()(const Iterator begin, const Iterator end)
-         { str_list_.push_back(std::string(begin,end)); }
-
-         list_t& str_list_;
-      };
-
       const std::size_t rounds = 1000;
       const std::size_t size = 10;
       std::string s = "0123456789abcdefghij";
       std::vector<std::string> str_list;
       str_list.reserve(200000);
-      strtk::for_each_combination(s.begin(),s.end(),size,inserter(str_list));
+      strtk::for_each_combination(s.begin(),s.end(),
+                                  size,
+                                  strtk::range_to_type_back_inserter(str_list));
 
       {
          strtk::binary::writer writer(buffer,buffer_size);
