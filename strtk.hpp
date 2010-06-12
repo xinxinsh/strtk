@@ -63,6 +63,7 @@ namespace strtk
 {
 
    static const std::size_t one_kilobyte = 1024;
+   static const std::size_t one_megabyte = 1024 * one_kilobyte;
    static const std::size_t magic_seed   = 0xA5A5A5A5;
 
    template<typename Tokenizer, typename Function>
