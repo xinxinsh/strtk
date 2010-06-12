@@ -43,7 +43,7 @@ public:
       clear();
    }
 
-   bool operator==(const person& p)
+   bool operator==(const person& p) const
    {
       return (p.id         ==        id) &&
              (p.name       ==      name) &&
@@ -53,7 +53,7 @@ public:
              (p.is_insane  == is_insane);
    }
 
-   bool operator!=(const person& p)
+   bool operator!=(const person& p) const
    {
       return !operator==(p);
    }
@@ -584,6 +584,78 @@ bool test05(char* buffer, const unsigned int buffer_size)
       }
    }
 
+   {
+      struct inserter
+      {
+         typedef std::string::iterator Iterator;
+         typedef std::vector<std::string> list_t;
+
+         inserter(list_t& str_list)
+         : str_list_(str_list)
+         {}
+
+         void operator()(const Iterator begin, const Iterator end)
+         { str_list_.push_back(std::string(begin,end)); }
+
+         list_t& str_list_;
+      };
+
+      const std::size_t rounds = 1000;
+      const std::size_t size = 10;
+      std::string s = "0123456789abcdefghij";
+      std::vector<std::string> str_list;
+      str_list.reserve(200000);
+      strtk::for_each_combination(s.begin(),s.end(),size,inserter(str_list));
+
+      {
+         strtk::binary::writer writer(buffer,buffer_size);
+         writer.clear();
+         strtk::util::timer t;
+         t.start();
+         unsigned long long total_written = 0;
+         for (std::size_t r = 0; r < rounds; ++r)
+         {
+            writer.reset();
+            if (!writer(str_list))
+            {
+               std::cout << "test05() - Failed to write string permutation " << strtk::type_name(str_list) << " @ round " << r << std::endl;
+               return false;
+            }
+            total_written += writer.write_size();
+         }
+         t.stop();
+         printf("[strtk::binary::writer] String-Permutation Count:%10llu  Total time:%8.4f  Rate:%14.4fstr/s %7.3fMB/s\n",
+                static_cast<unsigned long long>(rounds * str_list.size()),
+                t.time(),
+                (rounds * str_list.size()) / t.time(),
+                total_written / (1048576.0 * t.time()));
+      }
+
+      {
+         strtk::binary::reader reader(buffer,buffer_size);
+         strtk::util::timer t;
+         t.start();
+         unsigned long long total_read = 0;
+         for (std::size_t r = 0; r < rounds; ++r)
+         {
+            str_list.clear();
+            reader.reset();
+            if (!reader(str_list))
+            {
+               std::cout << "test05() - Failed to read string permutation " << strtk::type_name(str_list) << " @ round " << r << std::endl;
+               return false;
+            }
+            total_read += reader.read_size();
+         }
+         t.stop();
+         printf("[strtk::binary::reader] String-Permutation Count:%10llu  Total time:%8.4f  Rate:%14.4fstr/s %7.3fMB/s\n",
+                static_cast<unsigned long long>(rounds * str_list.size()),
+                t.time(),
+                (rounds * str_list.size()) / t.time(),
+                total_read / (1048576.0 * t.time()));
+      }
+   }
+
    return true;
 }
 
@@ -713,7 +785,7 @@ bool test07(char* buffer)
 
 int main()
 {
-   static const std::size_t max_buffer_size = 512 * strtk::one_kilobyte; // 512KB
+   static const std::size_t max_buffer_size = 10 * strtk::one_megabyte; // 10MB
    char* buffer = new char[max_buffer_size];
    test01(buffer,max_buffer_size);
    test02(buffer,max_buffer_size);
