@@ -6660,6 +6660,15 @@ namespace strtk
 
    namespace binary
    {
+      class ushort_string_adptr
+      {
+      public:
+         ushort_string_adptr(std::string& str)
+         : s(str)
+         {}
+         std::string& s;
+      };
+
       class reader
       {
       public:
@@ -6720,7 +6729,25 @@ namespace strtk
             if (!buffer_capacity_ok(length))
                return false;
             output.resize(length);
-            std::copy(buffer_, buffer_ + length,output.begin());
+            std::copy(buffer_,
+                      buffer_ + length,
+                      const_cast<char*>(output.c_str()));
+            buffer_ += length;
+            read_buffer_size_ += length;
+            return true;
+         }
+
+         inline bool operator()(ushort_string_adptr& output)
+         {
+            unsigned short length = 0;
+            if (!operator()(length))
+               return false;
+            if (!buffer_capacity_ok(length))
+               return false;
+            output.s.resize(length);
+            std::copy(buffer_,
+                      buffer_ + length,
+                      const_cast<char*>(output.s.c_str()));
             buffer_ += length;
             read_buffer_size_ += length;
             return true;
@@ -6735,6 +6762,16 @@ namespace strtk
             std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(data));
             buffer_ += length;
             read_buffer_size_ += length;
+            return true;
+         }
+
+         template<typename T1, typename T2>
+         inline bool operator()(std::pair<T1,T2>& p)
+         {
+            if (!operator()(p.first))
+               return false;
+            if (!operator()(p.second))
+               return false;
             return true;
          }
 
@@ -6898,9 +6935,36 @@ namespace strtk
             return true;
          }
 
+         template<typename T1, typename T2>
+         inline bool operator()(const std::pair<T1,T2>& p)
+         {
+            if (!operator()(p.first))
+               return false;
+            if (!operator()(p.second))
+               return false;
+            return true;
+         }
+
          inline bool operator()(const std::string& input)
          {
             return operator()(input.c_str(),input.size());
+         }
+
+         inline bool operator()(const ushort_string_adptr& input)
+         {
+            if (input.s.size() > std::numeric_limits<unsigned short>::max())
+               return false;
+            unsigned short length = static_cast<unsigned short>(input.s.size());
+            if (!operator()(length))
+               return false;
+            std::size_t raw_size = length * sizeof(std::string::value_type);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            const char* ptr = input.s.c_str();
+            std::copy(ptr, ptr + raw_size, buffer_);
+            buffer_ += raw_size;
+            written_buffer_size_ += raw_size;
+            return true;
          }
 
          template<typename T,
@@ -8042,6 +8106,17 @@ namespace strtk
          return type_name<T>();
       }
 
+      template <typename T1, typename T2>
+      inline std::string type_name(const std::pair<T1,T2>& p)
+      {
+         static std::string s = std::string("std::pair<" +
+                                            type_name(p.first) +
+                                            "," +
+                                            type_name(p.second) +
+                                            ">");
+         return s;
+      }
+
       template<typename T>
       inline std::size_t type_length()
       {
@@ -8081,9 +8156,13 @@ namespace strtk
    }
 
    template <typename T1, typename T2>
-   inline std::string type_name(const std::pair<T1,T2>&)
+   inline std::string type_name(const std::pair<T1,T2>& p)
    {
-      static std::string s = std::string("std::pair<" + details::type_name<T1>() + "," + details::type_name<T2>() + ">");
+      static std::string s = std::string("std::pair<" +
+                                         type_name(p.first) +
+                                         "," +
+                                         type_name(p.second) +
+                                         ">");
       return s;
    }
 
