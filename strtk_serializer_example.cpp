@@ -452,6 +452,101 @@ bool test04(char* buffer, const unsigned int buffer_size)
       }
    }
 
+   {
+      // Write out and then read back in a series of elaborate std::pair based types.
+      typedef std::pair<std::string,unsigned int> p1_t;
+      typedef std::pair<p1_t,p1_t> p2_t;
+      typedef std::pair<p2_t,p2_t> p3_t;
+      typedef std::pair<p3_t,p3_t> p4_t;
+
+      p1_t p1_out("abcxyz",123456789);
+      p2_t p2_out(p1_out,p1_out);
+      p3_t p3_out(p2_out,p2_out);
+      p4_t p4_out(p3_out,p3_out);
+
+      strtk::binary::writer writer(buffer,buffer_size);
+
+      if (!writer(p1_out))
+      {
+         std::cout << "test04() - Failed to write type: " << strtk::type_name(p1_out) << std::endl;
+         return false;
+      }
+
+      if (!writer(p2_out))
+      {
+         std::cout << "test04() - Failed to write type: " << strtk::type_name(p2_out) << std::endl;
+         return false;
+      }
+
+      if (!writer(p3_out))
+      {
+         std::cout << "test04() - Failed to write type: " << strtk::type_name(p3_out) << std::endl;
+         return false;
+      }
+
+      if (!writer(p4_out))
+      {
+         std::cout << "test04() - Failed to write type: " << strtk::type_name(p4_out) << std::endl;
+         return false;
+      }
+
+      strtk::binary::reader reader(buffer,buffer_size);
+
+      p1_t p1_in;
+      p2_t p2_in;
+      p3_t p3_in;
+      p4_t p4_in;
+
+      if (!reader(p1_in))
+      {
+         std::cout << "test04() - Failed to read type: " << strtk::type_name(p1_in) << std::endl;
+         return false;
+      }
+
+      if (!reader(p2_in))
+      {
+         std::cout << "test04() - Failed to read type: " << strtk::type_name(p2_in) << std::endl;
+         return false;
+      }
+
+      if (!reader(p3_in))
+      {
+         std::cout << "test04() - Failed to read type: " << strtk::type_name(p3_in) << std::endl;
+         return false;
+      }
+
+      if (!reader(p4_in))
+      {
+         std::cout << "test04() - Failed to read type: " << strtk::type_name(p4_in) << std::endl;
+         return false;
+      }
+
+      if (p1_in != p1_out)
+      {
+         std::cout << "test04() - Comparison between p1_in and p1_out failed." << std::endl;
+         return false;
+      }
+
+      if (p2_in != p2_out)
+      {
+         std::cout << "test04() - Comparison between p2_in and p2_out failed." << std::endl;
+         return false;
+      }
+
+      if (p3_in != p3_out)
+      {
+         std::cout << "test04() - Comparison between p3_in and p3_out failed." << std::endl;
+         return false;
+      }
+
+      if (p4_in != p4_out)
+      {
+         std::cout << "test04() - Comparison between p4_in and p4_out failed." << std::endl;
+         return false;
+      }
+
+   }
+
    return true;
 }
 
