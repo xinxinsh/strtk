@@ -59,19 +59,21 @@ void trie_example00()
 
 void trie_example01()
 {
-   const std::size_t l_size = 3;
+   const std::size_t l_size = 4;
    unsigned int i_list[][l_size] =
                             {
-                               { 1,2,3 },
-                               { 4,5,6 },
-                               { 7,8,9 }
+                               {  1,  2,  3,  4 },
+                               {  5,  6,  7,  8 },
+                               {  9, 10, 11, 12 },
+                               { 13, 14, 15, 16 }
                             };
 
    strtk::trie::prefix<unsigned int*,std::string> trie;
 
-   trie.insert(i_list[0],i_list[0] + l_size, "1,2,3");
-   trie.insert(i_list[1],i_list[1] + l_size, "4,5,6");
-   trie.insert(i_list[2],i_list[2] + l_size, "7,8,9");
+   trie.insert(i_list[0],i_list[0] + l_size, " 1,  2,  3,  4");
+   trie.insert(i_list[1],i_list[1] + l_size, " 5,  6,  7,  8");
+   trie.insert(i_list[2],i_list[2] + l_size, " 9, 10, 11, 12");
+   trie.insert(i_list[3],i_list[3] + l_size, "13, 14, 15, 16");
 
    for (std::size_t i = 0; i < l_size; ++i)
    {

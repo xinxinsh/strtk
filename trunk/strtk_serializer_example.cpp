@@ -547,6 +547,59 @@ bool test04(char* buffer, const unsigned int buffer_size)
 
    }
 
+   {
+      static const std::size_t max = 10;
+      std::vector< std::pair<unsigned long long,person> > p_out_list;
+      std::deque< std::pair<unsigned long long,person> > p_in_list;
+      {
+         person p;
+         p.id        = 0LL;
+         p.name      = "Mr. Rumpelstilzchen";
+         p.age       = 123;
+         p.height    = 123.456;
+         p.weight    = 333.7777f;
+         p.is_insane = false;
+         for (std::size_t i = 0; i < max; ++i)
+         {
+            p_out_list.push_back(std::make_pair(i,p));
+            p.id  += 1;
+            p.age += 3;
+            p.height += 1.1;
+            p.weight += 2.2f;
+         }
+         strtk::binary::writer writer (buffer,buffer_size);
+         if (!writer(p_out_list))
+         {
+            std::cout << "test04() - Failed to write type: " << strtk::type_name(p_out_list) << std::endl;
+            return false;
+         }
+      }
+
+      {
+         strtk::binary::reader reader(buffer,buffer_size);
+         if (!reader(p_in_list))
+         {
+            std::cout << "test04() - Failed to read type: " << strtk::type_name(p_in_list) << std::endl;
+            return false;
+         }
+      }
+
+      if (p_out_list.size() != p_in_list.size())
+      {
+         std::cout << "test04() - Failure between sizes of p_out_list and p_in_list!" << std::endl;
+         return false;
+      }
+
+      std::vector< std::pair<unsigned long long,person> >::iterator itr1 =  p_out_list.begin();
+      std::deque< std::pair<unsigned long long,person> >::iterator itr2 =  p_in_list.begin();
+
+      if (!std::equal(p_out_list.begin(),p_out_list.end(),p_in_list.begin()))
+      {
+         std::cout << "test04() - Failure in comparison between p_out_list and p_in_list!" << std::endl;
+         return false;
+      }
+   }
+
    return true;
 }
 
