@@ -578,6 +578,7 @@ namespace strtk
          }
 
       private:
+
          iterator begin_;
          iterator end_;
       };
@@ -612,6 +613,7 @@ namespace strtk
    struct single_delimiter_predicate
    {
    public:
+
       typedef T value_type;
 
       single_delimiter_predicate(const T& d)
@@ -1523,6 +1525,7 @@ namespace strtk
       class tokenizer_iterator : public std::iterator<std::forward_iterator_tag, T>
       {
       protected:
+
          typedef Iterator iterator;
          typedef const iterator const_iterator;
          typedef typename std::pair<iterator,iterator> range_type;
@@ -2108,6 +2111,7 @@ namespace strtk
                                                              void>
    {
    public:
+
       functional_inserter_iterator(Function& function)
       : function_(function)
       {}
@@ -2579,6 +2583,7 @@ namespace strtk
    class offset_predicate
    {
    public:
+
       offset_predicate(const int offset_list[], const bool rotate = false)
       : rotate_(rotate),
         current_index_(0)
@@ -3570,6 +3575,7 @@ namespace strtk
    class token_grid
    {
    public:
+
       typedef std::pair<unsigned char*, unsigned char*> range_type;
       typedef std::deque<range_type> itr_list_type;
       typedef std::deque<itr_list_type> itr_list_list_type;
@@ -4869,6 +4875,7 @@ namespace strtk
    struct filter_on_wildcard_match
    {
    public:
+
       filter_on_wildcard_match(const std::string& match_pattern,
                                OutputPredicate& predicate,
                                bool allow_through_on_match = true)
@@ -6426,6 +6433,7 @@ namespace strtk
       typedef boost::variate_generator<rng_type, boost::uniform_real<double> > variate_type;
 
    public:
+
       uniform_real_rng(const std::size_t& seed = magic_seed,
                        std::size_t pregen = 0)
       : rng_(static_cast<rng_type::result_type>(seed)),
@@ -6663,6 +6671,7 @@ namespace strtk
       class ushort_string_adptr
       {
       public:
+
          ushort_string_adptr(std::string& str)
          : s(str)
          {}
@@ -6707,7 +6716,7 @@ namespace strtk
          }
 
          template<typename T>
-         inline bool operator()(T*& data, std::size_t& length)
+         inline bool operator()(T*& data, unsigned int& length)
          {
             if (!operator()(length))
                return false;
@@ -6723,7 +6732,7 @@ namespace strtk
 
          inline bool operator()(std::string& output)
          {
-            std::size_t length = 0;
+            unsigned int length = 0;
             if (!operator()(length))
                return false;
             if (!buffer_capacity_ok(length))
@@ -6841,6 +6850,13 @@ namespace strtk
             return true;
          }
 
+         inline bool operator()(std::ifstream& stream)
+         {
+            if (0 == read_buffer_size_) return false;
+            stream.read(original_buffer_,static_cast<std::streamsize>(read_buffer_size_));
+            return true;
+         }
+
          template<typename T>
          inline bool operator()(T& output)
          {
@@ -6921,7 +6937,7 @@ namespace strtk
          }
 
          template<typename T>
-         inline bool operator()(const T* data, const std::size_t& length)
+         inline bool operator()(const T* data, const unsigned int& length)
          {
             if (!operator()(length))
                return false;
@@ -6992,9 +7008,10 @@ namespace strtk
                   typename Comparator>
          inline bool operator()(const std::set<T,Allocator,Comparator>& set)
          {
-            if (!operator()(set.size()))
+            const unsigned int size = set.size();
+            if (!operator()(size))
                return false;
-            const std::size_t raw_size = set.size() * sizeof(T);
+            const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
             typename std::set<T,Allocator,Comparator>::const_iterator itr = set.begin();
@@ -7087,6 +7104,7 @@ namespace strtk
       class hex_value_check
       {
       public:
+
          inline bool operator()(const unsigned char c) const
          {
             return (('0' <= c) && (c <= '9')) ||
@@ -7170,6 +7188,7 @@ namespace strtk
       }
 
    private:
+
       bool valid_;
       T* t_;
    };
@@ -7183,6 +7202,7 @@ namespace strtk
       class base64_value_check
       {
       public:
+
          inline bool operator()(const unsigned char c) const
          {
             return (('0' <= c) && (c <= '9')) ||
@@ -8420,6 +8440,7 @@ namespace strtk
       friend inline ext_string operator - (const ext_string& s, const char* pattern);
 
    private:
+
       std::string s_;
    };
 
@@ -9440,6 +9461,7 @@ namespace strtk
          struct node
          {
          public:
+
             typedef KeyValue key_value_t;
             typedef Value value_t;
 
@@ -9614,6 +9636,7 @@ namespace strtk
          }
 
       private:
+
          node_ptr head_;
       };
 
@@ -9806,6 +9829,34 @@ namespace strtk
 
    namespace util
    {
+      template<typename T>
+      class scoped_restore
+      {
+      public:
+
+         scoped_restore(T& t, const bool restore = true)
+         : restore_(restore),
+           reference_(t),
+           copy_(t)
+         {}
+
+        ~scoped_restore()
+         {
+           if (restore_)
+              reference_ = copy_;
+         }
+
+         bool& restore()
+         {
+            return restore_;
+         }
+
+      private:
+
+         bool restore_;
+         T& reference_;
+         T copy_;
+      };
 
       template<typename Key,
                typename T,
@@ -10009,6 +10060,7 @@ namespace strtk
       class timer
       {
       public:
+
          #ifdef WIN32
             timer()      { QueryPerformanceFrequency(&clock_frequency); }
             void start() { QueryPerformanceCounter(&start_time);        }
@@ -10028,6 +10080,7 @@ namespace strtk
             }
          #endif
       private:
+
          #ifdef WIN32
             LARGE_INTEGER start_time;
             LARGE_INTEGER stop_time;
