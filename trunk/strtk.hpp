@@ -6680,6 +6680,12 @@ namespace strtk
 
       class reader
       {
+      private:
+
+         // should be sourced from cstdint
+         typedef unsigned int uint32_t;
+         typedef unsigned int uint16_t;
+
       public:
 
          template<typename T>
@@ -6716,7 +6722,7 @@ namespace strtk
          }
 
          template<typename T>
-         inline bool operator()(T*& data, unsigned int& length)
+         inline bool operator()(T*& data, uint32_t& length)
          {
             if (!operator()(length))
                return false;
@@ -6732,7 +6738,7 @@ namespace strtk
 
          inline bool operator()(std::string& output)
          {
-            unsigned int length = 0;
+            uint32_t length = 0;
             if (!operator()(length))
                return false;
             if (!buffer_capacity_ok(length))
@@ -6748,17 +6754,17 @@ namespace strtk
 
          inline bool operator()(ushort_string_adptr& output)
          {
-            unsigned short length = 0;
-            if (!operator()(length))
+            uint16_t size = 0;
+            if (!operator()(size))
                return false;
-            if (!buffer_capacity_ok(length))
+            if (!buffer_capacity_ok(size))
                return false;
-            output.s.resize(length);
+            output.s.resize(size);
             std::copy(buffer_,
-                      buffer_ + length,
+                      buffer_ + size,
                       const_cast<char*>(output.s.c_str()));
-            buffer_ += length;
-            read_buffer_size_ += length;
+            buffer_ += size;
+            read_buffer_size_ += size;
             return true;
          }
 
@@ -6789,16 +6795,16 @@ namespace strtk
                   template<typename, typename> class Sequence>
          inline bool operator()(Sequence<T,Allocator>& seq)
          {
-            std::size_t n = 0;
-            if (!read_pod(n))
+            uint32_t size = 0;
+            if (!read_pod(size))
                return false;
-            const std::size_t raw_size = n * sizeof(T);
+            const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
             T t = T();
-            for(std::size_t i = 0; i < n; ++i)
+            for(std::size_t i = 0; i < size; ++i)
             {
-               if (!operator()(t)) 
+               if (!operator()(t))
                   return false;
                seq.push_back(t);
             }
@@ -6808,17 +6814,17 @@ namespace strtk
          template<typename T, typename Allocator>
          inline bool operator()(std::vector<T,Allocator>& vec)
          {
-            std::size_t n = 0;
-            if (!read_pod(n))
+            uint32_t size = 0;
+            if (!read_pod(size))
                return false;
-            vec.reserve(n);
-            const std::size_t raw_size = n * sizeof(T);
+            vec.reserve(size);
+            const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
             T t;
-            for(std::size_t i = 0; i < n; ++i)
+            for(std::size_t i = 0; i < size; ++i)
             {
-               if (!operator()(t)) 
+               if (!operator()(t))
                   return false;
                vec.push_back(t);
             }
@@ -6830,14 +6836,14 @@ namespace strtk
                   typename Comparator>
          inline bool operator()(std::set<T,Allocator,Comparator>& set)
          {
-            std::size_t n = 0;
-            if (!read_pod(n))
+            uint32_t size = 0;
+            if (!read_pod(size))
                return false;
-            const std::size_t raw_size = n * sizeof(T);
+            const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
             T t;
-            for(std::size_t i = 0; i < n; ++i)
+            for(std::size_t i = 0; i < size; ++i)
             {
                if (!operator()(t))
                   return false;
@@ -6905,6 +6911,12 @@ namespace strtk
 
       class writer
       {
+      private:
+
+         // should be sourced from cstdint
+         typedef unsigned int uint32_t;
+         typedef unsigned int uint16_t;
+
       public:
 
          template<typename T>
@@ -6940,7 +6952,7 @@ namespace strtk
          }
 
          template<typename T>
-         inline bool operator()(const T* data, const unsigned int& length)
+         inline bool operator()(const T* data, const uint32_t& length)
          {
             if (!operator()(length))
                return false;
@@ -6971,12 +6983,12 @@ namespace strtk
 
          inline bool operator()(const ushort_string_adptr& input)
          {
-            if (input.s.size() > std::numeric_limits<unsigned short>::max())
+            if (input.s.size() > std::numeric_limits<uint16_t>::max())
                return false;
-            unsigned short length = static_cast<unsigned short>(input.s.size());
-            if (!operator()(length))
+            const uint16_t size = static_cast<unsigned short>(input.s.size());
+            if (!operator()(size))
                return false;
-            std::size_t raw_size = length * sizeof(std::string::value_type);
+            std::size_t raw_size = size * sizeof(std::string::value_type);
             if (!buffer_capacity_ok(raw_size))
                return false;
             const char* ptr = input.s.c_str();
@@ -6991,9 +7003,10 @@ namespace strtk
                   template<typename, typename> class Sequence>
          inline bool operator()(const Sequence<T,Allocator>& seq)
          {
-            if (!operator()(seq.size()))
+            const uint32_t size = seq.size();
+            if (!operator()(size))
                return false;
-            const std::size_t raw_size = seq.size() * sizeof(T);
+            const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
             typename Sequence<T,Allocator>::const_iterator itr = seq.begin();
@@ -7011,7 +7024,7 @@ namespace strtk
                   typename Comparator>
          inline bool operator()(const std::set<T,Allocator,Comparator>& set)
          {
-            const unsigned int size = set.size();
+            const uint32_t size = set.size();
             if (!operator()(size))
                return false;
             const std::size_t raw_size = size * sizeof(T);
