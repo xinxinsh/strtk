@@ -6798,7 +6798,8 @@ namespace strtk
             T t = T();
             for(std::size_t i = 0; i < n; ++i)
             {
-               operator()(t);
+               if (!operator()(t)) 
+                  return false;
                seq.push_back(t);
             }
             return true;
@@ -6817,7 +6818,8 @@ namespace strtk
             T t;
             for(std::size_t i = 0; i < n; ++i)
             {
-               operator()(t);
+               if (!operator()(t)) 
+                  return false;
                vec.push_back(t);
             }
             return true;
@@ -6837,7 +6839,8 @@ namespace strtk
             T t;
             for(std::size_t i = 0; i < n; ++i)
             {
-               operator()(t);
+               if (!operator()(t))
+                  return false;
                set.insert(t);
             }
             return true;
@@ -6996,7 +6999,7 @@ namespace strtk
             typename Sequence<T,Allocator>::const_iterator itr = seq.begin();
             while (seq.end() != itr)
             {
-               if(!operator()(*itr))
+               if (!operator()(*itr))
                   return false;
                ++itr;
             }
@@ -7017,7 +7020,7 @@ namespace strtk
             typename std::set<T,Allocator,Comparator>::const_iterator itr = set.begin();
             while (set.end() != itr)
             {
-               if(!operator()(*itr))
+               if (!operator()(*itr))
                   return false;
                ++itr;
             }
