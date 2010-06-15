@@ -97,10 +97,13 @@ strtk_numstats: strtk_numstats.cpp strtk.hpp
 pgo: strtk_parse_test.cpp strtk_tokenizer_cmp.cpp strtk.hpp
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -pg -fprofile-generate -DUSE_SPIRIT -o strtk_tokenizer_cmp strtk_tokenizer_cmp.cpp $(LINKER_OPT)
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -pg -fprofile-generate -o strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
+	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -pg -fprofile-generate -o strtk_serializer_example strtk_serializer_example.cpp $(LINKER_OPT)
 	./strtk_tokenizer_cmp
 	./strtk_parse_test
+	./strtk_serializer_example
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -fprofile-use -DUSE_SPIRIT -o strtk_tokenizer_cmp strtk_tokenizer_cmp.cpp $(LINKER_OPT)
 	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -fprofile-use -o strtk_parse_test strtk_parse_test.cpp $(LINKER_OPT)
+	$(COMPILER) $(BASE_OPTIONS) -O3 -march=native -fprofile-use -o strtk_serializer_example strtk_serializer_example.cpp $(LINKER_OPT)
 
 strip_bin:
 	strip -s strtk_converters_example
