@@ -6802,7 +6802,7 @@ namespace strtk
             if (!buffer_capacity_ok(raw_size))
                return false;
             T t = T();
-            for(std::size_t i = 0; i < size; ++i)
+            for (std::size_t i = 0; i < size; ++i)
             {
                if (!operator()(t))
                   return false;
@@ -6822,7 +6822,7 @@ namespace strtk
             if (!buffer_capacity_ok(raw_size))
                return false;
             T t;
-            for(std::size_t i = 0; i < size; ++i)
+            for (std::size_t i = 0; i < size; ++i)
             {
                if (!operator()(t))
                   return false;
@@ -6843,7 +6843,7 @@ namespace strtk
             if (!buffer_capacity_ok(raw_size))
                return false;
             T t;
-            for(std::size_t i = 0; i < size; ++i)
+            for (std::size_t i = 0; i < size; ++i)
             {
                if (!operator()(t))
                   return false;
@@ -7452,7 +7452,7 @@ namespace strtk
                                        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                     };
 
-      static const unsigned char trpl_digitr[] =
+      static const unsigned char rev_digit_table3[] =
                                  {
                                     "000100200300400500600700800900010110210310410510610710810910020120220320420"
                                     "520620720820920030130230330430530630730830930040140240340440540640740840940"
@@ -7499,7 +7499,7 @@ namespace strtk
                                     "576777879708182838485868788898091929394959697989990000000000000000000000000"
                                  };
 
-      static const unsigned char* dbl_digitr = (trpl_digitr + 3000);
+      static const unsigned char* rev_digit_table2 = (rev_digit_table3 + (3 * sizeof(unsigned char)));
 
       #define register_pod_type(T)\
       template<> struct is_pod<T>{ typedef yes_t result_t; static const bool result; };\
@@ -8062,9 +8062,9 @@ namespace strtk
                remainder  = value % radix_cube;
                value     /= radix_cube;
                index = remainder * 3;
-               *(itr--) = static_cast<char>(details::trpl_digitr[index + 0]);
-               *(itr--) = static_cast<char>(details::trpl_digitr[index + 1]);
-               *(itr--) = static_cast<char>(details::trpl_digitr[index + 2]);
+               *(itr--) = static_cast<char>(details::rev_digit_table3[index + 0]);
+               *(itr--) = static_cast<char>(details::rev_digit_table3[index + 1]);
+               *(itr--) = static_cast<char>(details::rev_digit_table3[index + 2]);
             }
 
             while (value >= static_cast<T>(radix))
@@ -8072,8 +8072,8 @@ namespace strtk
                remainder  = value % radix_sqr;
                value     /= radix_sqr;
                index = remainder << 1;
-               *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
-               *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
+               *(itr--) = static_cast<char>(details::rev_digit_table2[index + 0]);
+               *(itr--) = static_cast<char>(details::rev_digit_table2[index + 1]);
             }
 
             if (0 != value)
@@ -8113,9 +8113,9 @@ namespace strtk
                remainder  = value % radix_cube;
                value     /= radix_cube;
                index = remainder * 3;
-               *(itr--) = static_cast<char>(details::trpl_digitr[index + 0]);
-               *(itr--) = static_cast<char>(details::trpl_digitr[index + 1]);
-               *(itr--) = static_cast<char>(details::trpl_digitr[index + 2]);
+               *(itr--) = static_cast<char>(details::rev_digit_table3[index + 0]);
+               *(itr--) = static_cast<char>(details::rev_digit_table3[index + 1]);
+               *(itr--) = static_cast<char>(details::rev_digit_table3[index + 2]);
             }
 
             while (value >= static_cast<T>(radix))
@@ -8123,8 +8123,8 @@ namespace strtk
                remainder  = value % radix_sqr;
                value     /= radix_sqr;
                index = remainder << 1;
-               *(itr--) = static_cast<char>(details::dbl_digitr[index + 0]);
-               *(itr--) = static_cast<char>(details::dbl_digitr[index + 1]);
+               *(itr--) = static_cast<char>(details::rev_digit_table2[index + 0]);
+               *(itr--) = static_cast<char>(details::rev_digit_table2[index + 1]);
             }
 
             if (0 != value)
@@ -9560,7 +9560,7 @@ namespace strtk
                if (!node_list_.empty())
                {
                   node_list_iterator itr = node_list_.begin();
-                  while(node_list_.end() != itr)
+                  while (node_list_.end() != itr)
                   {
                      delete *itr++;
                   }
@@ -9573,7 +9573,7 @@ namespace strtk
                   return 0;
                node_list_iterator itr = node_list_.begin();
                const node_list_iterator end = node_list_.end();
-               while(end != itr)
+               while (end != itr)
                {
                   if (key_value == (*itr)->key_value_)
                      return *itr;
