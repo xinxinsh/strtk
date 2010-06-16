@@ -147,4 +147,4 @@ valgrind_check:
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_test
 
 clean:
-	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda *.gcnor *.gch
+	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda *.gcno *.gcnor *.gch
