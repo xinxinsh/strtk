@@ -634,7 +634,7 @@ bool test05(char* buffer, const unsigned int buffer_size)
          total_written += writer.write_size();
       }
       t.stop();
-      printf("[strtk::binary::writer] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %7.3fMB/s\n",
+      printf("[strtk::binary::writer] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %8.3fMB/s\n",
              static_cast<unsigned long long>(rounds * person_count),
              t.time(),
              (rounds * person_count) / t.time(),
@@ -660,7 +660,7 @@ bool test05(char* buffer, const unsigned int buffer_size)
          total_read += reader.read_size();
       }
       t.stop();
-      printf("[strtk::binary::reader] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %7.3fMB/s\n",
+      printf("[strtk::binary::reader] Person Count:%10llu  Total time:%8.4f  Rate:%14.4fpersons/s %8.3fMB/s\n",
              static_cast<unsigned long long>(rounds * person_count),
              t.time(),
              (rounds * person_count) / t.time(),
@@ -759,7 +759,7 @@ bool test05(char* buffer, const unsigned int buffer_size)
             total_written += writer.write_size();
          }
          t.stop();
-         printf("[strtk::binary::writer] String-Permutation Count:%10llu  Total time:%8.4f  Rate:%14.4fstr/s %7.3fMB/s\n",
+         printf("[strtk::binary::writer] String-Permutation Count:%10llu  Total time:%8.4f  Rate:%14.4fstr/s %8.3fMB/s\n",
                 static_cast<unsigned long long>(rounds * str_list.size()),
                 t.time(),
                 (rounds * str_list.size()) / t.time(),
@@ -783,7 +783,7 @@ bool test05(char* buffer, const unsigned int buffer_size)
             total_read += reader.read_size();
          }
          t.stop();
-         printf("[strtk::binary::reader] String-Permutation Count:%10llu  Total time:%8.4f  Rate:%14.4fstr/s %7.3fMB/s\n",
+         printf("[strtk::binary::reader] String-Permutation Count:%10llu  Total time:%8.4f  Rate:%14.4fstr/s %8.3fMB/s\n",
                 static_cast<unsigned long long>(rounds * str_list.size()),
                 t.time(),
                 (rounds * str_list.size()) / t.time(),

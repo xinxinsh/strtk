@@ -171,7 +171,7 @@ void boost_split_timed_test()
           s.size() / (1048576.0 * t.time()));
 }
 
-static const int max_i2s = 60000000;
+static const int max_i2s = 80000000;
 
 void sprintf_lexical_cast_test_i2s()
 {
