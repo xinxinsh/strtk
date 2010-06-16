@@ -7499,7 +7499,7 @@ namespace strtk
                                     "576777879708182838485868788898091929394959697989990000000000000000000000000"
                                  };
 
-      static const unsigned char* rev_digit_table2 = (rev_digit_table3 + (3 * sizeof(unsigned char)));
+      static const unsigned char* rev_digit_table2 = (rev_digit_table3 + (3000 * sizeof(unsigned char)));
 
       #define register_pod_type(T)\
       template<> struct is_pod<T>{ typedef yes_t result_t; static const bool result; };\
