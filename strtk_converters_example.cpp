@@ -46,6 +46,7 @@ void example01()
    std::cout << hexbin << std::endl;
    std::cout << base64 << std::endl;
    std::cout << base64bin << std::endl;
+   std::cout << std::endl;
 }
 
 void example02()
@@ -82,10 +83,101 @@ void example03()
    }
 }
 
+void bin2hex_speed_test()
+{
+   unsigned char* bin = new unsigned char[strtk::one_megabyte];
+   unsigned char* hex = new unsigned char[2 * strtk::one_megabyte];
+
+   strtk::range::adapter<unsigned char> r1(bin,bin + strtk::one_megabyte);
+   strtk::range::adapter<unsigned char> r2(hex,hex + (2 * strtk::one_megabyte));
+
+   strtk::iota(r1,static_cast<unsigned char>(0x00));
+
+   static const std::size_t rounds = 2000;
+
+   {
+      strtk::util::timer t;
+      t.start();
+      for (std::size_t r = 0; r < rounds; ++r)
+      {
+         strtk::convert_bin_to_hex(r1.begin(),r1.end(),r2.begin());
+      }
+      t.stop();
+      printf("[bin2hex] Data Size: %6lluMB  Total time:%8.4f  Rate: %6.2fMB/s\n",
+             static_cast<unsigned long long>(rounds * r1.size()) / strtk::one_megabyte,
+             t.time(),
+             (rounds * r1.size()) / (1048576.0 * t.time()));
+   }
+
+   {
+      strtk::util::timer t;
+      t.start();
+      for (std::size_t r = 0; r < rounds; ++r)
+      {
+         strtk::convert_hex_to_bin(r2.begin(),r2.end(),r1.begin());
+      }
+      t.stop();
+      printf("[hex2bin] Data Size: %6lluMB  Total time:%8.4f  Rate: %6.2fMB/s\n",
+             static_cast<unsigned long long>(rounds * r1.size()) / strtk::one_megabyte,
+             t.time(),
+             (rounds * r1.size()) / (1048576.0 * t.time()));
+   }
+
+   delete[] bin;
+   delete[] hex;
+}
+
+void bin2b64_speed_test()
+{
+   unsigned char* bin = new unsigned char[strtk::one_megabyte];
+   unsigned char* b64 = new unsigned char[2 * strtk::one_megabyte];
+
+   strtk::range::adapter<unsigned char> r1(bin,bin + strtk::one_megabyte);
+   strtk::range::adapter<unsigned char> r2(b64,b64 + (2 * strtk::one_megabyte));
+
+   strtk::iota(r1,static_cast<unsigned char>(0x00));
+
+   static const std::size_t rounds = 2000;
+   std::size_t length = 0;
+
+   {
+      strtk::util::timer t;
+      t.start();
+      for (std::size_t r = 0; r < rounds; ++r)
+      {
+         length = strtk::convert_bin_to_base64(r1.begin(),r1.end(),r2.begin());
+      }
+      t.stop();
+      printf("[bin2b64] Data Size: %6lluMB  Total time:%8.4f  Rate: %6.2fMB/s\n",
+             static_cast<unsigned long long>(rounds * r1.size()) / strtk::one_megabyte,
+             t.time(),
+             (rounds * r1.size()) / (1048576.0 * t.time()));
+   }
+
+   {
+      strtk::util::timer t;
+      t.start();
+      for (std::size_t r = 0; r < rounds; ++r)
+      {
+         strtk::convert_base64_to_bin(r2.begin(), r2.begin() + length, r1.begin());
+      }
+      t.stop();
+      printf("[b642bin] Data Size: %6lluMB  Total time:%8.4f  Rate: %6.2fMB/s\n",
+             static_cast<unsigned long long>(rounds * r1.size()) / strtk::one_megabyte,
+             t.time(),
+             (rounds * r1.size()) / (1048576.0 * t.time()));
+   }
+
+   delete[] bin;
+   delete[] b64;
+}
+
 int main()
 {
    example01();
    example02();
    example03();
+   bin2hex_speed_test();
+   bin2b64_speed_test();
    return 0;
 }
