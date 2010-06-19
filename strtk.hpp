@@ -1671,6 +1671,7 @@ namespace strtk
          }
 
       protected:
+
          const Predicate& predicate_;
          iterator end_;
          range_type range_;
@@ -1783,7 +1784,11 @@ namespace strtk
    }
 
    template <typename Sequence>
-   class range_to_type_back_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
+   class range_to_type_back_inserter_iterator : public std::iterator<std::output_iterator_tag,
+                                                                     void,
+                                                                     void,
+                                                                     void,
+                                                                     void>
    {
    public:
 
@@ -1856,7 +1861,11 @@ namespace strtk
    }
 
    template <typename Set>
-   class range_to_type_inserter_iterator : public std::iterator<std::output_iterator_tag,void,void,void,void>
+   class range_to_type_inserter_iterator : public std::iterator<std::output_iterator_tag,
+                                                                void,
+                                                                void,
+                                                                void,
+                                                                void>
    {
    public:
 
@@ -2050,7 +2059,11 @@ namespace strtk
    }
 
    template<typename T>
-   class counting_back_inserter_iterator : public std::iterator<std::output_iterator_tag,T,void,void,void>
+   class counting_back_inserter_iterator : public std::iterator<std::output_iterator_tag,
+                                                                T,
+                                                                void,
+                                                                void,
+                                                                void>
    {
    public:
 
@@ -3331,10 +3344,9 @@ namespace strtk
    template<std::size_t n>
    struct interleave_ary;
 
-   template<> struct interleave_ary<sizeof(unsigned short)>     { typedef unsigned short type; };
-   template<> struct interleave_ary<sizeof(unsigned int  )>     { typedef unsigned int   type; };
- //template<> struct interleave_ary<sizeof(unsigned long )>     { typedef unsigned long  type; };
-   template<> struct interleave_ary<sizeof(unsigned long long)> { typedef long long      type; };
+   template<> struct interleave_ary<sizeof(unsigned short)>     { typedef unsigned short     type; };
+   template<> struct interleave_ary<sizeof(unsigned int  )>     { typedef unsigned int       type; };
+   template<> struct interleave_ary<sizeof(unsigned long long)> { typedef unsigned long long type; };
 
    template<std::size_t n>
    inline void create_nway_interleave_table(typename interleave_ary<n>::type table[256])
