@@ -1144,7 +1144,7 @@ namespace strtk
       std::size_t i = 0;
       std::size_t delta = delta_list[0];
 
-      for (;;)
+      for ( ; ; )
       {
          std::copy(sit,sit + delta,nit);
          sit += p_size + delta;
@@ -5581,8 +5581,8 @@ namespace strtk
                    t1,t2,t3,t4,t5,t6,t7,t8);
    }
 
-   template< typename T1, typename T2, typename T3, typename T4,
-             typename T5, typename T6, typename T7>
+   template<typename T1, typename T2, typename T3, typename T4,
+            typename T5, typename T6, typename T7>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
@@ -9263,7 +9263,7 @@ namespace strtk
       return data;
    }
 
-   template< typename T1, typename T2>
+   template<typename T1, typename T2>
    inline unsigned char* read_pod(unsigned char* data,
                                   T1& t1, T2& t2)
    {
