@@ -6626,6 +6626,8 @@ namespace strtk
    template<typename Iterator, class Function>
    inline void for_each_combination(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
+      if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
+         return;
       do
       {
          function(begin,begin + size);
@@ -6636,6 +6638,8 @@ namespace strtk
    template<typename Iterator, class Function>
    inline bool for_each_combination_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
+      if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
+         return;
       do
       {
          if (!function(begin,begin + size))
@@ -6648,6 +6652,8 @@ namespace strtk
    template<typename Iterator, class Function>
    inline void for_each_combutation(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
+      if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
+         return;
       // for each permutation of each combination
       do
       {
@@ -6663,6 +6669,8 @@ namespace strtk
    template<typename Iterator, class Function>
    inline bool for_each_combutation_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
+      if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
+         return;
       do
       {
          do
