@@ -274,7 +274,8 @@ namespace strtk
       };
       template<typename T>
       const bool is_pod<T>::result = false;
-   }
+
+   } // namespace details
 
    template<typename Iterator, typename T>
    inline bool string_to_type_converter(const Iterator begin, const Iterator end, T& t)
@@ -612,6 +613,7 @@ namespace strtk
       {
          return adapter<typename Sequence<T,Allocator>::iterator>(seq.begin(),seq.end());
       }
+
    } // namespace range
 
    template<typename T>
@@ -1517,7 +1519,7 @@ namespace strtk
          return include_all_delimiters == (split_opt & include_all_delimiters);
       }
 
-   }
+   } // namespace tokenize_options
 
    template<typename Iterator, typename DelimiterPredicate>
    class tokenizer
@@ -1781,7 +1783,8 @@ namespace strtk
       typedef std::vector<iterator_type> token_vector_type;
       typedef std::deque<iterator_type> token_deque_type;
       typedef std::list<iterator_type> token_list_type;
-   }
+
+   } // namespace std_string
 
    template <typename Sequence>
    class range_to_type_back_inserter_iterator : public std::iterator<std::output_iterator_tag,
@@ -1924,7 +1927,6 @@ namespace strtk
 
       Set& set_;
    };
-
 
    template <typename Set>
    inline range_to_type_inserter_iterator<Set> range_to_type_inserter(Set& set)
@@ -2212,7 +2214,7 @@ namespace strtk
          return include_all_delimiters == (split_opt & include_all_delimiters);
       }
 
-   }
+   } // namespace split_options
 
    template<typename DelimiterPredicate,
             typename Iterator,
@@ -5934,6 +5936,18 @@ namespace strtk
       join(output,delimiter,set.begin(),set.end());
    }
 
+   inline void join(std::string& output,
+                    const std::string& delimiter,
+                    int argc, char* argv[])
+   {
+      for (int i = 0; i < argc; ++i)
+      {
+         output += argv[i];
+         if (i < (argc - 1))
+            output += delimiter;
+      }
+   }
+
    template<typename InputIterator>
    inline std::string join(const std::string& delimiter,
                            const InputIterator begin,
@@ -5960,6 +5974,13 @@ namespace strtk
                            std::set<T,Comparator,Allocator>& set)
    {
       return join(delimiter,set.begin(),set.end());
+   }
+
+   inline std::string join(const std::string& delimiter, int argc, char* argv[])
+   {
+      std::string result;
+      join(result,delimiter,argc,argv);
+      return result;
    }
 
    template<typename InputIterator, typename Predicate>
@@ -6435,7 +6456,7 @@ namespace strtk
          for (std::size_t i = 0; i < count; ++i, *out++ = rnd()) ;
       }
 
-   }
+   } // namespace details
 
    class uniform_real_rng
    {
@@ -7410,7 +7431,7 @@ namespace strtk
          result = (index < str.size()) ? str.substr(index,str.size() - index) : str;
       }
 
-   }
+   } // namespace text
 
    namespace details
    {
@@ -10195,6 +10216,7 @@ namespace strtk
                                        std::string(" (") + date + std::string(" ") + epoch + std::string(")");
          return info_str;
       }
+
    } // namespace information
 
 } // namespace strtk
