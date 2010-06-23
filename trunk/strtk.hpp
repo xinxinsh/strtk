@@ -74,7 +74,8 @@ namespace strtk
       std::size_t token_count = 0;
       tokenizer.assign(buffer.begin(),buffer.end());
       typename Tokenizer::iterator itr = tokenizer.begin();
-      while (tokenizer.end() != itr)
+      typename Tokenizer::const_iterator end = tokenizer.end();
+      while (end != itr)
       {
          function(*itr);
          ++itr;
@@ -404,9 +405,10 @@ namespace strtk
      if (!stream) return 0;
      std::size_t count = 0;
      typename Sequence<T,Allocator>::const_iterator itr = sequence.begin();
+     typename Sequence<T,Allocator>::const_iterator end = sequence.end();
      if (!delimiter.empty())
      {
-        while (sequence.end() != itr)
+        while (end != itr)
         {
            stream << *itr << delimiter;
            ++itr;
@@ -415,7 +417,7 @@ namespace strtk
      }
      else
      {
-        while (sequence.end() != itr)
+        while (end != itr)
         {
            stream << *itr;
            ++itr;
@@ -435,9 +437,10 @@ namespace strtk
      if (!stream) return 0;
      std::size_t count = 0;
      typename std::set<T,Comparator,Allocator>::const_iterator itr = set.begin();
+     typename std::set<T,Comparator,Allocator>::const_iterator end = sequence.end();
      if (!delimiter.empty())
      {
-        while (set.end() != itr)
+        while (end != itr)
         {
            stream << *itr << delimiter;
            ++itr;
@@ -446,7 +449,7 @@ namespace strtk
      }
      else
      {
-        while (set.end() != itr)
+        while (end != itr)
         {
            stream << *itr;
            ++itr;
@@ -4463,8 +4466,9 @@ namespace strtk
       inline void enforce_column_count(const std::size_t& column_count)
       {
          itr_list_list_type::iterator itr = token_list_.begin();
+         itr_list_list_type::iterator end = token_list_.end();
          itr_list_list_type new_token_list;
-         while (token_list_.end() != itr)
+         while (end != itr)
          {
             if (itr->size() == column_count)
             {
@@ -4481,8 +4485,9 @@ namespace strtk
                                                const std::size_t& max_column_count)
       {
          itr_list_list_type::iterator itr = token_list_.begin();
+         itr_list_list_type::iterator end = token_list_.end();
          itr_list_list_type new_token_list;
-         while (token_list_.end() != itr)
+         while (end != itr)
          {
             std::size_t column_count = itr->size();
             if ((min_column_count <= column_count) && (column_count <= max_column_count))
@@ -4780,22 +4785,26 @@ namespace strtk
          min_column_count_ = std::numeric_limits<std::size_t>::max();
          max_column_count_ = std::numeric_limits<std::size_t>::min();
 
-         for (itr_list_type::iterator itr = row_list.begin(); row_list.end() != itr; ++itr)
+         itr_list_type::iterator itr = row_list.begin();
+         itr_list_type::iterator end = row_list.end();
+         while (end != itr)
          {
-            if (0 == std::distance(itr->first,itr->second))
-               continue;
-            itr_list_type current_token_list;
-            split(token_predicate,
-                  itr->first,
-                  itr->second,
-                  std::back_inserter(current_token_list),
-                  options_.split_column_option);
-            if (!current_token_list.empty())
+            if (0 != std::distance(itr->first,itr->second))
             {
-               token_list_.push_back(current_token_list);
-               min_column_count_ = std::min(min_column_count_,current_token_list.size());
-               max_column_count_ = std::max(max_column_count_,current_token_list.size());
+               itr_list_type current_token_list;
+               split(token_predicate,
+                     itr->first,
+                     itr->second,
+                     std::back_inserter(current_token_list),
+                     options_.split_column_option);
+               if (!current_token_list.empty())
+               {
+                  token_list_.push_back(current_token_list);
+                  min_column_count_ = std::min(min_column_count_,current_token_list.size());
+                  max_column_count_ = std::max(max_column_count_,current_token_list.size());
+               }
             }
+            ++itr;
          }
          return true;
       }
@@ -6135,9 +6144,14 @@ namespace strtk
                           const InputIterator end)
    {
       InputIterator itr = begin;
+      std::string s;
+      s.reserve(one_kilobyte);
       while (end != itr)
       {
-         output += (pre + type_to_string(*itr++) + post);
+         s.append(pre);
+         s.append(type_to_string(*itr++));
+         s.append(post);
+         output.append(s);
       }
    }
 
@@ -7049,7 +7063,8 @@ namespace strtk
             if (!buffer_capacity_ok(raw_size))
                return false;
             typename Sequence<T,Allocator>::const_iterator itr = seq.begin();
-            while (seq.end() != itr)
+            typename Sequence<T,Allocator>::const_iterator end = seq.end();
+            while (end != itr)
             {
                if (!operator()(*itr))
                   return false;
@@ -7070,7 +7085,8 @@ namespace strtk
             if (!buffer_capacity_ok(raw_size))
                return false;
             typename std::set<T,Allocator,Comparator>::const_iterator itr = set.begin();
-            while (set.end() != itr)
+            typename std::set<T,Allocator,Comparator>::const_iterator end = set.end();
+            while (end != itr)
             {
                if (!operator()(*itr))
                   return false;
@@ -9065,9 +9081,12 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const Sequence<T,Allocator>& sequence)
       {
-         for (typename Sequence<T,Allocator>::iterator itr = sequence.begin(); itr != sequence.end(); ++itr)
+         typename Sequence<T,Allocator>::iterator itr = sequence.begin();
+         typename Sequence<T,Allocator>::iterator itr = sequence.end()
+         while (end != itr)
          {
             stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
+            ++itr;
          }
       }
 
@@ -9077,9 +9096,12 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const std::set<T,Comparator,Allocator>& set)
       {
-         for (typename std::set<T,Comparator,Allocator>::iterator itr = set.begin(); itr != set.end(); ++itr)
+         typename std::set<T,Comparator,Allocator>::iterator itr = set.begin();
+         typename std::set<T,Comparator,Allocator>::iterator end = set.end();
+         while (end != itr)
          {
             stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
+            ++itr;
          }
       }
 
@@ -9598,7 +9620,8 @@ namespace strtk
                if (!node_list_.empty())
                {
                   node_list_iterator itr = node_list_.begin();
-                  while (node_list_.end() != itr)
+                  node_list_iterator end = node_list_.end();
+                  while (end != itr)
                   {
                      delete *itr++;
                   }
@@ -9978,7 +10001,8 @@ namespace strtk
          if (map.empty()) return;
          typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
          typename map_type::const_iterator itr = map.begin();
-         while (map.end() != itr)
+         typename map_type::const_iterator end = map.end();
+         while (end != itr)
          {
             *out++ = (itr++)->first;
          }
@@ -10019,7 +10043,8 @@ namespace strtk
          if (map.empty()) return;
          typedef typename std::multimap<Key,T,Comparator,MapAllocator> map_type;
          typename map_type::const_iterator itr = map.find(key);
-         while (map.end() != itr && (key == itr->first))
+         typename map_type::const_iterator end = map.end();
+         while ((end != itr) && (key == itr->first))
          {
             *out++ = (itr++)->second;
          }
@@ -10044,7 +10069,8 @@ namespace strtk
       inline void delete_all(Sequence<T*,Allocator>& sequence)
       {
          typename Sequence<T*,Allocator>::iterator itr = sequence.begin();
-         while (sequence.end() != itr)
+         typename Sequence<T*,Allocator>::iterator end = sequence.end();
+         while (end != itr)
          {
             delete (*itr);
             ++itr;
@@ -10060,7 +10086,8 @@ namespace strtk
       void delete_all(const std::map<Key,T*,Comparator,Allocator>& cont)
       {
          typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
-         while (cont.end() != itr)
+         typename std::map<Key,T*,Comparator,Allocator>::iterator end = cont.end();
+         while (end != itr)
          {
             delete (*itr).second;
             ++itr;
@@ -10075,7 +10102,8 @@ namespace strtk
       void delete_all(const std::set<T*,Comparator,Allocator>& cont)
       {
          typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
-         while (cont.end() != itr)
+         typename std::set<T*,Comparator,Allocator>::iterator itr = cont.end();
+         while (end != itr)
          {
             delete (*itr);
             ++itr;
