@@ -9082,7 +9082,7 @@ namespace strtk
                             const Sequence<T,Allocator>& sequence)
       {
          typename Sequence<T,Allocator>::iterator itr = sequence.begin();
-         typename Sequence<T,Allocator>::iterator end = sequence.end()
+         typename Sequence<T,Allocator>::iterator end = sequence.end();
          while (end != itr)
          {
             stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
