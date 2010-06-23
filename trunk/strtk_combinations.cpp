@@ -20,13 +20,13 @@
    Description: This example demonstrates the use of the next_combination and
                 for_each combination routines. Input is taken from the command
                 line as one positive integer (r) and a series of k unique strings.
-                Then all k-choose-r combinations are then streamed one per line
-                to stdout.
+                Then all k-choose-r combinations are streamed one per line to
+                stdout.
 
-                example usage:
+                Example usage:
                 strtk_combination 3 abc 123 def 456
 
-                output:
+                Output:
                 123     456     abc
                 123     456     def
                 123     abc     def
@@ -58,19 +58,19 @@ void print(std::vector<std::string>::iterator begin,
 
 int main(int argc, char* argv[])
 {
-   if (argc < 3)
-      return (usage(),1);
+   if (argc < 3) return (usage(),1);
 
    std::size_t r = 0;
    if (!strtk::string_to_type_converter(std::string(argv[1]),r))
       return (usage("Invalid 'r' value."),1);
 
+   if (0 == r) return 0;
+
    std::vector<std::string> str_lst;
    strtk::parse(argc - 2, argv + 2, str_lst);
    std::sort(str_lst.begin(),str_lst.end());
 
-   if (r > str_lst.size())
-      return (usage("r > k"),1);
+   if (r > str_lst.size()) return (usage("r > k"),1);
 
    strtk::for_each_combination(str_lst.begin(),str_lst.end(),r,&print);
    return 0;
