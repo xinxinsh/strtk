@@ -5706,13 +5706,19 @@ namespace strtk
              template <typename,typename> class Sequence>
    inline std::size_t parse(int argc,
                             char* argv[],
-                            Sequence<T,Allocator>& sequence)
+                            Sequence<T,Allocator>& sequence,
+                            const bool break_on_fail = true)
    {
       T tmp;
       for (int i = 0; i < argc; ++i)
       {
          if (!string_to_type_converter(std::string(argv[i]),tmp))
-            return i;
+         {
+            if (break_on_fail)
+               return i;
+            else
+               continue;
+         }
          sequence.push_back(tmp);
       }
       return argc;
