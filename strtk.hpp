@@ -437,7 +437,7 @@ namespace strtk
      if (!stream) return 0;
      std::size_t count = 0;
      typename std::set<T,Comparator,Allocator>::const_iterator itr = set.begin();
-     typename std::set<T,Comparator,Allocator>::const_iterator end = sequence.end();
+     typename std::set<T,Comparator,Allocator>::const_iterator end = set.end();
      if (!delimiter.empty())
      {
         while (end != itr)
@@ -9082,7 +9082,7 @@ namespace strtk
                             const Sequence<T,Allocator>& sequence)
       {
          typename Sequence<T,Allocator>::iterator itr = sequence.begin();
-         typename Sequence<T,Allocator>::iterator itr = sequence.end()
+         typename Sequence<T,Allocator>::iterator end = sequence.end()
          while (end != itr)
          {
             stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
