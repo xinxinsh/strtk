@@ -5704,6 +5704,23 @@ namespace strtk
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
+   inline std::size_t parse(int argc,
+                            char* argv[],
+                            Sequence<T,Allocator>& sequence)
+   {
+      T tmp;
+      for (int i = 0; i < argc; ++i)
+      {
+         if (!string_to_type_converter(std::string(argv[i]),tmp))
+            return i;
+         sequence.push_back(tmp);
+      }
+      return argc;
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
    inline std::size_t parse_n(const std::string& data,
                               const std::string& delimiters,
                               const std::size_t& n,
