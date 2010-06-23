@@ -44,12 +44,11 @@ c++ standard library. Installation of Boost on:
    (*) Fedora : yum -y install boost-devel
    (*) http://www.boost.org/doc/libs/release/more/getting_started/index.html
 
+
 [COMPILATION]
 (1) For a full build: make clean all
-
 (2) For a PGO build: make clean pgo
-
-(3) To strip executable: make strip_bin
+(3) To strip executables: make strip_bin
 
 
 [COMPILER COMPATIBILITY]
@@ -59,7 +58,10 @@ c++ standard library. Installation of Boost on:
 
 
 [FILES]
+ Makefile
+ readme.txt
  strtk.hpp
+ strtk_combinations.cpp
  strtk_converters_example.cpp
  strtk_examples.cpp
  strtk_hexview.cpp
@@ -77,5 +79,3 @@ c++ standard library. Installation of Boost on:
  strtk_tokengrid_example.cpp
  strtk_tokenizer_cmp.cpp
  strtk_tokenizer_test.cpp
- Makefile
- readme.txt
