@@ -10102,7 +10102,7 @@ namespace strtk
       void delete_all(const std::set<T*,Comparator,Allocator>& cont)
       {
          typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
-         typename std::set<T*,Comparator,Allocator>::iterator itr = cont.end();
+         typename std::set<T*,Comparator,Allocator>::iterator end = cont.end();
          while (end != itr)
          {
             delete (*itr);
