@@ -445,7 +445,7 @@ void parse_example01()
 
 void parse_example02()
 {
-   std::string int_string    = "0,1,2,3,4,5,6,7,8,9";
+   std::string int_string    = "0,-1,+2,-3,4,-5,+6,-7,8,-9";
    std::string double_string = "0.0,1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9";
    std::string string_string = "ab,cde,fghi,jklmn,opqrst,uvwxyz1,234567890";
    std::string float_string  = "1.9f,2.8f,3.7f,4.6f,5.5f,6.4f,7.3f,8.2f,9.1f,0.0f";
@@ -481,6 +481,36 @@ void parse_example03()
 
    std::cout << strtk::join("\t",int_list) << std::endl;
    std::cout << strtk::join("\t",double_list) << std::endl;
+}
+
+struct type
+{
+   unsigned int id;
+   std::string s;
+   double d;
+   int i;
+   char c;
+   bool b;
+};
+
+strtk_parse_begin(type)
+ strtk_parse_type(s)
+ strtk_parse_type(d)
+ strtk_parse_type(i)
+ strtk_parse_type(c)
+ strtk_parse_type(b)
+strtk_parse_end()
+
+void parse_example04()
+{
+   type t;
+   std::string s = "abcdefghijklmnop|123.456|987654321|A|1";
+   if(strtk::parse(s,"|",t))
+   {
+      std::string o;
+      strtk::construct(o,"|",t.s,t.d,t.i,t.c,t.b);
+      std::cout << "type: " << o << std::endl;
+   }
 }
 
 void remove_inplace_example01()
@@ -1150,6 +1180,7 @@ int main()
    parse_example01();
    parse_example02();
    parse_example03();
+   parse_example04();
    remove_inplace_example01();
    remove_consecutives_example01();
    remove_consecutives_example02();

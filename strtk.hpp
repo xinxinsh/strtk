@@ -5724,6 +5724,21 @@ namespace strtk
       return argc;
    }
 
+   #define strtk_parse_begin(Type)\
+   namespace strtk {\
+   bool parse(const std::string& data, const std::string& delimiters, Type& t)\
+   { return parse(data,delimiters
+
+   #define strtk_parse_type(T)\
+   ,t.T
+
+   #define strtk_parse_hex_type(T)\
+   ,t.T
+
+
+   #define strtk_parse_end()\
+   );}}
+
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
