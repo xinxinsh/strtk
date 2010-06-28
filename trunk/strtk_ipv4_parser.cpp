@@ -75,6 +75,7 @@ public:
    }
 
 private:
+
    strtk::single_delimiter_predicate<char> predicate_;
    tokenizer_type tokenizer_;
 };

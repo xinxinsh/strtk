@@ -68,6 +68,7 @@ bool test_tokenizer_split(const Predicate& p,
    {
       std::cout << "ERROR: result: " << result << "\t expected: " << expected_result << "\t";
    }
+
    return result == expected_result;
 }
 
@@ -93,6 +94,7 @@ bool test_tokenizer_itr(const Predicate& p,
    {
       std::cout << "ERROR: result: " << result << "\t expected: " << expected_result << "\t";
    }
+
    return result == expected_result;
 }
 
@@ -356,6 +358,7 @@ bool test_split_and_tokenizer()
          return false;
       }
    }
+
    return true;
 }
 
@@ -435,6 +438,7 @@ bool test_tokenizer_options()
          }
       }
    }
+
    return true;
 }
 
@@ -500,6 +504,7 @@ bool test_split_options()
          }
       }
    }
+
    return true;
 }
 
@@ -888,6 +893,7 @@ bool test_double_convert()
          d2 -= delta[std::abs(i) % delta_size];
       }
    }
+
    return true;
 }
 
@@ -1388,9 +1394,9 @@ bool test_replace_pattern()
          }
       }
    }
+
    return true;
 }
-
 
 int main()
 {
