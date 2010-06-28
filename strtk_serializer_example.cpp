@@ -544,7 +544,6 @@ bool test04(char* buffer, const unsigned int buffer_size)
          std::cout << "test04() - Comparison between p4_in and p4_out failed." << std::endl;
          return false;
       }
-
    }
 
    {
