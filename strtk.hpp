@@ -10216,6 +10216,45 @@ namespace strtk
 
 } // namespace strtk
 
+namespace
+{
+
+   std::ostream& operator<<(std::ostream& os,
+                            const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<char> >::type::iterator& range)
+   {
+      os << std::string((*range).first,(*range).second);
+      return os;
+   }
+
+   std::ostream& operator<<(std::ostream& os,
+                            const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<unsigned char> >::type::iterator& range)
+   {
+      os << std::string((*range).first,(*range).second);
+      return os;
+   }
+
+   std::ostream& operator<<(std::ostream& os,
+                            const strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator& range)
+   {
+      os << std::string((*range).first,(*range).second);
+      return os;
+   }
+
+   #define register_pair_to_ostream(Iterator)\
+   std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
+   { os<<std::string(range.first,range.second); return os; }\
+
+   register_pair_to_ostream(char*)
+   register_pair_to_ostream(unsigned char*)
+   register_pair_to_ostream(const char*)
+   register_pair_to_ostream(const unsigned char*)
+   register_pair_to_ostream(std::string::iterator)
+   register_pair_to_ostream(std::string::const_iterator)
+   register_pair_to_ostream(const std::string::iterator)
+   register_pair_to_ostream(const std::string::const_iterator)
+
+} // namespace anonymous
+
 #ifdef WIN32
    #ifndef NOMINMAX
       #define NOMINMAX
