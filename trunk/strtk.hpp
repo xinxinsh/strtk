@@ -10243,6 +10243,8 @@ namespace
    #define register_pair_to_ostream(Iterator)\
    std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
    { os<<std::string(range.first,range.second); return os; }\
+   std::ostream& operator<<(std::ostream& os, std::pair<Iterator,Iterator>& range)\
+   { os<<std::string(range.first,range.second); return os; }\
 
    register_pair_to_ostream(char*)
    register_pair_to_ostream(unsigned char*)
