@@ -31,6 +31,7 @@
 struct person
 {
 public:
+
    unsigned long long id;
    std::string      name;
    unsigned int      age;
