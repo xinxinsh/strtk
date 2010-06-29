@@ -1560,7 +1560,7 @@ namespace strtk
             {
                this->operator++();
             }
-         };
+         }
 
          inline tokenizer_iterator& operator++()
          {
@@ -6756,6 +6756,118 @@ namespace strtk
       while (next_combination(begin,begin + size,end));
       return true;
    }
+
+   template<typename Iterator>
+   class combination_iterator : public std::iterator<std::forward_iterator_tag,
+                                                     std::pair<Iterator,Iterator> >
+   {
+   public:
+
+      typedef Iterator iterator;
+      typedef const iterator const_iterator;
+      typedef std::pair<Iterator,Iterator> range_type;
+
+
+      inline combination_iterator(const std::size_t& r,
+                                  iterator begin, iterator end,
+                                  const bool sorted = true)
+      : begin_(begin),
+        end_(end),
+        middle_(begin + r),
+        current_combination_(begin_,middle_)
+      {
+         if (!sorted)
+         {
+            std::sort(begin,end);
+         }
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename, typename> class Sequence>
+      inline combination_iterator(const std::size_t& r,
+                                  Sequence<T,Allocator>& seq,
+                                  const bool sorted = true)
+      : begin_(seq.begin()),
+        end_(seq.end()),
+        middle_(begin_ + r),
+        current_combination_(begin_,middle_)
+      {
+         if (!sorted)
+         {
+            std::sort(begin_,end_);
+         }
+      }
+
+      inline combination_iterator(iterator end)
+      : begin_(end),
+        end_(end),
+        middle_(end),
+        current_combination_(end,end)
+      {}
+
+      template<typename T,
+               typename Allocator,
+               template<typename, typename> class Sequence>
+      inline combination_iterator(Sequence<T,Allocator>& seq)
+      : begin_(seq.end()),
+        end_(seq.end()),
+        middle_(end_),
+        current_combination_(end_,end_)
+      {}
+
+      inline combination_iterator& operator++()
+      {
+         if (begin_ != end_)
+         {
+            if(!next_combination(begin_,middle_,end_))
+            {
+               begin_ = middle_ = end_;
+            }
+         }
+         return *this;
+      }
+
+      inline combination_iterator operator++(int)
+      {
+         combination_iterator tmp = *this;
+         this->operator++();
+         return tmp;
+      }
+
+      inline combination_iterator& operator+=(const int inc)
+      {
+         if (inc > 0)
+         {
+            for (int i = 0; i < inc; ++i, ++(*this)) ;
+         }
+         return *this;
+      }
+
+      inline range_type operator*() const
+      {
+         return current_combination_;
+      }
+
+      inline bool operator==(const combination_iterator& itr) const
+      {
+         return (begin_  == itr.begin_) &&
+                (end_    == itr.end_) &&
+                (middle_ == itr.middle_);
+      }
+
+      inline bool operator!=(const combination_iterator& itr) const
+      {
+         return !operator==(itr);
+      }
+
+   protected:
+
+      iterator begin_;
+      iterator end_;
+      iterator middle_;
+      range_type current_combination_;
+   };
 
    namespace binary
    {

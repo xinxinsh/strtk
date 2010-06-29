@@ -52,6 +52,7 @@ public:
    }
 
 private:
+
    Container* c_;
    Predicate* p_;
 };

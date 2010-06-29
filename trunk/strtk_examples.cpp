@@ -499,11 +499,11 @@ struct type
 };
 
 strtk_parse_begin(type)
- strtk_parse_type(s)
- strtk_parse_type(d)
- strtk_parse_type(i)
- strtk_parse_type(c)
- strtk_parse_type(b)
+   strtk_parse_type(s)
+   strtk_parse_type(d)
+   strtk_parse_type(i)
+   strtk_parse_type(c)
+   strtk_parse_type(b)
 strtk_parse_end()
 
 void parse_example04()
@@ -779,7 +779,7 @@ void inserter_example()
    std::cout << strtk::join(" ",int_output) << std::endl;
 }
 
-void combination_example()
+void combination_example01()
 {
    std::string s = "abcdefg";
    std::size_t set_size = s.size() - 1;
@@ -789,6 +789,41 @@ void combination_example()
       std::cout << combination_index++ << "\t" << s.substr(0,set_size) << std::endl;
    }
    while (strtk::next_combination(s.begin(),s.begin() + set_size,s.end()));
+}
+
+void combination_example02()
+{
+   {
+      typedef std::vector<int> vec_t;
+      typedef strtk::combination_iterator<vec_t::iterator> itr_type;
+      vec_t val_lst;
+
+      strtk::iota(val_lst,5,0);
+
+      itr_type itr(4,val_lst);
+      itr_type end(val_lst);
+
+      while (end != itr)
+      {
+         itr_type::range_type range = *itr;
+         std::cout << strtk::join(" ",range.first,range.second) << std::endl;
+         ++itr;
+      }
+   }
+
+   {
+      std::string s = "abcdefg";
+
+      typedef strtk::combination_iterator<std::string::iterator> itr_type;
+      itr_type itr(6,s.begin(),s.end());
+      itr_type end(s.end());
+
+      while (end != itr)
+      {
+         std::cout << *itr << std::endl;
+         ++itr;
+      }
+   }
 }
 
 void typename_example()
@@ -1201,7 +1236,8 @@ int main()
    hash_example();
    join_example();
    inserter_example();
-   combination_example();
+   combination_example01();
+   combination_example02();
    typename_example();
    iota_example();
    bracketize_example();
