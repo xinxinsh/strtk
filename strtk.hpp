@@ -6521,14 +6521,14 @@ namespace strtk
                        std::size_t pregen = 0)
       : rng_(static_cast<rng_type::result_type>(seed)),
         rnd_(rng_,boost::uniform_real<double>(0.0,1.0))
-   {
-      while (pregen--) rng_();
-   }
+      {
+         while (pregen--) rng_();
+      }
 
-   inline double operator()()
-   {
-      return rnd_();
-   }
+      inline double operator()()
+      {
+         return rnd_();
+      }
 
    private:
 
@@ -7747,6 +7747,7 @@ namespace strtk
 
       template<> struct numeric<float>              { enum { min_exp =  -38, max_exp =  +38 }; };
       template<> struct numeric<double>             { enum { min_exp = -308, max_exp = +308 }; };
+      template<> struct numeric<long double>        { enum { min_exp = -308, max_exp = +308 }; };
 
       #define register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
@@ -7799,6 +7800,7 @@ namespace strtk
 
       register_real_type_tag(float)
       register_real_type_tag(double)
+      register_real_type_tag(long double)
 
       register_byte_type_tag(unsigned char)
       register_byte_type_tag(char)
@@ -8393,6 +8395,7 @@ namespace strtk
       register_type_name(unsigned long long)
       register_type_name(double)
       register_type_name(float)
+      register_type_name(long double)
       register_type_name(std::string)
 
       template <typename T>
