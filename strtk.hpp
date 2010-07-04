@@ -4015,26 +4015,74 @@ namespace strtk
          template<typename T, typename OutputIterator>
          inline void parse(OutputIterator out) const
          {
-            itr_list_type::iterator itr = const_cast<itr_list_type*>(token_list_)->begin();
-            while (token_list_->end() != itr)
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            while (end != itr)
             {
-               itr_list_type::value_type& range = *itr++;
+               const itr_list_type::value_type& range = *itr;
                *(out++) = string_to_type_converter<T>(range.first,range.second);
+               ++itr;
             }
+         }
+
+         template<typename T,
+                  typename Allocator,
+                  template<typename,typename> class Sequence>
+         inline bool parse(Sequence<T,Allocator>& sequence) const
+         {
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            T t;
+            while (end != itr)
+            {
+               const itr_list_type::value_type& range = *itr;
+               if (!string_to_type_converter(range.first,range.second,t))
+                  return false;
+               else
+                  sequence.push_back(t);
+               ++itr;
+            }
+            return true;
+         }
+
+         template<typename T,
+                  typename Allocator,
+                  template<typename,typename> class Sequence>
+         inline std::size_t parse_n(const std::size_t& n, Sequence<T,Allocator>& sequence) const
+         {
+            if (0 == n) return 0;
+            T t;
+            std::size_t count = 0;
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            while (end != itr)
+            {
+               const itr_list_type::value_type& range = *itr;
+               if (!string_to_type_converter(range.first,range.second,t))
+                  return false;
+               else
+                  sequence.push_back(t);
+               if (n == (++count))
+                  break;
+               ++itr;
+            }
+            return count;
          }
 
          template<typename T, typename OutputIterator>
          inline void parse_checked(OutputIterator out) const
          {
             T value;
-            itr_list_type::iterator itr = const_cast<itr_list_type*>(token_list_)->begin();
-            while (token_list_->end() != itr)
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            while (end != itr)
             {
-               itr_list_type::value_type& range = *itr++;
+               const itr_list_type::value_type& range = *itr;
                if (string_to_type_converter(range.first,range.second,value))
                {
                   *(out++) = value;
                }
+               ++itr;
             }
          }
 
