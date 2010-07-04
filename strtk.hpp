@@ -6234,10 +6234,12 @@ namespace strtk
       s.reserve(one_kilobyte);
       while (end != itr)
       {
+         s.clear();
          s.append(pre);
-         s.append(type_to_string(*itr++));
+         s.append(type_to_string(*itr));
          s.append(post);
          output.append(s);
+         ++itr;
       }
    }
 
@@ -6270,6 +6272,7 @@ namespace strtk
                                  const InputIterator end)
    {
       std::string output;
+      output.reserve(one_kilobyte);
       bracketize(output,pre,post,begin,end);
       return output;
    }
