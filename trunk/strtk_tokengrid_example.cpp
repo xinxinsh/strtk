@@ -49,16 +49,32 @@ void token_grid_test01()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   for (std::size_t i = 0; i < grid.row_count(); ++i)
    {
-      strtk::token_grid::row_type r = grid.row(i);
-      for (std::size_t j = 0; j < r.size(); ++j)
+      const std::size_t max_row = grid.row_count();
+      const std::size_t max_col = grid.max_column_count();
+      for (std::size_t row = 0; row < max_row; ++row)
       {
-         std::cout << r.get<int>(j) << "\t";
+         for (std::size_t col = 0; col < max_col; ++col)
+         {
+            std::cout << grid.get<int>(row,col) << "\t";
+         }
+         std::cout << std::endl;
       }
       std::cout << std::endl;
    }
-   std::cout << std::endl;
+
+   {
+      for (std::size_t i = 0; i < grid.row_count(); ++i)
+      {
+         strtk::token_grid::row_type r = grid.row(i);
+         for (std::size_t j = 0; j < r.size(); ++j)
+         {
+            std::cout << r.get<int>(j) << "\t";
+         }
+         std::cout << std::endl;
+      }
+      std::cout << std::endl;
+   }
 }
 
 void token_grid_test02()
@@ -78,41 +94,92 @@ void token_grid_test02()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   std::vector<int> lst(10);
-
-   for (std::size_t i = 0; i < grid.row_count(); ++i)
    {
-      switch(i)
-      {
-         case  0 : grid.row(i).parse_with_index(0,lst[0]);
-                   break;
-         case  1 : grid.row(i).parse_with_index(0,1,lst[0],lst[1]);
-                   break;
-         case  2 : grid.row(i).parse_with_index(0,1,2,lst[0],lst[1],lst[2]);
-                   break;
-         case  3 : grid.row(i).parse_with_index(0,1,2,3,lst[0],lst[1],lst[2],lst[3]);
-                   break;
-         case  4 : grid.row(i).parse_with_index(0,1,2,3,4,lst[0],lst[1],lst[2],lst[3],lst[4]);
-                   break;
-         case  5 : grid.row(i).parse_with_index(0,1,2,3,4,5,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5]);
-                   break;
-         case  6 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6]);
-                   break;
-         case  7 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7]);
-                   break;
-         case  8 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,8,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8]);
-                   break;
-         case  9 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,8,9,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8],lst[9]);
-                   break;
-      }
-      std::cout << strtk::join(",",lst.begin(),lst.begin() + (i+1)) << std::endl;
-   }
-}
+      std::vector<int> lst(10);
 
-template<typename Container>
-void output_containter(const Container& c)
-{
-   std::copy(c.begin(),c.end(),std::ostream_iterator<int>(std::cout,"\t"));
+      for (std::size_t i = 0; i < grid.row_count(); ++i)
+      {
+         switch(i)
+         {
+            case  0 : grid.row(i).parse(lst[0]);
+                      break;
+            case  1 : grid.row(i).parse(lst[0],lst[1]);
+                      break;
+            case  2 : grid.row(i).parse(lst[0],lst[1],lst[2]);
+                      break;
+            case  3 : grid.row(i).parse(lst[0],lst[1],lst[2],lst[3]);
+                      break;
+            case  4 : grid.row(i).parse(lst[0],lst[1],lst[2],lst[3],lst[4]);
+                      break;
+            case  5 : grid.row(i).parse(lst[0],lst[1],lst[2],lst[3],lst[4],lst[5]);
+                      break;
+            case  6 : grid.row(i).parse(lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6]);
+                      break;
+            case  7 : grid.row(i).parse(lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7]);
+                      break;
+            case  8 : grid.row(i).parse(lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8]);
+                      break;
+            case  9 : grid.row(i).parse(lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8],lst[9]);
+                      break;
+         }
+         std::cout << strtk::join(",",lst.begin(),lst.begin() + (i+1)) << std::endl;
+      }
+   }
+
+   {
+      std::vector<int> lst(10);
+
+      for (std::size_t i = 0; i < grid.row_count(); ++i)
+      {
+         switch(i)
+         {
+            case  0 : grid.row(i).parse_with_index(0,lst[0]);
+                      break;
+            case  1 : grid.row(i).parse_with_index(0,1,lst[0],lst[1]);
+                      break;
+            case  2 : grid.row(i).parse_with_index(0,1,2,lst[0],lst[1],lst[2]);
+                      break;
+            case  3 : grid.row(i).parse_with_index(0,1,2,3,lst[0],lst[1],lst[2],lst[3]);
+                      break;
+            case  4 : grid.row(i).parse_with_index(0,1,2,3,4,lst[0],lst[1],lst[2],lst[3],lst[4]);
+                      break;
+            case  5 : grid.row(i).parse_with_index(0,1,2,3,4,5,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5]);
+                      break;
+            case  6 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6]);
+                      break;
+            case  7 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7]);
+                      break;
+            case  8 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,8,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8]);
+                      break;
+            case  9 : grid.row(i).parse_with_index(0,1,2,3,4,5,6,7,8,9,lst[0],lst[1],lst[2],lst[3],lst[4],lst[5],lst[6],lst[7],lst[8],lst[9]);
+                      break;
+         }
+         std::cout << strtk::join(",",lst.begin(),lst.begin() + (i+1)) << std::endl;
+      }
+   }
+
+   {
+      std::vector<int> lst(10);
+
+      for (std::size_t i = 0; i < grid.row_count(); ++i)
+      {
+         lst.clear();
+         grid.row(i).parse(lst);
+         std::cout << strtk::join(",",lst) << std::endl;
+      }
+   }
+
+   {
+      std::vector<int> lst(10);
+
+      for (std::size_t i = 0; i < grid.row_count(); ++i)
+      {
+         lst.clear();
+         grid.row(i).parse_n(i + 1,lst);
+         std::cout << strtk::join(",",lst) << std::endl;
+      }
+   }
+
 }
 
 void token_grid_test03()
@@ -131,27 +198,31 @@ void token_grid_test03()
 
    strtk::token_grid grid(data,data.size(),",");
 
-   grid.extract_column(grid.all_rows(),0,strtk::back_inserter_with_valuetype(lst0));
-   output_containter(lst0); std::cout << std::endl;
+   grid.extract_column(grid.all_rows(),
+                       0,
+                       strtk::back_inserter_with_valuetype(lst0));
+   std::cout << strtk::join("\t",lst0) << std::endl;
    lst0.clear();
 
    grid.extract_column(grid.all_rows(),
-                        0,1,
-                        strtk::back_inserter_with_valuetype(lst0),
-                        strtk::back_inserter_with_valuetype(lst1));
-   output_containter(lst0); std::cout << std::endl;
-   output_containter(lst1); std::cout << std::endl;
-   lst0.clear(); lst1.clear();
+                       0,1,
+                       strtk::back_inserter_with_valuetype(lst0),
+                       strtk::back_inserter_with_valuetype(lst1));
+   std::cout << strtk::join("\t",lst0) << std::endl;
+   std::cout << strtk::join("\t",lst1) << std::endl;
+   lst0.clear();
+   lst1.clear();
 
    grid.extract_column(grid.all_rows(),
                        0,1,2,
                        strtk::back_inserter_with_valuetype(lst0),
                        strtk::back_inserter_with_valuetype(lst1),
                        strtk::back_inserter_with_valuetype(lst2));
-   output_containter(lst0); std::cout << std::endl;
-   output_containter(lst1); std::cout << std::endl;
-   output_containter(lst2); std::cout << std::endl;
-   lst0.clear(); lst1.clear();
+   std::cout << strtk::join("\t",lst0) << std::endl;
+   std::cout << strtk::join("\t",lst1) << std::endl;
+   std::cout << strtk::join("\t",lst2) << std::endl;
+   lst0.clear();
+   lst1.clear();
    lst2.clear();
 
    grid.extract_column(grid.all_rows(),
@@ -161,12 +232,14 @@ void token_grid_test03()
                        strtk::back_inserter_with_valuetype(lst2),
                        strtk::back_inserter_with_valuetype(lst3));
 
-   output_containter(lst0); std::cout << std::endl;
-   output_containter(lst1); std::cout << std::endl;
-   output_containter(lst2); std::cout << std::endl;
-   output_containter(lst3); std::cout << std::endl;
-   lst0.clear(); lst1.clear();
-   lst2.clear(); lst3.clear();
+   std::cout << strtk::join("\t",lst0) << std::endl;
+   std::cout << strtk::join("\t",lst1) << std::endl;
+   std::cout << strtk::join("\t",lst2) << std::endl;
+   std::cout << strtk::join("\t",lst3) << std::endl;
+   lst0.clear();
+   lst1.clear();
+   lst2.clear();
+   lst3.clear();
 
    grid.extract_column(grid.all_rows(),
                        0,1,2,3,4,
@@ -175,13 +248,15 @@ void token_grid_test03()
                        strtk::back_inserter_with_valuetype(lst2),
                        strtk::back_inserter_with_valuetype(lst3),
                        strtk::back_inserter_with_valuetype(lst4));
-   output_containter(lst0); std::cout << std::endl;
-   output_containter(lst1); std::cout << std::endl;
-   output_containter(lst2); std::cout << std::endl;
-   output_containter(lst3); std::cout << std::endl;
-   output_containter(lst4); std::cout << std::endl;
-   lst0.clear(); lst1.clear();
-   lst2.clear(); lst3.clear();
+   std::cout << strtk::join("\t",lst0) << std::endl;
+   std::cout << strtk::join("\t",lst1) << std::endl;
+   std::cout << strtk::join("\t",lst2) << std::endl;
+   std::cout << strtk::join("\t",lst3) << std::endl;
+   std::cout << strtk::join("\t",lst4) << std::endl;
+   lst0.clear();
+   lst1.clear();
+   lst2.clear();
+   lst3.clear();
    lst4.clear();
 }
 
@@ -189,9 +264,10 @@ void token_grid_test04()
 {
    std::string data;
    data.reserve(160);
-   data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
-   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i) ;
+   data = strtk::replicate(10,"1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n");
+
    strtk::token_grid grid(data,data.size(),",");
+
    grid.enforce_column_count(5);
    for (unsigned int i = 0; i < grid.row_count(); ++i)
    {
@@ -199,7 +275,7 @@ void token_grid_test04()
       for (unsigned j = 0; j < row.size(); ++j)
       {
          strtk::token_grid::range_type r = row.token(j);
-         std::cout << std::string(r.first,r.second) << "\t";
+         std::cout << r << "\t";
       }
       std::cout << std::endl;
    }
@@ -209,8 +285,8 @@ void token_grid_test05()
 {
    std::string data;
    data.reserve(160);
-   data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n";
-   for (unsigned int i = 0; i < 10; data += "1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n", ++i) ;
+   data = strtk::replicate(10,"1,2,3,4,5\n1,2,3,4\n1,2,3\n1,2\n1\n");
+
    strtk::token_grid grid(data,data.size(),",");
 
    for (unsigned int i = 0; i < grid.row_count(); ++i)
@@ -375,29 +451,28 @@ private:
 
 void token_grid_test10()
 {
-   std::string market_data;
-                 //Date,Symbol,Open,Close,High,Low,Volume
-   market_data = "20090701,GOOG,424.2000,418.9900,426.4000,418.1500,2310768\n"
-                 "20090701,MSFT,24.0500,24.0400,24.3000,23.9600,54915127\n"
-                 "20090702,GOOG,415.4100,408.4900,415.4100,406.8100,2517630\n"
-                 "20090702,MSFT,23.7600,23.3700,24.0400,23.2100,65427699\n"
-                 "20090703,GOOG,408.4900,408.4900,408.4900,408.4900,0\n"
-                 "20090703,MSFT,23.3700,23.3700,23.3700,23.3700,0\n"
-                 "20090706,GOOG,406.5000,409.6100,410.6400,401.6600,2262557\n"
-                 "20090706,MSFT,23.2100,23.2000,23.2800,22.8700,49207638\n"
-                 "20090707,GOOG,408.2400,396.6300,409.1900,395.9801,3260307\n"
-                 "20090707,MSFT,23.0800,22.5300,23.1400,22.4600,52842412\n"
-                 "20090708,GOOG,400.0000,402.4900,406.0000,398.0600,3441854\n"
-                 "20090708,MSFT,22.3100,22.5600,22.6900,2200000,73023306\n"
-                 "20090709,GOOG,406.1200,410.3900,414.4500,405.8000,3275816\n"
-                 "20090709,MSFT,22.6500,22.4400,22.8100,22.3700,46981174\n"
-                 "20090710,GOOG,409.5700,414.4000,417.3700,408.7000,2929559\n"
-                 "20090710,MSFT,22.1900,22.3900,22.5400,22.1500,43238698\n";
+                              //Date,Symbol,Open,Close,High,Low,Volume
+   const std::string market_data = "20090701,GOOG,424.2000,418.9900,426.4000,418.1500,2310768\n"
+                                   "20090701,MSFT,24.0500,24.0400,24.3000,23.9600,54915127\n"
+                                   "20090702,GOOG,415.4100,408.4900,415.4100,406.8100,2517630\n"
+                                   "20090702,MSFT,23.7600,23.3700,24.0400,23.2100,65427699\n"
+                                   "20090703,GOOG,408.4900,408.4900,408.4900,408.4900,0\n"
+                                   "20090703,MSFT,23.3700,23.3700,23.3700,23.3700,0\n"
+                                   "20090706,GOOG,406.5000,409.6100,410.6400,401.6600,2262557\n"
+                                   "20090706,MSFT,23.2100,23.2000,23.2800,22.8700,49207638\n"
+                                   "20090707,GOOG,408.2400,396.6300,409.1900,395.9801,3260307\n"
+                                   "20090707,MSFT,23.0800,22.5300,23.1400,22.4600,52842412\n"
+                                   "20090708,GOOG,400.0000,402.4900,406.0000,398.0600,3441854\n"
+                                   "20090708,MSFT,22.3100,22.5600,22.6900,2200000,73023306\n"
+                                   "20090709,GOOG,406.1200,410.3900,414.4500,405.8000,3275816\n"
+                                   "20090709,MSFT,22.6500,22.4400,22.8100,22.3700,46981174\n"
+                                   "20090710,GOOG,409.5700,414.4000,417.3700,408.7000,2929559\n"
+                                   "20090710,MSFT,22.1900,22.3900,22.5400,22.1500,43238698\n";
 
    static const std::size_t volume_column = 6;
 
    strtk::token_grid grid(market_data,market_data.size(),",");
-   std::size_t total_volume = 0;  //should be long long.
+   unsigned long long total_volume = 0;
 
    grid.accumulate_column(volume_column,symbol_predicate("GOOG"),total_volume);
    std::cout << "Total Volume (GOOG): " << total_volume << std::endl;
