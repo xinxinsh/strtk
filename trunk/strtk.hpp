@@ -1285,45 +1285,45 @@ namespace strtk
       */
       if (0 == std::distance(data_begin,data_end)) return false;
 
-      Iterator d_it = data_begin;
-      Iterator p_it = pattern_begin;
-      Iterator c_it = data_begin;
-      Iterator m_it = data_begin;
+      Iterator d_itr = data_begin;
+      Iterator p_itr = pattern_begin;
+      Iterator c_itr = data_begin;
+      Iterator m_itr = data_begin;
 
-      while ((data_end != d_it) && ((*p_it) != zero_or_more))
+      while ((data_end != d_itr) && (zero_or_more != (*p_itr)))
       {
-         if (((*p_it) != (*d_it)) && (zero_or_one != (*p_it)))
+         if (((*p_itr) != (*d_itr)) && (zero_or_one != (*p_itr)))
          {
             return false;
          }
-         ++p_it;
-         ++d_it;
+         ++p_itr;
+         ++d_itr;
       }
 
-      while (data_end != d_it)
+      while (data_end != d_itr)
       {
-         if (zero_or_more == (*p_it))
+         if (zero_or_more == (*p_itr))
          {
-            if (pattern_end == (++p_it))
+            if (pattern_end == (++p_itr))
             {
                return true;
             }
-            m_it = p_it;
-            std::advance((c_it = d_it),1);
+            m_itr = p_itr;
+            std::advance((c_itr = d_itr),1);
          }
-         else if (((*p_it) == (*d_it)) || (zero_or_one == (*p_it)))
+         else if (((*p_itr) == (*d_itr)) || (zero_or_one == (*p_itr)))
          {
-            ++p_it;
-            ++d_it;
+            ++p_itr;
+            ++d_itr;
          }
          else
          {
-            p_it = m_it;
-            d_it = c_it++;
+            p_itr = m_itr;
+            d_itr = c_itr++;
          }
       }
-      while ((p_it != pattern_end) && (zero_or_more == (*p_it))) ++p_it;
-      return (p_it == pattern_end);
+      while ((p_itr != pattern_end) && (zero_or_more == (*p_itr))) ++p_itr;
+      return (p_itr == pattern_end);
    }
 
    inline bool match(const std::string& wild_card,
