@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 
    std::string buffer;
    buffer.reserve(total_length + str_list.size());
-   strtk::join(buffer,"\n",str_list.begin(),str_list.end());
+   strtk::join(buffer,"\n",str_list);
 
    std::vector<double> value_list;
    value_list.reserve(str_list.size());
