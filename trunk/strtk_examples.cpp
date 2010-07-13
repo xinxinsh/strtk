@@ -845,7 +845,7 @@ void typename_example()
    long           t13[5] = { 1, 2, 3, 4, 5 };
    unsigned short t14[6] = { 1, 2, 3, 4, 5, 6 };
    unsigned int   t15[7] = { 1, 2, 3, 4, 5, 6, 7 };
-   unsigned long  t16[8] = { 2, 2, 3, 4, 5, 7, 7, 8 };
+   unsigned long  t16[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
    std::cout << strtk::type_name(t00) << std::endl;
    std::cout << strtk::type_name(t01) << std::endl;
