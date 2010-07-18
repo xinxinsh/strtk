@@ -6704,7 +6704,7 @@ namespace strtk
              typename Allocator,
              template<typename,typename> class Sequence,
              typename OutputIterator>
-   inline void random_combination(const typename Sequence<T,Allocator>& sequence,
+   inline void random_combination(const Sequence<T,Allocator>& sequence,
                                   const std::size_t& set_size,
                                   OutputIterator out,
                                   const std::size_t& seed = magic_seed,
