@@ -6587,7 +6587,8 @@ namespace strtk
       variate_type rnd_;
    };
 
-   template<typename T, typename OutputIterator>
+   template<typename T, 
+            typename OutputIterator>
    inline void generate_random_values(const std::size_t& count,
                                       const T& min,
                                       const T& max,
@@ -6601,7 +6602,9 @@ namespace strtk
       generate_random_values_impl(count,min,max,out,rng,type);
    }
 
-   template<typename T, typename Allocator, template<typename,typename> class Sequence>
+   template<typename T, 
+            typename Allocator, 
+            template<typename,typename> class Sequence>
    inline void generate_random_values(const std::size_t& count,
                                       const T& min,
                                       const T& max,
@@ -6652,12 +6655,12 @@ namespace strtk
             typename Allocator,
             template<typename,typename> class Sequence,
             typename OutputIterator>
-   inline void random_permutation(const typename Sequence<T,Allocator>& sequence,
+   inline void random_permutation(const Sequence<T,Allocator>& sequence, 
                                   OutputIterator out,
                                   const std::size_t& seed = magic_seed,
                                   const std::size_t& pregen = 0)
    {
-      random_permutation(sequence.begin(),sequence.end(),out,magic_seed,pregen);
+      random_permutation(sequence.begin(),sequence.end(),out,seed,pregen);
    }
 
    template <typename Iterator,
@@ -6753,7 +6756,7 @@ namespace strtk
    template <typename T,
              typename Allocator,
              template<typename,typename> class Sequence>
-   inline bool next_combination(typename Sequence<T,Allocator>& sequence, const std::size_t& size)
+   inline bool next_combination(Sequence<T,Allocator>& sequence, const std::size_t& size)
    {
       return next_combination(sequence.begin(), sequence.begin() + size, sequence.end());
    }
