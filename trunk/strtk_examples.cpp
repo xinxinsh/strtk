@@ -662,7 +662,7 @@ void random_combination_example()
 }
 
 
-void lexicographically_collate_example()
+void lexicographically_canonicalize_example()
 {
    std::string str_list[] = {
                               "xyzabcabc",
@@ -671,8 +671,9 @@ void lexicographically_collate_example()
                               "zyxwvutsrqponmlkjihgfedcba",
                               "The Quick Brown Fox Jumps Over The Lazy Dog"
                             };
+   const std::size_t str_list_size = sizeof(str_list) / sizeof(std::string);
 
-   for (std::size_t i = 0; i < sizeof(str_list) / sizeof(std::string); ++i)
+   for (std::size_t i = 0; i < str_list_size; ++i)
    {
       std::cout << str_list[i] << " --> ";
       strtk::lexicographically_canonicalize(str_list[i]);
@@ -680,11 +681,12 @@ void lexicographically_collate_example()
    };
 
    unsigned int uint_list[] = { 6,7,8,9,0,1,2,3,4,5 };
+   const std::size_t uint_list_size = sizeof(uint_list) / sizeof(unsigned int);
 
-   std::copy(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int),std::ostream_iterator<unsigned int>(std::cout," "));
+   std::copy(uint_list,uint_list + uint_list_size,std::ostream_iterator<unsigned int>(std::cout," "));
    std::cout << " --> ";
-   strtk::lexicographically_canonicalize(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int));
-   std::copy(uint_list,uint_list + sizeof(uint_list) / sizeof(unsigned int),std::ostream_iterator<unsigned int>(std::cout," "));
+   strtk::lexicographically_canonicalize(uint_list,uint_list + uint_list_size);
+   std::copy(uint_list,uint_list + uint_list_size,std::ostream_iterator<unsigned int>(std::cout," "));
    std::cout << std::endl;
 
    std::list<int> int_list;
@@ -1232,7 +1234,7 @@ int main()
    generate_random_example02();
    random_permutation_example();
    random_combination_example();
-   lexicographically_collate_example();
+   lexicographically_canonicalize_example();
    hash_example();
    join_example();
    inserter_example();

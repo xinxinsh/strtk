@@ -6648,6 +6648,18 @@ namespace strtk
       random_permutation(begin,end,rnd,out);
    }
 
+   template<typename T,
+            typename Allocator,
+            template<typename,typename> class Sequence,
+            typename OutputIterator>
+   inline void random_permutation(const typename Sequence<T,Allocator>& sequence,
+                                  OutputIterator out,
+                                  const std::size_t& seed = magic_seed,
+                                  const std::size_t& pregen = 0)
+   {
+      random_permutation(sequence.begin(),sequence.end(),out,magic_seed,pregen);
+   }
+
    template <typename Iterator,
              typename RandomNumberGenerator,
              typename OutputIterator>
@@ -6683,6 +6695,19 @@ namespace strtk
       boost::uniform_real<double> dist(0.0,1.0);
       boost::variate_generator<boost::mt19937&, boost::uniform_real<double> > rnd(rng,dist);
       random_combination(begin,end,set_size,rnd,out);
+   }
+
+   template <typename T,
+             typename Allocator,
+             template<typename,typename> class Sequence,
+             typename OutputIterator>
+   inline void random_combination(const typename Sequence<T,Allocator>& sequence,
+                                  const std::size_t& set_size,
+                                  OutputIterator out,
+                                  const std::size_t& seed = magic_seed,
+                                  const std::size_t& pregen = 0)
+   {
+      random_combination(sequence.begin(),sequence.end(),set_size,out,seed,pregen);
    }
    #endif // ENABLE_RANDOM
 
@@ -6723,6 +6748,14 @@ namespace strtk
       }
       std::rotate(first,k,last);
       return false;
+   }
+
+   template <typename T,
+             typename Allocator,
+             template<typename,typename> class Sequence>
+   inline bool next_combination(typename Sequence<T,Allocator>& sequence, const std::size_t& size)
+   {
+      return next_combination(sequence.begin(), sequence.begin() + size, sequence.end());
    }
 
    template<typename Iterator, class Function>
