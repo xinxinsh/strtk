@@ -27,8 +27,7 @@ Code repository:
 
 [INSTALLATION]
 (1) strtk.hpp  should be  placed in  a project  or system include path
-(e.g: /usr/include/),  or its  location added  to the  LD_LIBRARY_PATH
-environment variable.
+(e.g: /usr/include/).
 
 (2)  If  the Boost  libraries  (random, regex,  lexical_cast)  are not
 available  the  following  defines   should  be  commented  out   from
@@ -38,7 +37,7 @@ strtk.hpp:
    (*) ENABLE_REGEX (strtk.hpp:54)
 
 (3) It is advisable to have either Boost installed or a TR1  compliant
-c++ standard library. Installation of Boost on:
+C++ standard library. Installation of Boost on:
    (*) Win32  : http://www.boostpro.com/download
    (*) Ubuntu : boost packages via apt-get or synaptic
    (*) Fedora : yum -y install boost-devel
@@ -46,7 +45,7 @@ c++ standard library. Installation of Boost on:
 
 
 [COMPILATION]
-(1) For a full build: make clean all
+(1) For a complete build: make clean all
 (2) For a PGO build: make clean pgo
 (3) To strip executables: make strip_bin
 
@@ -55,6 +54,7 @@ c++ standard library. Installation of Boost on:
 (*) GNU Compiler Collection (4.3+)
 (*) Intel® C++ Compiler (9.x+)
 (*) Microsoft Visual Studio C++ Compiler (8.1+)
+(*) Comeau C++ Compiler (4.3+)
 
 
 [FILES]
@@ -64,6 +64,7 @@ c++ standard library. Installation of Boost on:
  strtk_combinations.cpp
  strtk_converters_example.cpp
  strtk_examples.cpp
+ strtk_glober.cpp
  strtk_hexview.cpp
  strtk_ipv4_parser.cpp
  strtk_keyvalue_example.cpp
@@ -79,3 +80,4 @@ c++ standard library. Installation of Boost on:
  strtk_tokengrid_example.cpp
  strtk_tokenizer_cmp.cpp
  strtk_tokenizer_test.cpp
+ 
