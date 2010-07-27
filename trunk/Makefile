@@ -27,6 +27,7 @@ BUILD_LIST+=strtk_examples
 BUILD_LIST+=strtk_tokenizer_test
 BUILD_LIST+=strtk_combinations
 BUILD_LIST+=strtk_converters_example
+BUILD_LIST+=strtk_glober
 BUILD_LIST+=strtk_hexview
 BUILD_LIST+=strtk_ipv4_parser
 BUILD_LIST+=strtk_keyvalue_example
@@ -80,6 +81,9 @@ strtk_converters_example: strtk_converters_example.cpp strtk.hpp
 strtk_combinations: strtk_combinations.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_combinations strtk_combinations.cpp $(LINKER_OPT)
 
+strtk_glober: strtk_glober.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_glober strtk_glober.cpp $(LINKER_OPT)
+
 strtk_tokengrid_example: strtk_tokengrid_example.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_tokengrid_example strtk_tokengrid_example.cpp $(LINKER_OPT)
 
@@ -118,6 +122,7 @@ pgo: strtk_parse_test.cpp strtk_tokenizer_cmp.cpp strtk.hpp
 strip_bin:
 	strip -s strtk_converters_example
 	strip -s strtk_combinations
+	strip -s strtk_glober
 	strip -s strtk_examples
 	strip -s strtk_hexview
 	strip -s strtk_ipv4_parser
@@ -138,6 +143,7 @@ strip_bin:
 valgrind_check:
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_converters_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_combinations
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_glober
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_examples
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_hexview
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_ipv4_parser
