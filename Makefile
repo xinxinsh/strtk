@@ -143,6 +143,7 @@ strip_bin:
 	strip -s strtk_tokengrid_example
 	strip -s strtk_tokenizer_cmp
 	strip -s strtk_tokenizer_test
+	strip -s strtk_wordfreq
 
 valgrind_check:
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_converters_example
@@ -164,6 +165,7 @@ valgrind_check:
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokengrid_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_cmp
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_tokenizer_test
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_wordfreq
 
 clean:
 	rm -f core.* *~ *.o *.bak *stackdump gmon.out *.gcda *.gcno *.gcnor *.gch

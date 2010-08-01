@@ -53,7 +53,7 @@ public:
    inline void operator() (const std::string& s)
    {
       if (s.empty()) return;
-      strtk::split(p_, s, *this, strtk::split_options::compress_delimiters);
+      strtk::split(p_,s,*this,strtk::split_options::compress_delimiters);
    }
 
    void operator=(const strtk::std_string::iterator_type& r)
