@@ -85,11 +85,11 @@ int main(int argc, char* argv[])
    typedef strtk::multiple_char_delimiter_predicate predicate_t;
    typedef line_parser<const predicate_t> lp_t;
 
-   strtk::ext_string delimiters = strtk::ext_string::all_chars()
-                                  - strtk::ext_string::all_lowercase_letters()
-                                  - strtk::ext_string::all_uppercase_letters();
+   std::string delimiters = strtk::ext_string::all_chars()
+                          - strtk::ext_string::all_lowercase_letters()
+                          - strtk::ext_string::all_uppercase_letters();
 
-   static const predicate_t predicate(delimiters.as_string());
+   static const predicate_t predicate(delimiters);
 
    map_t word_list;
    unsigned long long word_count = 0;
@@ -97,11 +97,11 @@ int main(int argc, char* argv[])
    switch (argc)
    {
                 // Consume input from stdin
-      case 1  : strtk::for_each_line<lp_t>(std::cin,lp_t(word_count,word_list,predicate));
+      case 1  : strtk::for_each_line(std::cin,lp_t(word_count,word_list,predicate));
                 break;
 
                 // Consume input from user specified file
-      case 2  : strtk::for_each_line<lp_t>(argv[1],lp_t(word_count,word_list,predicate));
+      case 2  : strtk::for_each_line(argv[1],lp_t(word_count,word_list,predicate));
                 break;
 
       default :
