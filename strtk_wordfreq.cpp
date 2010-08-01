@@ -53,32 +53,25 @@ public:
    inline void operator() (const std::string& s)
    {
       if (s.empty()) return;
-
-      static map_t& m = map_;
-      static unsigned long long& wc = word_count_;
-
-      class map_insert_or_inc
-      {
-      public:
-         void operator()(const std::pair<const char*,const char*>& r)
-         {
-            if (r.first == r.second) return;
-            ++wc;
-            std::string str(r.first,r.second);
-            strtk::convert_to_lowercase(str);
-            map_t::iterator itr = m.find(str);
-            if (m.end() != itr)
-               ++itr->second;
-            else
-               m.insert(std::make_pair(str,1));
-         }
-      };
-
-      strtk::split(p_,
-                   s.c_str(), s.c_str() + s.size(),
-                   strtk::functional_inserter(map_insert_or_inc()),
-                   strtk::split_options::compress_delimiters);
+      strtk::split(p_, s, *this, strtk::split_options::compress_delimiters);
    }
+
+   void operator=(const strtk::std_string::iterator_type& r)
+   {
+      if (r.first == r.second) return;
+      ++word_count_;
+      std::string str(r.first,r.second);
+      strtk::convert_to_lowercase(str);
+      map_t::iterator itr = map_.find(str);
+      if (map_.end() != itr)
+         ++itr->second;
+      else
+         map_.insert(std::make_pair(str,1));
+   }
+
+   inline line_parser& operator++()    { return (*this); }
+   inline line_parser& operator++(int) { return (*this); }
+   inline line_parser& operator*()     { return (*this); }
 
 private:
 
