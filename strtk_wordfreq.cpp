@@ -17,11 +17,11 @@
 
 
 /*
-  Description: This example demonstrates the how one can calculate the
-               word frequency model of given piece of text. Input is taken
-               either from stdin or a user specified file. Once the text
-               has been processed, the frequencies of each word is printed
-               out to stdout.
+  Description: This example demonstrates how one can calculate the
+               word frequency model for a given piece of text. Input
+               is taken either from stdin or a user specified file.
+               Once the text has been processed, the frequencies of
+               each word is printed out to stdout.
 */
 
 
