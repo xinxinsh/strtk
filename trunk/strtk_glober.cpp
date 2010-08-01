@@ -30,7 +30,7 @@
 
                Example usage:
 
-               ls | ./strtk_glob "*.hpp" "*.cpp" "*.txt" "M?kef*le"
+               ls | ./strtk_glober "*.hpp" "*.cpp" "*.txt" "M?kef*le"
 
                M?kef*le matched Makefile
                *.txt matched readme.txt
