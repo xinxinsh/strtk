@@ -3238,6 +3238,12 @@ namespace strtk
       */
    }
 
+   inline void convert_to_uppercase(char* begin, char* end)
+   {
+      convert_to_uppercase(reinterpret_cast<unsigned char*>(begin),
+                           reinterpret_cast<unsigned char*>(end));
+   }
+
    inline void convert_to_uppercase(std::string& str)
    {
       convert_to_uppercase(reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str())),
@@ -3256,6 +3262,12 @@ namespace strtk
          ++itr;
       }
       */
+   }
+
+   inline void convert_to_lowercase(char* begin, char* end)
+   {
+      convert_to_lowercase(reinterpret_cast<unsigned char*>(begin),
+                           reinterpret_cast<unsigned char*>(end));
    }
 
    inline void convert_to_lowercase(std::string& str)
@@ -6587,7 +6599,7 @@ namespace strtk
       variate_type rnd_;
    };
 
-   template<typename T, 
+   template<typename T,
             typename OutputIterator>
    inline void generate_random_values(const std::size_t& count,
                                       const T& min,
@@ -6602,8 +6614,8 @@ namespace strtk
       generate_random_values_impl(count,min,max,out,rng,type);
    }
 
-   template<typename T, 
-            typename Allocator, 
+   template<typename T,
+            typename Allocator,
             template<typename,typename> class Sequence>
    inline void generate_random_values(const std::size_t& count,
                                       const T& min,
@@ -6655,7 +6667,7 @@ namespace strtk
             typename Allocator,
             template<typename,typename> class Sequence,
             typename OutputIterator>
-   inline void random_permutation(const Sequence<T,Allocator>& sequence, 
+   inline void random_permutation(const Sequence<T,Allocator>& sequence,
                                   OutputIterator out,
                                   const std::size_t& seed = magic_seed,
                                   const std::size_t& pregen = 0)
@@ -8803,6 +8815,41 @@ namespace strtk
 
       friend inline ext_string operator - (const ext_string& s, const std::string& pattern);
       friend inline ext_string operator - (const ext_string& s, const char* pattern);
+      friend inline ext_string operator - (const ext_string& s, const ext_string& pattern);
+
+      static inline ext_string all_digits()
+      {
+         static ext_string digits("0123456789");
+         return digits;
+      }
+
+      static inline ext_string all_letters()
+      {
+         static ext_string letters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+         return letters;
+      }
+
+      static inline ext_string all_lowercase_letters()
+      {
+         static ext_string letters("abcdefghijklmnopqrstuvwxyz");
+         return letters;
+      }
+
+      static inline ext_string all_uppercase_letters()
+      {
+         static ext_string letters("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+         return letters;
+      }
+
+      static inline ext_string all_chars()
+      {
+         ext_string s;
+         s.as_string().resize(256);
+         strtk::iota(s.as_string().begin(),
+                     s.as_string().end(),
+                     static_cast<std::string::value_type>(0x00));
+         return s;
+      }
 
    private:
 
@@ -8842,6 +8889,11 @@ namespace strtk
    inline ext_string operator - (const ext_string& s, const char* pattern)
    {
       return s - std::string(pattern);
+   }
+
+   inline ext_string operator - (const ext_string& s, const ext_string& pattern)
+   {
+      return s - std::string(pattern.as_string());
    }
 
    std::ostream& operator<<(std::ostream& os, const strtk::ext_string& es)

@@ -100,7 +100,7 @@ private:
 template<typename Container>
 void parse_text(const std::string& file_name, Container& c)
 {
-   std::string delimiters = " ,.;:<>'[]{}()_?/\\'`~!@#$%^&*|-_\"=+\t\r";
+   static const std::string delimiters = " ,.;:<>'[]{}()_?/\\'`~!@#$%^&*|-_\"=+\t\r\n0123456789";
    strtk::multiple_char_delimiter_predicate predicate(delimiters);
    typedef parse_line<Container,strtk::multiple_char_delimiter_predicate> pl_type;
    pl_type pl(c,predicate);

@@ -40,9 +40,11 @@ int main(int argc, char* argv[])
 
    switch (argc)
    {
+                // Take input from stdin
       case 1  : strtk::load_from_text_file(std::cin,str_lst);
                 break;
 
+                // Take input from user specified file
       case 2  : strtk::load_from_text_file(argv[1],str_lst);
                 break;
 
