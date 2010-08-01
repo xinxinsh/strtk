@@ -85,9 +85,9 @@ int main(int argc, char* argv[])
    typedef strtk::multiple_char_delimiter_predicate predicate_t;
    typedef line_parser<const predicate_t> lp_t;
 
-   strtk::ext_string delimiters = strtk::ext_string::all_chars() -
-                                  strtk::ext_string::all_lowercase_letters() -
-                                  strtk::ext_string::all_uppercase_letters();
+   strtk::ext_string delimiters = strtk::ext_string::all_chars()
+                                  - strtk::ext_string::all_lowercase_letters()
+                                  - strtk::ext_string::all_uppercase_letters();
 
    static const predicate_t predicate(delimiters.as_string());
 
