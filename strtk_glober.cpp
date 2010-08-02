@@ -54,7 +54,6 @@
                *.cpp matched strtk_tokengrid_example.cpp
                *.cpp matched strtk_tokenizer_cmp.cpp
                *.cpp matched strtk_tokenizer_test.cpp
-
 */
 
 
@@ -67,11 +66,11 @@
 #include "strtk.hpp"
 
 
-class glob_line
+class line_glober
 {
 public:
 
-   glob_line(const int argc, char* argv[])
+   line_glober(const int argc, char* argv[])
    {
       pattern_list_.reserve(argc - 1);
       strtk::parse(argc - 1,argv + 1,pattern_list_);
@@ -99,11 +98,11 @@ int main(int argc, char* argv[])
 {
    if (argc <= 1)
    {
-      std::cout << "strtk_glob <pattern_0> <pattern_1> .... <pattern_n>" << std::endl;;
+      std::cout << "strtk_glober <pattern_0> <pattern_1> .... <pattern_n>" << std::endl;;
       return 1;
    }
 
-   strtk::for_each_line(std::cin,glob_line(argc,argv));
+   strtk::for_each_line(std::cin,line_glober(argc,argv));
 
    return 0;
 }

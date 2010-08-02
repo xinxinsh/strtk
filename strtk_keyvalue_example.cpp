@@ -2,7 +2,7 @@
  *****************************************************************
  *                     String Toolkit Library                    *
  *                                                               *
- * Key-Value Pair Example                                        *
+ * Key-Value Pair Parser Example                                 *
  * Author: Arash Partow (2002-2010)                              *
  * URL: http://www.partow.net/programming/strtk/index.html       *
  *                                                               *

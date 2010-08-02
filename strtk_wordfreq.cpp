@@ -18,10 +18,11 @@
 
 /*
   Description: This example demonstrates how one can calculate the
-               word frequency model for a given piece of text. Input
-               is taken either from stdin or a user specified file.
-               Once the text has been processed, the frequencies of
-               each word is printed out to stdout.
+               word frequency model for a given piece of text using
+               the String Toolkit library. Input is taken either 
+               from stdin or a user specified file. Once the text 
+               has been fully processed, the frequency of each word 
+               is then printed to stdout.
 */
 
 
@@ -48,7 +49,7 @@ public:
    : word_count_(word_count),
      map_(map),
      p_(p)
-   {}
+   { str_.reserve(strtk::one_kilobyte); }
 
    inline void operator() (const std::string& s)
    {
@@ -60,13 +61,13 @@ public:
    {
       if (r.first == r.second) return;
       ++word_count_;
-      std::string str(r.first,r.second);
-      strtk::convert_to_lowercase(str);
-      map_t::iterator itr = map_.find(str);
+      str_.assign(r.first,r.second);
+      strtk::convert_to_lowercase(str_);
+      map_t::iterator itr = map_.find(str_);
       if (map_.end() != itr)
          ++itr->second;
       else
-         map_.insert(std::make_pair(str,1));
+         map_.insert(std::make_pair(str_,1));
    }
 
    inline line_parser& operator++()    { return (*this); }
@@ -78,6 +79,7 @@ private:
    unsigned long long& word_count_;
    map_t& map_;
    Predicate& p_;
+   std::string str_;
 };
 
 int main(int argc, char* argv[])
@@ -113,7 +115,9 @@ int main(int argc, char* argv[])
    }
 
    std::cout << "Word count: " << word_count << std::endl;
+
    map_t::iterator itr = word_list.begin();
+
    while (word_list.end() != itr)
    {
       printf("%s %10d %10.9f\n",

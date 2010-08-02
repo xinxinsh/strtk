@@ -3655,8 +3655,8 @@ namespace strtk
 
         ~row_type()
          {
-           if (next_row_.second) { delete next_row_.second; }
-           if (prev_row_.second) { delete prev_row_.second; }
+            if (next_row_.second) { delete next_row_.second; }
+            if (prev_row_.second) { delete prev_row_.second; }
          }
 
          template<typename T>
@@ -8819,25 +8819,25 @@ namespace strtk
 
       static inline ext_string all_digits()
       {
-         static ext_string digits("0123456789");
+         static const ext_string digits("0123456789");
          return digits;
       }
 
       static inline ext_string all_letters()
       {
-         static ext_string letters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+         static const ext_string letters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
          return letters;
       }
 
       static inline ext_string all_lowercase_letters()
       {
-         static ext_string letters("abcdefghijklmnopqrstuvwxyz");
+         static const ext_string letters("abcdefghijklmnopqrstuvwxyz");
          return letters;
       }
 
       static inline ext_string all_uppercase_letters()
       {
-         static ext_string letters("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+         static const ext_string letters("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
          return letters;
       }
 
