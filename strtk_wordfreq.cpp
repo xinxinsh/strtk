@@ -49,7 +49,9 @@ public:
    : word_count_(word_count),
      map_(map),
      p_(p)
-   { str_.reserve(strtk::one_kilobyte); }
+   {
+      str_.reserve(strtk::one_kilobyte);
+   }
 
    inline void operator() (const std::string& s)
    {
