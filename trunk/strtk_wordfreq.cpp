@@ -19,9 +19,9 @@
 /*
   Description: This example demonstrates how one can calculate the
                word frequency model for a given piece of text using
-               the String Toolkit library. Input is taken either 
-               from stdin or a user specified file. Once the text 
-               has been fully processed, the frequency of each word 
+               the String Toolkit library. Input is taken either
+               from stdin or a user specified file. Once the text
+               has been fully processed, the frequency of each word
                is then printed to stdout.
 */
 
@@ -63,11 +63,7 @@ public:
       ++word_count_;
       str_.assign(r.first,r.second);
       strtk::convert_to_lowercase(str_);
-      map_t::iterator itr = map_.find(str_);
-      if (map_.end() != itr)
-         ++itr->second;
-      else
-         map_.insert(std::make_pair(str_,1));
+      ++map_[str_];
    }
 
    inline line_parser& operator++()    { return (*this); }
@@ -87,9 +83,9 @@ int main(int argc, char* argv[])
    typedef strtk::multiple_char_delimiter_predicate predicate_t;
    typedef line_parser<const predicate_t> lp_t;
 
-   std::string delimiters = strtk::ext_string::all_chars()
-                          - strtk::ext_string::all_lowercase_letters()
-                          - strtk::ext_string::all_uppercase_letters();
+   const std::string delimiters = strtk::ext_string::all_chars()
+                                - strtk::ext_string::all_lowercase_letters()
+                                - strtk::ext_string::all_uppercase_letters();
 
    static const predicate_t predicate(delimiters);
 

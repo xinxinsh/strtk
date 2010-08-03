@@ -8631,11 +8631,6 @@ namespace strtk
          return s_;
       }
 
-      inline operator const char* () const
-      {
-         return s_.c_str();
-      }
-
       inline std::string clone() const
       {
          return s_;
