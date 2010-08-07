@@ -6466,9 +6466,11 @@ namespace strtk
       Iterator itr = begin;
       while (end != itr)
       {
-         if ((*itr).size() < r0)
-            continue;
-         (*itr++) = (*itr).substr(r0,std::min(r1,(*itr).size()) - r0);
+         if ((*itr).size() >= r0)
+         {
+            (*itr) = (*itr).substr(r0,std::min(r1,(*itr).size()) - r0);
+         }
+         ++itr;
       }
    }
 
