@@ -17,11 +17,11 @@
 
 
 /*
-   Description: This example demonstrates the use of the match functionality within StrtK.
-                The process takes a series of inputs from the command line and assumes
-                them to be wild-card patterns. The process then proceeds to read input
-                from stdin one line at a time, printing out the patterns that successfully
-                match the current line.
+   Description: This example demonstrates the use of the match functionality within
+                the String Toolkit library. The process takes a series of inputs from
+                the command line and assumes them to be wild-card patterns. The process
+                then proceeds to read input from stdin one line at a time, printing
+                out the patterns that successfully match the current line.
                 The patterns can be constructed using either of the following wild-card
                 characters:
 
