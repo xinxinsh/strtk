@@ -6988,7 +6988,7 @@ namespace strtk
 
          // should be sourced from cstdint
          typedef unsigned int uint32_t;
-         typedef unsigned int uint16_t;
+         typedef unsigned short uint16_t;
 
       public:
 
@@ -7219,12 +7219,13 @@ namespace strtk
 
          // should be sourced from cstdint
          typedef unsigned int uint32_t;
-         typedef unsigned int uint16_t;
+         typedef unsigned short uint16_t;
 
       public:
 
          template<typename T>
-         writer(T* buffer, const std::size_t& buffer_length)
+         writer(T* buffer, 
+                const std::size_t& buffer_length)
          : original_buffer_(reinterpret_cast<char*>(buffer)),
            buffer_(reinterpret_cast<char*>(buffer)),
            buffer_length_(buffer_length * sizeof(T)),
