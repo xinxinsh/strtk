@@ -6225,12 +6225,12 @@ namespace strtk
    inline void replicate_inplace(const std::size_t& n,
                                  std::string& str)
    {
-      std::string temp = str;
+      std::string temp_str = str;
       str.reserve(str.size() + (str.size() * n));
 
       for (std::size_t i = 0; i < n; ++i)
       {
-         str.append(str);
+         str.append(temp_str);
       }
    }
 
@@ -7224,8 +7224,7 @@ namespace strtk
       public:
 
          template<typename T>
-         writer(T* buffer, 
-                const std::size_t& buffer_length)
+         writer(T* buffer, const std::size_t& buffer_length)
          : original_buffer_(reinterpret_cast<char*>(buffer)),
            buffer_(reinterpret_cast<char*>(buffer)),
            buffer_length_(buffer_length * sizeof(T)),
@@ -7818,6 +7817,7 @@ namespace strtk
       const bool is_pod<const volatile T>::result = true;
 
       register_pod_type(bool)
+      register_pod_type(signed char)
       register_pod_type(char)
       register_pod_type(short)
       register_pod_type(int)
@@ -7905,6 +7905,7 @@ namespace strtk
       register_real_type_tag(long double)
 
       register_byte_type_tag(unsigned char)
+      register_byte_type_tag(signed char)
       register_byte_type_tag(char)
 
       register_hex_type_tag(hex_to_number_sink<short>)
@@ -7926,13 +7927,16 @@ namespace strtk
       register_stdstring_range_type_tag(std::string::iterator)
       register_stdstring_range_type_tag(std::string::const_iterator)
       register_stdstring_range_type_tag(char*)
+      register_stdstring_range_type_tag(signed char*)
       register_stdstring_range_type_tag(unsigned char*)
       register_stdstring_range_type_tag(const char*)
       register_stdstring_range_type_tag(const unsigned char*)
 
       register_supported_iterator_type(char*)
+      register_supported_iterator_type(signed char*)
       register_supported_iterator_type(unsigned char*)
       register_supported_iterator_type(const char*)
+      register_supported_iterator_type(const signed char*)
       register_supported_iterator_type(const unsigned char*)
       register_supported_iterator_type(std::string::iterator)
       register_supported_iterator_type(std::string::const_iterator)
@@ -8485,7 +8489,7 @@ namespace strtk
       #define register_type_name(Type)\
       template <> inline std::string type_name<Type>() { static std::string s(#Type); return s; }
 
-      register_type_name(char)
+      register_type_name(signed char)
       register_type_name(unsigned char)
       register_type_name(short)
       register_type_name(int)
@@ -9034,13 +9038,8 @@ namespace strtk
          {
             file1.read(&buffer1[0],static_cast<std::streamsize>(block_size));
             file2.read(&buffer2[0],static_cast<std::streamsize>(block_size));
-            for (std::size_t i = 0; i < block_size; ++i)
-            {
-               if (buffer1[i] != buffer2[i])
-               {
-                  return false;
-               }
-            }
+            if (0 != std::memcmp(buffer1,buffer2,block_size))
+               return false;
             remaining_bytes -= block_size;
          }
 
@@ -9048,13 +9047,8 @@ namespace strtk
          {
             file1.read(&buffer1[0],static_cast<std::streamsize>(remaining_bytes));
             file2.read(&buffer2[0],static_cast<std::streamsize>(remaining_bytes));
-            for (std::size_t i = 0; i < remaining_bytes; ++i)
-            {
-               if (buffer1[i] != buffer2[i])
-               {
-                  return false;
-               }
-            }
+            if (0 != std::memcmp(buffer1,buffer2,remaining_bytes))
+               return false;
             remaining_bytes = 0;
          }
 
@@ -10530,13 +10524,14 @@ namespace strtk
       public:
 
          #ifdef WIN32
-            timer()      { QueryPerformanceFrequency(&clock_frequency); }
-            void start() { QueryPerformanceCounter(&start_time);        }
-            void stop()  { QueryPerformanceCounter(&stop_time);         }
+            timer() : in_use_(false) { QueryPerformanceFrequency(&clock_frequency); }
+            void start() { in_use_ = true; QueryPerformanceCounter(&start_time);    }
+            void stop()  { QueryPerformanceCounter(&stop_time); in_use_ = false;    }
             double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
          #else
-            void start() { gettimeofday(&start_time, 0); }
-            void stop()  { gettimeofday(&stop_time,  0); }
+            timer() : in_use_(false) { }
+            void start() { in_use_ = true; gettimeofday(&start_time, 0);  }
+            void stop()  { gettimeofday(&stop_time,  0); in_use_ = false; }
             double time()
             {
                double diff = (stop_time.tv_sec - start_time.tv_sec) * 1000000.0;
@@ -10547,7 +10542,10 @@ namespace strtk
                return (diff / 1000000.0);
             }
          #endif
+            bool in_use() { return in_use_; }
       private:
+
+            bool in_use_;
 
          #ifdef WIN32
             LARGE_INTEGER start_time;
@@ -10570,9 +10568,9 @@ namespace strtk
 
       static inline std::string data()
       {
-         static std::string info_str = std::string(library) +
-                                       std::string(" v") + std::string(version) +
-                                       std::string(" (") + date + std::string(" ") + epoch + std::string(")");
+         static const std::string info_str = std::string(library) +
+                                             std::string(" v") + std::string(version) +
+                                             std::string(" (") + date + std::string(" ") + epoch + std::string(")");
          return info_str;
       }
 
