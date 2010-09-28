@@ -271,10 +271,8 @@ namespace strtk
       template<typename T> struct is_pod
       {
          typedef no_t result_t;
-         static const bool result;
+         enum { result = false };
       };
-      template<typename T>
-      const bool is_pod<T>::result = false;
 
    } // namespace details
 
@@ -604,7 +602,11 @@ namespace strtk
          return adapter<T>(t,N);
       }
 
-      adapter<const char> type(const std::string& s)
+       #ifdef _MSC_VER
+         #pragma warning( push )
+         #pragma warning(disable:4505)
+      #endif
+      static inline adapter<const char> type(const std::string& s)
       {
          return adapter<const char>(s.c_str(),s.size());
       }
@@ -612,7 +614,7 @@ namespace strtk
       template<typename T,
                typename Allocator,
                template<typename,typename> class Sequence>
-      adapter<typename Sequence<T,Allocator>::iterator> type(const Sequence<T,Allocator>& seq)
+      inline adapter<typename Sequence<T,Allocator>::iterator> type(const Sequence<T,Allocator>& seq)
       {
          return adapter<typename Sequence<T,Allocator>::iterator>(seq.begin(),seq.end());
       }
@@ -7807,14 +7809,10 @@ namespace strtk
       static const unsigned char* rev_digit_table2 = (rev_digit_table3 + (3000 * sizeof(unsigned char)));
 
       #define register_pod_type(T)\
-      template<> struct is_pod<T>{ typedef yes_t result_t; static const bool result; };\
-      const bool is_pod<T>::result = true;\
-      template<> struct is_pod<const T>{ typedef yes_t result_t; static const bool result; };\
-      const bool is_pod<const T>::result = true;\
-      template<> struct is_pod<volatile T>{ typedef yes_t result_t; static const bool result; };\
-      const bool is_pod<volatile T>::result = true;\
-      template<> struct is_pod<const volatile T>{ typedef yes_t result_t; static const bool result; };\
-      const bool is_pod<const volatile T>::result = true;
+      template<> struct is_pod<T>{ typedef yes_t result_t; enum {result = true }; };\
+      template<> struct is_pod<const T>{ typedef yes_t result_t; enum {result = true }; };\
+      template<> struct is_pod<volatile T>{ typedef yes_t result_t; enum {result = true }; };\
+      template<> struct is_pod<const volatile T>{ typedef yes_t result_t; enum {result = true }; };\
 
       register_pod_type(bool)
       register_pod_type(signed char)
@@ -8898,10 +8896,9 @@ namespace strtk
       return s - std::string(pattern.as_string());
    }
 
-   std::ostream& operator<<(std::ostream& os, const strtk::ext_string& es)
+   static inline std::ostream& operator<<(std::ostream& os, const strtk::ext_string& es)
    {
-      os << es.as_string();
-      return os;
+      return (os << es.as_string());
    }
 
    namespace fileio
