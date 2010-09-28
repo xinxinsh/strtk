@@ -602,10 +602,6 @@ namespace strtk
          return adapter<T>(t,N);
       }
 
-       #ifdef _MSC_VER
-         #pragma warning( push )
-         #pragma warning(disable:4505)
-      #endif
       static inline adapter<const char> type(const std::string& s)
       {
          return adapter<const char>(s.c_str(),s.size());
