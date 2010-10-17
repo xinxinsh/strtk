@@ -634,6 +634,7 @@ namespace strtk
       }
 
    private:
+	  single_delimiter_predicate<T> operator=(const single_delimiter_predicate<T>&);
 
       const T delimiter_;
    };
@@ -6978,6 +6979,8 @@ namespace strtk
          : s(str)
          {}
          std::string& s;
+	  private:
+		  ushort_string_adptr operator=(const ushort_string_adptr&);
       };
 
       class reader
