@@ -77,7 +77,7 @@ public:
       std::sort(pattern_list_.begin(),pattern_list_.end());
    }
 
-   void operator()(const std::string& s)
+   void operator()(const std::string& s) const
    {
       for (std::size_t i = 0; i < pattern_list_.size(); ++i)
       {

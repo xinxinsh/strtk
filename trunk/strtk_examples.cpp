@@ -518,6 +518,52 @@ void parse_example04()
    }
 }
 
+struct datetime
+{
+   unsigned int year;
+   unsigned int month;
+   unsigned int day;
+   unsigned int hour;
+   unsigned int minute;
+   unsigned int second;
+   unsigned int msecond;
+};
+
+namespace strtk
+{
+   template<typename Iterator>
+   inline bool string_to_type_converter(const Iterator begin, const Iterator end, datetime& dt)
+   {
+      static const std::string delimiters ("-:. ");
+      return strtk::parse(begin,end, delimiters,
+                          dt.year, dt.month, dt.day,
+                          dt.hour, dt.minute, dt.second, dt.msecond);
+   }
+}
+
+void parse_example05()
+{
+   static const std::string data = "2000-01-10 03:01:16.123|2001-02-22 05:12:24.234|"
+                                   "2002-03-13 07:23:32.345|2003-04-24 10:34:47.456|"
+                                   "2004-05-15 13:45:51.567|2005-06-26 15:56:03.678";
+
+   std::deque<datetime> datetime_list;
+   strtk::parse(data,"|",datetime_list);
+
+   for (std::size_t i = 0; i < datetime_list.size(); ++i)
+   {
+      datetime& dt = datetime_list[i];
+      strtk::ext_string extstr;
+      std::cout << dt.year << "-"
+                << strtk::text::right_align(2,'0',  dt.month) << "-"
+                << strtk::text::right_align(2,'0',    dt.day) << " "
+                << strtk::text::right_align(2,'0',   dt.hour) << ":"
+                << strtk::text::right_align(2,'0', dt.minute) << ":"
+                << strtk::text::right_align(2,'0', dt.second) << "."
+                << strtk::text::right_align(3,'0',dt.msecond) << std::endl;
+   }
+}
+
 void remove_inplace_example01()
 {
    std::string s = "aa abb cdd  ee fg";
@@ -1223,6 +1269,7 @@ int main()
    parse_example02();
    parse_example03();
    parse_example04();
+   parse_example05();
    remove_inplace_example01();
    remove_consecutives_example01();
    remove_consecutives_example02();
