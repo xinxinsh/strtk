@@ -68,8 +68,6 @@ public:
 
    inline bool operator()(const std::string& data, unsigned int& ip)
    {
-      if (sizeof(unsigned int) < 4)
-         return false;
       ip = 0;
       return operator()(data,reinterpret_cast<unsigned char*>(&ip));
    }
