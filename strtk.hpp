@@ -1776,9 +1776,10 @@ namespace strtk
       struct tokenizer
       {
          typedef DelimiterPredicate predicate_type;
-         typedef strtk::tokenizer<std::string::const_iterator,DelimiterPredicate> type;
-         typedef strtk::tokenizer<std::string::const_iterator,multiple_char_delimiter_predicate> md_type;
-         typedef std::pair<std::string::const_iterator,std::string::const_iterator> iterator_type;
+         typedef std::string::const_iterator string_iterator_type;
+         typedef strtk::tokenizer<string_iterator_type,DelimiterPredicate> type;
+         typedef strtk::tokenizer<string_iterator_type,multiple_char_delimiter_predicate> md_type;
+         typedef std::pair<string_iterator_type,string_iterator_type> iterator_type;
       };
 
       typedef tokenizer<>::iterator_type iterator_type;
@@ -5499,7 +5500,7 @@ namespace strtk
                       range_to_type_back_inserter(sequence),
                       split_option);
       else
-         return split(strtk::multiple_char_delimiter_predicate(delimiters),
+         return split(multiple_char_delimiter_predicate(delimiters),
                       begin, end,
                       range_to_type_back_inserter(sequence),
                       split_option);
@@ -5522,7 +5523,7 @@ namespace strtk
                       range_to_type_inserter(set),
                       split_option);
       else
-         return split(strtk::multiple_char_delimiter_predicate(delimiters),
+         return split(multiple_char_delimiter_predicate(delimiters),
                       begin, end,
                       range_to_type_inserter(set),
                       split_option);
@@ -5546,7 +5547,7 @@ namespace strtk
                         range_to_type_back_inserter(sequence),
                         split_option);
       else
-         return split_n(strtk::multiple_char_delimiter_predicate(delimiters),
+         return split_n(multiple_char_delimiter_predicate(delimiters),
                         begin, end,
                         n,
                         range_to_type_back_inserter(sequence),
@@ -5571,7 +5572,7 @@ namespace strtk
                         range_to_type_inserter(set),
                         split_option);
       else
-         return split_n(strtk::multiple_char_delimiter_predicate(delimiters),
+         return split_n(multiple_char_delimiter_predicate(delimiters),
                         begin, end,
                         n,
                         range_to_type_inserter(set),
@@ -5739,12 +5740,14 @@ namespace strtk
              template <typename,typename> class Sequence>
    inline std::size_t parse(const std::string& data,
                             const std::string& delimiters,
-                             Sequence<T,Allocator>& sequence)
+                             Sequence<T,Allocator>& sequence,
+                             const split_options::type& split_option = split_options::compress_delimiters)
    {
       return parse(data.c_str(),
                    data.c_str() + data.size(),
                    delimiters,
-                   sequence);
+                   sequence,
+                   split_option);
    }
 
    template <typename T,
@@ -5752,12 +5755,14 @@ namespace strtk
              typename Allocator>
    inline std::size_t parse(const std::string& data,
                             const std::string& delimiters,
-                            std::set<T,Comparator,Allocator>& set)
+                            std::set<T,Comparator,Allocator>& set,
+                            const split_options::type& split_option = split_options::compress_delimiters)
    {
       return parse(data.c_str(),
                    data.c_str() + data.size(),
                    delimiters,
-                   set);
+                   set,
+                   split_option);
    }
 
    template <typename T,
@@ -5786,7 +5791,7 @@ namespace strtk
    #define strtk_parse_begin(Type)\
    namespace strtk {\
    bool parse(const std::string& data, const std::string& delimiters, Type& t)\
-   { return parse(data,delimiters
+   { return parse(data.c_str(),data.c_str() + data.size(),delimiters
 
    #define strtk_parse_type(T)\
    ,t.T
@@ -5804,13 +5809,15 @@ namespace strtk
    inline std::size_t parse_n(const std::string& data,
                               const std::string& delimiters,
                               const std::size_t& n,
-                              Sequence<T,Allocator>& sequence)
+                              Sequence<T,Allocator>& sequence,
+                              const split_options::type& split_option = split_options::compress_delimiters)
    {
       return parse_n(data.c_str(),
                      data.c_str() + data.size(),
                      delimiters,
                      n,
-                     sequence);
+                     sequence,
+                     split_option);
    }
 
    template <typename T,
@@ -5819,12 +5826,14 @@ namespace strtk
    inline std::size_t parse_n(const std::string& data,
                               const std::string& delimiters,
                               const std::size_t& n,
-                              std::set<T,Comparator,Allocator>& set)
+                              std::set<T,Comparator,Allocator>& set,
+                              const split_options::type& split_option = split_options::compress_delimiters)
    {
       return parse_n(data.c_str(), data.c_str() + data.size(),
                      delimiters,
                      n,
-                     set);
+                     set,
+                     split_option);
    }
 
    template<typename T1, typename T2, typename  T3, typename  T4,
@@ -7479,9 +7488,9 @@ namespace strtk
          }
          std::copy(s.first + offset, s.first + size, buffer + buffer_offset);
          *t_ = 0;
-         valid_= strtk::convert_hex_to_bin(buffer,
-                                           buffer + (size - offset) + buffer_offset,
-                                           reinterpret_cast<char*>(t_));
+         valid_= convert_hex_to_bin(buffer,
+                                    buffer + (size - offset) + buffer_offset,
+                                    reinterpret_cast<char*>(t_));
          reverse_bytes();
          return *this;
       }
@@ -7569,7 +7578,7 @@ namespace strtk
             return *this;
          }
          *t_ = T(0);
-         strtk::convert_base64_to_bin(s.c_str(), s.c_str() + s.size(),reinterpret_cast<char*>(t_));
+         convert_base64_to_bin(s.c_str(), s.c_str() + s.size(),reinterpret_cast<char*>(t_));
          reverse_bytes();
          return *this;
       }
@@ -7583,7 +7592,7 @@ namespace strtk
             return *this;
          }
          *t_ = T(0);
-         strtk::convert_base64_to_bin(s.first, s.second,reinterpret_cast<char*>(t_));
+         convert_base64_to_bin(s.first, s.second,reinterpret_cast<char*>(t_));
          reverse_bytes();
          return *this;
       }
@@ -8857,12 +8866,12 @@ namespace strtk
 
    inline ext_string operator * (const std::size_t& n, const ext_string& s)
    {
-      return ext_string(strtk::replicate(n, s.s_));
+      return ext_string(replicate(n, s.s_));
    }
 
    inline ext_string operator * (const ext_string& s, const std::size_t& n)
    {
-      return ext_string(strtk::replicate(n, s.s_));
+      return ext_string(replicate(n, s.s_));
    }
 
    template<typename T>
@@ -8895,7 +8904,7 @@ namespace strtk
       return s - std::string(pattern.as_string());
    }
 
-   static inline std::ostream& operator<<(std::ostream& os, const strtk::ext_string& es)
+   static inline std::ostream& operator<<(std::ostream& os, const ext_string& es)
    {
       return (os << es.as_string());
    }
@@ -10254,8 +10263,10 @@ namespace strtk
 
         ~scoped_restore()
          {
-           if (restore_)
-              reference_ = copy_;
+            if (restore_)
+            {
+               reference_ = copy_;
+            }
          }
 
          bool& restore()
@@ -10268,6 +10279,86 @@ namespace strtk
          bool restore_;
          T& reference_;
          T copy_;
+      };
+
+      template<typename T>
+      class attribute
+      {
+      public:
+
+         attribute()
+         : initialised_(false)
+         {}
+
+         attribute(const T& t)
+         {
+            assign(t);
+            prev_t_ = t;
+         }
+
+         attribute& operator=(const T& t)
+         {
+            prev_t_ = t_;
+            assign(t);
+         }
+
+         T& operator()()
+         {
+            return t_;
+         }
+
+         const T& operator()() const
+         {
+            return t_;
+         }
+
+         operator T() const
+         {
+            return t_;
+         }
+
+         bool initialised() const
+         {
+            return initialised_;
+         }
+
+         bool changed() const
+         {
+            return (t_ != prev_t_);
+         }
+
+         const T& value() const
+         {
+            return t_;
+         }
+
+         T& value()
+         {
+            return t_;
+         }
+
+         const T& previous() const
+         {
+            return prev_t_;
+         }
+
+         T& previous()
+         {
+            return prev_t_;
+         }
+
+      private:
+
+         void assign(const T& t)
+         {
+            t_ = t;
+            initialised_ = true;
+         }
+
+         T t_;
+         T prev_t_;
+         bool initialised_;
+
       };
 
       template<typename Key,
