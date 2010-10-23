@@ -532,7 +532,9 @@ struct datetime
 namespace strtk
 {
    template<typename Iterator>
-   inline bool string_to_type_converter(const Iterator begin, const Iterator end, datetime& dt)
+   inline bool string_to_type_converter_impl(const Iterator& begin, const Iterator& end,
+                                             datetime& dt,
+                                             details::not_supported_type_tag&)
    {
       static const std::string delimiters ("-:. ");
       return strtk::parse(begin,end, delimiters,
@@ -544,8 +546,11 @@ namespace strtk
 void parse_example05()
 {
    static const std::string data = "2000-01-10 03:01:16.123|2001-02-22 05:12:24.234|"
-                                   "2002-03-13 07:23:32.345|2003-04-24 10:34:47.456|"
-                                   "2004-05-15 13:45:51.567|2005-06-26 15:56:03.678";
+                                   "2002-03-13 07:23:32.345|2003-04-24 09:34:47.456|"
+                                   "2004-05-15 11:46:51.767|2005-06-26 15:57:03.678|"
+                                   "2006-07-17 17:45:31.561|2007-08-26 19:06:02.809|"
+                                   "2008-09-18 21:16:23.267|2009-10-26 23:12:03.798|"
+                                   "2010-11-23 13:47:11.963|2011-12-26 15:35:08.168";
 
    std::deque<datetime> datetime_list;
    strtk::parse(data,"|",datetime_list);
@@ -707,7 +712,6 @@ void random_combination_example()
    #endif
 }
 
-
 void lexicographically_canonicalize_example()
 {
    std::string str_list[] = {
@@ -715,7 +719,8 @@ void lexicographically_canonicalize_example()
                               "ijkxyzabc",
                               "abcdefghijklmnopqrstuvwxyz",
                               "zyxwvutsrqponmlkjihgfedcba",
-                              "The Quick Brown Fox Jumps Over The Lazy Dog"
+                              "The Quick Brown Fox Jumps Over The Lazy Dog",
+                              "5678901234"
                             };
    const std::size_t str_list_size = sizeof(str_list) / sizeof(std::string);
 
