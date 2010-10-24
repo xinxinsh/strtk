@@ -537,7 +537,7 @@ namespace strtk
                                              details::not_supported_type_tag&)
    {
       static const std::string delimiters ("-:. ");
-      return strtk::parse(begin,end, delimiters,
+      return strtk::parse(begin, end, delimiters,
                           dt.year, dt.month, dt.day,
                           dt.hour, dt.minute, dt.second, dt.msecond);
    }
@@ -558,7 +558,6 @@ void parse_example05()
    for (std::size_t i = 0; i < datetime_list.size(); ++i)
    {
       datetime& dt = datetime_list[i];
-      strtk::ext_string extstr;
       std::cout << dt.year << "-"
                 << strtk::text::right_align(2,'0',  dt.month) << "-"
                 << strtk::text::right_align(2,'0',    dt.day) << " "
