@@ -367,6 +367,59 @@ namespace strtk
      return line_count;
    }
 
+   template <typename T, typename Container>
+   inline std::size_t load_from_text_file(std::istream& stream,
+                                          std::queue<T,Container>& queue,
+                                          const std::size_t& buffer_size = one_kilobyte)
+   {
+     if (!stream) return 0;
+     std::string buffer;
+     buffer.reserve(buffer_size);
+     std::size_t line_count = 0;
+     while (std::getline(stream,buffer))
+     {
+        ++line_count;
+        queue.push(string_to_type_converter<T>(buffer));
+     }
+     return line_count;
+   }
+
+   template <typename T, typename Container>
+   inline std::size_t load_from_text_file(std::istream& stream,
+                                          std::stack<T,Container>& stack,
+                                          const std::size_t& buffer_size = one_kilobyte)
+   {
+     if (!stream) return 0;
+     std::string buffer;
+     buffer.reserve(buffer_size);
+     std::size_t line_count = 0;
+     while (std::getline(stream,buffer))
+     {
+        ++line_count;
+        stack.push(string_to_type_converter<T>(buffer));
+     }
+     return line_count;
+   }
+
+   template <typename T,
+             typename Container,
+             typename Comparator>
+   inline std::size_t load_from_text_file(std::istream& stream,
+                                          std::priority_queue<T,Container,Comparator>& priority_queue,
+                                          const std::size_t& buffer_size = one_kilobyte)
+   {
+     if (!stream) return 0;
+     std::string buffer;
+     buffer.reserve(buffer_size);
+     std::size_t line_count = 0;
+     while (std::getline(stream,buffer))
+     {
+        ++line_count;
+        priority_queue.push(string_to_type_converter<T>(buffer));
+     }
+     return line_count;
+   }
+
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
@@ -393,6 +446,44 @@ namespace strtk
         return 0;
      else
         return load_from_text_file(stream,set,buffer_size);
+   }
+
+   template <typename T, typename Container>
+   inline std::size_t load_from_text_file(const std::string& file_name,
+                                          std::queue<T,Container>& queue,
+                                          const std::size_t& buffer_size = one_kilobyte)
+   {
+     std::ifstream stream(file_name.c_str());
+     if (!stream)
+        return 0;
+     else
+        return load_from_text_file(stream,queue,buffer_size);
+   }
+
+   template <typename T, typename Container>
+   inline std::size_t load_from_text_file(const std::string& file_name,
+                                          std::stack<T,Container>& stack,
+                                          const std::size_t& buffer_size = one_kilobyte)
+   {
+     std::ifstream stream(file_name.c_str());
+     if (!stream)
+        return 0;
+     else
+        return load_from_text_file(stream,stack,buffer_size);
+   }
+
+   template <typename T,
+             typename Container,
+             typename Comparator>
+   inline std::size_t load_from_text_file(const std::string& file_name,
+                                          std::priority_queue<T,Container,Comparator>& priority_queue,
+                                          const std::size_t& buffer_size = one_kilobyte)
+   {
+     std::ifstream stream(file_name.c_str());
+     if (!stream)
+        return 0;
+     else
+        return load_from_text_file(stream,priority_queue,buffer_size);
    }
 
    template <typename T,
@@ -4184,6 +4275,82 @@ namespace strtk
          }
 
          template<typename T,
+                  typename Comparator,
+                  typename Allocator>
+         inline bool parse(std::set<T,Comparator,Allocator>& set) const
+         {
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            T t;
+            while (end != itr)
+            {
+               const itr_list_type::value_type& range = *itr;
+               if (!string_to_type_converter(range.first,range.second,t))
+                  return false;
+               else
+                  set.insert(t);
+               ++itr;
+            }
+            return true;
+         }
+
+         template<typename T, typename Container>
+         inline bool parse(std::queue<T,Container>& queue) const
+         {
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            T t;
+            while (end != itr)
+            {
+               const itr_list_type::value_type& range = *itr;
+               if (!string_to_type_converter(range.first,range.second,t))
+                  return false;
+               else
+                  queue.push(t);
+               ++itr;
+            }
+            return true;
+         }
+
+         template<typename T, typename Container>
+         inline bool parse(std::stack<T,Container>& stack) const
+         {
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            T t;
+            while (end != itr)
+            {
+               const itr_list_type::value_type& range = *itr;
+               if (!string_to_type_converter(range.first,range.second,t))
+                  return false;
+               else
+                  stack.push(t);
+               ++itr;
+            }
+            return true;
+         }
+
+         template<typename T,
+                  typename Container,
+                  typename Comparator>
+         inline bool parse(std::priority_queue<T,Container,Comparator>& priority_queue) const
+         {
+            itr_list_type::const_iterator itr = token_list_->begin();
+            itr_list_type::const_iterator end = token_list_->end();
+            T t;
+            while (end != itr)
+            {
+               const itr_list_type::value_type& range = *itr;
+               if (!string_to_type_converter(range.first,range.second,t))
+                  return false;
+               else
+                  priority_queue.push(t);
+               ++itr;
+            }
+            return true;
+         }
+
+         template<typename T,
                   typename Allocator,
                   template<typename,typename> class Sequence>
          inline std::size_t parse_n(const std::size_t& n, Sequence<T,Allocator>& sequence) const
@@ -4238,6 +4405,26 @@ namespace strtk
          inline void parse_checked(std::set<T,Comparator,Allocator>& set) const
          {
             parse_checked<T>(std::inserter(set,set.end()));
+         }
+
+         template<typename T, typename Container>
+         inline void parse_checked(std::queue<T,Container>& queue) const
+         {
+            parse_checked<T>(push_inserter(queue));
+         }
+
+         template<typename T, typename Container>
+         inline void parse_checked(std::stack<T,Container>& stack) const
+         {
+            parse_checked<T>(push_inserter(stack));
+         }
+
+         template<typename T,
+                  typename Container,
+                  typename Comparator>
+         inline void parse_checked(std::priority_queue<T,Container,Comparator>& priority_queue) const
+         {
+            parse_checked<T>(push_inserter(priority_queue));
          }
 
       private:
