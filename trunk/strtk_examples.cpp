@@ -26,6 +26,8 @@
 #include <list>
 #include <set>
 #include <map>
+#include <stack>
+#include <queue>
 
 #include "strtk.hpp"
 
@@ -451,6 +453,7 @@ void parse_example01()
 void parse_example02()
 {
    std::string int_string    = "0,-1,+2,-3,4,-5,+6,-7,8,-9";
+   std::string uint_string   = "0,100,200,300,400,500,600,700,800,900";
    std::string double_string = "0.0,1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9";
    std::string string_string = "ab,cde,fghi,jklmn,opqrst,uvwxyz1,234567890";
    std::string float_string  = "1.9f,2.8f,3.7f,4.6f,5.5f,6.4f,7.3f,8.2f,9.1f,0.0f";
@@ -459,11 +462,17 @@ void parse_example02()
    std::deque<double> double_list;
    std::list<std::string> string_list;
    std::set<float> float_list;
+   std::queue<unsigned int> uint_queue;
+   std::stack<unsigned int> uint_stack;
+   std::priority_queue<unsigned int> uint_prique;
 
    strtk::parse(int_string,",",int_list);
    strtk::parse(double_string,",",double_list);
    strtk::parse(string_string,",",string_list);
    strtk::parse(float_string,",",float_list);
+   strtk::parse(uint_string,",",uint_queue);
+   strtk::parse(uint_string,",",uint_stack);
+   strtk::parse(uint_string,",",uint_prique);
 
    std::cout << strtk::join("\t",int_list) << std::endl;
    std::cout << strtk::join("\t",double_list) << std::endl;
@@ -474,15 +483,24 @@ void parse_example02()
 void parse_example03()
 {
    std::string int_string    = "0,1,2,3,4,5,6,7,8,9";
+   std::string uint_string   = "0,100,200,300,400,500,600,700,800,900";
    std::string double_string = "0.0,1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9";
 
    std::vector<int> int_list;
    std::deque<double> double_list;
 
+   std::queue<unsigned int> uint_queue;
+   std::stack<unsigned int> uint_stack;
+   std::priority_queue<unsigned int> uint_prique;
+
    static const std::size_t n = 4;
 
    strtk::parse_n(int_string,",",n,int_list);
    strtk::parse_n(double_string,",",n,double_list);
+
+   strtk::parse_n(uint_string,",",n,uint_queue);
+   strtk::parse_n(uint_string,",",n,uint_stack);
+   strtk::parse_n(uint_string,",",n,uint_prique);
 
    std::cout << strtk::join("\t",int_list) << std::endl;
    std::cout << strtk::join("\t",double_list) << std::endl;
