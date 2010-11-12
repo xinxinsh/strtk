@@ -1635,10 +1635,10 @@ namespace strtk
 
       public:
 
-         inline tokenizer_iterator(const iterator begin,
-                                   const iterator end,
-                                   const Predicate& predicate,
-                                   const tokenize_options::type tokenize_option = tokenize_options::default_mode)
+         explicit inline tokenizer_iterator(const iterator begin,
+                                            const iterator end,
+                                            const Predicate& predicate,
+                                            const tokenize_options::type tokenize_option = tokenize_options::default_mode)
          : predicate_(predicate),
            end_(end),
            range_(begin,begin),
@@ -1894,7 +1894,7 @@ namespace strtk
 
       typedef typename Sequence::value_type T;
 
-      explicit range_to_type_back_inserter_iterator(Sequence& sequence)
+      explicit inline range_to_type_back_inserter_iterator(Sequence& sequence)
       : sequence_(sequence)
       {}
 
@@ -1971,7 +1971,7 @@ namespace strtk
 
       typedef typename Set::value_type T;
 
-      explicit range_to_type_inserter_iterator(Set& set)
+      explicit inline range_to_type_inserter_iterator(Set& set)
       : set_(set)
       {}
 
@@ -2042,7 +2042,7 @@ namespace strtk
 
       typedef typename Container::value_type T;
 
-      explicit range_to_type_push_inserter_iterator(Container& container)
+      explicit inline range_to_type_push_inserter_iterator(Container& container)
       : container_(container)
       {}
 
@@ -2111,7 +2111,7 @@ namespace strtk
    {
    public:
 
-      explicit back_inserter_with_valuetype_iterator(Sequence& sequence)
+      explicit inline back_inserter_with_valuetype_iterator(Sequence& sequence)
       : sequence_(sequence)
       {}
 
@@ -2174,7 +2174,7 @@ namespace strtk
    {
    public:
 
-      explicit inserter_with_valuetype_iterator(Set& set)
+      explicit inline inserter_with_valuetype_iterator(Set& set)
       : set_(set)
       {}
 
@@ -2236,7 +2236,7 @@ namespace strtk
                                                        void>
    {
    public:
-      explicit push_inserter_iterator(Container& container)
+      explicit inline push_inserter_iterator(Container& container)
       : container_(container)
       {}
 
@@ -2289,7 +2289,7 @@ namespace strtk
    {
    public:
 
-      explicit counting_back_inserter_iterator(std::size_t& counter)
+      explicit inline counting_back_inserter_iterator(std::size_t& counter)
       : counter_(counter)
       {}
 
@@ -2352,7 +2352,7 @@ namespace strtk
    {
    public:
 
-      functional_inserter_iterator(Function& function)
+      explicit inline functional_inserter_iterator(Function& function)
       : function_(function)
       {}
 
@@ -3394,39 +3394,39 @@ namespace strtk
    inline void convert_to_printable_chars(unsigned char* begin, unsigned char* end)
    {
       static const unsigned char printable_char_table[] = {
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x00 - 0x07
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x08 - 0x0F
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x10 - 0x17
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x18 - 0x1F
-                                                                       0x2E, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, // 0x20 - 0x27
-                                                                       0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, // 0x28 - 0x2F
-                                                                       0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // 0x30 - 0x37
-                                                                       0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, // 0x38 - 0x3F
-                                                                       0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, // 0x40 - 0x47
-                                                                       0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, // 0x48 - 0x4F
-                                                                       0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, // 0x50 - 0x57
-                                                                       0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, // 0x58 - 0x5F
-                                                                       0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, // 0x60 - 0x67
-                                                                       0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, // 0x68 - 0x6F
-                                                                       0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, // 0x70 - 0x77
-                                                                       0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x2E, // 0x78 - 0x7F
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x80 - 0x87
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x88 - 0x8F
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x90 - 0x97
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x98 - 0x9F
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xA0 - 0xA7
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xA8 - 0xAF
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xB0 - 0xB7
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xB8 - 0xBF
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xC0 - 0xC7
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xC8 - 0xCF
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xD0 - 0xD7
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xD8 - 0xDF
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xE0 - 0xE7
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xE8 - 0xEF
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xF0 - 0xF7
-                                                                       0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E  // 0xF8 - 0xFF
-                                                                    };
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x00 - 0x07
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x08 - 0x0F
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x10 - 0x17
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x18 - 0x1F
+                                                             0x2E, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, // 0x20 - 0x27
+                                                             0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, // 0x28 - 0x2F
+                                                             0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // 0x30 - 0x37
+                                                             0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, // 0x38 - 0x3F
+                                                             0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, // 0x40 - 0x47
+                                                             0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, // 0x48 - 0x4F
+                                                             0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, // 0x50 - 0x57
+                                                             0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, // 0x58 - 0x5F
+                                                             0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, // 0x60 - 0x67
+                                                             0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, // 0x68 - 0x6F
+                                                             0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, // 0x70 - 0x77
+                                                             0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x2E, // 0x78 - 0x7F
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x80 - 0x87
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x88 - 0x8F
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x90 - 0x97
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0x98 - 0x9F
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xA0 - 0xA7
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xA8 - 0xAF
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xB0 - 0xB7
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xB8 - 0xBF
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xC0 - 0xC7
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xC8 - 0xCF
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xD0 - 0xD7
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xD8 - 0xDF
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xE0 - 0xE7
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xE8 - 0xEF
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, // 0xF0 - 0xF7
+                                                             0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E, 0x2E  // 0xF8 - 0xFF
+                                                          };
       unsigned char* itr = begin;
       while (end != itr)
       {
@@ -6579,12 +6579,28 @@ namespace strtk
       }
    }
 
+   template<typename InputIterator>
+   inline void join(std::string& output,
+                    const std::string& delimiter,
+                    const std::pair<InputIterator,InputIterator>& range)
+   {
+      InputIterator itr = range.first;
+      while (range.second != itr)
+      {
+         output += type_to_string(*itr);
+         if (range.second == (++itr))
+            break;
+         else
+            output += delimiter;
+      }
+   }
+
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
    inline void join(std::string& output,
                     const std::string& delimiter,
-                    Sequence<T,Allocator>& sequence)
+                    const Sequence<T,Allocator>& sequence)
    {
       join(output,delimiter,sequence.begin(),sequence.end());
    }
@@ -6594,7 +6610,7 @@ namespace strtk
              typename Allocator>
    inline void join(std::string& output,
                     const std::string& delimiter,
-                    std::set<T,Comparator,Allocator>& set)
+                    const std::set<T,Comparator,Allocator>& set)
    {
       join(output,delimiter,set.begin(),set.end());
    }
@@ -6617,7 +6633,18 @@ namespace strtk
                            const InputIterator end)
    {
       std::string output;
+      output.reserve(one_kilobyte);
       join(output,delimiter,begin,end);
+      return output;
+   }
+
+   template<typename InputIterator>
+   inline std::string join(const std::string& delimiter,
+                           const std::pair<InputIterator,InputIterator>& range)
+   {
+      std::string output;
+      output.reserve(one_kilobyte);
+      join(output,delimiter,range.first,range.second);
       return output;
    }
 
@@ -6625,7 +6652,7 @@ namespace strtk
              typename Allocator,
              template <typename,typename> class Sequence>
    inline std::string join(const std::string& delimiter,
-                           Sequence<T,Allocator>& sequence)
+                           const Sequence<T,Allocator>& sequence)
    {
       return join(delimiter,sequence.begin(),sequence.end());
    }
@@ -6634,7 +6661,7 @@ namespace strtk
              typename Comparator,
              typename Allocator>
    inline std::string join(const std::string& delimiter,
-                           std::set<T,Comparator,Allocator>& set)
+                           const std::set<T,Comparator,Allocator>& set)
    {
       return join(delimiter,set.begin(),set.end());
    }
@@ -6642,6 +6669,7 @@ namespace strtk
    inline std::string join(const std::string& delimiter, int argc, char* argv[])
    {
       std::string result;
+      result.reserve(one_kilobyte);
       join(result,delimiter,argc,argv);
       return result;
    }
@@ -6670,6 +6698,29 @@ namespace strtk
       }
    }
 
+   template<typename InputIterator, typename Predicate>
+   inline void join_if(std::string& output,
+                       const std::string& delimiter,
+                       Predicate predicate,
+                       const std::pair<InputIterator,InputIterator>& range)
+   {
+      InputIterator itr = range.first;
+      bool first_time = true;
+      while (range.second != itr)
+      {
+         if (predicate(*itr))
+         {
+            if (!first_time)
+               output += delimiter;
+            else
+               first_time = false;
+            output += type_to_string(*itr);
+         }
+         if (range.second == (++itr))
+            break;
+      }
+   }
+
    template <typename T,
              typename Predicate,
              typename Allocator,
@@ -6677,7 +6728,7 @@ namespace strtk
    inline void join_if(std::string& output,
                        const std::string& delimiter,
                        Predicate predicate,
-                       Sequence<T,Allocator>& sequence)
+                       const Sequence<T,Allocator>& sequence)
    {
       join(output,delimiter,predicate,sequence.begin(),sequence.end());
    }
@@ -6689,7 +6740,7 @@ namespace strtk
    inline void join_if(std::string& output,
                        const std::string& delimiter,
                        Predicate predicate,
-                       std::set<T,Comparator,Allocator>& set)
+                       const std::set<T,Comparator,Allocator>& set)
    {
       join(output,delimiter,predicate,set.begin(),set.end());
    }
@@ -6701,7 +6752,19 @@ namespace strtk
                               const InputIterator end)
    {
       std::string output;
+      output.reserve(one_kilobyte);
       join_if(output,delimiter,predicate,begin,end);
+      return output;
+   }
+
+   template<typename InputIterator, typename Predicate>
+   inline std::string join_if(const std::string& delimiter,
+                              Predicate predicate,
+                              const std::pair<InputIterator,InputIterator>& range)
+   {
+      std::string output;
+      output.reserve(one_kilobyte);
+      join_if(output,delimiter,predicate,range.first,range.second);
       return output;
    }
 
@@ -6711,7 +6774,7 @@ namespace strtk
              template <typename,typename> class Sequence>
    inline std::string join_if(const std::string& delimiter,
                               Predicate predicate,
-                              Sequence<T,Allocator>& sequence)
+                              const Sequence<T,Allocator>& sequence)
    {
       return join(delimiter,predicate,sequence.begin(),sequence.end());
    }
@@ -6722,7 +6785,7 @@ namespace strtk
              typename Allocator>
    inline std::string join_if(const std::string& delimiter,
                               Predicate predicate,
-                              std::set<T,Comparator,Allocator>& set)
+                              const std::set<T,Comparator,Allocator>& set)
    {
       return join(delimiter,predicate,set.begin(),set.end());
    }
@@ -7416,7 +7479,9 @@ namespace strtk
 
    template<typename Iterator>
    class combination_iterator : public std::iterator<std::forward_iterator_tag,
-                                                     std::pair<Iterator,Iterator> >
+                                                     std::pair<Iterator,Iterator>,
+                                                     void,
+                                                     void>
    {
    public:
 
@@ -7425,12 +7490,12 @@ namespace strtk
       typedef std::pair<Iterator,Iterator> range_type;
 
 
-      inline combination_iterator(const std::size_t& r,
-                                  iterator begin, iterator end,
-                                  const bool sorted = true)
+      explicit inline combination_iterator(const std::size_t& k,
+                                           iterator begin, iterator end,
+                                           const bool sorted = true)
       : begin_(begin),
         end_(end),
-        middle_(begin + r),
+        middle_(begin + k),
         current_combination_(begin_,middle_)
       {
          if (!sorted)
@@ -7442,12 +7507,12 @@ namespace strtk
       template<typename T,
                typename Allocator,
                template<typename, typename> class Sequence>
-      inline combination_iterator(const std::size_t& r,
-                                  Sequence<T,Allocator>& seq,
-                                  const bool sorted = true)
+      explicit inline combination_iterator(const std::size_t& k,
+                                           Sequence<T,Allocator>& seq,
+                                           const bool sorted = true)
       : begin_(seq.begin()),
         end_(seq.end()),
-        middle_(begin_ + r),
+        middle_(begin_ + k),
         current_combination_(begin_,middle_)
       {
          if (!sorted)
@@ -7466,7 +7531,7 @@ namespace strtk
       template<typename T,
                typename Allocator,
                template<typename, typename> class Sequence>
-      inline combination_iterator(Sequence<T,Allocator>& seq)
+      explicit inline combination_iterator(Sequence<T,Allocator>& seq)
       : begin_(seq.end()),
         end_(seq.end()),
         middle_(end_),
