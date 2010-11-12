@@ -876,7 +876,7 @@ void combination_example02()
       while (end != itr)
       {
          itr_type::range_type range = *itr;
-         std::cout << strtk::join(" ",range.first,range.second) << std::endl;
+         std::cout << strtk::join(" ",range) << std::endl;
          ++itr;
       }
    }

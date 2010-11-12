@@ -19,8 +19,8 @@
 /*
    Description: This example demonstrates the use of the next_combination and
                 for_each combination routines. Input is taken from the command
-                line as one positive integer (r) and a series of k unique strings.
-                Then all k-choose-r combinations are streamed one per line to
+                line as one positive integer (k) and a series of n unique strings.
+                Then all n-choose-k combinations are streamed one per line to
                 stdout.
 
                 Example usage:

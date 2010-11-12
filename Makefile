@@ -26,6 +26,7 @@ LINKER_OPT       = -L/usr/lib -lstdc++
 BUILD_LIST+=strtk_examples
 BUILD_LIST+=strtk_tokenizer_test
 BUILD_LIST+=strtk_combinations
+BUILD_LIST+=strtk_combinator_example
 BUILD_LIST+=strtk_converters_example
 BUILD_LIST+=strtk_glober
 BUILD_LIST+=strtk_hexview
@@ -82,6 +83,9 @@ strtk_converters_example: strtk_converters_example.cpp strtk.hpp
 strtk_combinations: strtk_combinations.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_combinations strtk_combinations.cpp $(LINKER_OPT)
 
+strtk_combinator_example: strtk_combinator_example.cpp strtk.hpp
+	$(COMPILER) $(OPTIONS) strtk_combinator_example strtk_combinator_example.cpp $(LINKER_OPT)
+
 strtk_glober: strtk_glober.cpp strtk.hpp
 	$(COMPILER) $(OPTIONS) strtk_glober strtk_glober.cpp $(LINKER_OPT)
 
@@ -126,6 +130,7 @@ pgo: strtk_parse_test.cpp strtk_tokenizer_cmp.cpp strtk.hpp
 strip_bin:
 	strip -s strtk_converters_example
 	strip -s strtk_combinations
+	strip -s strtk_combinator_example
 	strip -s strtk_glober
 	strip -s strtk_examples
 	strip -s strtk_hexview
@@ -148,6 +153,7 @@ strip_bin:
 valgrind_check:
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_converters_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_combinations
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_combinator_example
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_glober
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_examples
 	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./strtk_hexview
