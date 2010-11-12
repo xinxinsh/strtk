@@ -19,10 +19,10 @@
 /*
    Description: This example demonstrates the use of the combination_iterator
                 which is based on the next_combination routine.
-                The example will iterate through all n-choose-k sequence of
-                combinations based on a sequence of unsigned integers. Essentially
-                a similar usage pattern to that of next_combination but based on
-                an iterator facade.
+                The example will iterate through all n-choose-k combinations
+                based on a sequence of unsigned integers. Essentially a
+                similar usage pattern to that of next_combination but based
+                on an iterator facade.
 */
 
 
