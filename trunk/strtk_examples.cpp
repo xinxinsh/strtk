@@ -302,7 +302,10 @@ void split_regex_example()
    #ifdef ENABLE_REGEX
    std::string s = "(12)(345)(6789)(0ijkx)(yz)";
    std::list<std::string> token_list;
-   strtk::split_regex("\\(.*?\\)",s,std::back_inserter(token_list));
+   strtk::split_regex("\\(.*?\\)",
+                      s,
+                      std::back_inserter(token_list),
+                      strtk::regex_match_mode::match_1);
    std::cout << strtk::join("\t",token_list) << std::endl;
    #endif
 }
