@@ -1920,6 +1920,14 @@ namespace strtk
          return (*this);
       }
 
+      inline range_to_type_back_inserter_iterator& operator=(const std::string& s)
+      {
+         T t;
+         if (string_to_type_converter(s.c_str(),s.c_str() + s.size(),t))
+            sequence_.push_back(t);
+         return (*this);
+      }
+
       template<typename Iterator>
       inline void operator()(const std::pair<Iterator,Iterator>& r)
       {
@@ -2689,21 +2697,37 @@ namespace strtk
    static const std::string email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
    static const std::string ip_expression   ("(([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+)\\.([0-2]*[0-9]+[0-9]+))");
 
+   namespace regex_match_mode
+   {
+      enum type
+      {
+         match_all = 0,
+         match_1   = 1,
+         match_2   = 2,
+         match_3   = 3,
+         match_4   = 4,
+         match_5   = 5,
+         match_6   = 6,
+         match_7   = 7
+      };
+   }
+
    template<typename InputIterator, typename OutputIterator>
    inline std::size_t split_regex(const boost::regex& delimiter_expression,
                                   const InputIterator begin,
                                   const InputIterator end,
                                   OutputIterator out,
+                                  const regex_match_mode::type mode = regex_match_mode::match_all,
                                   const std::size_t& buffer_size = one_kilobyte)
    {
       boost::sregex_iterator itr(begin,end,delimiter_expression);
-      boost::sregex_iterator it_end;
+      boost::sregex_iterator itr_end;
       std::string token;
       token.reserve(buffer_size);
       std::size_t match_count = 0;
-      while (it_end != itr)
+      while (itr_end != itr)
       {
-         token.assign((*itr)[0].first,(*itr)[0].second);
+         token.assign((*itr)[mode].first,(*itr)[mode].second);
          *(out++) = token;
          ++itr;
          ++match_count;
@@ -2716,12 +2740,14 @@ namespace strtk
                                   const InputIterator begin,
                                   const InputIterator end,
                                   OutputIterator out,
+                                  const regex_match_mode::type mode = regex_match_mode::match_all,
                                   const std::size_t& buffer_size = one_kilobyte)
    {
       const boost::regex regex_expression(delimiter_expression);
       return split_regex(regex_expression,
                          begin,end,
                          out,
+                         mode,
                          buffer_size);
    }
 
@@ -2729,11 +2755,13 @@ namespace strtk
    inline std::size_t split_regex(const std::string& delimiter_expression,
                                   const std::string& text,
                                   OutputIterator out,
+                                  const regex_match_mode::type mode = regex_match_mode::match_all,
                                   const std::size_t& buffer_size = one_kilobyte)
    {
       return split_regex(delimiter_expression,
                          text.begin(),text.end(),
                          out,
+                         mode,
                          buffer_size);
    }
 
@@ -2741,11 +2769,13 @@ namespace strtk
    inline std::size_t split_regex(const boost::regex& delimiter_expression,
                                   const std::string& text,
                                   OutputIterator out,
+                                  const regex_match_mode::type mode = regex_match_mode::match_all,
                                   const std::size_t& buffer_size = one_kilobyte)
    {
       return split_regex(delimiter_expression,
                          text.begin(),text.end(),
                          out,
+                         mode,
                          buffer_size);
    }
 
@@ -2755,6 +2785,7 @@ namespace strtk
                                     const InputIterator end,
                                     const std::size_t& token_count,
                                     OutputIterator out,
+                                    const regex_match_mode::type mode = regex_match_mode::match_all,
                                     const std::size_t& buffer_size = one_kilobyte)
    {
       boost::sregex_iterator itr(begin,end,delimiter_expression);
@@ -2764,7 +2795,7 @@ namespace strtk
       std::size_t match_count = 0;
       while (itr_end != itr)
       {
-         token.assign((*itr)[0].first,(*itr)[0].second);
+         token.assign((*itr)[mode].first,(*itr)[mode].second);
          *(out++) = token;
          ++itr;
          if (++match_count >= token_count)
@@ -2779,6 +2810,7 @@ namespace strtk
                                     const InputIterator end,
                                     const std::size_t& token_count,
                                     OutputIterator out,
+                                    const regex_match_mode::type mode = regex_match_mode::match_all,
                                     const std::size_t& buffer_size = one_kilobyte)
    {
       const boost::regex regex_expression(delimiter_expression);
@@ -2786,6 +2818,7 @@ namespace strtk
                            begin,end,
                            token_count,
                            out,
+                           mode,
                            buffer_size);
    }
 
@@ -2794,12 +2827,14 @@ namespace strtk
                                     const std::string& text,
                                     const std::size_t& token_count,
                                     OutputIterator out,
+                                    const regex_match_mode::type mode = regex_match_mode::match_all,
                                     const std::size_t& buffer_size = one_kilobyte)
    {
       return split_regex_n(delimiter_expression,
                            text.begin(),text.end(),
                            token_count,
                            out,
+                           mode,
                            buffer_size);
    }
 
@@ -2808,12 +2843,14 @@ namespace strtk
                                     const std::string& text,
                                     const std::size_t& token_count,
                                     OutputIterator out,
+                                    const regex_match_mode::type mode = regex_match_mode::match_all,
                                     const std::size_t& buffer_size = one_kilobyte)
    {
       return split_regex_n(delimiter_expression,
                            text.begin(),text.end(),
                            token_count,
                            out,
+                           mode,
                            buffer_size);
    }
 
