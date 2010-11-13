@@ -7526,7 +7526,6 @@ namespace strtk
       typedef const iterator const_iterator;
       typedef std::pair<Iterator,Iterator> range_type;
 
-
       explicit inline combination_iterator(const std::size_t& k,
                                            iterator begin, iterator end,
                                            const bool sorted = true)
