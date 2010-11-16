@@ -3909,8 +3909,8 @@ namespace strtk
 
         ~row_type()
          {
-            if (next_row_.second) { delete next_row_.second; }
-            if (prev_row_.second) { delete prev_row_.second; }
+            if (next_row_.second) { delete next_row_.second; next_row_.second = 0; }
+            if (prev_row_.second) { delete prev_row_.second; prev_row_.second = 0; }
          }
 
          template<typename T>
@@ -4606,6 +4606,7 @@ namespace strtk
          if ((load_from_file_) && (0 != buffer_))
          {
             delete [] buffer_;
+            buffer_ = 0;
          }
       }
 
@@ -5410,11 +5411,10 @@ namespace strtk
       OutputPredicate& predicate_;
    };
 
-   template<typename MatchPredicate,
-            typename Iterator>
-   inline void inc_while_matching(Iterator& itr,
-                                  const Iterator& end,
-                                  const MatchPredicate& predicate)
+   template<typename Iterator, typename MatchPredicate>
+   inline void skip_while_matching(Iterator& itr,
+                                   const Iterator& end,
+                                   const MatchPredicate& predicate)
    {
       while (end != itr)
       {
