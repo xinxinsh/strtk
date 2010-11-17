@@ -1205,9 +1205,9 @@ namespace strtk
       replace(c1,c2,r.begin(),r.end());
    }
 
-   inline void replace_pattern(const std::string& s,
-                               const std::string& p,
-                               const std::string& r,
+   inline void replace_pattern(const std::string& s, // input
+                               const std::string& p, // pattern
+                               const std::string& r, // replacement
                                std::string& n)
    {
       if (p.empty() || (p == r))
@@ -1216,12 +1216,12 @@ namespace strtk
          return;
       }
 
-      std::size_t p_size = p.size();
-      std::size_t r_size = r.size();
+      const std::size_t p_size = p.size();
+      const std::size_t r_size = r.size();
       int inc = static_cast<int>(r_size) - static_cast<int>(p_size);
       std::size_t pos = 0;
       std::vector<std::size_t> delta_list;
-      delta_list.reserve(std::min<std::size_t>(32,(s.size() / p.size()) + 1));
+      delta_list.reserve(std::min<std::size_t>(32,(s.size() / p_size) + 1));
       while (std::string::npos != (pos = s.find(p,pos)))
       {
          delta_list.push_back(pos);
@@ -1260,9 +1260,9 @@ namespace strtk
    }
 
    template<typename InputIterator, typename OutputIterator>
-   std::size_t replace_pattern(const InputIterator s_begin, const InputIterator s_end,
-                               const InputIterator p_begin, const InputIterator p_end,
-                               const InputIterator r_begin, const InputIterator r_end,
+   std::size_t replace_pattern(const InputIterator s_begin, const InputIterator s_end, // input
+                               const InputIterator p_begin, const InputIterator p_end, // pattern
+                               const InputIterator r_begin, const InputIterator r_end, // replacement
                                OutputIterator out)
    {
       typedef typename std::iterator_traits<InputIterator>::value_type T;
@@ -1271,10 +1271,10 @@ namespace strtk
       InputIterator r_itr  = r_begin;
       InputIterator p_itr  = p_begin;
 
-      std::size_t p_len = std::distance(p_begin,p_end);
-      std::size_t r_len = std::distance(r_begin,r_end);
+      const std::size_t p_size = std::distance(p_begin,p_end);
+      const std::size_t r_size = std::distance(r_begin,r_end);
 
-      if ((0 == p_len) || ((p_len == r_len) && std::equal(p_begin,p_end,r_begin)))
+      if ((0 == p_len) || ((p_size == r_size) && std::equal(p_begin,p_end,r_begin)))
       {
          std::copy(s_begin,s_end,out);
          return std::distance(s_begin,s_end);
@@ -1284,7 +1284,7 @@ namespace strtk
       std::size_t prev_pos = 0;
       std::size_t count = 0;
       std::size_t new_size = std::distance(s_begin,s_end);
-      int inc = r_len - p_len;
+      int inc = r_size - p_size;
 
       InputIterator temp_s_itr = s_itr;
 
@@ -1402,7 +1402,8 @@ namespace strtk
                return true;
             }
             m_itr = p_itr;
-            std::advance((c_itr = d_itr),1);
+            c_itr = d_itr;
+            ++c_itr;
          }
          else if (((*p_itr) == (*d_itr)) || (zero_or_one == (*p_itr)))
          {
