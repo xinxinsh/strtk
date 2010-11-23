@@ -5548,7 +5548,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -5582,7 +5587,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -5615,7 +5625,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -5647,7 +5662,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5676,7 +5696,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5704,7 +5729,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5731,7 +5761,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5757,7 +5792,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5780,7 +5820,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5802,7 +5847,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5822,7 +5872,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -5841,7 +5896,12 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef iterator_type* iterator_type_ptr;
       iterator_type token_list[token_count];
-      if (token_count != split_n(delimiters,begin,end,token_count,token_list,split_options::compress_delimiters))
+      const std::size_t parsed_token_count = split_n(delimiters,
+                                                     begin,end,
+                                                     token_count,
+                                                     token_list,
+                                                     split_options::compress_delimiters);
+      if (token_count != parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       return string_to_type_converter((*itr).first,(*itr).second,t);
@@ -9182,10 +9242,10 @@ namespace strtk
       }
 
       template <typename T>
-      inline std::string type_name() { static std::string s("Unknown"); return s; }
+      inline std::string type_name() { static const std::string s("Unknown"); return s; }
 
       #define register_type_name(Type)\
-      template <> inline std::string type_name<Type>() { static std::string s(#Type); return s; }
+      template <> inline std::string type_name<Type>() { static const std::string s(#Type); return s; }
 
       register_type_name(signed char)
       register_type_name(unsigned char)
@@ -9205,17 +9265,18 @@ namespace strtk
       template <typename T>
       inline std::string type_name(const T&)
       {
-         return type_name<T>();
+         static const std::string s = type_name<T>();
+         return s;
       }
 
       template <typename T1, typename T2>
       inline std::string type_name(const std::pair<T1,T2>& p)
       {
-         static std::string s = std::string("std::pair<" +
-                                            type_name(p.first) +
-                                            "," +
-                                            type_name(p.second) +
-                                            ">");
+         static const std::string s = std::string("std::pair<" +
+                                                  type_name(p.first) +
+                                                  "," +
+                                                  type_name(p.second) +
+                                                  ">");
          return s;
       }
 
@@ -9247,24 +9308,26 @@ namespace strtk
    template <typename T>
    inline std::string type_name(const T& t)
    {
-      return details::type_name<T>(t);
+      static const std::string s = details::type_name<T>(t);
+      return s;
    }
 
    template<typename T, std::size_t N>
    inline std::string type_name(const T(&)[N])
    {
-      return details::type_name<T>() +
-             std::string("[") + type_to_string(N) + std::string("]");
+      static const std::string s = details::type_name<T>() +
+                                   std::string("[") + type_to_string(N) + std::string("]");
+      return s;
    }
 
    template <typename T1, typename T2>
    inline std::string type_name(const std::pair<T1,T2>& p)
    {
-      static std::string s = std::string("std::pair<" +
-                                         type_name(p.first) +
-                                         "," +
-                                         type_name(p.second) +
-                                         ">");
+      static const std::string s = std::string("std::pair<" +
+                                               type_name(p.first) +
+                                               "," +
+                                               type_name(p.second) +
+                                               ">");
       return s;
    }
 
@@ -9272,7 +9335,7 @@ namespace strtk
    template <typename T, typename Allocator>\
    inline std::string type_name(const Type<T,Allocator>&)\
    {\
-      static std::string s = std::string(#Type) + std::string("<" + details::type_name<T>() + ">");\
+      static const std::string s = std::string(#Type) + std::string("<" + details::type_name<T>() + ">");\
       return s;\
    }
 
@@ -9280,7 +9343,7 @@ namespace strtk
    template <typename T, typename Comparator, typename Allocator>\
    inline std::string type_name(const Type<T,Comparator,Allocator>&)\
    {\
-      static std::string s = std::string(#Type) + std::string("<" + details::type_name<T>() + ">");\
+      static const std::string s = std::string(#Type) + std::string("<" + details::type_name<T>() + ">");\
       return s;\
    }
 
