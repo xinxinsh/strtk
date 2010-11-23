@@ -94,8 +94,8 @@ void tokenizer_example04()
 
 void tokenizer_example05()
 {
-   const unsigned int data_size = 12;
-   unsigned int data[data_size] = {1,2,3,0,4,5,6,0,7,8,0,9};
+   unsigned int data[] = {1,2,3,0,4,5,6,0,7,8,0,9};
+   const std::size_t data_size = sizeof(data) / sizeof(unsigned int);
    strtk::single_delimiter_predicate<unsigned int> predicate(0);
    typedef strtk::tokenizer< unsigned int*,strtk::single_delimiter_predicate<unsigned int> > tokenizer_type;
    tokenizer_type tokenizer(data,data + data_size,predicate);
@@ -110,8 +110,8 @@ void tokenizer_example05()
 
 void tokenizer_example06()
 {
-   const unsigned int data_size = 12;
-   unsigned int data[data_size] = {1,2,3,0,4,5,6,10,7,8,0,9};
+   unsigned int data[] = {1,2,3,0,4,5,6,10,7,8,0,9};
+   const std::size_t data_size = sizeof(data) / sizeof(unsigned int);
    unsigned int delimiters[2] = {0,10};
    strtk::multiple_delimiter_predicate<unsigned int> predicate(delimiters,delimiters + 2);
    typedef strtk::tokenizer< unsigned int*,strtk::multiple_delimiter_predicate<unsigned int> > tokenizer_type;
@@ -127,8 +127,8 @@ void tokenizer_example06()
 
 void tokenizer_example07()
 {
-   const unsigned int data_size = 12;
-   double data[data_size] = {1.1,2.2,3.3,0.0,4.4,5.5,6.6,0,7.7,8.8,0,9.9};
+   double data[] = {1.1,2.2,3.3,0.0,4.4,5.5,6.6,0,7.7,8.8,0,9.9};
+   const std::size_t data_size = sizeof(data) / sizeof(double);
    strtk::single_delimiter_predicate<double> predicate(0);
    typedef strtk::tokenizer< double*,strtk::single_delimiter_predicate<double> > tokenizer_type;
    tokenizer_type tokenizer(data,data + data_size,predicate);
@@ -143,8 +143,8 @@ void tokenizer_example07()
 
 void tokenizer_example08()
 {
-   const unsigned int data_size = 12;
-   double data[data_size] = {1.1,2.2,3.3,0.0,4.4,5.5,6.6,10.0,7.7,8.8,10.0,9.9};
+   double data[] = {1.1,2.2,3.3,0.0,4.4,5.5,6.6,10.0,7.7,8.8,10.0,9.9};
+   const std::size_t data_size = sizeof(data) / sizeof(double);
    double delimiters[2] = {0.0,10.0};
    strtk::multiple_delimiter_predicate<double> predicate(delimiters,delimiters + 2);
    typedef strtk::tokenizer< double*,strtk::multiple_delimiter_predicate<double> > tokenizer_type;
@@ -170,11 +170,10 @@ void tokenizer_example09()
 
 void tokenizer_example10()
 {
-   const unsigned int str_list_size = 12;
-   std::string str_list[str_list_size] = { "abc" , "delimiter" , "ijk" , "delimiter" ,
-                                           "lmn" , "delimiter" , "opq", "rst" ,"uvw" ,
-                                           "delimiter" , "xyz" , "123" };
-
+   std::string str_list[] = { "abc" , "delimiter" , "ijk" , "delimiter" ,
+                              "lmn" , "delimiter" , "opq", "rst" ,"uvw" ,
+                              "delimiter" , "xyz" , "123" };
+   const std::size_t str_list_size = sizeof(str_list) / sizeof(std::string);
    strtk::range::adapter<std::string> range(str_list,str_list_size);
    strtk::single_delimiter_predicate<std::string> predicate("delimiter");
    typedef strtk::tokenizer< std::string*,strtk::single_delimiter_predicate<std::string> > tokenizer_type;
