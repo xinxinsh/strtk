@@ -16,7 +16,8 @@ http://www.opensource.org/licenses/cpl1.0.php
 
 
 [DOWNLOADS & UPDATES]
-All updates can be found at:
+All updates  and the most recent version of the C++ String Toolkit can
+be found at:
  (1) http://www.partow.net/programming/strtk/index.html
  (2) http://strtk.partow.net
 

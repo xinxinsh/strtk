@@ -684,13 +684,13 @@ namespace strtk
       };
 
       template<typename T>
-      adapter<T> type(const T* begin, const T* end)
+      inline adapter<T> type(const T* begin, const T* end)
       {
          return adapter<T>(begin,end);
       }
 
       template<typename T, std::size_t N>
-      adapter<T> type(const T (&t)[N])
+      inline adapter<T> type(const T (&t)[N])
       {
          return adapter<T>(t,N);
       }
@@ -878,13 +878,13 @@ namespace strtk
             template<typename,typename> class Sequence>
    inline void remove_inplace(Sequence<T,Allocator>& sequence)
    {
-      std::size_t removal_count = remove_inplace(sequence.begin(),sequence.end());
+      const std::size_t removal_count = remove_inplace(sequence.begin(),sequence.end());
       sequence.resize(sequence.size() - removal_count);
    }
 
    inline void remove_inplace(const std::string::value_type c, std::string& s)
    {
-      std::size_t removal_count = remove_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
+      const std::size_t removal_count = remove_inplace(single_delimiter_predicate<std::string::value_type>(c),s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -894,7 +894,7 @@ namespace strtk
    template<typename Predicate>
    inline void remove_inplace(Predicate predicate, std::string& s)
    {
-      std::size_t removal_count = remove_inplace(predicate,s.begin(),s.end());
+      const std::size_t removal_count = remove_inplace(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -923,6 +923,7 @@ namespace strtk
             ++itr1;
             ++itr2;
          }
+
          while ((end != itr1) && predicate(*itr1))
          {
             ++itr1;
@@ -941,9 +942,9 @@ namespace strtk
    inline void remove_consecutives_inplace(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_consecutives_inplace(single_delimiter_predicate<std::string::value_type>(c),
-                                                              s.begin(),
-                                                              s.end());
+      const std::size_t removal_count = remove_consecutives_inplace(single_delimiter_predicate<std::string::value_type>(c),
+                                                                    s.begin(),
+                                                                    s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -953,9 +954,9 @@ namespace strtk
    inline void remove_consecutives_inplace(const std::string& rem_chars, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(rem_chars),
-                                                              s.begin(),
-                                                              s.end());
+      const std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(rem_chars),
+                                                                    s.begin(),
+                                                                    s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -965,11 +966,11 @@ namespace strtk
    inline void remove_consecutives_inplace(const char* rem_chars, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(
-                                                              rem_chars,
-                                                              rem_chars + ::strnlen(rem_chars,256)),
-                                                              s.begin(),
-                                                              s.end());
+      const std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(
+                                                                    rem_chars,
+                                                                    rem_chars + ::strnlen(rem_chars,256)),
+                                                                    s.begin(),
+                                                                    s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -980,7 +981,7 @@ namespace strtk
    inline void remove_consecutives_inplace(Predicate predicate, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_consecutives_inplace(predicate,s.begin(),s.end());
+      const std::size_t removal_count = remove_consecutives_inplace(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1007,6 +1008,7 @@ namespace strtk
             ++itr1;
             ++itr2;
          }
+
          while ((end != itr1) && (prev == (*itr1)))
          {
             ++itr1;
@@ -1027,7 +1029,7 @@ namespace strtk
             template<typename,typename> class Sequence>
    inline void remove_consecutives_inplace(Sequence<T,Allocator>& sequence)
    {
-      std::size_t removal_count = remove_consecutives_inplace(sequence.begin(),sequence.end());
+      const std::size_t removal_count = remove_consecutives_inplace(sequence.begin(),sequence.end());
       sequence.resize(sequence.size() - removal_count);
    }
 
@@ -1046,7 +1048,7 @@ namespace strtk
                                       Iterator begin,
                                       Iterator end)
    {
-      std::size_t length = std::distance(begin,end);
+      const std::size_t length = std::distance(begin,end);
       if (0 == length)
          return 0;
       Iterator itr = begin + (length - 1);
@@ -1068,9 +1070,9 @@ namespace strtk
    inline void remove_trailing(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_trailing(single_delimiter_predicate<std::string::value_type>(c),
-                                                  s.begin(),
-                                                  s.end());
+      const std::size_t removal_count = remove_trailing(single_delimiter_predicate<std::string::value_type>(c),
+                                                        s.begin(),
+                                                        s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1080,9 +1082,9 @@ namespace strtk
    inline void remove_trailing(const std::string& rem_chars, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(rem_chars),
-                                                  s.begin(),
-                                                  s.end());
+      const std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(rem_chars),
+                                                        s.begin(),
+                                                        s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1091,11 +1093,11 @@ namespace strtk
 
    inline void remove_trailing(const char* rem_chars, std::string& s)
    {
-      std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(
-                                                  rem_chars,
-                                                  rem_chars + ::strnlen(rem_chars,256)),
-                                                  s.begin(),
-                                                  s.end());
+      const std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(
+                                                        rem_chars,
+                                                        rem_chars + ::strnlen(rem_chars,256)),
+                                                        s.begin(),
+                                                        s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1106,7 +1108,7 @@ namespace strtk
    inline void remove_trailing(Predicate predicate, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_trailing(predicate,s.begin(),s.end());
+      const std::size_t removal_count = remove_trailing(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1118,7 +1120,7 @@ namespace strtk
                                      Iterator begin,
                                      Iterator end)
    {
-      std::size_t length = std::distance(begin,end);
+      const std::size_t length = std::distance(begin,end);
       if (0 == length)
          return 0;
       Iterator itr = begin;
@@ -1141,9 +1143,9 @@ namespace strtk
    inline void remove_leading(const std::string::value_type c, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_leading(single_delimiter_predicate<std::string::value_type>(c),
-                                                 s.begin(),
-                                                 s.end());
+      const std::size_t removal_count = remove_leading(single_delimiter_predicate<std::string::value_type>(c),
+                                                       s.begin(),
+                                                       s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1153,9 +1155,9 @@ namespace strtk
    inline void remove_leading(const std::string& rem_chars, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(rem_chars),
-                                                 s.begin(),
-                                                 s.end());
+      const std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(rem_chars),
+                                                       s.begin(),
+                                                       s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1165,11 +1167,11 @@ namespace strtk
    inline void remove_leading(const char* rem_chars, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(
-                                                 rem_chars,
-                                                 rem_chars + ::strnlen(rem_chars,256)),
-                                                 s.begin(),
-                                                 s.end());
+      const std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(
+                                                       rem_chars,
+                                                       rem_chars + ::strnlen(rem_chars,256)),
+                                                       s.begin(),
+                                                       s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1180,7 +1182,7 @@ namespace strtk
    inline void remove_leading(Predicate predicate, std::string& s)
    {
       if (s.empty()) return;
-      std::size_t removal_count = remove_leading(predicate,s.begin(),s.end());
+      const std::size_t removal_count = remove_leading(predicate,s.begin(),s.end());
       if (removal_count > 0)
       {
          s.resize(s.size() - removal_count);
@@ -1222,6 +1224,7 @@ namespace strtk
       std::size_t pos = 0;
       std::vector<std::size_t> delta_list;
       delta_list.reserve(std::min<std::size_t>(32,(s.size() / p_size) + 1));
+
       while (std::string::npos != (pos = s.find(p,pos)))
       {
          delta_list.push_back(pos);
@@ -1235,27 +1238,27 @@ namespace strtk
       }
 
       n.resize(delta_list.size() * inc + s.size(), 0x00);
-      std::string::const_iterator sit = s.begin();
-      std::string::iterator nit = n.begin();
+      std::string::const_iterator s_itr = s.begin();
+      std::string::iterator n_itr = n.begin();
       const std::size_t delta_list_size = delta_list.size();
       std::size_t i = 0;
       std::size_t delta = delta_list[0];
 
       for ( ; ; )
       {
-         std::copy(sit,sit + delta,nit);
-         sit += p_size + delta;
-         nit += delta;
-         std::copy(r.begin(),r.end(),nit);
-         nit += r_size;
+         std::copy(s_itr, s_itr + delta, n_itr);
+         s_itr += p_size + delta;
+         n_itr += delta;
+         std::copy(r.begin(), r.end(), n_itr);
+         n_itr += r_size;
          if (++i >= delta_list_size)
             break;
          delta =  delta_list[i] - (delta_list[i - 1] + p_size);
       }
 
-      if (s.end() != sit)
+      if (s.end() != s_itr)
       {
-         std::copy(sit,s.end(),nit);
+         std::copy(s_itr, s.end(), n_itr);
       }
    }
 
@@ -1274,7 +1277,7 @@ namespace strtk
       const std::size_t p_size = std::distance(p_begin,p_end);
       const std::size_t r_size = std::distance(r_begin,r_end);
 
-      if ((0 == p_len) || ((p_size == r_size) && std::equal(p_begin,p_end,r_begin)))
+      if ((0 == p_size) || ((p_size == r_size) && std::equal(p_begin,p_end,r_begin)))
       {
          std::copy(s_begin,s_end,out);
          return std::distance(s_begin,s_end);
@@ -1306,6 +1309,7 @@ namespace strtk
                break;
             }
          }
+
          if (found && (p_itr == p_end))
          {
             ++count;
@@ -1342,18 +1346,20 @@ namespace strtk
 
          if (!found || (p_itr != p_end)) continue;
 
-         pos = std::distance(s_begin,temp_s_itr) - p_len;
+         pos = std::distance(s_begin,temp_s_itr) - p_size;
          int diff = pos - prev_pos;
 
          std::copy(s_itr,s_itr + diff, out);
          s_itr = temp_s_itr;
          std::copy(r_itr,r_end, out);
 
-         pos += p_len;
+         pos += p_size;
          prev_pos = pos;
          --count;
       }
+
       std::copy(s_itr,s_end,out);
+
       return new_size;
    }
 
@@ -1416,7 +1422,9 @@ namespace strtk
             d_itr = c_itr++;
          }
       }
+
       while ((p_itr != pattern_end) && (zero_or_more == (*p_itr))) ++p_itr;
+
       return (p_itr == pattern_end);
    }
 
@@ -1507,7 +1515,7 @@ namespace strtk
                                OutputIterator out)
    {
       Iterator itr = begin;
-      std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
+      const std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
       std::size_t match_count = 0;
       while (end != (itr = std::search(itr, end, pattern_begin, pattern_end)))
       {
@@ -1539,7 +1547,7 @@ namespace strtk
                                 OutputIterator out)
    {
       Iterator itr = begin;
-      std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
+      const std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
       std::size_t match_count = 0;
       while (end != (itr = std::search(itr, end, pattern_begin, pattern_end, imatch_char)))
       {
@@ -1710,6 +1718,7 @@ namespace strtk
                else
                   range_.first = range_.second;
             }
+
             return *this;
          }
 
@@ -2490,11 +2499,13 @@ namespace strtk
          else
             ++range.second;
       }
+
       if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
          *(out++) = range;
          ++token_count;
       }
+
       return token_count;
    }
 
@@ -2597,11 +2608,13 @@ namespace strtk
          else
             ++range.second;
       }
+
       if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
          *(out++) = range;
          ++match_count;
       }
+
       return match_count;
    }
 
@@ -3269,7 +3282,7 @@ namespace strtk
       if (hex_data.empty() || (1 == (hex_data.size() % 2)))
          return false;
       output.resize(hex_data.size() >> 1);
-      return convert_hex_to_bin(hex_data.c_str(),hex_data.c_str() + hex_data.size(),const_cast<char*>(output.c_str()));
+      return convert_hex_to_bin(hex_data.c_str(), hex_data.c_str() + hex_data.size(), const_cast<char*>(output.c_str()));
    }
 
    inline std::size_t convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
@@ -3819,8 +3832,8 @@ namespace strtk
 
    inline std::size_t hamming_distance(const std::string& str1, const std::string& str2)
    {
-      return hamming_distance(str1.c_str(),str1.c_str() + str1.size(),
-                              str2.c_str(),str2.c_str() + str2.size());
+      return hamming_distance(str1.c_str(), str1.c_str() + str1.size(),
+                              str2.c_str(), str2.c_str() + str2.size());
    }
 
    template<typename Iterator>
@@ -3844,8 +3857,8 @@ namespace strtk
 
    inline std::size_t hamming_distance_elementwise(const std::string& str1, const std::string& str2)
    {
-      return hamming_distance_elementwise(str1.c_str(),str1.c_str() + str1.size(),
-                                          str2.c_str(),str2.c_str() + str2.size());
+      return hamming_distance_elementwise(str1.c_str(), str1.c_str() + str1.size(),
+                                          str2.c_str(), str2.c_str() + str2.size());
    }
 
    class token_grid
@@ -5170,7 +5183,7 @@ namespace strtk
          return sequential_partition(all_rows(),p,f);
       }
 
-      static token_grid::options default_options()
+      static inline token_grid::options default_options()
       {
          return token_grid::options();
       }
@@ -7680,7 +7693,7 @@ namespace strtk
             std::memset(buffer_,0x00,buffer_length_);
          }
 
-         std::size_t read_size() const
+         inline std::size_t read_size() const
          {
             return read_buffer_size_;
          }
@@ -7690,7 +7703,7 @@ namespace strtk
          {
             if (!operator()(length))
                return false;
-            std::size_t raw_size = length * sizeof(T);
+            const std::size_t raw_size = length * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
             (*data) = new T[length];
@@ -7842,18 +7855,18 @@ namespace strtk
          reader(const reader& s);
          reader& operator=(const reader& s);
 
-         bool buffer_capacity_ok(const std::size_t& required_read_qty)
+         inline bool buffer_capacity_ok(const std::size_t& required_read_qty)
          {
             return ((required_read_qty + read_buffer_size_) < buffer_length_);
          }
 
          template<typename T, typename IsPOD>
          struct selector
-         { template<typename R> static bool run(R& r,T& t) { return t(r); } };
+         { template<typename R> static inline bool run(R& r,T& t) { return t(r); } };
 
          template<typename T>
          struct selector<T,details::yes_t>
-         { template<typename R> static bool run(R& r, T& t) { return r.read_pod(t); } };
+         { template<typename R> static inline bool run(R& r, T& t) { return r.read_pod(t); } };
 
          template<typename T>
          inline bool read_pod(T& data)
@@ -7910,7 +7923,7 @@ namespace strtk
             std::memset(buffer_,0x00,buffer_length_);
          }
 
-         std::size_t write_size() const
+         inline std::size_t write_size() const
          {
             return written_buffer_size_;
          }
@@ -7920,7 +7933,7 @@ namespace strtk
          {
             if (!operator()(length))
                return false;
-            std::size_t raw_size = length * sizeof(T);
+            const std::size_t raw_size = length * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
             const char* ptr = reinterpret_cast<const char*>(data);
@@ -7952,7 +7965,7 @@ namespace strtk
             const uint16_t size = static_cast<unsigned short>(input.s.size());
             if (!operator()(size))
                return false;
-            std::size_t raw_size = size * sizeof(std::string::value_type);
+            const std::size_t raw_size = size * sizeof(std::string::value_type);
             if (!buffer_capacity_ok(raw_size))
                return false;
             const char* ptr = input.s.c_str();
@@ -8024,18 +8037,18 @@ namespace strtk
          writer(const writer& s);
          writer& operator=(const writer& s);
 
-         bool buffer_capacity_ok(const std::size_t& required_read_qty)
+         inline bool buffer_capacity_ok(const std::size_t& required_read_qty)
          {
             return ((required_read_qty + written_buffer_size_) < buffer_length_);
          }
 
          template<typename T, typename IsPOD>
          struct selector
-         { template<typename W> static bool run(W& w, const T& t) { return t(w); } };
+         { template<typename W> static inline bool run(W& w, const T& t) { return t(w); } };
 
          template<typename T>
          struct selector<T,details::yes_t>
-         { template<typename W> static bool run(W& w, const T& t) { return w.write_pod(t); } };
+         { template<typename W> static inline bool run(W& w, const T& t) { return w.write_pod(t); } };
 
          template<typename T>
          inline bool write_pod(const T& data)
@@ -8123,7 +8136,7 @@ namespace strtk
       inline hex_to_number_sink& operator=(const std::pair<InputIterator,InputIterator>& s)
       {
          std::size_t offset = 0;
-         std::size_t size = std::distance(s.first,s.second);
+         const std::size_t size = std::distance(s.first,s.second);
          if ((size > 2) && ((*s.first) == '0') && (((*s.first + 1) == 'x') || ((*s.first + 1) == 'X')))
             offset = 2;
          if ((size - offset) > (2 * sizeof(T)))
@@ -8279,8 +8292,8 @@ namespace strtk
                                 const std::string& str)
       {
          if (str.size() >= width) return str;
-         std::size_t pad_count = width - str.size();
-         std::size_t pad_count_2 = (pad_count >> 1) + (pad_count & 1);
+         const std::size_t pad_count = width - str.size();
+         const std::size_t pad_count_2 = (pad_count >> 1) + (pad_count & 1);
          return std::string(pad_count >> 1,pad) + str + std::string(pad_count_2,pad);
       }
 
@@ -8356,6 +8369,36 @@ namespace strtk
                                    std::string& result)
       {
          result = (index < str.size()) ? str.substr(index,str.size() - index) : str;
+      }
+
+      inline bool is_letter(const char c)
+      {
+         return (('A' <= c) && ( c <= 'Z')) || (('a' <= c) && ( c <= 'z'));
+      }
+
+      inline bool is_digit(const char c)
+      {
+         return (('0' <= c) && ( c <= '9'));
+      }
+
+      inline bool is_all_letters(const std::string& s)
+      {
+         for (std::size_t i = 0; i < s.size(); ++i)
+         {
+            if (!is_letter(s[i]))
+               return false;
+         }
+         return true;
+      }
+
+      inline bool is_all_digits(const std::string& s)
+      {
+         for (std::size_t i = 0; i < s.size(); ++i)
+         {
+            if (!is_digit(s[i]))
+               return false;
+         }
+         return true;
       }
 
    } // namespace text
@@ -8665,7 +8708,7 @@ namespace strtk
 
             if (interim_end != end)
             {
-               T tmp = t;
+               const T tmp = t;
                while (end != itr)
                {
                   digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
@@ -8729,7 +8772,7 @@ namespace strtk
 
             if (interim_end != end)
             {
-               T tmp = t;
+               const T tmp = t;
                while (end != itr)
                {
                   digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
@@ -8744,8 +8787,8 @@ namespace strtk
                if (tmp > t) return false;
             }
          }
-         if (negative) t = -t;
-         result = static_cast<T>(t);
+
+         result = static_cast<T>((negative) ? -t : t);
          return true;
       }
 
@@ -8799,8 +8842,8 @@ namespace strtk
             }
             ++itr;
          }
-         if (negative) t = -t;
-         result = static_cast<T>(t);
+
+         result = static_cast<T>((negative) ? -t : t);
          return return_result;
       }
 
@@ -8940,8 +8983,7 @@ namespace strtk
             }
          }
 
-         if (negative) d = -d;
-         t = static_cast<T>(d);
+         t = static_cast<T>((negative) ? -d : d);
          return true;
       }
 
@@ -9612,7 +9654,7 @@ namespace strtk
          if (!src_file) return false;
          if (!dest_file) return false;
 
-         const std::size_t block_size = 4 * one_kilobyte;
+         static const std::size_t block_size = 16 * one_kilobyte;
          char buffer[block_size];
 
          std::size_t remaining_bytes = file_size(src_file_name);
@@ -9645,7 +9687,7 @@ namespace strtk
 
          if (!file1 || !file2 || !out_file) return false;
 
-         const std::size_t block_size = 4 * one_kilobyte;
+         static const std::size_t block_size = 16 * one_kilobyte;
          char buffer[block_size];
          unsigned int round = 0;
          std::size_t remaining_bytes = 0;
@@ -9683,7 +9725,7 @@ namespace strtk
          if (!file2) return false;
          if (file_size(file_name1) != file_size(file_name2)) return false;
 
-         const std::size_t block_size = 4 * one_kilobyte;
+         static const std::size_t block_size = 16 * one_kilobyte;
          char buffer1[block_size];
          char buffer2[block_size];
 
@@ -10634,9 +10676,9 @@ namespace strtk
          {}
 
          template<typename key_iterator_t>
-         void insert(const key_iterator_t begin,
-                     const key_iterator_t end,
-                     const value_t& v)
+         inline void insert(const key_iterator_t begin,
+                            const key_iterator_t end,
+                            const value_t& v)
          {
             if (0 == std::distance(begin,end))
                return;
@@ -10946,60 +10988,60 @@ namespace strtk
             prev_t_ = t;
          }
 
-         attribute& operator=(const T& t)
+         inline attribute& operator=(const T& t)
          {
             prev_t_ = t_;
             assign(t);
          }
 
-         T& operator()()
+         inline T& operator()()
          {
             return t_;
          }
 
-         const T& operator()() const
+         inline const T& operator()() const
          {
             return t_;
          }
 
-         operator T() const
+         inline operator T() const
          {
             return t_;
          }
 
-         bool initialised() const
+         inline bool initialised() const
          {
             return initialised_;
          }
 
-         bool changed() const
+         inline bool changed() const
          {
             return (t_ != prev_t_);
          }
 
-         const T& value() const
+         inline const T& value() const
          {
             return t_;
          }
 
-         T& value()
+         inline T& value()
          {
             return t_;
          }
 
-         const T& previous() const
+         inline const T& previous() const
          {
             return prev_t_;
          }
 
-         T& previous()
+         inline T& previous()
          {
             return prev_t_;
          }
 
       private:
 
-         void assign(const T& t)
+         inline void assign(const T& t)
          {
             t_ = t;
             initialised_ = true;
@@ -11016,8 +11058,8 @@ namespace strtk
                typename Comparator,
                typename MapAllocator,
                typename OutputIterator>
-      void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
-                         OutputIterator out)
+      inline void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                                OutputIterator out)
       {
          if (map.empty()) return;
          typedef typename std::map<Key,T,Comparator,MapAllocator> map_type;
@@ -11034,8 +11076,8 @@ namespace strtk
                typename Comparator,
                typename MapAllocator,
                typename SetAllocator>
-      void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
-                         std::set<Key,Comparator,SetAllocator>& set)
+      inline void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                                std::set<Key,Comparator,SetAllocator>& set)
       {
          make_key_list(map,std::inserter(set,set.begin()));
       }
@@ -11046,8 +11088,8 @@ namespace strtk
                typename MapAllocator,
                typename SequenceAllocator,
                template<typename,typename> class Sequence>
-      void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
-                         Sequence<Key,SequenceAllocator>& sequence)
+      inline void make_key_list(const std::map<Key,T,Comparator,MapAllocator>& map,
+                                Sequence<Key,SequenceAllocator>& sequence)
       {
          make_key_list(map,std::back_inserter(sequence));
       }
@@ -11057,9 +11099,9 @@ namespace strtk
                typename Comparator,
                typename MapAllocator,
                typename OutputIterator>
-      void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
-                           const Key& key,
-                           OutputIterator out)
+      inline void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
+                                  const Key& key,
+                                  OutputIterator out)
       {
          if (map.empty()) return;
          typedef typename std::multimap<Key,T,Comparator,MapAllocator> map_type;
@@ -11077,7 +11119,7 @@ namespace strtk
                typename MapAllocator,
                typename SequenceAllocator,
                template<typename,typename> class Sequence>
-      void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
+      inline void make_value_list(const std::multimap<Key,T,Comparator,MapAllocator>& map,
                            const Key& key,
                            Sequence<T,SequenceAllocator>& sequence)
       {
@@ -11104,7 +11146,7 @@ namespace strtk
                typename Comparator,
                typename Allocator,
                template<typename,typename, typename, typename> class Container>
-      void delete_all(const std::map<Key,T*,Comparator,Allocator>& cont)
+      inline void delete_all(const std::map<Key,T*,Comparator,Allocator>& cont)
       {
          typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
          typename std::map<Key,T*,Comparator,Allocator>::iterator end = cont.end();
@@ -11120,7 +11162,7 @@ namespace strtk
                typename Comparator,
                typename Allocator,
                template<typename,typename, typename, typename> class Container>
-      void delete_all(const std::set<T*,Comparator,Allocator>& cont)
+      inline void delete_all(const std::set<T*,Comparator,Allocator>& cont)
       {
          typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
          typename std::set<T*,Comparator,Allocator>::iterator end = cont.end();
@@ -11158,8 +11200,8 @@ namespace strtk
                typename Comparator,
                typename Allocator,
                template<typename,typename, typename, typename> class Container>
-      void delete_if(const Predicate& p,
-                     const std::map<Key,T*,Comparator,Allocator>& cont)
+      inline void delete_if(const Predicate& p,
+                            const std::map<Key,T*,Comparator,Allocator>& cont)
       {
          typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
          while (cont.end() != itr)
@@ -11179,8 +11221,8 @@ namespace strtk
                typename Comparator,
                typename Allocator,
                template<typename,typename, typename, typename> class Container>
-      void delete_if(const Predicate& p,
-                     const std::set<T*,Comparator,Allocator>& cont)
+      inline void delete_if(const Predicate& p,
+                            const std::set<T*,Comparator,Allocator>& cont)
       {
          typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
          while (cont.end() != itr)
@@ -11262,14 +11304,14 @@ namespace strtk
 
          #ifdef WIN32
             timer() : in_use_(false) { QueryPerformanceFrequency(&clock_frequency); }
-            void start() { in_use_ = true; QueryPerformanceCounter(&start_time);    }
-            void stop()  { QueryPerformanceCounter(&stop_time); in_use_ = false;    }
-            double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
+            inline void start() { in_use_ = true; QueryPerformanceCounter(&start_time);    }
+            inline void stop()  { QueryPerformanceCounter(&stop_time); in_use_ = false;    }
+            inline double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
          #else
             timer() : in_use_(false) { }
-            void start() { in_use_ = true; gettimeofday(&start_time, 0);  }
-            void stop()  { gettimeofday(&stop_time,  0); in_use_ = false; }
-            double time()
+            inline void start() { in_use_ = true; gettimeofday(&start_time, 0);  }
+            inline void stop()  { gettimeofday(&stop_time,  0); in_use_ = false; }
+            inline double time()
             {
                double diff = (stop_time.tv_sec - start_time.tv_sec) * 1000000.0;
                if (stop_time.tv_usec > start_time.tv_usec)
@@ -11279,7 +11321,7 @@ namespace strtk
                return (diff / 1000000.0);
             }
          #endif
-            bool in_use() { return in_use_; }
+            inline bool in_use() { return in_use_; }
       private:
 
             bool in_use_;
@@ -11301,13 +11343,12 @@ namespace strtk
       static const char* library = "String Toolkit";
       static const char* version = "2.71828182845904523536028747";
       static const char* date    = "20101111";
-      static const char* epoch   = "Pre-C++0x B7214AFF:92E1B583";
 
       static inline std::string data()
       {
          static const std::string info_str = std::string(library) +
                                              std::string(" v") + std::string(version) +
-                                             std::string(" (") + date + std::string(" ") + epoch + std::string(")");
+                                             std::string(" (") + date + std::string(")");
          return info_str;
       }
 
