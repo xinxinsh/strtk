@@ -1053,11 +1053,13 @@ namespace strtk
          return 0;
       Iterator itr = begin + (length - 1);
       std::size_t removal_count = 0;
+
       while ((begin != itr) && predicate(*itr))
       {
          --itr;
          ++removal_count;
       }
+
       return removal_count;
    }
 
@@ -1125,11 +1127,13 @@ namespace strtk
          return 0;
       Iterator itr = begin;
       std::size_t removal_count = 0;
+
       while ((end != itr) && predicate(*itr))
       {
          ++itr;
          ++removal_count;
       }
+
       std::copy(itr,end,begin);
       return removal_count;
    }
@@ -7229,11 +7233,13 @@ namespace strtk
       boost::mt19937 rng(static_cast<boost::mt19937::result_type>(seed));
       boost::uniform_int<unsigned int> dist(std::numeric_limits<unsigned int>::min(),std::numeric_limits<unsigned int>::max());
       boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned int> > rnd(rng,dist);
+
       if (pre_gen_cnt > 0)
       {
          unsigned int r = 0x00;
          for (unsigned int i = 0; i < pre_gen_cnt; r = rnd(), ++i) ;
       }
+
       unsigned char* itr = data;
       unsigned int* x = 0;
       while (length >= sizeof(unsigned int))
@@ -7243,6 +7249,7 @@ namespace strtk
          itr += sizeof(unsigned int);
          length -= sizeof(unsigned int);
       }
+
       if (length > 0)
       {
          itr -= (sizeof(unsigned int) - length);
@@ -7811,7 +7818,9 @@ namespace strtk
             const std::size_t raw_size = length * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
-            std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(data));
+            std::copy(buffer_,
+                      buffer_ + raw_size,
+                      reinterpret_cast<char*>(data));
             buffer_ += length;
             read_buffer_size_ += length;
             return true;
@@ -7922,11 +7931,23 @@ namespace strtk
 
          template<typename T, typename IsPOD>
          struct selector
-         { template<typename R> static inline bool run(R& r,T& t) { return t(r); } };
+         {
+            template<typename Reader>
+            static inline bool run(Reader& r, T& t)
+            {
+               return t(r);
+            }
+         };
 
          template<typename T>
          struct selector<T,details::yes_t>
-         { template<typename R> static inline bool run(R& r, T& t) { return r.read_pod(t); } };
+         {
+            template<typename Reader>
+            static inline bool run(Reader& r, T& t)
+            {
+               return r.read_pod(t);
+            }
+         };
 
          template<typename T>
          inline bool read_pod(T& data)
@@ -8104,11 +8125,23 @@ namespace strtk
 
          template<typename T, typename IsPOD>
          struct selector
-         { template<typename W> static inline bool run(W& w, const T& t) { return t(w); } };
+         {
+            template<typename Writer>
+            static inline bool run(Writer& w, const T& t)
+            {
+               return t(w);
+            }
+         };
 
          template<typename T>
          struct selector<T,details::yes_t>
-         { template<typename W> static inline bool run(W& w, const T& t) { return w.write_pod(t); } };
+         {
+            template<typename Writer>
+            static inline bool run(Writer& w, const T& t)
+            {
+               return w.write_pod(t);
+            }
+         };
 
          template<typename T>
          inline bool write_pod(const T& data)
@@ -11024,7 +11057,7 @@ namespace strtk
             }
          }
 
-         bool& restore()
+         inline bool& restore()
          {
             return restore_;
          }
@@ -11307,31 +11340,31 @@ namespace strtk
 namespace
 {
 
-   std::ostream& operator<<(std::ostream& os,
-                            const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<char> >::type::iterator& range)
+   inline std::ostream& operator<<(std::ostream& os,
+                                   const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<char> >::type::iterator& range)
    {
       os << std::string((*range).first,(*range).second);
       return os;
    }
 
-   std::ostream& operator<<(std::ostream& os,
-                            const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<unsigned char> >::type::iterator& range)
+   inline std::ostream& operator<<(std::ostream& os,
+                                   const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<unsigned char> >::type::iterator& range)
    {
       os << std::string((*range).first,(*range).second);
       return os;
    }
 
-   std::ostream& operator<<(std::ostream& os,
-                            const strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator& range)
+   inline std::ostream& operator<<(std::ostream& os,
+                                   const strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator& range)
    {
       os << std::string((*range).first,(*range).second);
       return os;
    }
 
    #define register_pair_to_ostream(Iterator)\
-   std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
+   inline std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
    { os<<std::string(range.first,range.second); return os; }\
-   std::ostream& operator<<(std::ostream& os, std::pair<Iterator,Iterator>& range)\
+   inline std::ostream& operator<<(std::ostream& os, std::pair<Iterator,Iterator>& range)\
    { os<<std::string(range.first,range.second); return os; }\
 
    register_pair_to_ostream(char*)
@@ -11366,15 +11399,48 @@ namespace strtk
       public:
 
          #ifdef WIN32
-            timer() : in_use_(false) { QueryPerformanceFrequency(&clock_frequency); }
-            inline void start() { in_use_ = true; QueryPerformanceCounter(&start_time);    }
-            inline void stop()  { QueryPerformanceCounter(&stop_time); in_use_ = false;    }
-            inline double time(){ return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart); }
+            timer()
+            : in_use_(false)
+            {
+               QueryPerformanceFrequency(&clock_frequency);
+            }
+
+            inline void start()
+            {
+               in_use_ = true;
+               QueryPerformanceCounter(&start_time);
+            }
+
+            inline void stop()
+            {
+               QueryPerformanceCounter(&stop_time);
+               in_use_ = false;
+            }
+
+            inline double time() const
+            {
+               return (1.0 *(stop_time.QuadPart - start_time.QuadPart)) / (1.0 * clock_frequency.QuadPart);
+            }
+
          #else
-            timer() : in_use_(false) { }
-            inline void start() { in_use_ = true; gettimeofday(&start_time, 0);  }
-            inline void stop()  { gettimeofday(&stop_time,  0); in_use_ = false; }
-            inline double time()
+
+            timer()
+            : in_use_(false)
+            {}
+
+            inline void start()
+            {
+               in_use_ = true;
+               gettimeofday(&start_time, 0);
+            }
+
+            inline void stop()
+            {
+               gettimeofday(&stop_time,  0);
+               in_use_ = false;
+            }
+
+            inline double time() const
             {
                double diff = (stop_time.tv_sec - start_time.tv_sec) * 1000000.0;
                if (stop_time.tv_usec > start_time.tv_usec)
@@ -11384,7 +11450,12 @@ namespace strtk
                return (diff / 1000000.0);
             }
          #endif
-            inline bool in_use() { return in_use_; }
+
+            inline bool in_use() const
+            {
+               return in_use_;
+            }
+
       private:
 
             bool in_use_;
