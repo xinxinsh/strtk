@@ -10078,13 +10078,18 @@ namespace strtk
                            Sequence<T,Allocator>& sequence)
       {
          T t;
+
          for (std::size_t i = 0; i < count; ++i)
          {
             if(!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
             {
                sequence.push_back(t);
             }
+            else
+               return false;
          }
+
+         return true;
       }
 
       template<typename T,
@@ -10095,13 +10100,18 @@ namespace strtk
                            std::set<T,Comparator,Allocator>& set)
       {
          T t;
+
          for (std::size_t i = 0; i < count; ++i)
          {
             if(!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
             {
                set.insert(t);
             }
+            else
+               return false;
          }
+
+         return true;
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
