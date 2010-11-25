@@ -7801,9 +7801,11 @@ namespace strtk
          {
             if (!operator()(length))
                return false;
+
             const std::size_t raw_size = length * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             (*data) = new T[length];
             std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(*data));
             buffer_ += raw_size;
@@ -7816,8 +7818,10 @@ namespace strtk
             uint32_t length = 0;
             if (!operator()(length))
                return false;
+
             if (!buffer_capacity_ok(length))
                return false;
+
             output.resize(length);
             std::copy(buffer_,
                       buffer_ + length,
@@ -7849,6 +7853,7 @@ namespace strtk
             const std::size_t raw_size = length * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             std::copy(buffer_,
                       buffer_ + raw_size,
                       reinterpret_cast<char*>(data));
@@ -8086,6 +8091,7 @@ namespace strtk
          {
             if (input.s.size() > std::numeric_limits<uint16_t>::max())
                return false;
+
             const uint16_t size = static_cast<unsigned short>(input.s.size());
             if (!operator()(size))
                return false;
