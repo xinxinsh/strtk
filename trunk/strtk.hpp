@@ -41,23 +41,24 @@
 #include <queue>
 
 
-//#define strtk_enable_lexical_cast
+#define strtk_enable_lexical_cast
+#define strtk_enable_random
+#define strtk_enable_regex
+
 #ifdef strtk_enable_lexical_cast
    #include <boost/lexical_cast.hpp>
 #endif
 
-#define strtk_enable_random
 #ifdef strtk_enable_random
-   // define a TR1 compatible random library header
-   #include <boost/random.hpp>
+   // Requires definition of a TR1 compatible random library header
    //#include <random>
+   #include <boost/random.hpp>
 #endif
 
-#define strtk_enable_regex
 #ifdef strtk_enable_regex
-   // define a TR1 compatible regex library header
-   #include <boost/regex.hpp>
+   // Requires definition of a TR1 compatible regex library header
    //#include <regex>
+   #include <boost/regex.hpp>
 #endif
 
 
@@ -494,9 +495,11 @@ namespace strtk
                                          const std::string& delimiter = "")
    {
      if (!stream) return 0;
+
      std::size_t count = 0;
      typename Sequence<T,Allocator>::const_iterator itr = sequence.begin();
      typename Sequence<T,Allocator>::const_iterator end = sequence.end();
+
      if (!delimiter.empty())
      {
         while (end != itr)
@@ -515,6 +518,7 @@ namespace strtk
            ++count;
         }
      }
+
      return count;
    }
 
@@ -526,9 +530,11 @@ namespace strtk
                                          const std::string& delimiter = "")
    {
      if (!stream) return 0;
+
      std::size_t count = 0;
      typename std::set<T,Comparator,Allocator>::const_iterator itr = set.begin();
      typename std::set<T,Comparator,Allocator>::const_iterator end = set.end();
+
      if (!delimiter.empty())
      {
         while (end != itr)
@@ -547,6 +553,7 @@ namespace strtk
            ++count;
         }
      }
+
      return count;
    }
 
@@ -858,6 +865,7 @@ namespace strtk
             ++itr1;
             ++itr2;
          }
+
          while ((end != itr1) && predicate(*itr1))
          {
             ++itr1;
@@ -930,6 +938,7 @@ namespace strtk
             ++removal_count;
          }
       }
+
       return removal_count;
    }
 
@@ -992,10 +1001,12 @@ namespace strtk
    inline std::size_t remove_consecutives_inplace(Iterator begin, Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
+
       Iterator itr1 = begin; ++itr1;
       Iterator itr2 = begin; ++itr2;
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
+
       while (itr1 != end)
       {
          while ((end != itr1) && (prev != (*itr1)))
@@ -1015,6 +1026,7 @@ namespace strtk
             ++removal_count;
          }
       }
+
       return removal_count;
    }
 
@@ -1305,6 +1317,7 @@ namespace strtk
          bool found = true;
          p_itr = p_begin;
          temp_s_itr = s_itr;
+
          while ((p_end != p_itr) && (s_end != temp_s_itr))
          {
             if (*(temp_s_itr++) != *(p_itr++))
@@ -1337,6 +1350,7 @@ namespace strtk
          p_itr = p_begin;
          bool found = true;
          InputIterator pattern_start = temp_s_itr;
+
          while ((p_end != p_itr) && (s_end != temp_s_itr))
          {
             if (*(temp_s_itr++) != *(p_itr++))
@@ -1459,8 +1473,10 @@ namespace strtk
       {
          return false;
       }
+
       InputIterator itr1 = begin1;
       InputIterator itr2 = begin2;
+
       while (end1 != itr1)
       {
          //if (std::toupper(*itr1, std::locale::classic()) != std::toupper(*it2, std::locale::classic()))
@@ -1471,6 +1487,7 @@ namespace strtk
          ++itr1;
          ++itr2;
       }
+
       return true;
    }
 
@@ -1553,12 +1570,14 @@ namespace strtk
       Iterator itr = begin;
       const std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
       std::size_t match_count = 0;
+
       while (end != (itr = std::search(itr, end, pattern_begin, pattern_end, imatch_char)))
       {
          *out++ = std::make_pair(itr,itr + pattern_length);
          itr += pattern_length;
          ++match_count;
       }
+
       return match_count;
    }
 
@@ -2726,7 +2745,9 @@ namespace strtk
          match_4   = 4,
          match_5   = 5,
          match_6   = 6,
-         match_7   = 7
+         match_7   = 7,
+         match_8   = 8,
+         match_9   = 9
       };
    }
 
@@ -2872,7 +2893,7 @@ namespace strtk
                            buffer_size);
    }
 
-   #endif // ENABLE_REGEX
+   #endif // strtk_enable_regex
 
    template<const std::size_t offset_list_size>
    class offset_predicate
@@ -3181,7 +3202,9 @@ namespace strtk
             else
                ++itr;
          }
+
       }
+
       std::rotate(begin,(*itr_list.begin()).second,end);
    }
 
@@ -3388,13 +3411,16 @@ namespace strtk
                                                   };
 
       const unsigned char* end_itr = end;
+
       if ('=' == *(end - 2))
          end_itr = end - 2;
       else if ('=' == *(end - 1))
          end_itr = end - 1;
+
       const std::size_t length = std::distance(begin,end_itr);
       const std::size_t rounds = length / 4;
       const unsigned char* itr = begin;
+
       for (std::size_t i = 0; i < rounds; ++i)
       {
          unsigned int block  = base64_to_bin[*(itr++)] << 18;
@@ -3429,6 +3455,7 @@ namespace strtk
                      break;
          }
       }
+
       return static_cast<std::size_t>((3 * length) / 4);
    }
 
@@ -5178,6 +5205,7 @@ namespace strtk
             if (!f(*this,r))
                return false;
          }
+
          return true;
       }
 
@@ -5216,6 +5244,7 @@ namespace strtk
 
          itr_list_type::iterator itr = row_list.begin();
          itr_list_type::iterator end = row_list.end();
+
          while (end != itr)
          {
             if (0 != std::distance(itr->first,itr->second))
@@ -5235,6 +5264,7 @@ namespace strtk
             }
             ++itr;
          }
+
          return true;
       }
 
@@ -5409,6 +5439,7 @@ namespace strtk
                }
             }
          }
+
          if (!allow_through_on_match_)
          {
             predicate_(s);
@@ -7463,7 +7494,7 @@ namespace strtk
    {
       random_combination(sequence.begin(),sequence.end(),set_size,out,seed,pregen);
    }
-   #endif // ENABLE_RANDOM
+   #endif // strtk_enable_random
 
    template <typename Iterator>
    inline bool next_combination(const Iterator first, Iterator k, const Iterator last)
@@ -7844,10 +7875,13 @@ namespace strtk
             uint32_t size = 0;
             if (!read_pod(size))
                return false;
+
             const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             T t = T();
+
             for (std::size_t i = 0; i < size; ++i)
             {
                if (!operator()(t))
@@ -7864,9 +7898,11 @@ namespace strtk
             if (!read_pod(size))
                return false;
             vec.reserve(size);
+
             const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             T t;
             for (std::size_t i = 0; i < size; ++i)
             {
@@ -7874,6 +7910,7 @@ namespace strtk
                   return false;
                vec.push_back(t);
             }
+
             return true;
          }
 
@@ -7885,9 +7922,11 @@ namespace strtk
             uint32_t size = 0;
             if (!read_pod(size))
                return false;
+
             const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             T t;
             for (std::size_t i = 0; i < size; ++i)
             {
@@ -7895,6 +7934,7 @@ namespace strtk
                   return false;
                set.insert(t);
             }
+
             return true;
          }
 
@@ -8014,13 +8054,16 @@ namespace strtk
          {
             if (!operator()(length))
                return false;
+
             const std::size_t raw_size = length * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             const char* ptr = reinterpret_cast<const char*>(data);
             std::copy(ptr, ptr + raw_size, buffer_);
             buffer_ += raw_size;
             written_buffer_size_ += raw_size;
+
             return true;
          }
 
@@ -8046,9 +8089,11 @@ namespace strtk
             const uint16_t size = static_cast<unsigned short>(input.s.size());
             if (!operator()(size))
                return false;
+
             const std::size_t raw_size = size * sizeof(std::string::value_type);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             const char* ptr = input.s.c_str();
             std::copy(ptr, ptr + raw_size, buffer_);
             buffer_ += raw_size;
@@ -8064,9 +8109,11 @@ namespace strtk
             const uint32_t size = seq.size();
             if (!operator()(size))
                return false;
+
             const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             typename Sequence<T,Allocator>::const_iterator itr = seq.begin();
             typename Sequence<T,Allocator>::const_iterator end = seq.end();
             while (end != itr)
@@ -8086,9 +8133,11 @@ namespace strtk
             const uint32_t size = set.size();
             if (!operator()(size))
                return false;
+
             const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
+
             typename std::set<T,Allocator,Comparator>::const_iterator itr = set.begin();
             typename std::set<T,Allocator,Comparator>::const_iterator end = set.end();
             while (end != itr)
@@ -8234,6 +8283,7 @@ namespace strtk
             offset = 2;
          if ((size - offset) > (2 * sizeof(T)))
                return *this;
+
          const std::size_t buffer_size = 2 * sizeof(T);
          const std::size_t buffer_offset = ((size - offset) % 2);
          char buffer[buffer_size] = { '0' };
@@ -8242,6 +8292,7 @@ namespace strtk
             valid_ = false;
             return *this;
          }
+
          std::copy(s.first + offset, s.first + size, buffer + buffer_offset);
          *t_ = 0;
          valid_= convert_hex_to_bin(buffer,
@@ -8333,6 +8384,7 @@ namespace strtk
             valid_ = false;
             return *this;
          }
+
          *t_ = T(0);
          convert_base64_to_bin(s.c_str(), s.c_str() + s.size(),reinterpret_cast<char*>(t_));
          reverse_bytes();
@@ -8347,6 +8399,7 @@ namespace strtk
             valid_ = false;
             return *this;
          }
+
          *t_ = T(0);
          convert_base64_to_bin(s.first, s.second,reinterpret_cast<char*>(t_));
          reverse_bytes();
@@ -8751,7 +8804,19 @@ namespace strtk
             begin = end;
             return true;
          #else
-            return false;
+         /*
+            try
+            {
+               std::stringstream ss(std::string(begin,end));
+               ss >> t;
+            }
+            catch (const std::exception&)
+            {
+               return false;
+            }
+            begin = end;
+            return true;
+            */
          #endif
       }
 
@@ -8787,6 +8852,7 @@ namespace strtk
             static const std::size_t radix = 10;
             const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length);
             T digit = 0;
+
             while (interim_end != itr)
             {
                digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
@@ -8852,6 +8918,7 @@ namespace strtk
             static const std::size_t radix = 10;
             const Iterator interim_end = itr + length - std::min<std::size_t>(numeric<T>::bound_length,length);
             T digit = 0;
+
             while (interim_end != itr)
             {
                digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
@@ -8913,7 +8980,6 @@ namespace strtk
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
-
             if (is_invalid_digit(digit))
             {
                return_result = false;
@@ -9003,6 +9069,7 @@ namespace strtk
             if (end != itr)
             {
                typename std::iterator_traits<Iterator>::value_type c = *itr;
+
                if (('e' == c) || ('E' == c))
                {
                   ++itr;
@@ -9128,7 +9195,7 @@ namespace strtk
       template<typename T>
       inline bool type_to_string_converter_impl(const T& t, std::string& s, not_supported_type_tag)
       {
-         #ifdef ENABLE_LEXICAL_CAST
+         #ifdef strtk_enable_lexical_cast
             try
             {
                s = boost::lexical_cast<std::string>(t);
@@ -9811,6 +9878,7 @@ namespace strtk
                out_file.write(&buffer[0],static_cast<std::streamsize>(remaining_bytes));
                remaining_bytes = 0;
             }
+
             input_stream.close();
             ++round;
          }
@@ -9856,138 +9924,148 @@ namespace strtk
          return true;
       }
 
+      namespace details
+      {
+         template<typename T>
+         inline bool read_pod_proxy(std::ifstream& stream, T& t)
+         {
+            return (false != stream.read(reinterpret_cast<char*>(&t),
+                                         static_cast<std::streamsize>(sizeof(T))).fail());
+         }
+      }
+
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7, typename T8,
                typename T9, typename T10>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9, T10& t10)
       {
-         stream.read(reinterpret_cast<char*>( &t1),static_cast<std::streamsize>(sizeof( T1)));
-         stream.read(reinterpret_cast<char*>( &t2),static_cast<std::streamsize>(sizeof( T2)));
-         stream.read(reinterpret_cast<char*>( &t3),static_cast<std::streamsize>(sizeof( T3)));
-         stream.read(reinterpret_cast<char*>( &t4),static_cast<std::streamsize>(sizeof( T4)));
-         stream.read(reinterpret_cast<char*>( &t5),static_cast<std::streamsize>(sizeof( T5)));
-         stream.read(reinterpret_cast<char*>( &t6),static_cast<std::streamsize>(sizeof( T6)));
-         stream.read(reinterpret_cast<char*>( &t7),static_cast<std::streamsize>(sizeof( T7)));
-         stream.read(reinterpret_cast<char*>( &t8),static_cast<std::streamsize>(sizeof( T8)));
-         stream.read(reinterpret_cast<char*>( &t9),static_cast<std::streamsize>(sizeof( T9)));
-         stream.read(reinterpret_cast<char*>(&t10),static_cast<std::streamsize>(sizeof(T10)));
+         return read_pod_proxy(stream, t1) &&
+                read_pod_proxy(stream, t2) &&
+                read_pod_proxy(stream, t3) &&
+                read_pod_proxy(stream, t4) &&
+                read_pod_proxy(stream, t5) &&
+                read_pod_proxy(stream, t6) &&
+                read_pod_proxy(stream, t7) &&
+                read_pod_proxy(stream, t8) &&
+                read_pod_proxy(stream, t9) &&
+                read_pod_proxy(stream,t10);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7, typename T8,
                typename T9>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
-         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
-         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
-         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
-         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
-         stream.read(reinterpret_cast<char*>(&t7),static_cast<std::streamsize>(sizeof(T7)));
-         stream.read(reinterpret_cast<char*>(&t8),static_cast<std::streamsize>(sizeof(T8)));
-         stream.read(reinterpret_cast<char*>(&t9),static_cast<std::streamsize>(sizeof(T9)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2) &&
+                read_pod_proxy(stream,t3) &&
+                read_pod_proxy(stream,t4) &&
+                read_pod_proxy(stream,t5) &&
+                read_pod_proxy(stream,t6) &&
+                read_pod_proxy(stream,t7) &&
+                read_pod_proxy(stream,t8) &&
+                read_pod_proxy(stream,t9);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7, typename T8>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
-         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
-         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
-         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
-         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
-         stream.read(reinterpret_cast<char*>(&t7),static_cast<std::streamsize>(sizeof(T7)));
-         stream.read(reinterpret_cast<char*>(&t8),static_cast<std::streamsize>(sizeof(T8)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2) &&
+                read_pod_proxy(stream,t3) &&
+                read_pod_proxy(stream,t4) &&
+                read_pod_proxy(stream,t5) &&
+                read_pod_proxy(stream,t6) &&
+                read_pod_proxy(stream,t7) &&
+                read_pod_proxy(stream,t8);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
-         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
-         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
-         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
-         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
-         stream.read(reinterpret_cast<char*>(&t7),static_cast<std::streamsize>(sizeof(T7)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2) &&
+                read_pod_proxy(stream,t3) &&
+                read_pod_proxy(stream,t4) &&
+                read_pod_proxy(stream,t5) &&
+                read_pod_proxy(stream,t6) &&
+                read_pod_proxy(stream,t7);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
-         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
-         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
-         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
-         stream.read(reinterpret_cast<char*>(&t6),static_cast<std::streamsize>(sizeof(T6)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2) &&
+                read_pod_proxy(stream,t3) &&
+                read_pod_proxy(stream,t4) &&
+                read_pod_proxy(stream,t5) &&
+                read_pod_proxy(stream,t6);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
-         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
-         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
-         stream.read(reinterpret_cast<char*>(&t5),static_cast<std::streamsize>(sizeof(T5)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2) &&
+                read_pod_proxy(stream,t3) &&
+                read_pod_proxy(stream,t4) &&
+                read_pod_proxy(stream,t5);
       }
 
       template<typename T1, typename T2, typename T3, typename T4>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
-         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
-         stream.read(reinterpret_cast<char*>(&t4),static_cast<std::streamsize>(sizeof(T4)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2) &&
+                read_pod_proxy(stream,t3) &&
+                read_pod_proxy(stream,t4);
       }
 
       template<typename T1, typename T2, typename T3>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
-         stream.read(reinterpret_cast<char*>(&t3),static_cast<std::streamsize>(sizeof(T3)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2) &&
+                read_pod_proxy(stream,t3);
       }
 
       template<typename T1, typename T2>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2)
       {
-         stream.read(reinterpret_cast<char*>(&t1),static_cast<std::streamsize>(sizeof(T1)));
-         stream.read(reinterpret_cast<char*>(&t2),static_cast<std::streamsize>(sizeof(T2)));
+         return read_pod_proxy(stream,t1) &&
+                read_pod_proxy(stream,t2);
       }
 
       template<typename T>
-      inline void read_pod(std::ifstream& stream, T& t)
+      inline bool read_pod(std::ifstream& stream, T& t)
       {
-         stream.read(reinterpret_cast<char*>(&t),sizeof(T));
+         return read_pod_proxy(stream,t1);
       }
 
       template<typename T, std::size_t N>
-      inline void read_pod(std::ifstream& stream, T (&t)[N])
+      inline bool read_pod(std::ifstream& stream, T (&t)[N])
       {
          stream.read(reinterpret_cast<char*>(&t[0]),sizeof(T) * N);
       }
@@ -9995,15 +10073,17 @@ namespace strtk
       template<typename T,
                typename Allocator,
                template<typename,typename> class Sequence>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            const std::size_t& count,
                            Sequence<T,Allocator>& sequence)
       {
          T t;
          for (std::size_t i = 0; i < count; ++i)
          {
-            stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T)));
-            sequence.push_back(t);
+            if(!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
+            {
+               sequence.push_back(t);
+            }
          }
       }
 
@@ -10017,8 +10097,10 @@ namespace strtk
          T t;
          for (std::size_t i = 0; i < count; ++i)
          {
-            stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T)));
-            set.insert(t);
+            if(!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
+            {
+               set.insert(t);
+            }
          }
       }
 
@@ -10783,7 +10865,6 @@ namespace strtk
          {
             if (0 == std::distance(begin,end))
                return;
-
             key_iterator_t itr = begin;
             key_value_t key = *itr;
             node_ptr parent = 0;
@@ -10813,11 +10894,9 @@ namespace strtk
          {
             if ((0 == head_) || (0 == std::distance(begin,end)))
                return false;
-
             key_iterator_t itr = begin;
             node_ptr parent = head_;
             node_ptr n = head_;
-
             while (end != itr)
             {
                node_ptr next_node = n->get_node(*itr);
@@ -10827,7 +10906,6 @@ namespace strtk
                n = next_node;
                ++itr;
             }
-
             if (!parent->value_holder())
                return false;
              v = parent->value();
@@ -11377,9 +11455,9 @@ namespace
 
    #define strtk_register_pair_to_ostream(Iterator)\
    inline std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
-   { os<<std::string(range.first,range.second); return os; }\
+   { os << std::string(range.first,range.second); return os; }\
    inline std::ostream& operator<<(std::ostream& os, std::pair<Iterator,Iterator>& range)\
-   { os<<std::string(range.first,range.second); return os; }\
+   { os << std::string(range.first,range.second); return os; }\
 
    strtk_register_pair_to_ostream(char*)
    strtk_register_pair_to_ostream(unsigned char*)
