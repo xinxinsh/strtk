@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 
    if (!str_lst.empty())
    {
-      #ifdef ENABLE_RANDOM
+      #ifdef strtk_enable_random
       strtk::random_permutation(str_lst,
                                 std::ostream_iterator<std::string>(std::cout,"\n"),
                                 static_cast<std::size_t>(::time(0)));

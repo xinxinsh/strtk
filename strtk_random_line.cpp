@@ -38,7 +38,7 @@
 
 #include "strtk.hpp"
 
-#ifndef ENABLE_RANDOM
+#ifndef strtk_enable_random
    #error This example requires random
 #endif
 

@@ -41,20 +41,20 @@
 #include <queue>
 
 
-#define ENABLE_LEXICAL_CAST
-#ifdef ENABLE_LEXICAL_CAST
+//#define strtk_enable_lexical_cast
+#ifdef strtk_enable_lexical_cast
    #include <boost/lexical_cast.hpp>
 #endif
 
-#define ENABLE_RANDOM
-#ifdef ENABLE_RANDOM
+#define strtk_enable_random
+#ifdef strtk_enable_random
    // define a TR1 compatible random library header
    #include <boost/random.hpp>
    //#include <random>
 #endif
 
-#define ENABLE_REGEX
-#ifdef ENABLE_REGEX
+#define strtk_enable_regex
+#ifdef strtk_enable_regex
    // define a TR1 compatible regex library header
    #include <boost/regex.hpp>
    //#include <regex>
@@ -2709,7 +2709,7 @@ namespace strtk
                      split_option);
    }
 
-   #ifdef ENABLE_REGEX
+   #ifdef strtk_enable_regex
 
    static const std::string uri_expression  ("((https?|ftp)\\://((\\[?(\\d{1,3}\\.){3}\\d{1,3}\\]?)|(([-a-zA-Z0-9]+\\.)+[a-zA-Z]{2,4}))(\\:\\d+)?(/[-a-zA-Z0-9._?,+&amp;%$#=~\\\\]+)*/?)");
    static const std::string email_expression("([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))");
@@ -7224,7 +7224,7 @@ namespace strtk
       cut(r0,r1,set.begin(),set.end());
    }
 
-   #ifdef ENABLE_RANDOM
+   #ifdef strtk_enable_random
    inline void generate_random_data(unsigned char* data,
                                     std::size_t length,
                                     unsigned int pre_gen_cnt = 0,
@@ -7265,22 +7265,22 @@ namespace strtk
 
       template<typename T> struct supported_random_type {};
 
-      #define register_rand_int_type_tag(T)\
+      #define strtk_register_rand_int_type_tag(T)\
       template<> struct supported_random_type<T> { typedef rand_int_type_tag type;  enum { value = true }; };
 
-      #define register_rand_real_type_tag(T)\
+      #define strtk_register_rand_real_type_tag(T)\
       template<> struct supported_random_type<T> { typedef rand_real_type_tag type;  enum { value = true }; };
 
-      register_rand_int_type_tag(short)
-      register_rand_int_type_tag(int)
-      register_rand_int_type_tag(long)
-      register_rand_int_type_tag(unsigned short)
-      register_rand_int_type_tag(unsigned int)
-      register_rand_int_type_tag(unsigned long)
+      strtk_register_rand_int_type_tag(short)
+      strtk_register_rand_int_type_tag(int)
+      strtk_register_rand_int_type_tag(long)
+      strtk_register_rand_int_type_tag(unsigned short)
+      strtk_register_rand_int_type_tag(unsigned int)
+      strtk_register_rand_int_type_tag(unsigned long)
 
-      register_rand_real_type_tag(float)
-      register_rand_real_type_tag(double)
-      register_rand_real_type_tag(long double)
+      strtk_register_rand_real_type_tag(float)
+      strtk_register_rand_real_type_tag(double)
+      strtk_register_rand_real_type_tag(long double)
 
       template<typename T, typename OutputIterator, typename RandomNumberGenerator>
       inline void generate_random_values_impl(const std::size_t& count,
@@ -7659,7 +7659,7 @@ namespace strtk
       {
          if (begin_ != end_)
          {
-            if(!next_combination(begin_,middle_,end_))
+            if (!next_combination(begin_,middle_,end_))
             {
                begin_ = middle_ = end_;
             }
@@ -8602,27 +8602,27 @@ namespace strtk
 
       static const unsigned char* rev_digit_table2 = (rev_digit_table3 + (3000 * sizeof(unsigned char)));
 
-      #define register_pod_type(T)\
+      #define strtk_register_pod_type(T)\
       template<> struct is_pod<T>{ typedef yes_t result_t; enum {result = true }; };\
       template<> struct is_pod<const T>{ typedef yes_t result_t; enum {result = true }; };\
       template<> struct is_pod<volatile T>{ typedef yes_t result_t; enum {result = true }; };\
       template<> struct is_pod<const volatile T>{ typedef yes_t result_t; enum {result = true }; };\
 
-      register_pod_type(bool)
-      register_pod_type(signed char)
-      register_pod_type(char)
-      register_pod_type(short)
-      register_pod_type(int)
-      register_pod_type(long int)
-      register_pod_type(long long int)
-      register_pod_type(unsigned char)
-      register_pod_type(unsigned short)
-      register_pod_type(unsigned int)
-      register_pod_type(unsigned long int)
-      register_pod_type(unsigned long long int)
-      register_pod_type(float)
-      register_pod_type(double)
-      register_pod_type(long double)
+      strtk_register_pod_type(bool)
+      strtk_register_pod_type(signed char)
+      strtk_register_pod_type(char)
+      strtk_register_pod_type(short)
+      strtk_register_pod_type(int)
+      strtk_register_pod_type(long int)
+      strtk_register_pod_type(long long int)
+      strtk_register_pod_type(unsigned char)
+      strtk_register_pod_type(unsigned short)
+      strtk_register_pod_type(unsigned int)
+      strtk_register_pod_type(unsigned long int)
+      strtk_register_pod_type(unsigned long long int)
+      strtk_register_pod_type(float)
+      strtk_register_pod_type(double)
+      strtk_register_pod_type(long double)
 
       template<typename>
       struct numeric { enum { length = 0, size = 32, bound_length = 0, min_exp = 0, max_exp = 0 }; };
@@ -8643,28 +8643,28 @@ namespace strtk
       template<> struct numeric<double>             { enum { min_exp = -308, max_exp = +308 }; };
       template<> struct numeric<long double>        { enum { min_exp = -308, max_exp = +308 }; };
 
-      #define register_unsigned_type_tag(T)\
+      #define strtk_register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
       template<> struct supported_conversion_from_type<T> { typedef unsigned_type_tag type; };
 
-      #define register_signed_type_tag(T)\
+      #define strtk_register_signed_type_tag(T)\
       template<> struct supported_conversion_to_type<T>{ typedef signed_type_tag type; };\
       template<> struct supported_conversion_from_type<T> { typedef signed_type_tag type; };
 
-      #define register_real_type_tag(T)\
+      #define strtk_register_real_type_tag(T)\
       template<> struct supported_conversion_to_type<T>{ typedef real_type_tag type; };
 
-      #define register_byte_type_tag(T)\
+      #define strtk_register_byte_type_tag(T)\
       template<> struct supported_conversion_to_type<T>{ typedef byte_type_tag type; };\
       template<> struct supported_conversion_from_type<T> { typedef byte_type_tag type; };
 
-      #define register_hex_type_tag(T)\
+      #define strtk_register_hex_type_tag(T)\
       template<> struct supported_conversion_to_type<T>{ typedef hex_type_tag type; };
 
-      #define register_base64_type_tag(T)\
+      #define strtk_register_base64_type_tag(T)\
       template<> struct supported_conversion_to_type<T>{ typedef base64_type_tag type; };
 
-      #define register_supported_iterator_type(T)\
+      #define strtk_register_supported_iterator_type(T)\
       template<> struct supported_iterator_type<T> { enum { value = true }; };
 
       template<> struct supported_conversion_to_type<bool> { typedef bool_type_tag type; };
@@ -8673,73 +8673,73 @@ namespace strtk
       template<> struct supported_conversion_to_type<std::string> { typedef stdstring_type_tag type; };
       template<> struct supported_iterator_type<std::string> { enum { value = true }; };
 
-      #define register_stdstring_range_type_tag(T)\
+      #define strtk_register_stdstring_range_type_tag(T)\
       template<> struct supported_conversion_to_type< std::pair<T,T> >{ typedef stdstring_range_type_tag type; };
 
-      #define register_sequence_iterator_type(sequence)\
-      register_supported_iterator_type(sequence<char>::iterator)\
-      register_supported_iterator_type(sequence<char>::const_iterator)\
-      register_supported_iterator_type(sequence<unsigned char>::iterator)\
-      register_supported_iterator_type(sequence<unsigned char>::const_iterator)
+      #define strtk_register_sequence_iterator_type(sequence)\
+      strtk_register_supported_iterator_type(sequence<char>::iterator)\
+      strtk_register_supported_iterator_type(sequence<char>::const_iterator)\
+      strtk_register_supported_iterator_type(sequence<unsigned char>::iterator)\
+      strtk_register_supported_iterator_type(sequence<unsigned char>::const_iterator)
 
-      register_unsigned_type_tag(unsigned short)
-      register_unsigned_type_tag(unsigned int)
-      register_unsigned_type_tag(unsigned long)
-      register_unsigned_type_tag(unsigned long long)
+      strtk_register_unsigned_type_tag(unsigned short)
+      strtk_register_unsigned_type_tag(unsigned int)
+      strtk_register_unsigned_type_tag(unsigned long)
+      strtk_register_unsigned_type_tag(unsigned long long)
 
-      register_signed_type_tag(short)
-      register_signed_type_tag(int)
-      register_signed_type_tag(long)
-      register_signed_type_tag(long long)
+      strtk_register_signed_type_tag(short)
+      strtk_register_signed_type_tag(int)
+      strtk_register_signed_type_tag(long)
+      strtk_register_signed_type_tag(long long)
 
-      register_real_type_tag(float)
-      register_real_type_tag(double)
-      register_real_type_tag(long double)
+      strtk_register_real_type_tag(float)
+      strtk_register_real_type_tag(double)
+      strtk_register_real_type_tag(long double)
 
-      register_byte_type_tag(unsigned char)
-      register_byte_type_tag(signed char)
-      register_byte_type_tag(char)
+      strtk_register_byte_type_tag(unsigned char)
+      strtk_register_byte_type_tag(signed char)
+      strtk_register_byte_type_tag(char)
 
-      register_hex_type_tag(hex_to_number_sink<short>)
-      register_hex_type_tag(hex_to_number_sink<int>)
-      register_hex_type_tag(hex_to_number_sink<long>)
-      register_hex_type_tag(hex_to_number_sink<unsigned short>)
-      register_hex_type_tag(hex_to_number_sink<unsigned int>)
-      register_hex_type_tag(hex_to_number_sink<unsigned long>)
-      register_hex_type_tag(hex_to_number_sink<unsigned long long>)
+      strtk_register_hex_type_tag(hex_to_number_sink<short>)
+      strtk_register_hex_type_tag(hex_to_number_sink<int>)
+      strtk_register_hex_type_tag(hex_to_number_sink<long>)
+      strtk_register_hex_type_tag(hex_to_number_sink<unsigned short>)
+      strtk_register_hex_type_tag(hex_to_number_sink<unsigned int>)
+      strtk_register_hex_type_tag(hex_to_number_sink<unsigned long>)
+      strtk_register_hex_type_tag(hex_to_number_sink<unsigned long long>)
 
-      register_base64_type_tag(base64_to_number_sink<short>)
-      register_base64_type_tag(base64_to_number_sink<int>)
-      register_base64_type_tag(base64_to_number_sink<long>)
-      register_base64_type_tag(base64_to_number_sink<unsigned short>)
-      register_base64_type_tag(base64_to_number_sink<unsigned int>)
-      register_base64_type_tag(base64_to_number_sink<unsigned long>)
-      register_base64_type_tag(base64_to_number_sink<unsigned long long>)
+      strtk_register_base64_type_tag(base64_to_number_sink<short>)
+      strtk_register_base64_type_tag(base64_to_number_sink<int>)
+      strtk_register_base64_type_tag(base64_to_number_sink<long>)
+      strtk_register_base64_type_tag(base64_to_number_sink<unsigned short>)
+      strtk_register_base64_type_tag(base64_to_number_sink<unsigned int>)
+      strtk_register_base64_type_tag(base64_to_number_sink<unsigned long>)
+      strtk_register_base64_type_tag(base64_to_number_sink<unsigned long long>)
 
-      register_stdstring_range_type_tag(std::string::iterator)
-      register_stdstring_range_type_tag(std::string::const_iterator)
-      register_stdstring_range_type_tag(char*)
-      register_stdstring_range_type_tag(signed char*)
-      register_stdstring_range_type_tag(unsigned char*)
-      register_stdstring_range_type_tag(const char*)
-      register_stdstring_range_type_tag(const unsigned char*)
+      strtk_register_stdstring_range_type_tag(std::string::iterator)
+      strtk_register_stdstring_range_type_tag(std::string::const_iterator)
+      strtk_register_stdstring_range_type_tag(char*)
+      strtk_register_stdstring_range_type_tag(signed char*)
+      strtk_register_stdstring_range_type_tag(unsigned char*)
+      strtk_register_stdstring_range_type_tag(const char*)
+      strtk_register_stdstring_range_type_tag(const unsigned char*)
 
-      register_supported_iterator_type(char*)
-      register_supported_iterator_type(signed char*)
-      register_supported_iterator_type(unsigned char*)
-      register_supported_iterator_type(const char*)
-      register_supported_iterator_type(const signed char*)
-      register_supported_iterator_type(const unsigned char*)
-      register_supported_iterator_type(std::string::iterator)
-      register_supported_iterator_type(std::string::const_iterator)
+      strtk_register_supported_iterator_type(char*)
+      strtk_register_supported_iterator_type(signed char*)
+      strtk_register_supported_iterator_type(unsigned char*)
+      strtk_register_supported_iterator_type(const char*)
+      strtk_register_supported_iterator_type(const signed char*)
+      strtk_register_supported_iterator_type(const unsigned char*)
+      strtk_register_supported_iterator_type(std::string::iterator)
+      strtk_register_supported_iterator_type(std::string::const_iterator)
 
-      register_sequence_iterator_type(std::vector)
-      register_sequence_iterator_type(std::deque)
+      strtk_register_sequence_iterator_type(std::vector)
+      strtk_register_sequence_iterator_type(std::deque)
 
       template<typename Iterator, typename T, typename Tag>
       inline bool string_to_type_converter_impl(Iterator& begin, const Iterator end, T& t, not_supported_type_tag)
       {
-         #ifdef ENABLE_LEXICAL_CAST
+         #ifdef strtk_enable_lexical_cast
             try
             {
                t = boost::lexical_cast<T>(std::string(begin,end));
@@ -8813,6 +8813,7 @@ namespace strtk
                   else
                      return false;
                }
+
                if (tmp > t) return false;
             }
          }
@@ -8877,6 +8878,7 @@ namespace strtk
                   else
                      return false;
                }
+
                if (tmp > t) return false;
             }
          }
@@ -8911,11 +8913,13 @@ namespace strtk
          while (end != itr)
          {
             const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
+
             if (is_invalid_digit(digit))
             {
                return_result = false;
                break;
             }
+
             if ((++digit_count) <= numeric<T>::bound_length)
             {
                t *= 10;
@@ -8992,6 +8996,7 @@ namespace strtk
                   ++itr;
                   --exponent;
                }
+
                if (curr != itr) instate = true;
             }
 
@@ -9277,23 +9282,23 @@ namespace strtk
       template <typename T>
       inline std::string type_name() { static const std::string s("Unknown"); return s; }
 
-      #define register_type_name(Type)\
+      #define strtk_register_type_name(Type)\
       template <> inline std::string type_name<Type>() { static const std::string s(#Type); return s; }
 
-      register_type_name(signed char)
-      register_type_name(unsigned char)
-      register_type_name(short)
-      register_type_name(int)
-      register_type_name(long)
-      register_type_name(long long)
-      register_type_name(unsigned short)
-      register_type_name(unsigned int)
-      register_type_name(unsigned long)
-      register_type_name(unsigned long long)
-      register_type_name(double)
-      register_type_name(float)
-      register_type_name(long double)
-      register_type_name(std::string)
+      strtk_register_type_name(signed char)
+      strtk_register_type_name(unsigned char)
+      strtk_register_type_name(short)
+      strtk_register_type_name(int)
+      strtk_register_type_name(long)
+      strtk_register_type_name(long long)
+      strtk_register_type_name(unsigned short)
+      strtk_register_type_name(unsigned int)
+      strtk_register_type_name(unsigned long)
+      strtk_register_type_name(unsigned long long)
+      strtk_register_type_name(double)
+      strtk_register_type_name(float)
+      strtk_register_type_name(long double)
+      strtk_register_type_name(std::string)
 
       template <typename T>
       inline std::string type_name(const T&)
@@ -9364,7 +9369,7 @@ namespace strtk
       return s;
    }
 
-   #define register_sequence_type_name(Type)\
+   #define strtk_register_sequence_type_name(Type)\
    template <typename T, typename Allocator>\
    inline std::string type_name(const Type<T,Allocator>&)\
    {\
@@ -9372,7 +9377,7 @@ namespace strtk
       return s;\
    }
 
-   #define register_set_type_name(Type)\
+   #define strtk_register_set_type_name(Type)\
    template <typename T, typename Comparator, typename Allocator>\
    inline std::string type_name(const Type<T,Comparator,Allocator>&)\
    {\
@@ -9380,10 +9385,10 @@ namespace strtk
       return s;\
    }
 
-   register_sequence_type_name(std::vector)
-   register_sequence_type_name(std::deque)
-   register_sequence_type_name(std::list)
-   register_set_type_name(std::set)
+   strtk_register_sequence_type_name(std::vector)
+   strtk_register_sequence_type_name(std::deque)
+   strtk_register_sequence_type_name(std::list)
+   strtk_register_set_type_name(std::set)
 
    template<typename T>
    inline std::size_t type_length()
@@ -10778,12 +10783,14 @@ namespace strtk
          {
             if (0 == std::distance(begin,end))
                return;
+
             key_iterator_t itr = begin;
             key_value_t key = *itr;
             node_ptr parent = 0;
             node_ptr n = head_;
             node_ptr next_node = 0;
             n = head_ = ((0 == head_) ? new node_t(*itr) : head_);
+
             while (end != itr)
             {
                key = *itr;
@@ -10795,6 +10802,7 @@ namespace strtk
                n = next_node;
                ++itr;
             }
+
             parent->assign_value(v);
          }
 
@@ -10805,9 +10813,11 @@ namespace strtk
          {
             if ((0 == head_) || (0 == std::distance(begin,end)))
                return false;
+
             key_iterator_t itr = begin;
             node_ptr parent = head_;
             node_ptr n = head_;
+
             while (end != itr)
             {
                node_ptr next_node = n->get_node(*itr);
@@ -10817,6 +10827,7 @@ namespace strtk
                n = next_node;
                ++itr;
             }
+
             if (!parent->value_holder())
                return false;
              v = parent->value();
@@ -10828,14 +10839,17 @@ namespace strtk
          {
             if ((0 == head_) || (0 == std::distance(begin,end)))
                return false;
+
             key_iterator_t itr = begin;
             node_ptr n = head_;
+
             while (end != itr)
             {
                if (0 == (n = n->get_node(*itr)))
                   return false;
                ++itr;
             }
+
             return true;
          }
 
@@ -11361,20 +11375,20 @@ namespace
       return os;
    }
 
-   #define register_pair_to_ostream(Iterator)\
+   #define strtk_register_pair_to_ostream(Iterator)\
    inline std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
    { os<<std::string(range.first,range.second); return os; }\
    inline std::ostream& operator<<(std::ostream& os, std::pair<Iterator,Iterator>& range)\
    { os<<std::string(range.first,range.second); return os; }\
 
-   register_pair_to_ostream(char*)
-   register_pair_to_ostream(unsigned char*)
-   register_pair_to_ostream(const char*)
-   register_pair_to_ostream(const unsigned char*)
-   register_pair_to_ostream(std::string::iterator)
-   register_pair_to_ostream(std::string::const_iterator)
-   register_pair_to_ostream(const std::string::iterator)
-   register_pair_to_ostream(const std::string::const_iterator)
+   strtk_register_pair_to_ostream(char*)
+   strtk_register_pair_to_ostream(unsigned char*)
+   strtk_register_pair_to_ostream(const char*)
+   strtk_register_pair_to_ostream(const unsigned char*)
+   strtk_register_pair_to_ostream(std::string::iterator)
+   strtk_register_pair_to_ostream(std::string::const_iterator)
+   strtk_register_pair_to_ostream(const std::string::iterator)
+   strtk_register_pair_to_ostream(const std::string::const_iterator)
 
 } // namespace anonymous
 

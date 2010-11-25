@@ -298,7 +298,7 @@ void split_example05()
 
 void split_regex_example()
 {
-   #ifdef ENABLE_REGEX
+   #ifdef strtk_enable_regex
    std::string s = "(12)(345)(6789)(0ijkx)(yz)";
    std::list<std::string> token_list;
    strtk::split_regex("\\(.*?\\)",
@@ -358,7 +358,7 @@ void split_n_example03()
 
 void split_regex_n_example()
 {
-   #ifdef ENABLE_REGEX
+   #ifdef strtk_enable_regex
    std::string s = "(token1)(token2)(token3)(token4)(token5)";
    std::list<std::string> token_list;
    const std::size_t token_count = 4;
@@ -638,7 +638,7 @@ void remove_leading_example()
 
 void uri_extractor_example01()
 {
-   #ifdef ENABLE_REGEX
+   #ifdef strtk_enable_regex
    std::string text = "someone@somewhere.com http://www.test.net some.place.com any.one@any.where.com ftp://123.abcxyz.org";
    std::list<std::string> email_list;
    std::list<std::string> url_list;
@@ -651,7 +651,7 @@ void uri_extractor_example01()
 
 void generate_random_example01()
 {
-   #ifdef ENABLE_RANDOM
+   #ifdef strtk_enable_random
    const std::size_t data_size = 10;
    unsigned char* data = new unsigned char[data_size];
    strtk::generate_random_data(data,data_size,1000000);
@@ -666,7 +666,7 @@ void generate_random_example01()
 
 void generate_random_example02()
 {
-   #ifdef ENABLE_RANDOM
+   #ifdef strtk_enable_random
    std::deque<int> rnd_int_list;
    strtk::generate_random_values<int>(5,-5,+5,rnd_int_list);
 
@@ -688,7 +688,7 @@ void generate_random_example02()
 
 void random_permutation_example()
 {
-   #ifdef ENABLE_RANDOM
+   #ifdef strtk_enable_random
    std::vector<std::size_t> lst;
    for (std::size_t i = 0; i < 10; lst.push_back(i++)) ;
 
@@ -711,7 +711,7 @@ void random_permutation_example()
 
 void random_combination_example()
 {
-   #ifdef ENABLE_RANDOM
+   #ifdef strtk_enable_random
 
    std::size_t seed[] = {
                            0x390E348F, 0x2884D0F5, 0x18AEB587, 0x31F9038C, 0x2AB63848,
