@@ -46,7 +46,7 @@ bool test_tokenizer_split(const Predicate& p,
                           const bool compressed_delimiters = false)
 {
    std::string result;
-   std::vector< std::pair<std::string::const_iterator , std::string::const_iterator> > tok_list;
+   std::vector< std::pair<std::string::const_iterator,std::string::const_iterator> > tok_list;
    strtk::split(p,
                 s,
                 std::back_inserter(tok_list),
@@ -915,71 +915,84 @@ bool test_construct_and_parse()
    strtk::construct(output,"|",i.d1,i.d2,i.d3,i.d4,i.d5,i.d6,i.d7,i.d8,i.d9,i.d10);
    data_block o = i;
 
+
+   bool result = true;
+
    o.clear(1);
-   if (!strtk::parse(output,"|",o.d1) || (o != i))
+   result = strtk::parse(output,"|",o.d1);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 1" << std::endl;
       return false;
    }
 
    o.clear(2);
-   if (!strtk::parse(output,"|",o.d1,o.d2) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 2" << std::endl;
       return false;
    }
 
    o.clear(3);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 3" << std::endl;
       return false;
    }
 
    o.clear(4);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 4" << std::endl;
       return false;
    }
 
    o.clear(5);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 5" << std::endl;
       return false;
    }
 
    o.clear(6);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 6" << std::endl;
       return false;
    }
 
    o.clear(7);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 7" << std::endl;
       return false;
    }
 
    o.clear(8);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 8" << std::endl;
       return false;
    }
 
    o.clear(9);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8,o.d9) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8,o.d9);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 9" << std::endl;
       return false;
    }
 
    o.clear(10);
-   if (!strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8,o.d9,o.d10) || (o != i))
+   result = strtk::parse(output,"|",o.d1,o.d2,o.d3,o.d4,o.d5,o.d6,o.d7,o.d8,o.d9,o.d10);
+   if (!result || (o != i))
    {
       std::cout << "test_construct_and_parse() - parse fail 10" << std::endl;
       return false;
@@ -1368,6 +1381,9 @@ bool test_replace_pattern()
                                    sp_type( "ijk" , "mno")
                                  };
 
+   static const std::size_t test_size = sizeof(test) / sizeof(sp_type);
+
+
    static const std::string base[] = {
                                        "",
                                        "abcabcabcabcabc",
@@ -1378,10 +1394,13 @@ bool test_replace_pattern()
                                        "xyzxyzxyzxyzxyzxyzxyzxyz"
                                        "abc"
                                      };
+
+   static const std::size_t base_size = sizeof(base) / sizeof(std::string);
+
    std::string result;
-   for (std::size_t i = 0; i < sizeof(test) / sizeof(sp_type); ++i)
+   for (std::size_t i = 0; i < test_size; ++i)
    {
-      for (std::size_t j = 0; j < sizeof(base) / sizeof(std::string); ++j)
+      for (std::size_t j = 0; j < base_size; ++j)
       {
          strtk::replace_pattern(base[j],test[i].first,test[i].second,result);
          if (test[i].first != test[i].second)

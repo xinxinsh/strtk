@@ -33,9 +33,9 @@ Code repository:
 (2)  If  the Boost  libraries  (random, regex,  lexical_cast)  are not
 available  the  following  defines   should  be  commented  out   from
 strtk.hpp:
-   (*) ENABLE_LEXICAL_CAST (strtk.hpp:44)
-   (*) ENABLE_RANDOM (strtk.hpp:49)
-   (*) ENABLE_REGEX (strtk.hpp:56)
+   (*) strtk_enable_lexical_cast (strtk.hpp:44)
+   (*) strtk_enable_random (strtk.hpp:45)
+   (*) strtk_enable_regex (strtk.hpp:46)
 
 (3) It is advisable to have either Boost installed or a TR1  compliant
 C++ standard library. Installation of Boost on:

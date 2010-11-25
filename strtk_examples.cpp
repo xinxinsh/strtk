@@ -31,6 +31,10 @@
 
 #include "strtk.hpp"
 
+void information()
+{
+   std::cout << strtk::information::data << std::endl;
+}
 
 void tokenizer_example01()
 {
