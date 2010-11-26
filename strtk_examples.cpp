@@ -33,7 +33,7 @@
 
 void information()
 {
-   std::cout << strtk::information::data << std::endl;
+   std::cout << strtk::information::data() << std::endl;
 }
 
 void tokenizer_example01()
@@ -1266,6 +1266,7 @@ void ext_string_example()
 
 int main()
 {
+   information();
    tokenizer_example01();
    tokenizer_example02();
    tokenizer_example03();
