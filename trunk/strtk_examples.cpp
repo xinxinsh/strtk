@@ -1003,6 +1003,28 @@ void cut_example()
    std::cout << strtk::join("\n",cut_str_list) << std::endl;
 }
 
+void exract_unique_example()
+{
+   {
+      std::string s = "abcabcabcabcabcabcabc";
+      std::string unique;
+      strtk::extract_unique(s.begin(),s.end(),std::back_inserter(unique));
+      std::cout << s << "\tunique: " << unique << std::endl;
+   }
+
+   {
+      std::vector<int> int_vec;
+      std::deque<int> int_deq;
+
+      int_vec.push_back(1); int_vec.push_back(2); int_vec.push_back(3);
+      int_vec.push_back(1); int_vec.push_back(2); int_vec.push_back(3);
+      int_vec.push_back(1); int_vec.push_back(2); int_vec.push_back(3);
+
+      strtk::extract_unique(int_vec.begin(),int_vec.end(),std::back_inserter(int_deq));
+      std::cout << strtk::join(" ",int_vec) << "\tunique: " << strtk::join(" ",int_deq) << std::endl;
+   }
+}
+
 void func(const char* s)
 {
    std::cout << s << std::endl;
@@ -1320,6 +1342,7 @@ int main()
    iota_example();
    bracketize_example();
    cut_example();
+   exract_unique_example();
    build_string_example();
    make_key_lists();
    make_value_lists();

@@ -585,7 +585,9 @@ namespace strtk
         return write_to_text_file(stream,set,delimiter);
    }
 
-   template<typename Predicate, typename InputIterator, typename OutputIterator>
+   template<typename Predicate,
+            typename InputIterator,
+            typename OutputIterator>
    inline void copy_if(Predicate predicate,
                        const InputIterator begin, const InputIterator end,
                        OutputIterator out)
@@ -601,7 +603,9 @@ namespace strtk
       }
    }
 
-   template<typename Predicate, typename InputIterator, typename OutputIterator>
+   template<typename Predicate,
+            typename InputIterator,
+            typename OutputIterator>
    inline InputIterator copy_while(Predicate predicate,
                                    const InputIterator begin, const InputIterator end,
                                    OutputIterator out)
@@ -616,7 +620,9 @@ namespace strtk
       return end;
    }
 
-   template<typename Predicate, typename InputIterator, typename OutputIterator>
+   template<typename Predicate,
+            typename InputIterator,
+            typename OutputIterator>
    inline InputIterator copy_until(Predicate predicate,
                                    const InputIterator begin, const InputIterator end,
                                    OutputIterator out)
@@ -628,7 +634,18 @@ namespace strtk
             return itr;
          *(out++) = *(itr++);
       }
+
       return end;
+   }
+
+   template<typename InputIterator, typename OutputIterator>
+   inline void extract_unique(const InputIterator begin, const InputIterator end,
+                              OutputIterator out)
+   {
+      typedef typename std::iterator_traits<InputIterator>::value_type T;
+      std::vector<T> buffer(begin,end);
+      std::sort(buffer.begin(),buffer.end());
+      std::unique_copy(buffer.begin(),buffer.end(),out);
    }
 
    template<typename Predicate, typename InputIterator>
@@ -734,7 +751,8 @@ namespace strtk
       }
 
    private:
-     single_delimiter_predicate<T> operator=(const single_delimiter_predicate<T>&);
+
+      single_delimiter_predicate<T> operator=(const single_delimiter_predicate<T>&);
 
       const T delimiter_;
    };
@@ -927,6 +945,7 @@ namespace strtk
             {
                *itr2 = *itr1;
             }
+
             prev = *itr1;
             ++itr1;
             ++itr2;
@@ -9935,7 +9954,7 @@ namespace strtk
          template<typename T>
          inline bool read_pod_proxy(std::ifstream& stream, T& t)
          {
-            return (false != stream.read(reinterpret_cast<char*>(&t),
+            return (false == stream.read(reinterpret_cast<char*>(&t),
                                          static_cast<std::streamsize>(sizeof(T))).fail());
          }
       }
@@ -11348,8 +11367,7 @@ namespace strtk
       template<typename Key,
                typename T,
                typename Comparator,
-               typename Allocator,
-               template<typename,typename, typename, typename> class Container>
+               typename Allocator>
       inline void delete_all(const std::map<Key,T*,Comparator,Allocator>& cont)
       {
          typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
@@ -11364,8 +11382,7 @@ namespace strtk
 
       template<typename T,
                typename Comparator,
-               typename Allocator,
-               template<typename,typename, typename, typename> class Container>
+               typename Allocator>
       inline void delete_all(const std::set<T*,Comparator,Allocator>& cont)
       {
          typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
@@ -11402,8 +11419,7 @@ namespace strtk
                typename Key,
                typename T,
                typename Comparator,
-               typename Allocator,
-               template<typename,typename, typename, typename> class Container>
+               typename Allocator>
       inline void delete_if(const Predicate& p,
                             const std::map<Key,T*,Comparator,Allocator>& cont)
       {
@@ -11423,8 +11439,7 @@ namespace strtk
       template<typename Predicate,
                typename T,
                typename Comparator,
-               typename Allocator,
-               template<typename,typename, typename, typename> class Container>
+               typename Allocator>
       inline void delete_if(const Predicate& p,
                             const std::set<T*,Comparator,Allocator>& cont)
       {
