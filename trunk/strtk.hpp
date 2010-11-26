@@ -10067,13 +10067,13 @@ namespace strtk
       template<typename T>
       inline bool read_pod(std::ifstream& stream, T& t)
       {
-         return read_pod_proxy(stream,t1);
+         return read_pod_proxy(stream,t);
       }
 
       template<typename T, std::size_t N>
       inline bool read_pod(std::ifstream& stream, T (&t)[N])
       {
-         stream.read(reinterpret_cast<char*>(&t[0]),sizeof(T) * N);
+         return (false != stream.read(reinterpret_cast<char*>(&t[0]),sizeof(T) * N).fail());
       }
 
       template<typename T,
