@@ -1711,7 +1711,7 @@ namespace strtk
             if (last_token_done_)
             {
                range_.first = range_.second;
-               return *this;
+               return (*this);
             }
             else if (end_ != range_.second)
             {
@@ -1740,7 +1740,7 @@ namespace strtk
                     else
                        ++range_.second;
                  }
-                 return *this;
+                 return (*this);
               }
               else
                  ++range_.second;
@@ -1761,12 +1761,12 @@ namespace strtk
                   range_.first = range_.second;
             }
 
-            return *this;
+            return (*this);
          }
 
          inline tokenizer_iterator operator++(int)
          {
-            tokenizer_iterator tmp = *this;
+            tokenizer_iterator tmp = (*this);
             this->operator++();
             return tmp;
          }
@@ -1777,7 +1777,7 @@ namespace strtk
             {
                for (int i = 0; i < inc; ++i, ++(*this)) ;
             }
-            return *this;
+            return (*this);
          }
 
          inline T operator*() const
@@ -1812,7 +1812,7 @@ namespace strtk
                include_all_delimiters_ = itr.include_all_delimiters_;
                include_delimiters_     = itr.include_delimiters_;
             }
-            return *this;
+            return (*this);
          }
 
          inline std::string remaining() const
@@ -1875,7 +1875,7 @@ namespace strtk
             begin_itr_        = t.begin_itr_;
             tokenize_options_ = t.tokenize_options_;
          }
-         return *this;
+         return (*this);
       }
 
       inline void assign(const std::string& s) const
@@ -1960,7 +1960,7 @@ namespace strtk
          {
             this->sequence_ = it.sequence_;
          }
-         return *this;
+         return (*this);
       }
 
       template<typename Iterator>
@@ -2045,7 +2045,7 @@ namespace strtk
          {
             this->set_ = it.set_;
          }
-         return *this;
+         return (*this);
       }
 
       template<typename Iterator>
@@ -2116,7 +2116,7 @@ namespace strtk
          {
             this->container_ = it.container_;
          }
-         return *this;
+         return (*this);
       }
 
       template<typename Iterator>
@@ -2185,7 +2185,7 @@ namespace strtk
          {
             this->sequence_ = it.sequence_;
          }
-         return *this;
+         return (*this);
       }
 
       inline back_inserter_with_valuetype_iterator& operator=(const typename Sequence::value_type& v)
@@ -2248,7 +2248,7 @@ namespace strtk
          {
             this->set_ = itr.set_;
          }
-         return *this;
+         return (*this);
       }
 
       inline inserter_with_valuetype_iterator& operator=(const typename Set::value_type& v)
@@ -2306,28 +2306,28 @@ namespace strtk
          {
             this->container_ = itr.container_;
          }
-         return *this;
+         return (*this);
       }
 
       inline push_inserter_iterator<Container>& operator=(typename Container::const_reference v)
       {
          container_.push(v);
-         return *this;
+         return (*this);
       }
 
       inline push_inserter_iterator<Container>& operator*()
       {
-         return *this;
+         return (*this);
       }
 
       inline push_inserter_iterator<Container>& operator++()
       {
-         return *this;
+         return (*this);
       }
 
       inline push_inserter_iterator<Container> operator++(int)
       {
-         return *this;
+         return (*this);
       }
 
    private:
@@ -2363,7 +2363,7 @@ namespace strtk
          {
             this->counter_ = it.counter_;
          }
-         return *this;
+         return (*this);
       }
 
       inline counting_back_inserter_iterator& operator=(const T&)
@@ -2426,7 +2426,7 @@ namespace strtk
          {
             this->function_ = it.function_;
          }
-         return *this;
+         return (*this);
       }
 
       template<typename T>
@@ -3861,13 +3861,16 @@ namespace strtk
       {
          return std::numeric_limits<std::size_t>::max();
       }
+
       std::size_t distance = 0;
       const unsigned char* itr1 = begin1;
       const unsigned char* itr2 = begin2;
+
       while (end1 != itr1)
       {
          distance += high_bit_count(static_cast<unsigned char>(((*itr1++) ^ (*itr2++)) & 0xFF));
       }
+
       return distance;
    }
 
@@ -3894,14 +3897,17 @@ namespace strtk
       {
          return std::numeric_limits<std::size_t>::max();
       }
+
       std::size_t distance = 0;
       Iterator itr1 = begin1;
       Iterator itr2 = begin2;
+
       while (end1 != itr1)
       {
          if (*itr1 != *itr2)
             ++distance;
       }
+
       return distance;
    }
 
@@ -4349,7 +4355,7 @@ namespace strtk
             itr_list_type::const_iterator end = token_list_->end();
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                *(out++) = string_to_type_converter<T>(range.first,range.second);
                ++itr;
             }
@@ -4365,7 +4371,7 @@ namespace strtk
             T t;
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                if (!string_to_type_converter(range.first,range.second,t))
                   return false;
                else
@@ -4385,7 +4391,7 @@ namespace strtk
             T t;
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                if (!string_to_type_converter(range.first,range.second,t))
                   return false;
                else
@@ -4403,7 +4409,7 @@ namespace strtk
             T t;
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                if (!string_to_type_converter(range.first,range.second,t))
                   return false;
                else
@@ -4421,7 +4427,7 @@ namespace strtk
             T t;
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                if (!string_to_type_converter(range.first,range.second,t))
                   return false;
                else
@@ -4441,7 +4447,7 @@ namespace strtk
             T t;
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                if (!string_to_type_converter(range.first,range.second,t))
                   return false;
                else
@@ -4463,7 +4469,7 @@ namespace strtk
             itr_list_type::const_iterator end = token_list_->end();
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                if (!string_to_type_converter(range.first,range.second,t))
                   return false;
                else
@@ -4483,7 +4489,7 @@ namespace strtk
             itr_list_type::const_iterator end = token_list_->end();
             while (end != itr)
             {
-               const itr_list_type::value_type& range = *itr;
+               const itr_list_type::value_type& range = (*itr);
                if (string_to_type_converter(range.first,range.second,value))
                {
                   *(out++) = value;
@@ -4709,12 +4715,16 @@ namespace strtk
       {
          if (index > max_column_count_)
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
          while (end != itr)
          {
             if (index < (*itr).size())
@@ -4759,12 +4769,16 @@ namespace strtk
       {
          if (index > max_column_count_)
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
          while (end != itr)
          {
             process_column((*itr++)[index],out);
@@ -4789,12 +4803,16 @@ namespace strtk
          if ((index1 > max_column_count_) ||
              (index2 > max_column_count_))
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
          while (end != itr)
          {
             process_column((*itr)[index1],out1);
@@ -4817,12 +4835,16 @@ namespace strtk
              (index2 > max_column_count_) ||
              (index3 > max_column_count_))
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
          while (end != itr)
          {
             process_column((*itr)[index1],out1);
@@ -4850,12 +4872,16 @@ namespace strtk
              (index3 > max_column_count_) ||
              (index4 > max_column_count_))
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
          while (end != itr)
          {
             process_column((*itr)[index1],out1);
@@ -4888,12 +4914,16 @@ namespace strtk
              (index4 > max_column_count_) ||
              (index5 > max_column_count_))
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
          while (end != itr)
          {
             process_column((*itr)[index1],out1);
@@ -4916,10 +4946,13 @@ namespace strtk
       {
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
          while (end != itr)
          {
             if (!itr->empty() && predicate(itr->front().first,itr->back().second))
@@ -4936,6 +4969,40 @@ namespace strtk
       inline void remove_row_if(Predicate predicate)
       {
          return remove_row_if(all_rows(),predicate);
+      }
+
+      inline void remove_empty_tokens(const row_range_type& range)
+      {
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return;
+
+         if (range.first > range.second)
+            return;
+
+         itr_list_list_type::iterator itr = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
+         while (end != itr)
+         {
+            itr_list_type::iterator row_itr = (*itr).begin();
+            itr_list_type::const_iterator row_end = (*itr).end();
+
+            while(row_end != row_itr)
+            {
+               if (0 == std::distance(row_itr->first,row_itr->second))
+               {
+                  row_itr = (*itr).erase(row_itr);
+               }
+               else
+                  ++row_itr;
+            }
+            ++itr;
+         }
+      }
+
+      inline void remove_empty_tokens()
+      {
+         remove_empty_tokens(all_rows());
       }
 
       inline void enforce_column_count(const std::size_t& column_count)
@@ -5015,13 +5082,17 @@ namespace strtk
       {
          if (col > max_column_count_)
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          T current_value = T();
+
          while (end != itr)
          {
             if (!(*itr).empty())
@@ -5050,13 +5121,17 @@ namespace strtk
       {
          if (col > max_column_count_)
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          T current_value = T();
+
          while (end != itr)
          {
             if (!(*itr).empty() && p(row_type(*itr)))
@@ -5068,6 +5143,7 @@ namespace strtk
             }
             ++itr;
          }
+
          return true;
       }
 
@@ -5112,14 +5188,18 @@ namespace strtk
       {
          if (col > max_column_count_)
             return false;
+
          if ((row_range.first > token_list_.size()) || (row_range.second > token_list_.size()))
             return false;
+
          if (row_range.first > row_range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + row_range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + row_range.second;
          range_type range;
          bool appended = false;
+
          while (end != itr)
          {
             if (!delimiter.empty() && appended)
@@ -5136,6 +5216,7 @@ namespace strtk
             }
             ++itr;
          }
+
          return true;
       }
 
@@ -5155,13 +5236,17 @@ namespace strtk
       {
          if (col > max_column_count_)
             return false;
+
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first > range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          bool appended = false;
+
          while (end != itr)
          {
             if (!delimiter.empty() && appended)
@@ -5178,6 +5263,7 @@ namespace strtk
             }
             ++itr;
          }
+
          return true;
       }
 
@@ -5198,10 +5284,13 @@ namespace strtk
 
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
             return false;
+
          if (range.first >= range.second)
             return false;
+
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          row_range_type r(range.first,range.first);
+
          for (std::size_t i = range.first; i < range.second; ++i, ++itr)
          {
             if (p(row_type(*itr)))
@@ -5274,6 +5363,7 @@ namespace strtk
                      itr->second,
                      std::back_inserter(current_token_list),
                      options_.split_column_option);
+
                if (!current_token_list.empty())
                {
                   token_list_.push_back(current_token_list);
@@ -5292,14 +5382,18 @@ namespace strtk
          std::ifstream stream(file_name_.c_str(),std::ios::binary);
          if (!stream)
             return false;
+
          stream.seekg (0,std::ios::end);
          buffer_size_ = static_cast<std::size_t>(stream.tellg());
          if (0 == buffer_size_)
             return false;
+
          stream.seekg (0,std::ios::beg);
+
          buffer_ = new unsigned char[buffer_size_];
          stream.read(reinterpret_cast<char*>(buffer_),static_cast<std::streamsize>(buffer_size_));
          stream.close(); // scope should handle this.
+
          return true;
       }
 
@@ -5436,6 +5530,7 @@ namespace strtk
                return;
             }
          }
+
          if (!allow_through_on_match_)
          {
             predicate_(range);
@@ -6968,7 +7063,7 @@ namespace strtk
       inline build_string& operator << (const T& t)
       {
          data_ += type_to_string(t);
-         return *this;
+         return (*this);
       }
 
       inline operator std::string () const
@@ -7714,7 +7809,7 @@ namespace strtk
                begin_ = middle_ = end_;
             }
          }
-         return *this;
+         return (*this);
       }
 
       inline combination_iterator operator++(int)
@@ -7730,7 +7825,7 @@ namespace strtk
          {
             for (int i = 0; i < inc; ++i, ++(*this)) ;
          }
-         return *this;
+         return (*this);
       }
 
       inline range_type operator*() const
@@ -8296,7 +8391,7 @@ namespace strtk
       {
          valid_ = hns.valid_;
          t_ = hns.t_;
-         return *this;
+         return (*this);
       }
 
       template<typename InputIterator>
@@ -8307,7 +8402,7 @@ namespace strtk
          if ((size > 2) && ((*s.first) == '0') && (((*s.first + 1) == 'x') || ((*s.first + 1) == 'X')))
             offset = 2;
          if ((size - offset) > (2 * sizeof(T)))
-               return *this;
+               return (*this);
 
          const std::size_t buffer_size = 2 * sizeof(T);
          const std::size_t buffer_offset = ((size - offset) % 2);
@@ -8315,7 +8410,7 @@ namespace strtk
          if (!range_only_contains(hex_value_check(),s.first + offset,s.first + size))
          {
             valid_ = false;
-            return *this;
+            return (*this);
          }
 
          std::copy(s.first + offset, s.first + size, buffer + buffer_offset);
@@ -8324,7 +8419,7 @@ namespace strtk
                                     buffer + (size - offset) + buffer_offset,
                                     reinterpret_cast<char*>(t_));
          reverse_bytes();
-         return *this;
+         return (*this);
       }
 
       inline hex_to_number_sink& operator=(const std::string& s)
@@ -8399,7 +8494,7 @@ namespace strtk
       {
          valid_ = bns.valid_;
          t_ = bns.t_;
-         return *this;
+         return (*this);
       }
 
       inline base64_to_number_sink& operator=(const std::string& s)
@@ -8407,13 +8502,13 @@ namespace strtk
          if (!range_only_contains(base64_value_check(),s.c_str(),s.c_str() + s.size()))
          {
             valid_ = false;
-            return *this;
+            return (*this);
          }
 
          *t_ = T(0);
          convert_base64_to_bin(s.c_str(), s.c_str() + s.size(),reinterpret_cast<char*>(t_));
          reverse_bytes();
-         return *this;
+         return (*this);
       }
 
       template<typename InputIterator>
@@ -8422,13 +8517,13 @@ namespace strtk
          if (!range_only_contains(base64_value_check(),s.first,s.second))
          {
             valid_ = false;
-            return *this;
+            return (*this);
          }
 
          *t_ = T(0);
          convert_base64_to_bin(s.first, s.second,reinterpret_cast<char*>(t_));
          reverse_bytes();
-         return *this;
+         return (*this);
       }
 
       inline bool valid() const
@@ -9521,7 +9616,7 @@ namespace strtk
       inline ext_string& operator << (const T& t)
       {
          s_ += type_to_string(t);
-         return *this;
+         return (*this);
       }
 
       inline operator std::string () const
@@ -9569,70 +9664,70 @@ namespace strtk
       inline ext_string& to_lowercase()
       {
          convert_to_lowercase(s_);
-         return *this;
+         return (*this);
       }
 
       inline ext_string& to_uppercase()
       {
          convert_to_uppercase(s_);
-         return *this;
+         return (*this);
       }
 
       template<typename Predicate>
       inline ext_string& remove_leading(const Predicate& p)
       {
-         if (s_.empty()) return *this;
+         if (s_.empty()) return (*this);
          strtk::remove_leading(p,s_);
-         return *this;
+         return (*this);
       }
 
       inline ext_string& remove_leading(const std::string& removal_set)
       {
          if (removal_set.empty())
-            return *this;
+            return (*this);
          else if (1 == removal_set.size())
             strtk::remove_leading(single_delimiter_predicate<std::string::value_type>(removal_set[0]),s_);
          else
             strtk::remove_leading(multiple_char_delimiter_predicate(removal_set),s_);
-         return *this;
+         return (*this);
       }
 
       template<typename Predicate>
       inline ext_string& remove_trailing(const Predicate& p)
       {
-         if (s_.empty()) return *this;
+         if (s_.empty()) return (*this);
          strtk::remove_trailing(p,s_);
-         return *this;
+         return (*this);
       }
 
       inline ext_string& remove_trailing(const std::string& removal_set)
       {
          if (removal_set.empty())
-            return *this;
+            return (*this);
          else if (1 == removal_set.size())
             strtk::remove_trailing(single_delimiter_predicate<std::string::value_type>(removal_set[0]),s_);
          else
             strtk::remove_trailing(multiple_char_delimiter_predicate(removal_set),s_);
-         return *this;
+         return (*this);
       }
 
       template<typename T>
       inline ext_string& operator += (const T& t)
       {
          s_.append(type_to_string(t));
-         return *this;
+         return (*this);
       }
 
       inline ext_string& operator -= (const std::string& pattern)
       {
          replace(pattern,"");
-         return *this;
+         return (*this);
       }
 
       inline ext_string& operator *= (const std::size_t& n)
       {
          strtk::replicate_inplace(n,s_);
-         return *this;
+         return (*this);
       }
 
       inline void replace(const std::string& pattern, const std::string& replace_pattern)
