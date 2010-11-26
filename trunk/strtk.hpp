@@ -4987,7 +4987,7 @@ namespace strtk
             itr_list_type::iterator row_itr = (*itr).begin();
             itr_list_type::const_iterator row_end = (*itr).end();
 
-            while(row_end != row_itr)
+            while (row_end != row_itr)
             {
                if (0 == std::distance(row_itr->first,row_itr->second))
                {
@@ -10201,7 +10201,7 @@ namespace strtk
 
          for (std::size_t i = 0; i < count; ++i)
          {
-            if(!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
+            if (!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
             {
                sequence.push_back(t);
             }
@@ -10223,7 +10223,7 @@ namespace strtk
 
          for (std::size_t i = 0; i < count; ++i)
          {
-            if(!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
+            if (!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
             {
                set.insert(t);
             }
