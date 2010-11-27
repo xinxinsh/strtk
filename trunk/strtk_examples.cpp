@@ -670,14 +670,27 @@ void parse_example07()
       strtk::deque_sink<std::string> deq_sink(",");
       strtk::list_sink<double>       lst_sink(",");
 
-      strtk::parse(data, "|",vec_sink(  int_vector).count(2),  // consume first 2 values
-                             deq_sink(string_deque).count(3),  // consume first 3 values
-                             lst_sink( double_list).count(4)); // consume first 4 values
+      strtk::parse(data,"|",vec_sink(  int_vector).count(2),  // consume first 2 values
+                            deq_sink(string_deque).count(3),  // consume first 3 values
+                            lst_sink( double_list).count(4)); // consume first 4 values
 
       std::cout << "int_vec(2): "     << strtk::join(" ",int_vector)   << std::endl;
       std::cout << "string_deq(3): "  << strtk::join(" ",string_deque) << std::endl;
       std::cout << "double_list(4): " << strtk::join(" ",double_list)  << std::endl;
    }
+}
+
+void parse_example08()
+{
+   static const std::string data = "+123,ignore0,123.456,ignore1,abcdef,ignore2";
+
+   int i;
+   double d;
+   std::string s;
+
+   strtk::ignore_token ignore;
+   strtk::parse(data,",",i,ignore,d,ignore,s);
+   std::cout << "i=" << i << " d=" << d << " s=" << s << std::endl;
 }
 
 void remove_inplace_example01()
@@ -1411,6 +1424,7 @@ int main()
    parse_example05();
    parse_example06();
    parse_example07();
+   parse_example08();
    remove_inplace_example01();
    remove_consecutives_example01();
    remove_consecutives_example02();
