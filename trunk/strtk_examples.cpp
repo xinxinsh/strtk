@@ -635,9 +635,9 @@ void parse_example07()
                              deq_sink(string_deque),
                              lst_sink(double_list));
 
-      std::cout << "int_vec: "     << strtk::join("\t",int_vector)   << std::endl;
-      std::cout << "string_deq: "  << strtk::join("\t",string_deque) << std::endl;
-      std::cout << "double_list: " << strtk::join("\t",double_list)  << std::endl;
+      std::cout << "int_vec: "     << strtk::join(" ",int_vector)   << std::endl;
+      std::cout << "string_deq: "  << strtk::join(" ",string_deque) << std::endl;
+      std::cout << "double_list: " << strtk::join(" ",double_list)  << std::endl;
    }
 
    {
@@ -658,6 +658,25 @@ void parse_example07()
                             stk_sink(double_stack),
                             prq_sink(int_priority_queue));
 
+   }
+
+   {
+      static const std::string data = "1,+2,-3,4|abc,ijk,rst,xyz|123.456,+234.567,-345.678,456.789,567.890";
+      std::vector<int> int_vector;
+      std::deque<std::string> string_deque;
+      std::list<double> double_list;
+
+      strtk::vector_sink<int>        vec_sink(",");
+      strtk::deque_sink<std::string> deq_sink(",");
+      strtk::list_sink<double>       lst_sink(",");
+
+      strtk::parse(data, "|",vec_sink(  int_vector).count(2),  // consume first 2 values
+                             deq_sink(string_deque).count(3),  // consume first 3 values
+                             lst_sink( double_list).count(4)); // consume first 4 values
+
+      std::cout << "int_vec(2): "     << strtk::join(" ",int_vector)   << std::endl;
+      std::cout << "string_deq(3): "  << strtk::join(" ",string_deque) << std::endl;
+      std::cout << "double_list(4): " << strtk::join(" ",double_list)  << std::endl;
    }
 }
 

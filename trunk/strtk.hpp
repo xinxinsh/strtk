@@ -8582,7 +8582,8 @@ namespace strtk
                          const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        sequence_(0)
+        sequence_(0),
+        element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
       inline vector_sink(std::vector<T>& sequence,
@@ -8592,6 +8593,12 @@ namespace strtk
         split_option_(split_option),
         sequence_(&sequence)
       {}
+
+      inline vector_sink& count(const std::size_t& element_count)
+      {
+         element_count_ = element_count;
+         return (*this);
+      }
 
       inline vector_sink& operator()(std::vector<T>& sequence,
                                      const std::string& delimiters = "",
@@ -8608,8 +8615,14 @@ namespace strtk
       inline bool parse(InputIterator begin, InputIterator end)
       {
          if (sequence_)
-            return (strtk::parse<InputIterator,
-                                 T, typename std::vector<T>::allocator_type>(begin,end,delimiters_,(*sequence_),split_option_) > 0);
+         {
+            if (std::numeric_limits<std::size_t>::max() == element_count_)
+               return (strtk::parse<InputIterator,T,typename std::vector<T>::allocator_type>
+                         (begin,end,delimiters_,(*sequence_),split_option_) > 0);
+            else
+               return (strtk::parse_n<InputIterator,T,typename std::vector<T>::allocator_type>
+                         (begin,end,delimiters_,element_count_,(*sequence_),split_option_) == element_count_);
+         }
          else
             return false;
       }
@@ -8619,6 +8632,7 @@ namespace strtk
       std::string delimiters_;
       split_options::type split_option_;
       std::vector<T>* sequence_;
+      std::size_t element_count_;
    };
 
    template<typename T>
@@ -8630,7 +8644,8 @@ namespace strtk
                         const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        sequence_(0)
+        sequence_(0),
+        element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
       inline deque_sink(std::deque<T>& sequence,
@@ -8640,6 +8655,12 @@ namespace strtk
         split_option_(split_option),
         sequence_(&sequence)
       {}
+
+      inline deque_sink& count(const std::size_t& element_count)
+      {
+         element_count_ = element_count;
+         return (*this);
+      }
 
       inline deque_sink& operator()(std::deque<T>& sequence,
                                     const std::string& delimiters = "",
@@ -8656,8 +8677,14 @@ namespace strtk
       inline bool parse(InputIterator begin, InputIterator end)
       {
          if (sequence_)
-            return (strtk::parse<InputIterator,
-                                 T, typename std::deque<T>::allocator_type>(begin,end,delimiters_,(*sequence_),split_option_) > 0);
+         {
+            if (std::numeric_limits<std::size_t>::max() == element_count_)
+               return (strtk::parse<InputIterator,T,typename std::deque<T>::allocator_type>
+                         (begin,end,delimiters_,(*sequence_),split_option_) > 0);
+            else
+               return (strtk::parse_n<InputIterator,T,typename std::deque<T>::allocator_type>
+                         (begin,end,delimiters_,element_count_,(*sequence_),split_option_) == element_count_);
+         }
          else
             return false;
       }
@@ -8667,6 +8694,7 @@ namespace strtk
       std::string delimiters_;
       split_options::type split_option_;
       std::deque<T>* sequence_;
+      std::size_t element_count_;
    };
 
    template<typename T>
@@ -8678,7 +8706,8 @@ namespace strtk
                        const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        sequence_(0)
+        sequence_(0),
+        element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
       inline list_sink(std::list<T>& sequence,
@@ -8688,6 +8717,12 @@ namespace strtk
         split_option_(split_option),
         sequence_(&sequence)
       {}
+
+      inline list_sink& count(const std::size_t& element_count)
+      {
+         element_count_ = element_count;
+         return (*this);
+      }
 
       inline list_sink& operator()(std::list<T>& sequence,
                                    const std::string& delimiters = "",
@@ -8704,8 +8739,14 @@ namespace strtk
       inline bool parse(InputIterator begin, InputIterator end)
       {
          if (sequence_)
-            return (strtk::parse<InputIterator,
-                                 T, typename std::list<T>::allocator_type>(begin,end,delimiters_,(*sequence_),split_option_) > 0);
+         {
+            if (std::numeric_limits<std::size_t>::max() == element_count_)
+               return (strtk::parse<InputIterator,T,typename std::list<T>::allocator_type>
+                         (begin,end,delimiters_,(*sequence_),split_option_) > 0);
+            else
+               return (strtk::parse_n<InputIterator,T,typename std::list<T>::allocator_type>
+                         (begin,end,delimiters_,element_count_,(*sequence_),split_option_) == element_count_);
+         }
          else
             return false;
       }
@@ -8715,6 +8756,7 @@ namespace strtk
       std::string delimiters_;
       split_options::type split_option_;
       std::list<T>* sequence_;
+      std::size_t element_count_;
    };
 
    template<typename T,
@@ -8725,10 +8767,11 @@ namespace strtk
    public:
 
       inline set_sink(const std::string& delimiters,
-                       const split_options::type& split_option = split_options::compress_delimiters)
+                      const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        set_(0)
+        set_(0),
+        element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
       inline set_sink(std::set<T,Comparator,Allocator>& set,
@@ -8738,6 +8781,12 @@ namespace strtk
         split_option_(split_option),
         set_(&set)
       {}
+
+      inline set_sink& count(const std::size_t& element_count)
+      {
+         element_count_ = element_count;
+         return (*this);
+      }
 
       inline set_sink& operator()(std::set<T,Comparator,Allocator>& set,
                                   const std::string& delimiters = "",
@@ -8754,10 +8803,14 @@ namespace strtk
       inline bool parse(InputIterator begin, InputIterator end)
       {
          if (set_)
-            return (strtk::parse<InputIterator,
-                                 T,
-                                 Comparator,
-                                 Allocator>(begin,end,delimiters_,(*set_),split_option_) > 0);
+         {
+            if (std::numeric_limits<std::size_t>::max() == element_count_)
+               return (strtk::parse<InputIterator,T,Comparator,Allocator>
+                         (begin,end,delimiters_,(*set_),split_option_) > 0);
+            else
+               return (strtk::parse_n<InputIterator,T,Comparator,Allocator>
+                         (begin,end,delimiters_,element_count_,(*set_),split_option_) == element_count_);
+         }
          else
             return false;
       }
@@ -8767,6 +8820,7 @@ namespace strtk
       std::string delimiters_;
       split_options::type split_option_;
       std::set<T,Comparator,Allocator>* set_;
+      std::size_t element_count_;
    };
 
    template<typename T, typename Container = std::deque<T> >
@@ -8775,19 +8829,26 @@ namespace strtk
    public:
 
       inline queue_sink(const std::string& delimiters,
-                       const split_options::type& split_option = split_options::compress_delimiters)
+                        const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        queue_(0)
+        queue_(0),
+        element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
       inline queue_sink(std::queue<T,Container>& queue,
-                      const std::string& delimiters,
-                      const split_options::type& split_option = split_options::compress_delimiters)
+                        const std::string& delimiters,
+                        const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
         queue_(&queue)
       {}
+
+      inline queue_sink& count(const std::size_t& element_count)
+      {
+         element_count_ = element_count;
+         return (*this);
+      }
 
       inline queue_sink& operator()(std::queue<T,Container>& queue,
                                     const std::string& delimiters = "",
@@ -8804,9 +8865,14 @@ namespace strtk
       inline bool parse(InputIterator begin, InputIterator end)
       {
          if (queue_)
-            return (strtk::parse<InputIterator,
-                                 T,
-                                 Container>(begin,end,delimiters_,(*queue_),split_option_) > 0);
+         {
+            if (std::numeric_limits<std::size_t>::max() == element_count_)
+               return (strtk::parse<InputIterator,T,Container>
+                         (begin,end,delimiters_,(*queue_),split_option_) > 0);
+            else
+               return (strtk::parse_n<InputIterator,T,Container>
+                         (begin,end,delimiters_,element_count_,(*queue_),split_option_) == element_count_);
+         }
          else
             return false;
       }
@@ -8816,6 +8882,7 @@ namespace strtk
       std::string delimiters_;
       split_options::type split_option_;
       std::queue<T,Container>* queue_;
+      std::size_t element_count_;
    };
 
    template<typename T, typename Container = std::deque<T> >
@@ -8824,19 +8891,26 @@ namespace strtk
    public:
 
       inline stack_sink(const std::string& delimiters,
-                       const split_options::type& split_option = split_options::compress_delimiters)
+                        const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        stack_(0)
+        stack_(0),
+        element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
       inline stack_sink(std::stack<T,Container>& stack,
-                      const std::string& delimiters,
-                      const split_options::type& split_option = split_options::compress_delimiters)
+                        const std::string& delimiters,
+                        const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
         stack_(&stack)
       {}
+
+      inline stack_sink& count(const std::size_t& element_count)
+      {
+         element_count_ = element_count;
+         return (*this);
+      }
 
       inline stack_sink& operator()(std::stack<T,Container>& stack,
                                     const std::string& delimiters = "",
@@ -8853,9 +8927,14 @@ namespace strtk
       inline bool parse(InputIterator begin, InputIterator end)
       {
          if (stack_)
-            return (strtk::parse<InputIterator,
-                                 T,
-                                 Container>(begin,end,delimiters_,(*stack_),split_option_) > 0);
+         {
+            if (std::numeric_limits<std::size_t>::max() == element_count_)
+               return (strtk::parse<InputIterator,T,Container>
+                         (begin,end,delimiters_,(*stack_),split_option_) > 0);
+            else
+               return (strtk::parse_n<InputIterator,T,Container>
+                         (begin,end,delimiters_,element_count_,(*stack_),split_option_) == element_count_);
+         }
          else
             return false;
       }
@@ -8865,6 +8944,7 @@ namespace strtk
       std::string delimiters_;
       split_options::type split_option_;
       std::stack<T,Container>* stack_;
+      std::size_t element_count_;
    };
 
    template<typename T,
@@ -8875,23 +8955,30 @@ namespace strtk
    public:
 
       inline priority_queue_sink(const std::string& delimiters,
-                       const split_options::type& split_option = split_options::compress_delimiters)
+                                 const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
         priority_queue_(0)
       {}
 
       inline priority_queue_sink(std::priority_queue<T,Container,Comparator>& priority_queue,
-                      const std::string& delimiters,
-                      const split_options::type& split_option = split_options::compress_delimiters)
+                                 const std::string& delimiters,
+                                 const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        priority_queue_(&priority_queue)
+        priority_queue_(&priority_queue),
+        element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
+      inline priority_queue_sink& count(const std::size_t& element_count)
+      {
+         element_count_ = element_count;
+         return (*this);
+      }
+
       inline priority_queue_sink& operator()(std::priority_queue<T,Container,Comparator>& priority_queue,
-                                    const std::string& delimiters = "",
-                                    const split_options::type& split_option = split_options::compress_delimiters)
+                                             const std::string& delimiters = "",
+                                             const split_options::type& split_option = split_options::compress_delimiters)
       {
          priority_queue_ = (&priority_queue);
          if (!delimiters.empty())
@@ -8904,9 +8991,14 @@ namespace strtk
       inline bool parse(InputIterator begin, InputIterator end)
       {
          if (priority_queue_)
-            return (strtk::parse<InputIterator,
-                                 T,
-                                 Container>(begin,end,delimiters_,(*priority_queue_),split_option_) > 0);
+         {
+            if (std::numeric_limits<std::size_t>::max() == element_count_)
+               return (strtk::parse<InputIterator,T,Container>
+                         (begin,end,delimiters_,(*priority_queue_),split_option_) > 0);
+            else
+               return (strtk::parse_n<InputIterator,T,Container>
+                         (begin,end,delimiters_,element_count_,(*priority_queue_),split_option_) == element_count_);
+         }
          else
             return false;
       }
@@ -8916,6 +9008,7 @@ namespace strtk
       std::string delimiters_;
       split_options::type split_option_;
       std::priority_queue<T,Container,Comparator>* priority_queue_;
+      std::size_t element_count_;
    };
 
    namespace text
