@@ -621,7 +621,6 @@ void parse_example06()
 
 void parse_example07()
 {
-
    {
       static const std::string data = "1,+2,-3|abc,ijk,xyz|123.456,+234.567,-345.678";
       std::vector<int> int_vector;
