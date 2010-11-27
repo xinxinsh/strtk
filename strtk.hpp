@@ -9312,7 +9312,7 @@ namespace strtk
       strtk_register_sequence_set_queue_sink_type_to_type_tag(unsigned long long)
       strtk_register_sequence_set_queue_sink_type_to_type_tag(std::string)
 
-      #define strtk_register_userdef_sink(T)\
+      #define strtk_register_userdef_type_sink(T)\
       namespace strtk { namespace details { strtk_register_sequence_set_queue_sink_type_to_type_tag(T) }}
 
       template<typename Iterator, typename T, typename Tag>
