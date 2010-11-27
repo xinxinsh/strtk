@@ -28,6 +28,7 @@
 #include <map>
 #include <stack>
 #include <queue>
+#include <functional>
 
 #include "strtk.hpp"
 
@@ -589,6 +590,49 @@ void parse_example05()
                 << strtk::text::right_align(2,'0', dt.minute) << ":"
                 << strtk::text::right_align(2,'0', dt.second) << "."
                 << strtk::text::right_align(3,'0',dt.msecond) << std::endl;
+   }
+}
+
+void parse_example06()
+{
+
+   {
+      static const std::string data = "1,+2,-3|abc,ijk,xyz|123.456,+234.567,-345.678";
+      std::vector<int> int_vector;
+      std::deque<std::string> string_deque;
+      std::list<double> double_list;
+
+      strtk::vector_sink<int>        vec_sink(",");
+      strtk::deque_sink<std::string> deq_sink(",");
+      strtk::list_sink<double>       lst_sink(",");
+
+      strtk::parse(data, "|",vec_sink(int_vector),
+                             deq_sink(string_deque),
+                             lst_sink(double_list));
+
+      std::cout << "int_vec: "     << strtk::join("\t",int_vector)   << std::endl;
+      std::cout << "string_deq: "  << strtk::join("\t",string_deque) << std::endl;
+      std::cout << "double_list: " << strtk::join("\t",double_list)  << std::endl;
+   }
+
+   {
+      static const std::string data = "1,+2,-3|abc,ijk,xyz|123.456,+234.567,-345.678|-7-6,-5-4,-3-2,-1";
+
+      std::set<int> int_set;
+      std::queue<std::string> string_queue;
+      std::stack<double> double_stack;
+      std::priority_queue<int> int_priority_queue;
+
+      strtk::set_sink<int>            set_sink(",");
+      strtk::queue_sink<std::string>  que_sink(",");
+      strtk::stack_sink<double>       stk_sink(",");
+      strtk::priority_queue_sink<int> prq_sink(",");
+
+      strtk::parse(data,"|",set_sink(int_set),
+                            que_sink(string_queue),
+                            stk_sink(double_stack),
+                            prq_sink(int_priority_queue));
+
    }
 }
 
@@ -1321,6 +1365,7 @@ int main()
    parse_example03();
    parse_example04();
    parse_example05();
+   parse_example06();
    remove_inplace_example01();
    remove_consecutives_example01();
    remove_consecutives_example02();
