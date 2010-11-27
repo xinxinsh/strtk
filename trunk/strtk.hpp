@@ -9312,6 +9312,8 @@ namespace strtk
       strtk_register_sequence_set_queue_sink_type_to_type_tag(unsigned long long)
       strtk_register_sequence_set_queue_sink_type_to_type_tag(std::string)
 
+      #define strtk_register_userdef_sink(T)\
+      namespace strtk { namespace details { strtk_register_sequence_set_queue_sink_type_to_type_tag(T) }}
 
       template<typename Iterator, typename T, typename Tag>
       inline bool string_to_type_converter_impl(Iterator& begin, const Iterator end, T& t, not_supported_type_tag)
@@ -12145,5 +12147,6 @@ namespace strtk
    } // namespace information
 
 } // namespace strtk
+
 
 #endif

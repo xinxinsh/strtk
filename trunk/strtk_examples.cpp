@@ -593,7 +593,29 @@ void parse_example05()
    }
 }
 
+struct event_observations
+{
+   std::size_t event_id;
+   std::string event_name;
+   std::deque<datetime> observation_datetimes;
+};
+
+strtk_register_userdef_sink(datetime)
+
 void parse_example06()
+{
+   static const std::string event_data = "123456|EVENT_XYZ|2000-01-10 03:01:16.123,2001-02-22 05:12:24.234,2002-03-13 07:23:32.345";
+
+   strtk::deque_sink<datetime> deq_sink(",");
+
+   event_observations eo;
+   strtk::parse(event_data, "|",eo.event_id,
+                                eo.event_name,
+                                deq_sink(eo.observation_datetimes));
+
+}
+
+void parse_example07()
 {
 
    {
@@ -1366,6 +1388,7 @@ int main()
    parse_example04();
    parse_example05();
    parse_example06();
+   parse_example07();
    remove_inplace_example01();
    remove_consecutives_example01();
    remove_consecutives_example02();
