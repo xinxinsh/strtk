@@ -593,25 +593,29 @@ void parse_example05()
    }
 }
 
-struct event_observations
+struct event_information
 {
-   std::size_t event_id;
-   std::string event_name;
+   std::size_t id;
+   std::string name;
+   std::string location;
    std::deque<datetime> observation_datetimes;
 };
 
-strtk_register_userdef_sink(datetime)
+strtk_register_userdef_type_sink(datetime)
 
 void parse_example06()
 {
-   static const std::string event_data = "123456|EVENT_XYZ|2000-01-10 03:01:16.123,2001-02-22 05:12:24.234,2002-03-13 07:23:32.345";
+   static const std::string event_data = "172493|Lunar Impact|Mare Tranquillitatis|"
+                                         "2010-01-19 00:28:45.357,2010-02-18 00:57:07.109,"
+                                         "2010-03-20 01:15:11.261,2010-04-21 01:07:27.972";
 
    strtk::deque_sink<datetime> deq_sink(",");
 
-   event_observations eo;
-   strtk::parse(event_data, "|",eo.event_id,
-                                eo.event_name,
-                                deq_sink(eo.observation_datetimes));
+   event_information evt_info;
+   strtk::parse(event_data,"|",evt_info.id,
+                               evt_info.name,
+                               evt_info.location,
+                               deq_sink(evt_info.observation_datetimes));
 
 }
 
