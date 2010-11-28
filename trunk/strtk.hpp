@@ -236,9 +236,7 @@ namespace strtk
       struct ignore_token_type_tag {};
       struct stdstring_type_tag{};
       struct stdstring_range_type_tag{};
-      struct sequence_sink_type_tag {};
-      struct set_sink_type_tag {};
-      struct queue_sink_type_tag {};
+      struct sink_type_tag {};
 
       template<typename T>
       struct supported_conversion_to_type
@@ -6463,8 +6461,8 @@ namespace strtk
              template <typename,typename> class Sequence>
    inline std::size_t parse(const std::string& data,
                             const std::string& delimiters,
-                             Sequence<T,Allocator>& sequence,
-                             const split_options::type& split_option = split_options::compress_delimiters)
+                            Sequence<T,Allocator>& sequence,
+                            const split_options::type& split_option = split_options::compress_delimiters)
    {
       return parse(data.c_str(),
                    data.c_str() + data.size(),
@@ -8576,162 +8574,175 @@ namespace strtk
       T* t_;
    };
 
-   template<typename T>
-   class vector_sink
+   namespace details
+   {
+
+      template <typename InputIterator,
+                typename T,
+                typename Allocator,
+                template <typename,typename> class Sequence>
+      inline std::size_t parse_stl_container_proxy(const InputIterator begin,
+                                                   const InputIterator end,
+                                                   const std::string& delimiters,
+                                                   Sequence<T,Allocator>& sequence,
+                                                   const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse(begin,end,delimiters,sequence,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Comparator,
+                typename Allocator>
+      inline std::size_t parse_stl_container_proxy(const InputIterator begin,
+                                                   const InputIterator end,
+                                                   const std::string& delimiters,
+                                                   std::set<T,Comparator,Allocator>& set,
+                                                   const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse(begin,end,delimiters,set,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Container>
+      inline std::size_t parse_stl_container_proxy(const InputIterator begin,
+                                                   const InputIterator end,
+                                                   const std::string& delimiters,
+                                                   std::queue<T,Container>& queue,
+                                                   const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse(begin,end,delimiters,queue,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Container>
+      inline std::size_t parse_stl_container_proxy(const InputIterator begin,
+                                                   const InputIterator end,
+                                                   const std::string& delimiters,
+                                                   std::stack<T,Container>& stack,
+                                                   const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse(begin,end,delimiters,stack,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Container,
+                typename Comparator>
+      inline std::size_t parse_stl_container_proxy(const InputIterator begin,
+                                                   const InputIterator end,
+                                                   const std::string& delimiters,
+                                                   std::priority_queue<T,Container,Comparator>& priority_queue,
+                                                   const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse(begin,end,delimiters,priority_queue,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Allocator,
+                template <typename,typename> class Sequence>
+      inline std::size_t parse_n_stl_container_proxy(const InputIterator begin,
+                                                     const InputIterator end,
+                                                     const std::string& delimiters,
+                                                     const std::size_t& n,
+                                                     Sequence<T,Allocator>& sequence,
+                                                     const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse_n(begin,end,delimiters,n,sequence,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Comparator,
+                typename Allocator>
+      inline std::size_t parse_n_stl_container_proxy(const InputIterator begin,
+                                                     const InputIterator end,
+                                                     const std::string& delimiters,
+                                                     const std::size_t& n,
+                                                     std::set<T,Comparator,Allocator>& set,
+                                                     const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse_n(begin,end,delimiters,n,set,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Container>
+      inline std::size_t parse_n_stl_container_proxy(const InputIterator begin,
+                                                     const InputIterator end,
+                                                     const std::string& delimiters,
+                                                     const std::size_t& n,
+                                                     std::queue<T,Container>& queue,
+                                                     const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse_n(begin,end,delimiters,n,queue,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Container>
+      inline std::size_t parse_n_stl_container_proxy(const InputIterator begin,
+                                                     const InputIterator end,
+                                                     const std::string& delimiters,
+                                                     const std::size_t& n,
+                                                     std::stack<T,Container>& stack,
+                                                     const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse_n(begin,end,delimiters,n,stack,split_option);
+      }
+
+      template <typename InputIterator,
+                typename T,
+                typename Container,
+                typename Comparator>
+      inline std::size_t parse_n_stl_container_proxy(const InputIterator begin,
+                                                     const InputIterator end,
+                                                     const std::string& delimiters,
+                                                     const std::size_t& n,
+                                                     std::priority_queue<T,Container,Comparator>& priority_queue,
+                                                     const split_options::type& split_option = split_options::compress_delimiters)
+      {
+         return parse_n(begin,end,delimiters,n,priority_queue,split_option);
+      }
+
+   } // namespace details
+
+   template<typename Container>
+   class sink_type
    {
    public:
+      typedef typename Container::value_type value_type;
 
-      inline vector_sink(const std::string& delimiters,
-                         const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        sequence_(0),
-        element_count_(std::numeric_limits<std::size_t>::max())
-      {}
-
-      inline vector_sink(std::vector<T>& sequence,
-                         const std::string& delimiters,
-                         const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        sequence_(&sequence)
-      {}
-
-      inline vector_sink& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
-      {
-         element_count_ = element_count;
-         return (*this);
-      }
-
-      inline vector_sink& operator()(std::vector<T>& sequence,
-                                     const std::string& delimiters = "",
-                                     const split_options::type& split_option = split_options::compress_delimiters)
-      {
-         sequence_ = (&sequence);
-         if (!delimiters.empty())
-            delimiters_ = delimiters;
-         split_option_ = split_option;
-         return (*this);
-      }
-
-      template<typename InputIterator>
-      inline bool parse(InputIterator begin, InputIterator end)
-      {
-         if (sequence_)
-         {
-            if (std::numeric_limits<std::size_t>::max() == element_count_)
-               return (strtk::parse<InputIterator,T,typename std::vector<T>::allocator_type>
-                         (begin,end,delimiters_,(*sequence_),split_option_) > 0);
-            else
-               return (strtk::parse_n<InputIterator,T,typename std::vector<T>::allocator_type>
-                         (begin,end,delimiters_,element_count_,(*sequence_),split_option_) == element_count_);
-         }
-         else
-            return false;
-      }
-
-   private:
-
-      std::string delimiters_;
-      split_options::type split_option_;
-      std::vector<T>* sequence_;
-      std::size_t element_count_;
-   };
-
-   template<typename T>
-   class deque_sink
-   {
-   public:
-
-      inline deque_sink(const std::string& delimiters,
-                        const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        sequence_(0),
-        element_count_(std::numeric_limits<std::size_t>::max())
-      {}
-
-      inline deque_sink(std::deque<T>& sequence,
-                        const std::string& delimiters,
-                        const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        sequence_(&sequence)
-      {}
-
-      inline deque_sink& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
-      {
-         element_count_ = element_count;
-         return (*this);
-      }
-
-      inline deque_sink& operator()(std::deque<T>& sequence,
-                                    const std::string& delimiters = "",
-                                    const split_options::type& split_option = split_options::compress_delimiters)
-      {
-         sequence_ = (&sequence);
-         if (!delimiters.empty())
-            delimiters_ = delimiters;
-         split_option_ = split_option;
-         return (*this);
-      }
-
-      template<typename InputIterator>
-      inline bool parse(InputIterator begin, InputIterator end)
-      {
-         if (sequence_)
-         {
-            if (std::numeric_limits<std::size_t>::max() == element_count_)
-               return (strtk::parse<InputIterator,T,typename std::deque<T>::allocator_type>
-                         (begin,end,delimiters_,(*sequence_),split_option_) > 0);
-            else
-               return (strtk::parse_n<InputIterator,T,typename std::deque<T>::allocator_type>
-                         (begin,end,delimiters_,element_count_,(*sequence_),split_option_) == element_count_);
-         }
-         else
-            return false;
-      }
-
-   private:
-
-      std::string delimiters_;
-      split_options::type split_option_;
-      std::deque<T>* sequence_;
-      std::size_t element_count_;
-   };
-
-   template<typename T>
-   class list_sink
-   {
-   public:
-
-      inline list_sink(const std::string& delimiters,
+      inline sink_type(const std::string& delimiters,
                        const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        sequence_(0),
+        container_(0),
         element_count_(std::numeric_limits<std::size_t>::max())
       {}
 
-      inline list_sink(std::list<T>& sequence,
+      inline sink_type(Container& container,
                        const std::string& delimiters,
                        const split_options::type& split_option = split_options::compress_delimiters)
       : delimiters_(delimiters),
         split_option_(split_option),
-        sequence_(&sequence)
+        container_(&container)
       {}
 
-      inline list_sink& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
+      inline sink_type& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
       {
          element_count_ = element_count;
          return (*this);
       }
 
-      inline list_sink& operator()(std::list<T>& sequence,
+      inline sink_type& operator()(Container& container,
                                    const std::string& delimiters = "",
                                    const split_options::type& split_option = split_options::compress_delimiters)
       {
-         sequence_ = (&sequence);
+         container_ = (&container);
          if (!delimiters.empty())
             delimiters_ = delimiters;
          split_option_ = split_option;
@@ -8741,14 +8752,14 @@ namespace strtk
       template<typename InputIterator>
       inline bool parse(InputIterator begin, InputIterator end)
       {
-         if (sequence_)
+         if (container_)
          {
             if (std::numeric_limits<std::size_t>::max() == element_count_)
-               return (strtk::parse<InputIterator,T,typename std::list<T>::allocator_type>
-                         (begin,end,delimiters_,(*sequence_),split_option_) > 0);
+               return (details::parse_stl_container_proxy
+                         (begin,end,delimiters_,(*container_),split_option_) > 0);
             else
-               return (strtk::parse_n<InputIterator,T,typename std::list<T>::allocator_type>
-                         (begin,end,delimiters_,element_count_,(*sequence_),split_option_) == element_count_);
+               return (details::parse_n_stl_container_proxy
+                         (begin,end,delimiters_,element_count_,(*container_),split_option_) == element_count_);
          }
          else
             return false;
@@ -8758,261 +8769,17 @@ namespace strtk
 
       std::string delimiters_;
       split_options::type split_option_;
-      std::list<T>* sequence_;
+      Container* container_;
       std::size_t element_count_;
    };
 
-   template<typename T,
-            typename Comparator = std::less<T>,
-            typename Allocator = std::allocator<T> >
-   class set_sink
-   {
-   public:
-
-      inline set_sink(const std::string& delimiters,
-                      const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        set_(0),
-        element_count_(std::numeric_limits<std::size_t>::max())
-      {}
-
-      inline set_sink(std::set<T,Comparator,Allocator>& set,
-                      const std::string& delimiters,
-                      const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        set_(&set)
-      {}
-
-      inline set_sink& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
-      {
-         element_count_ = element_count;
-         return (*this);
-      }
-
-      inline set_sink& operator()(std::set<T,Comparator,Allocator>& set,
-                                  const std::string& delimiters = "",
-                                  const split_options::type& split_option = split_options::compress_delimiters)
-      {
-         set_ = (&set);
-         if (!delimiters.empty())
-            delimiters_ = delimiters;
-         split_option_ = split_option;
-         return (*this);
-      }
-
-      template<typename InputIterator>
-      inline bool parse(InputIterator begin, InputIterator end)
-      {
-         if (set_)
-         {
-            if (std::numeric_limits<std::size_t>::max() == element_count_)
-               return (strtk::parse<InputIterator,T,Comparator,Allocator>
-                         (begin,end,delimiters_,(*set_),split_option_) > 0);
-            else
-               return (strtk::parse_n<InputIterator,T,Comparator,Allocator>
-                         (begin,end,delimiters_,element_count_,(*set_),split_option_) == element_count_);
-         }
-         else
-            return false;
-      }
-
-   private:
-
-      std::string delimiters_;
-      split_options::type split_option_;
-      std::set<T,Comparator,Allocator>* set_;
-      std::size_t element_count_;
-   };
-
-   template<typename T, typename Container = std::deque<T> >
-   class queue_sink
-   {
-   public:
-
-      inline queue_sink(const std::string& delimiters,
-                        const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        queue_(0),
-        element_count_(std::numeric_limits<std::size_t>::max())
-      {}
-
-      inline queue_sink(std::queue<T,Container>& queue,
-                        const std::string& delimiters,
-                        const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        queue_(&queue)
-      {}
-
-      inline queue_sink& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
-      {
-         element_count_ = element_count;
-         return (*this);
-      }
-
-      inline queue_sink& operator()(std::queue<T,Container>& queue,
-                                    const std::string& delimiters = "",
-                                    const split_options::type& split_option = split_options::compress_delimiters)
-      {
-         queue_ = (&queue);
-         if (!delimiters.empty())
-            delimiters_ = delimiters;
-         split_option_ = split_option;
-         return (*this);
-      }
-
-      template<typename InputIterator>
-      inline bool parse(InputIterator begin, InputIterator end)
-      {
-         if (queue_)
-         {
-            if (std::numeric_limits<std::size_t>::max() == element_count_)
-               return (strtk::parse<InputIterator,T,Container>
-                         (begin,end,delimiters_,(*queue_),split_option_) > 0);
-            else
-               return (strtk::parse_n<InputIterator,T,Container>
-                         (begin,end,delimiters_,element_count_,(*queue_),split_option_) == element_count_);
-         }
-         else
-            return false;
-      }
-
-   private:
-
-      std::string delimiters_;
-      split_options::type split_option_;
-      std::queue<T,Container>* queue_;
-      std::size_t element_count_;
-   };
-
-   template<typename T, typename Container = std::deque<T> >
-   class stack_sink
-   {
-   public:
-
-      inline stack_sink(const std::string& delimiters,
-                        const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        stack_(0),
-        element_count_(std::numeric_limits<std::size_t>::max())
-      {}
-
-      inline stack_sink(std::stack<T,Container>& stack,
-                        const std::string& delimiters,
-                        const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        stack_(&stack)
-      {}
-
-      inline stack_sink& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
-      {
-         element_count_ = element_count;
-         return (*this);
-      }
-
-      inline stack_sink& operator()(std::stack<T,Container>& stack,
-                                    const std::string& delimiters = "",
-                                    const split_options::type& split_option = split_options::compress_delimiters)
-      {
-         stack_ = (&stack);
-         if (!delimiters.empty())
-            delimiters_ = delimiters;
-         split_option_ = split_option;
-         return (*this);
-      }
-
-      template<typename InputIterator>
-      inline bool parse(InputIterator begin, InputIterator end)
-      {
-         if (stack_)
-         {
-            if (std::numeric_limits<std::size_t>::max() == element_count_)
-               return (strtk::parse<InputIterator,T,Container>
-                         (begin,end,delimiters_,(*stack_),split_option_) > 0);
-            else
-               return (strtk::parse_n<InputIterator,T,Container>
-                         (begin,end,delimiters_,element_count_,(*stack_),split_option_) == element_count_);
-         }
-         else
-            return false;
-      }
-
-   private:
-
-      std::string delimiters_;
-      split_options::type split_option_;
-      std::stack<T,Container>* stack_;
-      std::size_t element_count_;
-   };
-
-   template<typename T,
-            typename Container = std::vector<T>,
-            typename Comparator = std::less<typename Container::value_type> >
-   class priority_queue_sink
-   {
-   public:
-
-      inline priority_queue_sink(const std::string& delimiters,
-                                 const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        priority_queue_(0)
-      {}
-
-      inline priority_queue_sink(std::priority_queue<T,Container,Comparator>& priority_queue,
-                                 const std::string& delimiters,
-                                 const split_options::type& split_option = split_options::compress_delimiters)
-      : delimiters_(delimiters),
-        split_option_(split_option),
-        priority_queue_(&priority_queue),
-        element_count_(std::numeric_limits<std::size_t>::max())
-      {}
-
-      inline priority_queue_sink& count(const std::size_t& element_count = std::numeric_limits<std::size_t>::max())
-      {
-         element_count_ = element_count;
-         return (*this);
-      }
-
-      inline priority_queue_sink& operator()(std::priority_queue<T,Container,Comparator>& priority_queue,
-                                             const std::string& delimiters = "",
-                                             const split_options::type& split_option = split_options::compress_delimiters)
-      {
-         priority_queue_ = (&priority_queue);
-         if (!delimiters.empty())
-            delimiters_ = delimiters;
-         split_option_ = split_option;
-         return (*this);
-      }
-
-      template<typename InputIterator>
-      inline bool parse(InputIterator begin, InputIterator end)
-      {
-         if (priority_queue_)
-         {
-            if (std::numeric_limits<std::size_t>::max() == element_count_)
-               return (strtk::parse<InputIterator,T,Container>
-                         (begin,end,delimiters_,(*priority_queue_),split_option_) > 0);
-            else
-               return (strtk::parse_n<InputIterator,T,Container>
-                         (begin,end,delimiters_,element_count_,(*priority_queue_),split_option_) == element_count_);
-         }
-         else
-            return false;
-      }
-
-   private:
-
-      std::string delimiters_;
-      split_options::type split_option_;
-      std::priority_queue<T,Container,Comparator>* priority_queue_;
-      std::size_t element_count_;
-   };
+   template<typename T> struct vector_sink { typedef sink_type<std::vector<T> > type; };
+   template<typename T> struct deque_sink  { typedef sink_type<std::deque<T> >  type; };
+   template<typename T> struct list_sink   { typedef sink_type<std::list<T> >   type; };
+   template<typename T> struct set_sink    { typedef sink_type<std::set<T> >    type; };
+   template<typename T> struct queue_sink  { typedef sink_type<std::queue<T> >  type; };
+   template<typename T> struct stack_sink  { typedef sink_type<std::stack<T> >  type; };
+   template<typename T> struct priority_queue_sink { typedef sink_type<std::priority_queue<T> > type; };
 
    namespace text
    {
@@ -9314,14 +9081,14 @@ namespace strtk
       #define strtk_register_stdstring_range_type_tag(T)\
       template<> struct supported_conversion_to_type< std::pair<T,T> >{ typedef stdstring_range_type_tag type; };
 
-      #define strtk_register_sequence_sink_type_tag(T)\
-      template<> struct supported_conversion_to_type<T>{ typedef sequence_sink_type_tag type; };
-
-      #define strtk_register_set_sink_type_tag(T)\
-      template<> struct supported_conversion_to_type<T>{ typedef set_sink_type_tag type; };
-
-      #define strtk_register_queue_sink_type_tag(T)\
-      template<> struct supported_conversion_to_type<T>{ typedef queue_sink_type_tag type; };
+      #define strtk_register_sink_type_tag(T)\
+      template<> struct supported_conversion_to_type<sink_type<std::vector<T> > > { typedef sink_type_tag type; };\
+      template<> struct supported_conversion_to_type<sink_type<std::deque<T> > > { typedef sink_type_tag type; };\
+      template<> struct supported_conversion_to_type<sink_type<std::list<T> > > { typedef sink_type_tag type; };\
+      template<> struct supported_conversion_to_type<sink_type<std::set<T> > > { typedef sink_type_tag type; };\
+      template<> struct supported_conversion_to_type<sink_type<std::queue<T> > > { typedef sink_type_tag type; };\
+      template<> struct supported_conversion_to_type<sink_type<std::stack<T> > > { typedef sink_type_tag type; };\
+      template<> struct supported_conversion_to_type<sink_type<std::priority_queue<T> > > { typedef sink_type_tag type; };\
 
       template<> struct supported_conversion_to_type<ignore_token>{ typedef ignore_token_type_tag type; };
 
@@ -9386,32 +9153,23 @@ namespace strtk
       strtk_register_sequence_iterator_type(std::vector)
       strtk_register_sequence_iterator_type(std::deque)
 
-      #define strtk_register_sequence_set_queue_sink_type_to_type_tag(T)\
-      strtk_register_sequence_sink_type_tag(vector_sink<T>)\
-      strtk_register_sequence_sink_type_tag(deque_sink<T>)\
-      strtk_register_sequence_sink_type_tag(list_sink<T>)\
-      strtk_register_set_sink_type_tag(set_sink<T>)\
-      strtk_register_queue_sink_type_tag(queue_sink<T>)\
-      strtk_register_queue_sink_type_tag(stack_sink<T>)\
-      strtk_register_queue_sink_type_tag(priority_queue_sink<T>)
-
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(float)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(double)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(long double)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(signed char)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(char)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(short)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(int)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(long)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(unsigned char)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(unsigned short)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(unsigned int)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(unsigned long)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(unsigned long long)
-      strtk_register_sequence_set_queue_sink_type_to_type_tag(std::string)
+      strtk_register_sink_type_tag(float)
+      strtk_register_sink_type_tag(double)
+      strtk_register_sink_type_tag(long double)
+      strtk_register_sink_type_tag(signed char)
+      strtk_register_sink_type_tag(char)
+      strtk_register_sink_type_tag(short)
+      strtk_register_sink_type_tag(int)
+      strtk_register_sink_type_tag(long)
+      strtk_register_sink_type_tag(unsigned char)
+      strtk_register_sink_type_tag(unsigned short)
+      strtk_register_sink_type_tag(unsigned int)
+      strtk_register_sink_type_tag(unsigned long)
+      strtk_register_sink_type_tag(unsigned long long)
+      strtk_register_sink_type_tag(std::string)
 
       #define strtk_register_userdef_type_sink(T)\
-      namespace strtk { namespace details { strtk_register_sequence_set_queue_sink_type_to_type_tag(T) }}
+      namespace strtk { namespace details { strtk_register_sink_type_tag(T) }}
 
       template<typename Iterator, typename T, typename Tag>
       inline bool string_to_type_converter_impl(Iterator& begin, const Iterator end, T& t, not_supported_type_tag)
@@ -9821,26 +9579,8 @@ namespace strtk
          return true;
       }
 
-      template<typename Iterator, typename SequenceSinkType>
-      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, SequenceSinkType& t, sequence_sink_type_tag)
-      {
-         if (!t.parse(itr,end))
-            return false;
-         itr = end;
-         return true;
-      }
-
-      template<typename Iterator, typename SetSinkType>
-      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, SetSinkType& t, set_sink_type_tag)
-      {
-         if (!t.parse(itr,end))
-            return false;
-         itr = end;
-         return true;
-      }
-
-      template<typename Iterator, typename QueueSinkType>
-      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, QueueSinkType& t, queue_sink_type_tag)
+      template<typename Iterator, typename SinkType>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, SinkType& t, sink_type_tag)
       {
          if (!t.parse(itr,end))
             return false;
