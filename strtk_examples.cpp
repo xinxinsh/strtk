@@ -609,7 +609,7 @@ void parse_example06()
                                          "2010-01-19 00:28:45.357,2010-02-18 00:57:07.109,"
                                          "2010-03-20 01:15:11.261,2010-04-21 01:07:27.972";
 
-   strtk::deque_sink<datetime> deq_sink(",");
+   strtk::deque_sink<datetime>::type deq_sink(",");
 
    event_information evt_info;
    strtk::parse(event_data,"|",evt_info.id,
@@ -627,13 +627,13 @@ void parse_example07()
       std::deque<std::string> string_deque;
       std::list<double> double_list;
 
-      strtk::vector_sink<int>        vec_sink(",");
-      strtk::deque_sink<std::string> deq_sink(",");
-      strtk::list_sink<double>       lst_sink(",");
+      strtk::vector_sink<int>::type vec_sink(",");
+      strtk::deque_sink<std::string>::type deq_sink(",");
+      strtk::list_sink<double>::type lst_sink(",");
 
-      strtk::parse(data, "|",vec_sink(int_vector),
-                             deq_sink(string_deque),
-                             lst_sink(double_list));
+      strtk::parse(data,"|",vec_sink(int_vector),
+                            deq_sink(string_deque),
+                            lst_sink(double_list));
 
       std::cout << "int_vec: "     << strtk::join(" ",int_vector)   << std::endl;
       std::cout << "string_deq: "  << strtk::join(" ",string_deque) << std::endl;
@@ -648,10 +648,10 @@ void parse_example07()
       std::stack<double> double_stack;
       std::priority_queue<int> int_priority_queue;
 
-      strtk::set_sink<int>            set_sink(",");
-      strtk::queue_sink<std::string>  que_sink(",");
-      strtk::stack_sink<double>       stk_sink(",");
-      strtk::priority_queue_sink<int> prq_sink(",");
+      strtk::set_sink<int>::type            set_sink(",");
+      strtk::queue_sink<std::string>::type  que_sink(",");
+      strtk::stack_sink<double>::type       stk_sink(",");
+      strtk::priority_queue_sink<int>::type prq_sink(",");
 
       strtk::parse(data,"|",set_sink(int_set),
                             que_sink(string_queue),
@@ -666,9 +666,9 @@ void parse_example07()
       std::deque<std::string> string_deque;
       std::list<double> double_list;
 
-      strtk::vector_sink<int>        vec_sink(",");
-      strtk::deque_sink<std::string> deq_sink(",");
-      strtk::list_sink<double>       lst_sink(",");
+      strtk::vector_sink<int>::type        vec_sink(",");
+      strtk::deque_sink<std::string>::type deq_sink(",");
+      strtk::list_sink<double>::type       lst_sink(",");
 
       strtk::parse(data,"|",vec_sink(  int_vector).count(2),  // consume first 2 values
                             deq_sink(string_deque).count(3),  // consume first 3 values
@@ -684,8 +684,8 @@ void parse_example08()
 {
    static const std::string data = "+123,ignore0,123.456,ignore1,abcdef,ignore2";
 
-   int i;
-   double d;
+   int i = 0;
+   double d = 0.0;
    std::string s;
 
    strtk::ignore_token ignore;
