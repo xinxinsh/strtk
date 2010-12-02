@@ -4366,14 +4366,38 @@ namespace strtk
             }
          }
 
+         bool validate_column_range(const col_range_type& range) const
+         {
+            if ((range.first > token_list_->size()) || (range.second > token_list_->size()))
+               return false;
+            else if (range.first > range.second)
+               return false;
+            else
+               return true;
+         }
+
+         col_range_type range(const std::size_t& lower_bound,
+                              const std::size_t& upper_bound = std::numeric_limits<std::size_t>::max()) const
+         {
+            if (std::numeric_limits<std::size_t>::max() != upper_bound)
+               return col_range_type(lower_bound,upper_bound);
+            else
+              return col_range_type(lower_bound,token_list_->size());
+         }
+
          template<typename T,
                   typename Allocator,
                   template<typename,typename> class Sequence>
-         inline bool parse(Sequence<T,Allocator>& sequence) const
+         inline bool parse(const col_range_type& range,
+                           Sequence<T,Allocator>& sequence) const
          {
-            itr_list_type::const_iterator itr = token_list_->begin();
-            itr_list_type::const_iterator end = token_list_->end();
+            if(!validate_column_range(range))
+               return false;
+
+            itr_list_type::const_iterator itr = token_list_->begin() + range.first;
+            itr_list_type::const_iterator end = token_list_->begin() + range.second;
             T t;
+
             while (end != itr)
             {
                const itr_list_type::value_type& range = (*itr);
@@ -4389,11 +4413,16 @@ namespace strtk
          template<typename T,
                   typename Comparator,
                   typename Allocator>
-         inline bool parse(std::set<T,Comparator,Allocator>& set) const
+         inline bool parse(const col_range_type& range,
+                           std::set<T,Comparator,Allocator>& set) const
          {
-            itr_list_type::const_iterator itr = token_list_->begin();
-            itr_list_type::const_iterator end = token_list_->end();
+            if(!validate_column_range(range))
+               return false;
+
+            itr_list_type::const_iterator itr = token_list_->begin() + range.first;
+            itr_list_type::const_iterator end = token_list_->begin() + range.second;
             T t;
+
             while (end != itr)
             {
                const itr_list_type::value_type& range = (*itr);
@@ -4407,11 +4436,16 @@ namespace strtk
          }
 
          template<typename T, typename Container>
-         inline bool parse(std::queue<T,Container>& queue) const
+         inline bool parse(const col_range_type& range,
+                           std::queue<T,Container>& queue) const
          {
-            itr_list_type::const_iterator itr = token_list_->begin();
-            itr_list_type::const_iterator end = token_list_->end();
+            if(!validate_column_range(range))
+               return false;
+
+            itr_list_type::const_iterator itr = token_list_->begin() + range.first;
+            itr_list_type::const_iterator end = token_list_->begin() + range.second;
             T t;
+
             while (end != itr)
             {
                const itr_list_type::value_type& range = (*itr);
@@ -4425,11 +4459,16 @@ namespace strtk
          }
 
          template<typename T, typename Container>
-         inline bool parse(std::stack<T,Container>& stack) const
+         inline bool parse(const col_range_type& range,
+                           std::stack<T,Container>& stack) const
          {
-            itr_list_type::const_iterator itr = token_list_->begin();
-            itr_list_type::const_iterator end = token_list_->end();
+            if(!validate_column_range(range))
+               return false;
+
+            itr_list_type::const_iterator itr = token_list_->begin() + range.first;
+            itr_list_type::const_iterator end = token_list_->begin() + range.second;
             T t;
+
             while (end != itr)
             {
                const itr_list_type::value_type& range = (*itr);
@@ -4445,11 +4484,16 @@ namespace strtk
          template<typename T,
                   typename Container,
                   typename Comparator>
-         inline bool parse(std::priority_queue<T,Container,Comparator>& priority_queue) const
+         inline bool parse(const col_range_type& range,
+                           std::priority_queue<T,Container,Comparator>& priority_queue) const
          {
-            itr_list_type::const_iterator itr = token_list_->begin();
-            itr_list_type::const_iterator end = token_list_->end();
+            if(!validate_column_range(range))
+               return false;
+
+            itr_list_type::const_iterator itr = token_list_->begin() + range.first;
+            itr_list_type::const_iterator end = token_list_->begin() + range.second;
             T t;
+
             while (end != itr)
             {
                const itr_list_type::value_type& range = (*itr);
@@ -4460,6 +4504,42 @@ namespace strtk
                ++itr;
             }
             return true;
+         }
+
+         template<typename T,
+                  typename Allocator,
+                  template<typename,typename> class Sequence>
+         inline bool parse(Sequence<T,Allocator>& sequence) const
+         {
+            return parse(range(0),sequence);
+         }
+
+         template<typename T,
+                  typename Comparator,
+                  typename Allocator>
+         inline bool parse(std::set<T,Comparator,Allocator>& set) const
+         {
+            return parse(range(0),set);
+         }
+
+         template<typename T, typename Container>
+         inline bool parse(std::queue<T,Container>& queue) const
+         {
+            return parse(range(0),queue);
+         }
+
+         template<typename T, typename Container>
+         inline bool parse(std::stack<T,Container>& stack) const
+         {
+            return parse(range(0),stack);
+         }
+
+         template<typename T,
+                  typename Container,
+                  typename Comparator>
+         inline bool parse(std::priority_queue<T,Container,Comparator>& priority_queue) const
+         {
+            return parse(range(0),priority_queue);
          }
 
          template<typename T,
