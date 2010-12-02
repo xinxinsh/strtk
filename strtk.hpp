@@ -9044,9 +9044,9 @@ namespace strtk
       template<> struct numeric<long long>          { enum { length = 19, size = 24, bound_length = 18}; };
       template<> struct numeric<unsigned long long> { enum { length = 19, size = 24, bound_length = 18}; };
 
-      template<> struct numeric<float>              { enum { min_exp =  -38, max_exp =  +38 }; };
-      template<> struct numeric<double>             { enum { min_exp = -308, max_exp = +308 }; };
-      template<> struct numeric<long double>        { enum { min_exp = -308, max_exp = +308 }; };
+      template<> struct numeric<float>              { enum { min_exp =  -38, max_exp =  +38, precision = 10}; };
+      template<> struct numeric<double>             { enum { min_exp = -308, max_exp = +308, precision = 15}; };
+      template<> struct numeric<long double>        { enum { min_exp = -308, max_exp = +308, precision = 15}; };
 
       #define strtk_register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
@@ -9672,7 +9672,7 @@ namespace strtk
          char* itr = buffer + (strtk::details::numeric<T>::size - 1);
          bool negative = (value < 0);
          if (negative)
-            value = static_cast<T>(std::abs(value));
+            value = static_cast<T>(-1 * value);
 
          T remainder = 0;
          std::size_t index = 0;
@@ -9683,7 +9683,7 @@ namespace strtk
             {
                remainder  = value % radix_cube;
                value     /= radix_cube;
-               index = remainder * 3;
+               index    = static_cast<std::size_t>(remainder * 3);
                *(itr--) = static_cast<char>(details::rev_digit_table3[index + 0]);
                *(itr--) = static_cast<char>(details::rev_digit_table3[index + 1]);
                *(itr--) = static_cast<char>(details::rev_digit_table3[index + 2]);
@@ -9693,7 +9693,7 @@ namespace strtk
             {
                remainder  = value % radix_sqr;
                value     /= radix_sqr;
-               index = remainder << 1;
+               index    = static_cast<std::size_t>(remainder) << 1;
                *(itr--) = static_cast<char>(details::rev_digit_table2[index + 0]);
                *(itr--) = static_cast<char>(details::rev_digit_table2[index + 1]);
             }
