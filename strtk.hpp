@@ -4989,10 +4989,10 @@ namespace strtk
 
          while (end != itr)
          {
-            itr_list_type::iterator row_itr = (*itr).begin();
-            itr_list_type::const_iterator row_end = (*itr).end();
+            itr_list_type& row_deq = (*itr);
+            itr_list_type::iterator row_itr = row_deq.begin();
 
-            while (row_end != row_itr)
+            while (row_deq.end() != row_itr)
             {
                if (0 == std::distance(row_itr->first,row_itr->second))
                {
