@@ -5035,18 +5035,14 @@ namespace strtk
          if (range.first > range.second)
             return false;
 
-         itr_list_list_type::iterator itr = token_list_.begin() + range.first;
-         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+         itr_list_list_type::iterator begin = token_list_.begin() + range.first;
+         itr_list_list_type::iterator end   = token_list_.begin() + range.second;
 
-         while (end != itr)
-         {
-            if (!itr->empty() && predicate(itr->front().first,itr->back().second))
-            {
-               itr = token_list_.erase(itr);
-            }
-            else
-              ++itr;
-         }
+         itr_list_list_type::iterator new_end = std::remove_if(begin,end,
+                                                               remove_row_if_predicate<Predicate>(predicate));
+
+         token_list_.erase(new_end,token_list_.begin() + range.second);
+
          return true;
       }
 
@@ -5499,6 +5495,22 @@ namespace strtk
             *(out++) = value;
          }
       }
+
+      template<typename Predicate>
+      struct remove_row_if_predicate
+      {
+         remove_row_if_predicate(Predicate p)
+         : p_(p)
+         {}
+
+         inline bool operator()(const itr_list_type& itr_list)
+         {
+            return (!itr_list.empty() &&
+                    p_(itr_list.front().first,itr_list.back().second));
+         }
+
+         Predicate p_;
+      };
 
    private:
 
@@ -9589,7 +9601,16 @@ namespace strtk
                            1.0E+161, 1.0E+162, 1.0E+163, 1.0E+164, 1.0E+165, 1.0E+166, 1.0E+167, 1.0E+168, 1.0E+169, 1.0E+170,
                            1.0E+171, 1.0E+172, 1.0E+173, 1.0E+174, 1.0E+175, 1.0E+176, 1.0E+177, 1.0E+178, 1.0E+179, 1.0E+180,
                            1.0E+181, 1.0E+182, 1.0E+183, 1.0E+184, 1.0E+185, 1.0E+186, 1.0E+187, 1.0E+188, 1.0E+189, 1.0E+190,
-                           1.0E+191, 1.0E+192, 1.0E+193, 1.0E+194, 1.0E+195, 1.0E+196, 1.0E+197, 1.0E+198, 1.0E+199, 1.0E+200
+                           1.0E+191, 1.0E+192, 1.0E+193, 1.0E+194, 1.0E+195, 1.0E+196, 1.0E+197, 1.0E+198, 1.0E+199, 1.0E+200,
+                           1.0E+221, 1.0E+222, 1.0E+223, 1.0E+224, 1.0E+225, 1.0E+226, 1.0E+227, 1.0E+228, 1.0E+229, 1.0E+230,
+                           1.0E+231, 1.0E+232, 1.0E+233, 1.0E+234, 1.0E+235, 1.0E+236, 1.0E+237, 1.0E+238, 1.0E+239, 1.0E+240,
+                           1.0E+241, 1.0E+242, 1.0E+243, 1.0E+244, 1.0E+245, 1.0E+246, 1.0E+247, 1.0E+248, 1.0E+249, 1.0E+250,
+                           1.0E+251, 1.0E+252, 1.0E+253, 1.0E+254, 1.0E+255, 1.0E+256, 1.0E+257, 1.0E+258, 1.0E+259, 1.0E+260,
+                           1.0E+261, 1.0E+262, 1.0E+263, 1.0E+264, 1.0E+265, 1.0E+266, 1.0E+267, 1.0E+268, 1.0E+269, 1.0E+270,
+                           1.0E+271, 1.0E+272, 1.0E+273, 1.0E+274, 1.0E+275, 1.0E+276, 1.0E+277, 1.0E+278, 1.0E+279, 1.0E+280,
+                           1.0E+281, 1.0E+282, 1.0E+283, 1.0E+284, 1.0E+285, 1.0E+286, 1.0E+287, 1.0E+288, 1.0E+289, 1.0E+290,
+                           1.0E+291, 1.0E+292, 1.0E+293, 1.0E+294, 1.0E+295, 1.0E+296, 1.0E+297, 1.0E+298, 1.0E+299, 1.0E+300,
+                           1.0E+301, 1.0E+302, 1.0E+303, 1.0E+304, 1.0E+305, 1.0E+306, 1.0E+307, 1.0E+308
                          };
 
             static const std::size_t fract10_size = sizeof(fract10) / sizeof(double);
