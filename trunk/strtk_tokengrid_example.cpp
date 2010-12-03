@@ -582,6 +582,42 @@ void token_grid_test12()
    }
 }
 
+void token_grid_test13()
+{
+   std::string data = "abc,123\n"
+                      "ijk,345\n"
+                      "mno,567\n"
+                      "rst,789\n"
+                      "xyz,901\n";
+
+   strtk::token_grid grid(data,data.size(),",");
+
+   std::cout << "Before Removal" << std::endl;
+   for (std::size_t r = 0; r < grid.row_count(); ++r)
+   {
+      std::cout << r << "[" << grid.row(r).as_string() << "]" << std::endl;
+   }
+
+   strtk::token_grid::row_range_type range(1,4);
+
+   struct match_predicate
+   {
+      inline bool operator()(const unsigned char* begin, const unsigned char* end)
+      {
+         bool result = (end != std::find(begin,end,static_cast<unsigned char>('6')));
+         return result;
+      }
+   };
+
+   grid.remove_row_if(range,match_predicate());
+
+   std::cout << "After Removal" << std::endl;
+   for (std::size_t r = 0; r < grid.row_count(); ++r)
+   {
+      std::cout << r << "[" << grid.row(r).as_string() << "]" << std::endl;
+   }
+}
+
 int main()
 {
    token_grid_test01();
@@ -596,5 +632,6 @@ int main()
    token_grid_test10();
    token_grid_test11();
    token_grid_test12();
+   token_grid_test13();
    return 0;
 }
