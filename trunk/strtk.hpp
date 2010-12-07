@@ -3955,25 +3955,25 @@ namespace strtk
            column_delimiters(cd)
          {}
 
-         options& set_column_split_option(const split_options::type& option)
+         inline options& set_column_split_option(const split_options::type& option)
          {
             column_split_option = option;
             return *this;
          }
 
-         options& set_row_split_option(const split_options::type& option)
+         inline options& set_row_split_option(const split_options::type& option)
          {
             row_split_option = option;
             return *this;
          }
 
-         options& set_column_delimiters(const std::string& delimiters)
+         inline options& set_column_delimiters(const std::string& delimiters)
          {
             column_delimiters = delimiters;
             return *this;
          }
 
-         options& set_row_delimiters(const std::string& delimiters)
+         inline options& set_row_delimiters(const std::string& delimiters)
          {
             row_delimiters = delimiters;
             return *this;
