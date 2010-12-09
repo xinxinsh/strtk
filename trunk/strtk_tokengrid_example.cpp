@@ -582,6 +582,14 @@ void token_grid_test12()
    }
 }
 
+struct match_predicate
+{
+   inline bool operator()(const unsigned char* begin, const unsigned char* end)
+   {
+      return end != std::find(begin,end,'6');
+   }
+};
+
 void token_grid_test13()
 {
    std::string data = "abc,123\n"
@@ -600,15 +608,6 @@ void token_grid_test13()
 
    strtk::token_grid::row_range_type range(1,4);
 
-   struct match_predicate
-   {
-      inline bool operator()(const unsigned char* begin, const unsigned char* end)
-      {
-         bool result = (end != std::find(begin,end,static_cast<unsigned char>('6')));
-         return result;
-      }
-   };
-
    grid.remove_row_if(range,match_predicate());
 
    std::cout << "After Removal" << std::endl;
@@ -620,46 +619,120 @@ void token_grid_test13()
 
 void token_grid_test14()
 {
-   std::string data = ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
-                      ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n";
+   const std::string data = ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n"
+                            ",0,,1,,,2,,3,,,4,,5,,,6,,7,,,8,,9,,,\n";
 
-   strtk::token_grid::options options;
-
-   options.set_column_delimiters(",")
-          .set_column_split_option(strtk::split_options::default_mode);
-
-   strtk::token_grid grid(data,data.size(),options);
-
-   std::cout << "Before Empty Token Removal" << std::endl;
-   for (std::size_t r = 0; r < grid.row_count(); ++r)
    {
-      strtk::token_grid::row_type row = grid.row(r);
-      for (std::size_t c = 0; c < row.size(); ++c)
+      strtk::token_grid::options options;
+
+      options.set_column_delimiters(",")
+             .set_column_split_option(strtk::split_options::default_mode);
+
+      strtk::token_grid grid(data,data.size(),options);
+
+      std::cout << "Before Empty Token Removal" << std::endl;
+      for (std::size_t r = 0; r < grid.row_count(); ++r)
       {
-         std::cout << "[" << row.get<std::string>(c) << "] ";
+         strtk::token_grid::row_type row = grid.row(r);
+         for (std::size_t c = 0; c < row.size(); ++c)
+         {
+            std::cout << "[" << row.get<std::string>(c) << "] ";
+         }
+         std::cout << std::endl;
+      }
+
+      grid.remove_empty_tokens();
+
+      std::cout << "After Empty Token Removal" << std::endl;
+      for (std::size_t r = 0; r < grid.row_count(); ++r)
+      {
+         strtk::token_grid::row_type row = grid.row(r);
+         for (std::size_t c = 0; c < row.size(); ++c)
+         {
+            std::cout << "[" << row.get<std::string>(c) << "] ";
+         }
+         std::cout << std::endl;
       }
       std::cout << std::endl;
    }
 
-   grid.remove_empty_tokens();
-
-   std::cout << "After Empty Token Removal" << std::endl;
-   for (std::size_t r = 0; r < grid.row_count(); ++r)
    {
-      strtk::token_grid::row_type row = grid.row(r);
-      for (std::size_t c = 0; c < row.size(); ++c)
+      strtk::token_grid::options options;
+
+      options.set_column_delimiters(",")
+             .set_column_split_option(strtk::split_options::default_mode);
+
+      strtk::token_grid grid(data,data.size(),options);
+
+      std::cout << "Before Empty Token Removal" << std::endl;
+      for (std::size_t r = 0; r < grid.row_count(); ++r)
       {
-         std::cout << "[" << row.get<std::string>(c) << "] ";
+         strtk::token_grid::row_type row = grid.row(r);
+         for (std::size_t c = 0; c < row.size(); ++c)
+         {
+            std::cout << "[" << row.get<std::string>(c) << "] ";
+         }
+         std::cout << std::endl;
+      }
+
+      strtk::token_grid::row_range_type range(3,7);
+      grid.remove_empty_tokens(range);
+
+      std::cout << "After Empty Token Removal" << std::endl;
+      for (std::size_t r = 0; r < grid.row_count(); ++r)
+      {
+         strtk::token_grid::row_type row = grid.row(r);
+         for (std::size_t c = 0; c < row.size(); ++c)
+         {
+            std::cout << "[" << row.get<std::string>(c) << "] ";
+         }
+         std::cout << std::endl;
       }
       std::cout << std::endl;
    }
+
+   {
+      strtk::token_grid::options options;
+
+      options.set_column_delimiters(",")
+             .set_column_split_option(strtk::split_options::default_mode);
+
+      strtk::token_grid grid(data,data.size(),options);
+
+      std::cout << "Before Empty Token Removal" << std::endl;
+      for (std::size_t r = 0; r < grid.row_count(); ++r)
+      {
+         strtk::token_grid::row_type row = grid.row(r);
+         for (std::size_t c = 0; c < row.size(); ++c)
+         {
+            std::cout << "[" << row.get<std::string>(c) << "] ";
+         }
+         std::cout << std::endl;
+      }
+
+      strtk::token_grid::row_range_type range(4,8);
+      grid.remove_token_if(range,strtk::size_equal_to<0>());
+
+      std::cout << "After Empty Token Removal" << std::endl;
+      for (std::size_t r = 0; r < grid.row_count(); ++r)
+      {
+         strtk::token_grid::row_type row = grid.row(r);
+         for (std::size_t c = 0; c < row.size(); ++c)
+         {
+            std::cout << "[" << row.get<std::string>(c) << "] ";
+         }
+         std::cout << std::endl;
+      }
+      std::cout << std::endl;
+   }
+
 }
 
 int main()
