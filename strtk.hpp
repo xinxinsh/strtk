@@ -5075,7 +5075,7 @@ namespace strtk
       }
 
       template<typename Predicate>
-      inline void remove_row_if(Predicate predicate)
+      inline bool remove_row_if(Predicate predicate)
       {
          return remove_row_if(all_rows(),predicate);
       }
@@ -5099,6 +5099,36 @@ namespace strtk
             while (row_deq.end() != row_itr)
             {
                if (0 == std::distance(row_itr->first,row_itr->second))
+               {
+                  row_itr = (*itr).erase(row_itr);
+               }
+               else
+                  ++row_itr;
+            }
+            ++itr;
+         }
+      }
+
+      template<typename Predicate>
+      inline void remove_token_if(const row_range_type& range, Predicate p)
+      {
+         if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
+            return;
+
+         if (range.first > range.second)
+            return;
+
+         itr_list_list_type::iterator itr = token_list_.begin() + range.first;
+         itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
+
+         while (end != itr)
+         {
+            itr_list_type& row_deq = (*itr);
+            itr_list_type::iterator row_itr = row_deq.begin();
+
+            while (row_deq.end() != row_itr)
+            {
+               if (p(row_itr->first,row_itr->second))
                {
                   row_itr = (*itr).erase(row_itr);
                }
@@ -5560,6 +5590,28 @@ namespace strtk
       t = string_to_type_converter<T>(std::string(range.first,range.second));
       return true;
    }
+
+   struct empty_range
+   {
+   public:
+
+      template<typename InputIterator>
+      inline bool operator()(const InputIterator begin, const InputIterator end)
+      {
+         return (0 == std::distance(begin,end));
+      }
+   };
+
+   struct nonempty_range
+   {
+   public:
+
+      template<typename InputIterator>
+      inline bool operator()(const InputIterator begin, const InputIterator end)
+      {
+         return (0 != std::distance(begin,end));
+      }
+   };
 
    template<typename OutputIterator>
    struct filter_non_empty_range
