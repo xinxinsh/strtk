@@ -3942,17 +3942,20 @@ namespace strtk
          : row_split_option(split_options::compress_delimiters),
            column_split_option(split_options::compress_delimiters),
            row_delimiters("\n\r"),
-           column_delimiters(",|;\t ")
+           column_delimiters(",|;\t "),
+           support_dquotes(false)
          {}
 
          options(split_options::type sro,
                  split_options::type sco,
                  const std::string& rd,
-                 const std::string& cd)
+                 const std::string& cd,
+                 const bool support_dq = false)
          : row_split_option(sro),
            column_split_option(sco),
            row_delimiters(rd),
-           column_delimiters(cd)
+           column_delimiters(cd),
+           support_dquotes(support_dq)
          {}
 
          inline options& set_column_split_option(const split_options::type& option)
@@ -3983,6 +3986,7 @@ namespace strtk
          split_options::type column_split_option;
          std::string row_delimiters;
          std::string column_delimiters;
+         bool support_dquotes;
       };
 
       class row_type
@@ -5472,6 +5476,39 @@ namespace strtk
       token_grid(const token_grid& tg);
       token_grid operator=(const token_grid& tg);
 
+      class double_quotes_predicate
+      {
+      public:
+
+         double_quotes_predicate(const std::string& delimiters)
+         : in_bracket_range_(false),
+           mdp_(delimiters)
+         {}
+
+         inline bool operator()(const unsigned char c) const
+         {
+            if ('"' == c)
+            {
+               in_bracket_range_ = !in_bracket_range_;
+               return true;
+            }
+            else if (in_bracket_range_)
+               return false;
+            else
+               return mdp_(c);
+         }
+
+         inline void reset()
+         {
+            in_bracket_range_ = false;
+         }
+
+      private:
+
+         mutable bool in_bracket_range_;
+         mutable strtk::multiple_char_delimiter_predicate mdp_;
+      };
+
       bool load()
       {
          if (load_from_file_ && !load_buffer_from_file())
@@ -5485,6 +5522,7 @@ namespace strtk
                options_.row_split_option);
 
          multiple_char_delimiter_predicate token_predicate(options_.column_delimiters);
+         double_quotes_predicate token_predicate_dblq(options_.column_delimiters);
 
          min_column_count_ = std::numeric_limits<std::size_t>::max();
          max_column_count_ = std::numeric_limits<std::size_t>::min();
@@ -5497,11 +5535,21 @@ namespace strtk
             if (0 != std::distance(itr->first,itr->second))
             {
                itr_list_type current_token_list;
-               split(token_predicate,
-                     itr->first,
-                     itr->second,
-                     std::back_inserter(current_token_list),
-                     options_.column_split_option);
+               if (!options_.support_dquotes)
+                  split(token_predicate,
+                        itr->first,
+                        itr->second,
+                        std::back_inserter(current_token_list),
+                        options_.column_split_option);
+               else
+               {
+                  split(token_predicate_dblq,
+                        itr->first,
+                        itr->second,
+                        std::back_inserter(current_token_list),
+                        options_.column_split_option);
+                  token_predicate_dblq.reset();
+               }
 
                if (!current_token_list.empty())
                {
