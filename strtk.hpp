@@ -269,7 +269,7 @@ namespace strtk
       };
 
       template<typename T> struct numeric;
-      template<typename T> inline std::size_t type_length(const T& t);
+      template<typename T> inline std::size_t type_length(const T&);
 
       struct no_t {};
       struct yes_t {};
@@ -2394,7 +2394,7 @@ namespace strtk
          return (*this);
       }
 
-      inline void operator()(const T& v)
+      inline void operator()(const T&)
       {
          ++counter_;
       }
@@ -5417,10 +5417,10 @@ namespace strtk
             appended = false;
             if (!(*itr).empty() && p(row_type(*itr)))
             {
-               range = (*itr)[col];
-               if (range.first != range.second)
+               range_type r = (*itr)[col];
+               if (r.first != r.second)
                {
-                  result.append(range.first,range.second);
+                  result.append(r.first,r.second);
                   appended = true;
                }
             }
@@ -7942,7 +7942,7 @@ namespace strtk
    inline bool for_each_combination_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
-         return;
+         return false;
       do
       {
          if (!function(begin,begin + size))
@@ -7973,7 +7973,7 @@ namespace strtk
    inline bool for_each_combutation_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
-         return;
+         return false;
       do
       {
          do
@@ -10109,7 +10109,7 @@ namespace strtk
    }
 
    template<typename T>
-   inline std::size_t type_length(const T& t)
+   inline std::size_t type_length(const T&)
    {
       return type_length<T>();
    }
@@ -10740,7 +10740,7 @@ namespace strtk
       template<typename T,
                typename Comparator,
                typename Allocator>
-      inline void read_pod(std::ifstream& stream,
+      inline bool read_pod(std::ifstream& stream,
                            const std::size_t& count,
                            std::set<T,Comparator,Allocator>& set)
       {
@@ -10879,7 +10879,8 @@ namespace strtk
       inline void write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
+         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
       }
 
       template<typename T>
