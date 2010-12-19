@@ -993,12 +993,32 @@ namespace strtk
       }
    }
 
+   namespace details
+   {
+      inline std::size_t strnlen(const char* s, std::size_t n)
+      {
+         // Not the most optimal implementation. Waiting for
+         // strn* extensions to become mandetory.
+         const char* itr = s;
+         for(std::size_t i = 0; i < n; ++i, ++itr)
+         {
+            if ('\0' == (*itr)) return i;
+         }
+         return n;
+      }
+
+      inline std::size_t strnlen(const unsigned char* s, std::size_t n)
+      {
+         return strnlen(reinterpret_cast<const char*>(s),n);
+      }
+   }
+
    inline void remove_consecutives_inplace(const char* rem_chars, std::string& s)
    {
       if (s.empty()) return;
       const std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(
                                                                     rem_chars,
-                                                                    rem_chars + ::strnlen(rem_chars,256)),
+                                                                    rem_chars + details::strnlen(rem_chars,256)),
                                                                     s.begin(),
                                                                     s.end());
       if (removal_count > 0)
@@ -1130,7 +1150,7 @@ namespace strtk
    {
       const std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(
                                                         rem_chars,
-                                                        rem_chars + ::strnlen(rem_chars,256)),
+                                                        rem_chars + details::strnlen(rem_chars,256)),
                                                         s.begin(),
                                                         s.end());
       if (removal_count > 0)
@@ -1206,7 +1226,7 @@ namespace strtk
       if (s.empty()) return;
       const std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(
                                                        rem_chars,
-                                                       rem_chars + ::strnlen(rem_chars,256)),
+                                                       rem_chars + details::strnlen(rem_chars,256)),
                                                        s.begin(),
                                                        s.end());
       if (removal_count > 0)
@@ -1678,7 +1698,7 @@ namespace strtk
       template<typename Iterartor,
                typename Predicate,
                typename T = std::pair<Iterator,Iterator> >
-      class tokenizer_iterator : public std::iterator<std::forward_iterator_tag, T>
+      class tokenizer_iterator : public std::iterator<std::forward_iterator_tag,T>
       {
       protected:
 
