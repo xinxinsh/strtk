@@ -475,6 +475,12 @@ void token_grid_test10()
 
    struct stock_info
    {
+      stock_info()
+      : total_volume(0),
+        day_count(0),
+        average_daily_volume(0.0)
+      {}
+
       unsigned long long total_volume;
       std::size_t day_count;
       double average_daily_volume;
@@ -489,11 +495,11 @@ void token_grid_test10()
    goog.average_daily_volume = (1.0 * goog.total_volume) / goog.day_count;
    msft.average_daily_volume = (1.0 * msft.total_volume) / msft.day_count;
 
-   std::cout << "Total Volume (GOOG): " << goog.total_volume << std::endl;
-   std::cout << "Total Volume (MSFT): " << msft.total_volume << std::endl;
+   std::cout << "[GOOG] Total Volume: " << goog.total_volume << std::endl;
+   std::cout << "[MSFT] Total Volume: " << msft.total_volume << std::endl;
 
-   std::cout << "ADV (GOOG): " << goog.average_daily_volume << std::endl;
-   std::cout << "ADV (MSFT): " << msft.average_daily_volume << std::endl;
+   std::cout << "[GOOG] ADV: " << goog.average_daily_volume << std::endl;
+   std::cout << "[MSFT] ADV: " << msft.average_daily_volume << std::endl;
 }
 
 void token_grid_test11()
