@@ -5239,79 +5239,89 @@ namespace strtk
       }
 
       template<typename T>
-      inline bool accumulate_column(const std::size_t& col,
-                                    const row_range_type& range,
-                                    T& result) const
+      inline std::size_t accumulate_column(const std::size_t& col,
+                                           const row_range_type& range,
+                                           T& result) const
       {
          if (col > max_column_count_)
-            return false;
+            return 0;
 
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
-            return false;
+            return 0;
 
          if (range.first > range.second)
-            return false;
+            return 0;
 
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          T current_value = T();
+
+         std::size_t process_count = 0;
 
          while (end != itr)
          {
             if (!(*itr).empty())
             {
                if (string_to_type_converter((*itr)[col].first, (*itr)[col].second, current_value))
+               {
                   result += current_value;
+                  ++process_count;
+               }
                else
-                  return false;
+                  return 0;
             }
             ++itr;
          }
-         return true;
+         return process_count;
       }
 
       template<typename T>
-      inline bool accumulate_column(const std::size_t& col, T& result) const
+      inline std::size_t accumulate_column(const std::size_t& col, T& result) const
       {
          return accumulate_column(col,all_rows(),result);
       }
 
       template<typename T, typename Predicate>
-      inline bool accumulate_column(const std::size_t& col,
-                                    const row_range_type& range,
-                                    Predicate p,
-                                    T& result) const
+      inline std::size_t accumulate_column(const std::size_t& col,
+                                           const row_range_type& range,
+                                           Predicate p,
+                                           T& result) const
       {
          if (col > max_column_count_)
-            return false;
+            return 0;
 
          if ((range.first > token_list_.size()) || (range.second > token_list_.size()))
-            return false;
+            return 0;
 
          if (range.first > range.second)
-            return false;
+            return 0;
 
          itr_list_list_type::const_iterator itr = token_list_.begin() + range.first;
          itr_list_list_type::const_iterator end = token_list_.begin() + range.second;
          T current_value = T();
+
+         std::size_t process_count = 0;
 
          while (end != itr)
          {
             if (!(*itr).empty() && p(row_type(*itr)))
             {
                if (string_to_type_converter((*itr)[col].first, (*itr)[col].second, current_value))
+               {
                   result += current_value;
+                  ++process_count;
+               }
                else
-                  return false;
+                  return 0;
             }
             ++itr;
          }
 
-         return true;
+         return process_count;
       }
 
       template<typename T, typename Predicate>
-      inline bool accumulate_column(const std::size_t& col,
+      inline std::size_t accumulate_column(const std::size_t& col,
                                     Predicate p,
                                     T& result) const
       {
