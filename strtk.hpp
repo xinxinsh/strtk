@@ -995,12 +995,12 @@ namespace strtk
 
    namespace details
    {
-      inline std::size_t strnlen(const char* s, std::size_t n)
+      inline std::size_t strnlen(const char* s, const std::size_t& n)
       {
          // Not the most optimal implementation. Waiting for
-         // strn* extensions to become mandetory.
+         // strn* extensions to become mandatory.
          const char* itr = s;
-         for(std::size_t i = 0; i < n; ++i, ++itr)
+         for (std::size_t i = 0; i < n; ++i, ++itr)
          {
             if ('\0' == (*itr)) return i;
          }
@@ -4443,7 +4443,7 @@ namespace strtk
          inline bool parse(const col_range_type& range,
                            Sequence<T,Allocator>& sequence) const
          {
-            if(!validate_column_range(range))
+            if (!validate_column_range(range))
                return false;
 
             itr_list_type::const_iterator itr = token_list_->begin() + range.first;
@@ -4468,7 +4468,7 @@ namespace strtk
          inline bool parse(const col_range_type& range,
                            std::set<T,Comparator,Allocator>& set) const
          {
-            if(!validate_column_range(range))
+            if (!validate_column_range(range))
                return false;
 
             itr_list_type::const_iterator itr = token_list_->begin() + range.first;
@@ -4491,7 +4491,7 @@ namespace strtk
          inline bool parse(const col_range_type& range,
                            std::queue<T,Container>& queue) const
          {
-            if(!validate_column_range(range))
+            if (!validate_column_range(range))
                return false;
 
             itr_list_type::const_iterator itr = token_list_->begin() + range.first;
@@ -4514,7 +4514,7 @@ namespace strtk
          inline bool parse(const col_range_type& range,
                            std::stack<T,Container>& stack) const
          {
-            if(!validate_column_range(range))
+            if (!validate_column_range(range))
                return false;
 
             itr_list_type::const_iterator itr = token_list_->begin() + range.first;
@@ -4539,7 +4539,7 @@ namespace strtk
          inline bool parse(const col_range_type& range,
                            std::priority_queue<T,Container,Comparator>& priority_queue) const
          {
-            if(!validate_column_range(range))
+            if (!validate_column_range(range))
                return false;
 
             itr_list_type::const_iterator itr = token_list_->begin() + range.first;
@@ -9065,6 +9065,7 @@ namespace strtk
          return right_align(width,pad,type_to_string(t));
       }
 
+
       template<typename T>
       inline std::string left_align(const std::size_t& width,
                                     const std::string::value_type& pad,
@@ -9074,24 +9075,21 @@ namespace strtk
       }
 
       template<typename T>
-      inline std::string center(const std::string::value_type& pad,
-                                const T& t)
+      inline std::string center(const std::size_t& width, const T& t)
       {
-         return center(details::type_length<T>(t),pad,type_to_string(t));
+         return center(width,' ',type_to_string(t));
       }
 
       template<typename T>
-      inline std::string right_align(const std::string::value_type& pad,
-                                     const T& t)
+      inline std::string right_align(const std::size_t& width, const T& t)
       {
-         return right_align(details::type_length<T>(t),pad,type_to_string(t));
+         return right_align(width,' ',type_to_string(t));
       }
 
       template<typename T>
-      inline std::string left_align(const std::string::value_type& pad,
-                                    const T& t)
+      inline std::string left_align(const std::size_t& width, const T& t)
       {
-         return left_align(details::type_length<T>(t),pad,type_to_string(t));
+         return left_align(width,' ',type_to_string(t));
       }
 
       inline std::string remaining_string(const std::size_t& index,
@@ -9112,9 +9110,31 @@ namespace strtk
          return (('A' <= c) && ( c <= 'Z')) || (('a' <= c) && ( c <= 'z'));
       }
 
+      inline bool is_lowercase_letter(const char c)
+      {
+         return (('a' <= c) && ( c <= 'z'));
+      }
+
+      inline bool is_uppercase_letter(const char c)
+      {
+         return (('a' <= c) && ( c <= 'z'));
+      }
+
       inline bool is_digit(const char c)
       {
          return (('0' <= c) && ( c <= '9'));
+      }
+
+      inline bool is_hex_digit(const char c)
+      {
+         return (('0' <= c) && (c <= '9')) ||
+                (('A' <= c) && (c <= 'F')) ||
+                (('a' <= c) && (c <= 'f'));
+      }
+
+      inline bool is_letter_or_digit(const char c)
+      {
+         return (is_letter(c) || is_digit(c));
       }
 
       inline bool is_all_letters(const std::string& s)
