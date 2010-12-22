@@ -44,7 +44,7 @@ public:
 private:
 
    Container* c_;
-   std::string delimiters_;
+   const std::string delimiters_;
 };
 
 int main()

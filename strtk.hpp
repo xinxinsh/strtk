@@ -5791,7 +5791,7 @@ namespace strtk
          for (const std::string* itr = begin_; end_ != itr; ++itr)
          {
             if ((case_insensitive_ &&
-               (imatch((*itr).begin(),(*itr).end(),range.first,range.second))) ||
+               (imatch((*itr).data(),(*itr).data() + (*itr).size(),range.first,range.second))) ||
                (!case_insensitive_ && std::equal((*itr).begin(),(*itr).end(),range.first)))
             {
                if (allow_through_on_match_)
