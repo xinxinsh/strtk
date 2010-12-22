@@ -42,6 +42,7 @@ public:
    }
 
 private:
+   key_value_parser& operator=(const key_value_parser&);
 
    Container* c_;
    const std::string delimiters_;
