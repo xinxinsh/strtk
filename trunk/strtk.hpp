@@ -75,7 +75,7 @@ namespace strtk
                                      Function function)
    {
       std::size_t token_count = 0;
-      tokenizer.assign(buffer.begin(),buffer.end());
+      tokenizer.assign(buffer);
       typename Tokenizer::iterator itr = tokenizer.begin();
       typename Tokenizer::const_iterator end = tokenizer.end();
       while (end != itr)
@@ -1629,8 +1629,8 @@ namespace strtk
                                const std::string& data,
                                OutputIterator out)
    {
-      return find_all(pattern.begin(),pattern.end(),
-                      data.begin(),data.end(),
+      return find_all(pattern.data(), pattern.data() + pattern.size(),
+                      data.data(), data.data() + data.size(),
                       out);
    }
 
@@ -1649,8 +1649,8 @@ namespace strtk
                                 const std::string& data,
                                 OutputIterator out)
    {
-      return ifind_all(pattern.begin(),pattern.end(),
-                       data.begin(),data.end(),
+      return ifind_all(pattern.data(), pattern.data() + pattern.size(),
+                       data.data(), data.data() + data.size(),
                        out);
    }
 
@@ -1883,8 +1883,8 @@ namespace strtk
                        const tokenize_options::type tokenize_options = tokenize_options::default_mode)
       : tokenize_options_(tokenize_options),
         predicate_(predicate),
-        begin_(s.begin()),
-        end_(s.end()),
+        begin_(s.data()),
+        end_(s.data() + s.size()),
         begin_itr_(begin_,end_,predicate_,tokenize_options_),
         end_itr_(end_,end_,predicate_,tokenize_options_)
       {}
@@ -1904,12 +1904,12 @@ namespace strtk
 
       inline void assign(const std::string& s) const
       {
-         assign(s.begin(),s.end());
+         assign(s.data(),s.data() + s.size());
       }
 
       inline void assign(const std::string& s)
       {
-         assign(s.begin(),s.end());
+         assign(s.data(),s.data() + s.size());
       }
 
       inline void assign(const Iterator begin, const Iterator end)
@@ -1946,7 +1946,7 @@ namespace strtk
       struct tokenizer
       {
          typedef DelimiterPredicate predicate_type;
-         typedef std::string::const_iterator string_iterator_type;
+         typedef const std::string::value_type* string_iterator_type;
          typedef strtk::tokenizer<string_iterator_type,DelimiterPredicate> type;
          typedef strtk::tokenizer<string_iterator_type,multiple_char_delimiter_predicate> md_type;
          typedef std::pair<string_iterator_type,string_iterator_type> iterator_type;
@@ -3103,6 +3103,15 @@ namespace strtk
          ++match_count;
       }
       return match_count;
+   }
+
+   template<typename OffsetPredicate,
+            typename OutputIterator>
+   inline std::size_t offset_splitter(const std::string& str,
+                                      const OffsetPredicate& offset,
+                                      OutputIterator out)
+   {
+      return offset_splitter(str.data(),str.data() + str.size(),offset,out);
    }
 
    template<typename InputIterator>
