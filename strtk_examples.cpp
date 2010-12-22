@@ -402,7 +402,7 @@ void offset_splitter_example01()
    const int offset_list[] = {1,2,3,4,5,6,7};
    const strtk::offset_predicate<7> os_p(offset_list);
    strtk::std_string::token_list_type token_list;
-   strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
+   strtk::offset_splitter(s,os_p,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator itr = token_list.begin();
    while (token_list.end() != itr)
    {
@@ -419,7 +419,7 @@ void offset_splitter_example02()
    const int offset_list[] = {4,2,2,2,2,2,3};
    const strtk::offset_predicate<7> os_p(offset_list);
    strtk::std_string::token_list_type token_list;
-   strtk::offset_splitter(s.begin(),s.end(),os_p,std::back_inserter(token_list));
+   strtk::offset_splitter(s,os_p,std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator itr = token_list.begin();
    while (token_list.end() != itr)
    {
@@ -437,7 +437,7 @@ void offset_splitter_example03()
    std::cout << "offset_splitter_example03" << std::endl;
    std::string s = "abcdefghijklmnopqrstuvwxyz012";
    strtk::std_string::token_list_type token_list;
-   strtk::offset_splitter(s.begin(),s.end(),strtk::offsets(1,2,3,4,5,6,7),std::back_inserter(token_list));
+   strtk::offset_splitter(s,strtk::offsets(1,2,3,4,5,6,7),std::back_inserter(token_list));
    strtk::std_string::token_list_type::iterator itr = token_list.begin();
    while (token_list.end() != itr)
    {
