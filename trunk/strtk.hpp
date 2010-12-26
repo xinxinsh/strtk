@@ -67,6 +67,7 @@ namespace strtk
 
    static const std::size_t one_kilobyte = 1024;
    static const std::size_t one_megabyte = 1024 * one_kilobyte;
+   static const std::size_t one_gigabyte = 1024 * one_megabyte;
    static const std::size_t magic_seed   = 0xA5A5A5A5;
 
    template<typename Tokenizer, typename Function>
@@ -2972,7 +2973,10 @@ namespace strtk
       inline int next() const
       {
          int result = offset_list_[current_index_++];
-         if (rotate_ && (current_index_ >= offset_list_size)) current_index_ = 0;
+         if (rotate_ && (current_index_ >= offset_list_size))
+         {
+            current_index_ = 0;
+         }
          return result;
       }
 
@@ -3298,8 +3302,8 @@ namespace strtk
    inline void convert_bin_to_hex(const std::string& binary_data, std::string& output)
    {
       output.resize(binary_data.size() * 2);
-      convert_bin_to_hex(binary_data.c_str(),
-                         binary_data.c_str() + binary_data.size(),
+      convert_bin_to_hex(binary_data.data(),
+                         binary_data.data() + binary_data.size(),
                          const_cast<char*>(output.c_str()));
    }
 
@@ -3365,7 +3369,9 @@ namespace strtk
       if (hex_data.empty() || (1 == (hex_data.size() % 2)))
          return false;
       output.resize(hex_data.size() >> 1);
-      return convert_hex_to_bin(hex_data.data(), hex_data.data() + hex_data.size(), const_cast<char*>(output.c_str()));
+      return convert_hex_to_bin(hex_data.data(),
+                                hex_data.data() + hex_data.size(),
+                                const_cast<char*>(output.c_str()));
    }
 
    inline std::size_t convert_bin_to_base64(const unsigned char* begin, const unsigned char* end, unsigned char* out)
@@ -3712,8 +3718,8 @@ namespace strtk
          return false;
       }
       out.resize(str1.size());
-      return twoway_bitwise_interleave(str1.c_str(),str1.c_str() + str1.size(),
-                                       str2.c_str(),str2.c_str() + str2.size(),
+      return twoway_bitwise_interleave(str1.data(),str1.data() + str1.size(),
+                                       str2.data(),str2.data() + str2.size(),
                                        const_cast<char*>(out.c_str()));
    }
 
@@ -3777,8 +3783,8 @@ namespace strtk
       if (str1.size() != str2.size()) return;
       out.resize(str1.size());
       bitwise_transform(operation,
-                        str1.c_str(),str1.c_str() + str1.size(),
-                        str2.c_str(),
+                        str1.data(),str1.data() + str1.size(),
+                        str2.data(),
                         const_cast<char*>(out.c_str()));
    }
 
@@ -7931,7 +7937,7 @@ namespace strtk
       return next_combination(sequence.begin(), sequence.begin() + size, sequence.end());
    }
 
-   template<typename Iterator, class Function>
+   template<typename Iterator, typename Function>
    inline void for_each_permutation(Iterator begin, Iterator end, Function function)
    {
       do
@@ -7941,7 +7947,7 @@ namespace strtk
       while (std::next_permutation(begin,end));
    }
 
-   template<typename Iterator, class Function>
+   template<typename Iterator, typename Function>
    inline bool for_each_permutation_conditional(Iterator begin, Iterator end, Function function)
    {
       do
@@ -7953,7 +7959,7 @@ namespace strtk
       return true;
    }
 
-   template<typename Iterator, class Function>
+   template<typename Iterator, typename Function>
    inline void for_each_combination(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
@@ -7965,7 +7971,7 @@ namespace strtk
       while (next_combination(begin,begin + size,end));
    }
 
-   template<typename Iterator, class Function>
+   template<typename Iterator, typename Function>
    inline bool for_each_combination_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
@@ -7979,7 +7985,7 @@ namespace strtk
       return true;
    }
 
-   template<typename Iterator, class Function>
+   template<typename Iterator, typename Function>
    inline void for_each_combutation(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
@@ -7996,7 +8002,7 @@ namespace strtk
       while (next_combination(begin,begin + size,end));
    }
 
-   template<typename Iterator, class Function>
+   template<typename Iterator, typename Function>
    inline bool for_each_combutation_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
@@ -8472,7 +8478,7 @@ namespace strtk
 
          inline bool operator()(const std::string& input)
          {
-            return operator()(input.c_str(),input.size());
+            return operator()(input.data(),input.size());
          }
 
          inline bool operator()(const ushort_string_adptr& input)
@@ -8488,7 +8494,7 @@ namespace strtk
             if (!buffer_capacity_ok(raw_size))
                return false;
 
-            const char* ptr = input.s.c_str();
+            const char* ptr = input.s.data();
             std::copy(ptr, ptr + raw_size, buffer_);
             buffer_ += raw_size;
             written_buffer_size_ += raw_size;
@@ -8714,7 +8720,7 @@ namespace strtk
 
       inline hex_to_number_sink& operator=(const std::string& s)
       {
-         return this->operator =(std::make_pair(s.c_str(),s.c_str() + s.size()));
+         return this->operator =(std::make_pair(s.data(),s.data() + s.size()));
       }
 
       inline bool valid() const
@@ -8789,14 +8795,16 @@ namespace strtk
 
       inline base64_to_number_sink& operator=(const std::string& s)
       {
-         if (!range_only_contains(base64_value_check(),s.c_str(),s.c_str() + s.size()))
+         if (!range_only_contains(base64_value_check(),s.data(),s.data() + s.size()))
          {
             valid_ = false;
             return (*this);
          }
 
          *t_ = T(0);
-         convert_base64_to_bin(s.c_str(), s.c_str() + s.size(),reinterpret_cast<char*>(t_));
+         convert_base64_to_bin(s.data(),
+                               s.data() + s.size(),
+                               reinterpret_cast<char*>(t_));
          reverse_bytes();
          return (*this);
       }
@@ -10504,7 +10512,7 @@ namespace strtk
 
       inline bool write_file(const std::string& file_name, const std::string& buffer)
       {
-         return write_file(file_name,const_cast<char*>(buffer.c_str()),buffer.size());
+         return write_file(file_name,const_cast<char*>(buffer.data()),buffer.size());
       }
 
       inline bool copy_file(const std::string& src_file_name, const std::string& dest_file_name)
@@ -12266,8 +12274,8 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.71828182845904523536028747";
-      static const char* date    = "20101111";
+      static const char* version = "2.718281828459045235360287471352";
+      static const char* date    = "20110101";
 
       static inline std::string data()
       {
