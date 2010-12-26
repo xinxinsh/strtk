@@ -6346,7 +6346,7 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                      begin, end,
+                      begin,end,
                       range_to_type_back_inserter(sequence),
                       split_option);
       else
@@ -6369,12 +6369,12 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                      begin, end,
+                      begin,end,
                       range_to_type_inserter(set),
                       split_option);
       else
          return split(multiple_char_delimiter_predicate(delimiters),
-                      begin, end,
+                      begin,end,
                       range_to_type_inserter(set),
                       split_option);
    }
@@ -6391,12 +6391,12 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                      begin, end,
+                      begin,end,
                       range_to_type_push_inserter(queue),
                       split_option);
       else
          return split(multiple_char_delimiter_predicate(delimiters),
-                      begin, end,
+                      begin,end,
                       range_to_type_push_inserter(queue),
                       split_option);
    }
@@ -6413,7 +6413,7 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                      begin, end,
+                      begin,end,
                       range_to_type_push_inserter(stack),
                       split_option);
       else
@@ -6436,12 +6436,12 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                      begin, end,
+                      begin,end,
                       range_to_type_push_inserter(priority_queue),
                       split_option);
       else
          return split(multiple_char_delimiter_predicate(delimiters),
-                      begin, end,
+                      begin,end,
                       range_to_type_push_inserter(priority_queue),
                       split_option);
    }
@@ -6459,13 +6459,13 @@ namespace strtk
    {
       if (1 == delimiters.size())
          return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_back_inserter(sequence),
                         split_option);
       else
          return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_back_inserter(sequence),
                         split_option);
@@ -6484,13 +6484,13 @@ namespace strtk
    {
       if (1 == delimiters.size())
          return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_inserter(set),
                         split_option);
       else
          return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_inserter(set),
                         split_option);
@@ -6509,13 +6509,13 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_push_inserter(queue),
                         split_option);
       else
          return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_push_inserter(queue),
                         split_option);
@@ -6534,13 +6534,13 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_push_inserter(stack),
                         split_option);
       else
          return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_push_inserter(stack),
                         split_option);
@@ -6560,13 +6560,13 @@ namespace strtk
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       if (1 == delimiters.size())
          return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_push_inserter(priority_queue),
                         split_option);
       else
          return split_n(multiple_char_delimiter_predicate(delimiters),
-                        begin, end,
+                        begin,end,
                         n,
                         range_to_type_push_inserter(priority_queue),
                         split_option);
@@ -9774,8 +9774,8 @@ namespace strtk
          if (0 != exponent)
          {
             if (
-                (std::numeric_limits<T>::max_exponent10 < exponent) ||
-                (std::numeric_limits<T>::min_exponent10 > exponent)
+                 (std::numeric_limits<T>::max_exponent10 < exponent) ||
+                 (std::numeric_limits<T>::min_exponent10 > exponent)
                )
             {
                return false;
