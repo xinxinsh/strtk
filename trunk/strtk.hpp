@@ -12139,31 +12139,31 @@ namespace strtk
 namespace
 {
 
-   inline std::ostream& operator<<(std::ostream& os,
-                                   const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<char> >::type::iterator& range)
+   static inline std::ostream& operator<<(std::ostream& os,
+                                          const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<char> >::type::iterator& range)
    {
       os << std::string((*range).first,(*range).second);
       return os;
    }
 
-   inline std::ostream& operator<<(std::ostream& os,
-                                   const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<unsigned char> >::type::iterator& range)
+   static inline std::ostream& operator<<(std::ostream& os,
+                                          const strtk::std_string::tokenizer<strtk::single_delimiter_predicate<unsigned char> >::type::iterator& range)
    {
       os << std::string((*range).first,(*range).second);
       return os;
    }
 
-   inline std::ostream& operator<<(std::ostream& os,
-                                   const strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator& range)
+   static inline std::ostream& operator<<(std::ostream& os,
+                                          const strtk::std_string::tokenizer<strtk::multiple_char_delimiter_predicate>::type::iterator& range)
    {
       os << std::string((*range).first,(*range).second);
       return os;
    }
 
    #define strtk_register_pair_to_ostream(Iterator)\
-   inline std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
+   static inline std::ostream& operator<<(std::ostream& os, const std::pair<Iterator,Iterator>& range)\
    { os << std::string(range.first,range.second); return os; }\
-   inline std::ostream& operator<<(std::ostream& os, std::pair<Iterator,Iterator>& range)\
+   static inline std::ostream& operator<<(std::ostream& os, std::pair<Iterator,Iterator>& range)\
    { os << std::string(range.first,range.second); return os; }\
 
    strtk_register_pair_to_ostream(char*)
