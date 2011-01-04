@@ -3299,6 +3299,65 @@ namespace strtk
       lexicographically_canonicalize(sequence.begin(),sequence.end());
    }
 
+   inline const char* first_non_repeated_char(const char* begin, const char* end)
+   {
+      typedef std::pair<bool,unsigned long long> lut_element_type;
+      static const std::size_t lut_size = 256;
+      lut_element_type lut[lut_size] =
+                       {
+                          lut_element_type(false,std::numeric_limits<unsigned long long>::max())
+                       };
+
+      const char* itr = begin;
+      unsigned long long position = 0;
+      while (end != itr)
+      {
+         lut_element_type& cell = lut[static_cast<unsigned int>(*itr)];
+         if (!cell.first)
+         {
+            cell.second = position;
+            cell.first = true;
+         }
+         else if (std::numeric_limits<unsigned long long>::max() != cell.second)
+         {
+            cell.second = std::numeric_limits<unsigned long long>::max();
+         }
+         ++itr;
+         ++position;
+      }
+
+      position = std::numeric_limits<unsigned long long>::max();
+
+      for (std::size_t i = 0; i < lut_size; ++i)
+      {
+         const lut_element_type& cell = lut[i];
+         if ((!cell.first) || (std::numeric_limits<unsigned long long>::max() == cell.second))
+            continue;
+         if (cell.second < position)
+            position = cell.second;
+      }
+
+      return (begin + position);
+   }
+
+   inline const unsigned char* first_non_repeated_char(const unsigned char* begin, const unsigned char* end)
+   {
+      const char * b = const_cast<const char*>(reinterpret_cast<char*>(const_cast<unsigned char*>(begin)));
+      const char * e = const_cast<const char*>(reinterpret_cast<char*>(const_cast<unsigned char*>(end)));
+      return const_cast<const unsigned char*>(reinterpret_cast<unsigned char*>(const_cast<char*>(first_non_repeated_char(b,e))));
+   }
+
+   inline std::size_t first_non_repeated_char(const std::string& str)
+   {
+      if (str.empty())
+         return static_cast<std::size_t>(std::string::npos);
+      const char* itr = first_non_repeated_char(str.data(),str.data() + str.size());
+      if ((str.data() + str.size()) != itr)
+         return static_cast<std::size_t>(itr - str.data());
+      else
+         return static_cast<std::size_t>(std::string::npos);
+   }
+
    inline void convert_bin_to_hex(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       static const unsigned char hex_symbol[] = { "0123456789ABCDEF" };
