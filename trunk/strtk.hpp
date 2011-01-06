@@ -12213,6 +12213,125 @@ namespace strtk
          }
       }
 
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8,
+                            const T& v9, const T& v10)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);  sequence.push_back(v4);
+         sequence.push_back(v5);  sequence.push_back(v6);
+         sequence.push_back(v7);  sequence.push_back(v8);
+         sequence.push_back(v9); sequence.push_back(v10);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8,
+                            const T& v9)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);  sequence.push_back(v4);
+         sequence.push_back(v5);  sequence.push_back(v6);
+         sequence.push_back(v7);  sequence.push_back(v8);
+         sequence.push_back(v9);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);  sequence.push_back(v4);
+         sequence.push_back(v5);  sequence.push_back(v6);
+         sequence.push_back(v7);  sequence.push_back(v8);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);  sequence.push_back(v4);
+         sequence.push_back(v5);  sequence.push_back(v6);
+         sequence.push_back(v7);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);  sequence.push_back(v4);
+         sequence.push_back(v5);  sequence.push_back(v6);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);  sequence.push_back(v4);
+         sequence.push_back(v5);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3, const T& v4)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);  sequence.push_back(v4);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2, const T& v3)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+         sequence.push_back(v3);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1, const T& v2)
+      {
+         sequence.push_back(v1);  sequence.push_back(v2);
+      }
+
+      template<typename T,
+               typename Allocator,
+               template<typename,typename> class Sequence>
+      inline void push_back(Sequence<T,Allocator>& sequence,
+                            const T& v1)
+      {
+         sequence.push_back(v1);
+      }
+
+
    } // namespace util
 
 } // namespace strtk
