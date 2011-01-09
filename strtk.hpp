@@ -7330,7 +7330,7 @@ namespace strtk
    template <typename T,
              typename Container,
              typename Comparator>
-   inline std::size_t parse_line(const std::string& data,
+   inline std::size_t parse_line(std::ifstream& stream,
                                  const std::string& delimiters,
                                  std::priority_queue<T,Container,Comparator>& priority_queue,
                                  const split_options::type& split_option = split_options::compress_delimiters)
@@ -7448,7 +7448,7 @@ namespace strtk
    template <typename T,
              typename Container,
              typename Comparator>
-   inline std::size_t parse_line_n(const std::string& data,
+   inline std::size_t parse_line_n(std::ifstream& stream,
                                    const std::string& delimiters,
                                    const std::size_t& n,
                                    std::priority_queue<T,Container,Comparator>& priority_queue,
