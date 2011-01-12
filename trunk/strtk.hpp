@@ -11246,6 +11246,13 @@ namespace strtk
             return (false == stream.read(reinterpret_cast<char*>(&t),
                                          static_cast<std::streamsize>(sizeof(T))).fail());
          }
+
+         template<typename T>
+         inline bool write_pod_proxy(std::ofstream& stream, const T& t)
+         {
+            return (false == stream.write(reinterpret_cast<char*>(&t),
+                                          static_cast<std::streamsize>(sizeof(T))).fail());
+         }
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
@@ -11256,16 +11263,16 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9, T10& t10)
       {
-         return read_pod_proxy(stream, t1) &&
-                read_pod_proxy(stream, t2) &&
-                read_pod_proxy(stream, t3) &&
-                read_pod_proxy(stream, t4) &&
-                read_pod_proxy(stream, t5) &&
-                read_pod_proxy(stream, t6) &&
-                read_pod_proxy(stream, t7) &&
-                read_pod_proxy(stream, t8) &&
-                read_pod_proxy(stream, t9) &&
-                read_pod_proxy(stream,t10);
+         return details::read_pod_proxy(stream, t1) &&
+                details::read_pod_proxy(stream, t2) &&
+                details::read_pod_proxy(stream, t3) &&
+                details::read_pod_proxy(stream, t4) &&
+                details::read_pod_proxy(stream, t5) &&
+                details::read_pod_proxy(stream, t6) &&
+                details::read_pod_proxy(stream, t7) &&
+                details::read_pod_proxy(stream, t8) &&
+                details::read_pod_proxy(stream, t9) &&
+                details::read_pod_proxy(stream,t10);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
@@ -11276,15 +11283,15 @@ namespace strtk
                            T5& t5, T6& t6, T7& t7, T8& t8,
                            T9& t9)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2) &&
-                read_pod_proxy(stream,t3) &&
-                read_pod_proxy(stream,t4) &&
-                read_pod_proxy(stream,t5) &&
-                read_pod_proxy(stream,t6) &&
-                read_pod_proxy(stream,t7) &&
-                read_pod_proxy(stream,t8) &&
-                read_pod_proxy(stream,t9);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2) &&
+                details::read_pod_proxy(stream,t3) &&
+                details::read_pod_proxy(stream,t4) &&
+                details::read_pod_proxy(stream,t5) &&
+                details::read_pod_proxy(stream,t6) &&
+                details::read_pod_proxy(stream,t7) &&
+                details::read_pod_proxy(stream,t8) &&
+                details::read_pod_proxy(stream,t9);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
@@ -11293,14 +11300,14 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7, T8& t8)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2) &&
-                read_pod_proxy(stream,t3) &&
-                read_pod_proxy(stream,t4) &&
-                read_pod_proxy(stream,t5) &&
-                read_pod_proxy(stream,t6) &&
-                read_pod_proxy(stream,t7) &&
-                read_pod_proxy(stream,t8);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2) &&
+                details::read_pod_proxy(stream,t3) &&
+                details::read_pod_proxy(stream,t4) &&
+                details::read_pod_proxy(stream,t5) &&
+                details::read_pod_proxy(stream,t6) &&
+                details::read_pod_proxy(stream,t7) &&
+                details::read_pod_proxy(stream,t8);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
@@ -11309,13 +11316,13 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6, T7& t7)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2) &&
-                read_pod_proxy(stream,t3) &&
-                read_pod_proxy(stream,t4) &&
-                read_pod_proxy(stream,t5) &&
-                read_pod_proxy(stream,t6) &&
-                read_pod_proxy(stream,t7);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2) &&
+                details::read_pod_proxy(stream,t3) &&
+                details::read_pod_proxy(stream,t4) &&
+                details::read_pod_proxy(stream,t5) &&
+                details::read_pod_proxy(stream,t6) &&
+                details::read_pod_proxy(stream,t7);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
@@ -11324,12 +11331,12 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5, T6& t6)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2) &&
-                read_pod_proxy(stream,t3) &&
-                read_pod_proxy(stream,t4) &&
-                read_pod_proxy(stream,t5) &&
-                read_pod_proxy(stream,t6);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2) &&
+                details::read_pod_proxy(stream,t3) &&
+                details::read_pod_proxy(stream,t4) &&
+                details::read_pod_proxy(stream,t5) &&
+                details::read_pod_proxy(stream,t6);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
@@ -11338,44 +11345,44 @@ namespace strtk
                            T1& t1, T2& t2, T3& t3, T4& t4,
                            T5& t5)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2) &&
-                read_pod_proxy(stream,t3) &&
-                read_pod_proxy(stream,t4) &&
-                read_pod_proxy(stream,t5);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2) &&
+                details::read_pod_proxy(stream,t3) &&
+                details::read_pod_proxy(stream,t4) &&
+                details::read_pod_proxy(stream,t5);
       }
 
       template<typename T1, typename T2, typename T3, typename T4>
       inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3, T4& t4)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2) &&
-                read_pod_proxy(stream,t3) &&
-                read_pod_proxy(stream,t4);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2) &&
+                details::read_pod_proxy(stream,t3) &&
+                details::read_pod_proxy(stream,t4);
       }
 
       template<typename T1, typename T2, typename T3>
       inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2, T3& t3)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2) &&
-                read_pod_proxy(stream,t3);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2) &&
+                details::read_pod_proxy(stream,t3);
       }
 
       template<typename T1, typename T2>
       inline bool read_pod(std::ifstream& stream,
                            T1& t1, T2& t2)
       {
-         return read_pod_proxy(stream,t1) &&
-                read_pod_proxy(stream,t2);
+         return details::read_pod_proxy(stream,t1) &&
+                details::read_pod_proxy(stream,t2);
       }
 
       template<typename T>
       inline bool read_pod(std::ifstream& stream, T& t)
       {
-         return read_pod_proxy(stream,t);
+         return details::read_pod_proxy(stream,t);
       }
 
       template<typename T, std::size_t N>
@@ -11395,7 +11402,7 @@ namespace strtk
 
          for (std::size_t i = 0; i < count; ++i)
          {
-            if (!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
+            if (details::read_pod_proxy(stream,t))
             {
                sequence.push_back(t);
             }
@@ -11431,166 +11438,170 @@ namespace strtk
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7, typename T8,
                typename T9, typename T10>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                             const T9& t9, const T10& t10)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast< T1&>( t1)),static_cast<std::streamsize>(sizeof( T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T2&>( t2)),static_cast<std::streamsize>(sizeof( T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T3&>( t3)),static_cast<std::streamsize>(sizeof( T3)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T4&>( t4)),static_cast<std::streamsize>(sizeof( T4)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T5&>( t5)),static_cast<std::streamsize>(sizeof( T5)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T6&>( t6)),static_cast<std::streamsize>(sizeof( T6)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T7&>( t7)),static_cast<std::streamsize>(sizeof( T7)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T8&>( t8)),static_cast<std::streamsize>(sizeof( T8)));
-         stream.write(reinterpret_cast<char*>(&const_cast< T9&>( t9)),static_cast<std::streamsize>(sizeof( T9)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T10&>(t10)),static_cast<std::streamsize>(sizeof(T10)));
+         return details::write_pod_proxy(stream, t1) &&
+                details::write_pod_proxy(stream, t2) &&
+                details::write_pod_proxy(stream, t3) &&
+                details::write_pod_proxy(stream, t4) &&
+                details::write_pod_proxy(stream, t5) &&
+                details::write_pod_proxy(stream, t6) &&
+                details::write_pod_proxy(stream, t7) &&
+                details::write_pod_proxy(stream, t8) &&
+                details::write_pod_proxy(stream, t9) &&
+                details::write_pod_proxy(stream,t10);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7, typename T8,
                typename T9>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8,
                             const T9& t9)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T7&>(t7)),static_cast<std::streamsize>(sizeof(T7)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T8&>(t8)),static_cast<std::streamsize>(sizeof(T8)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T9&>(t9)),static_cast<std::streamsize>(sizeof(T9)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2) &&
+                details::write_pod_proxy(stream,t3) &&
+                details::write_pod_proxy(stream,t4) &&
+                details::write_pod_proxy(stream,t5) &&
+                details::write_pod_proxy(stream,t6) &&
+                details::write_pod_proxy(stream,t7) &&
+                details::write_pod_proxy(stream,t8) &&
+                details::write_pod_proxy(stream,t9);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7, typename T8>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7, const T8& t8)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T7&>(t7)),static_cast<std::streamsize>(sizeof(T7)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T8&>(t8)),static_cast<std::streamsize>(sizeof(T8)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2) &&
+                details::write_pod_proxy(stream,t3) &&
+                details::write_pod_proxy(stream,t4) &&
+                details::write_pod_proxy(stream,t5) &&
+                details::write_pod_proxy(stream,t6) &&
+                details::write_pod_proxy(stream,t7) &&
+                details::write_pod_proxy(stream,t8);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6, typename T7>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6, const T7& t7)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T7&>(t7)),static_cast<std::streamsize>(sizeof(T7)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2) &&
+                details::write_pod_proxy(stream,t3) &&
+                details::write_pod_proxy(stream,t4) &&
+                details::write_pod_proxy(stream,t5) &&
+                details::write_pod_proxy(stream,t6) &&
+                details::write_pod_proxy(stream,t7);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5, typename T6>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5, const T6& t6)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T6&>(t6)),static_cast<std::streamsize>(sizeof(T6)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2) &&
+                details::write_pod_proxy(stream,t3) &&
+                details::write_pod_proxy(stream,t4) &&
+                details::write_pod_proxy(stream,t5) &&
+                details::write_pod_proxy(stream,t6);
       }
 
       template<typename T1, typename T2, typename T3, typename T4,
                typename T5>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4,
                             const T5& t5)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T5&>(t5)),static_cast<std::streamsize>(sizeof(T5)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2) &&
+                details::write_pod_proxy(stream,t3) &&
+                details::write_pod_proxy(stream,t4) &&
+                details::write_pod_proxy(stream,t5);
       }
 
       template<typename T1, typename T2, typename T3, typename T4>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3, const T4& t4)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T4&>(t4)),static_cast<std::streamsize>(sizeof(T4)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2) &&
+                details::write_pod_proxy(stream,t3) &&
+                details::write_pod_proxy(stream,t4);
       }
 
       template<typename T1, typename T2, typename T3>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2, const T3& t3)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T2&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T3&>(t3)),static_cast<std::streamsize>(sizeof(T3)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2) &&
+                details::write_pod_proxy(stream,t3);
       }
 
       template<typename T1, typename T2>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const T1& t1, const T2& t2)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t1)),static_cast<std::streamsize>(sizeof(T1)));
-         stream.write(reinterpret_cast<char*>(&const_cast<T1&>(t2)),static_cast<std::streamsize>(sizeof(T2)));
+         return details::write_pod_proxy(stream,t1) &&
+                details::write_pod_proxy(stream,t2);
       }
 
       template<typename T>
-      inline void write_pod(std::ofstream& stream, const T& t)
+      inline bool write_pod(std::ofstream& stream, const T& t)
       {
-         stream.write(reinterpret_cast<char*>(&const_cast<T&>(t)),static_cast<std::streamsize>(sizeof(T)));
+         return details::write_pod_proxy(stream,t);
       }
 
       template<typename T, std::size_t N>
-      inline void write_pod(std::ofstream& stream, T (&t)[N])
+      inline bool write_pod(std::ofstream& stream, T (&t)[N])
       {
-         stream.write(reinterpret_cast<char*>(&t[0]),static_cast<std::streamsize>(sizeof(T) * N));
+         return (false != stream.write(reinterpret_cast<char*>(&t[0]),sizeof(T) * N).fail());
       }
 
       template<typename T,
                typename Allocator,
                template<typename,typename> class Sequence>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const Sequence<T,Allocator>& sequence)
       {
          typename Sequence<T,Allocator>::iterator itr = sequence.begin();
          typename Sequence<T,Allocator>::iterator end = sequence.end();
          while (end != itr)
          {
-            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
-            ++itr;
+            if (details::details::write_pod_proxy(stream,*itr))
+               ++itr;
+            else
+               return false;
          }
       }
 
       template<typename T,
                typename Comparator,
                typename Allocator>
-      inline void write_pod(std::ofstream& stream,
+      inline bool write_pod(std::ofstream& stream,
                             const std::set<T,Comparator,Allocator>& set)
       {
          typename std::set<T,Comparator,Allocator>::iterator itr = set.begin();
          typename std::set<T,Comparator,Allocator>::iterator end = set.end();
          while (end != itr)
          {
-            stream.write(reinterpret_cast<char*>(&const_cast<T&>(*itr)),static_cast<std::streamsize>(sizeof(T)));
-            ++itr;
+            if (details::details::write_pod_proxy(stream,*itr))
+               ++itr;
+            else
+               return false;
          }
       }
 
