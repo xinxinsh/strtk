@@ -11581,7 +11581,7 @@ namespace strtk
          typename Sequence<T,Allocator>::iterator end = sequence.end();
          while (end != itr)
          {
-            if (details::details::write_pod_proxy(stream,*itr))
+            if (details::write_pod_proxy(stream,*itr))
                ++itr;
             else
                return false;
@@ -11598,7 +11598,7 @@ namespace strtk
          typename std::set<T,Comparator,Allocator>::iterator end = set.end();
          while (end != itr)
          {
-            if (details::details::write_pod_proxy(stream,*itr))
+            if (details::write_pod_proxy(stream,*itr))
                ++itr;
             else
                return false;
