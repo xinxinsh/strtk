@@ -7015,9 +7015,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5,t6,
                           t7,t8,t9,t10,t11,t12);
@@ -7037,9 +7038,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5,t6,
                           t7,t8,t9,t10,t11);
@@ -7059,9 +7061,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5,t6,
                           t7,t8,t9,t10);
@@ -7081,9 +7084,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5,t6,
                           t7,t8,t9);
@@ -7102,9 +7106,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5,t6,
                           t7,t8);
@@ -7123,9 +7128,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5,t6,t7);
    }
@@ -7142,9 +7148,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5,t6);
    }
@@ -7161,9 +7168,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4,t5);
    }
@@ -7179,9 +7187,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3,t4);
    }
@@ -7197,9 +7206,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2,t3);
    }
@@ -7215,9 +7225,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1,t2);
    }
@@ -7233,9 +7244,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return false;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return false;
-      return strtk::parse(data,
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           t1);
    }
@@ -7254,9 +7266,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
-         return 0;
-      return strtk::parse(data,
+      if (data.empty() || delimiters.empty())
+         return false;
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           sequence,
                           split_option);
@@ -7276,14 +7289,14 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
-         return 0;
-      return strtk::parse(data,
+      if (data.empty() || delimiters.empty())
+         return false;
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           set,
                           split_option);
    }
-
 
    template <typename T,
              typename Container>
@@ -7298,9 +7311,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
-         return 0;
-      return strtk::parse(data,
+      if (data.empty() || delimiters.empty())
+         return false;
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           queue,
                           split_option);
@@ -7319,9 +7333,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
-         return 0;
-      return strtk::parse(data,
+      if (data.empty() || delimiters.empty())
+         return false;
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           stack,
                           split_option);
@@ -7342,9 +7357,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
-         return 0;
-      return strtk::parse(data,
+      if (data.empty() || delimiters.empty())
+         return false;
+      return strtk::parse(data.data(),
+                          data.data() + data.size(),
                           delimiters,
                           priority_queue,
                           split_option);
@@ -7365,9 +7381,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return 0;
-      return strtk::parse_n(data,
+      return strtk::parse_n(data.data(),
+                            data.data() + data.size(),
                             delimiters,
                             n,
                             sequence,
@@ -7389,15 +7406,15 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return 0;
-      return strtk::parse_n(data,
+      return strtk::parse_n(data.data(),
+                            data.data() + data.size(),
                             delimiters,
                             n,
                             set,
                             split_option);
    }
-
 
    template <typename T,
              typename Container>
@@ -7413,9 +7430,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return 0;
-      return strtk::parse_n(data,
+      return strtk::parse_n(data.data(),
+                            data.data() + data.size(),
                             delimiters,
                             n,
                             queue,
@@ -7436,9 +7454,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return 0;
-      return strtk::parse_n(data,
+      return strtk::parse_n(data.data(),
+                            data.data() + data.size(),
                             delimiters,
                             n,
                             stack,
@@ -7461,9 +7480,10 @@ namespace strtk
       data.reserve(strtk::one_kilobyte);
       if (!std::getline(stream,data))
          return 0;
-      if (data.empty())
+      if (data.empty() || delimiters.empty())
          return 0;
-      return strtk::parse_n(data,
+      return strtk::parse_n(data.data(),
+                            data.data() + data.size(),
                             delimiters,
                             n,
                             priority_queue,
