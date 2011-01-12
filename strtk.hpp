@@ -11403,9 +11403,7 @@ namespace strtk
          for (std::size_t i = 0; i < count; ++i)
          {
             if (details::read_pod_proxy(stream,t))
-            {
                sequence.push_back(t);
-            }
             else
                return false;
          }
@@ -11424,10 +11422,8 @@ namespace strtk
 
          for (std::size_t i = 0; i < count; ++i)
          {
-            if (!stream.read(reinterpret_cast<char*>(&t),static_cast<std::streamsize>(sizeof(T))).fail())
-            {
+            if (details::read_pod_proxy(stream,t))
                set.insert(t);
-            }
             else
                return false;
          }
