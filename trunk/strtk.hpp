@@ -8694,8 +8694,7 @@ namespace strtk
          return complete_index == (opt & complete_index);
       }
 
-   } // namespace split_options
-
+   } // namespace nth_combination_options
 
    template<typename OutputIterator>
    inline void nth_combination_sequence(unsigned long long n,
