@@ -64,8 +64,6 @@ void nth_combination_example01()
 
    strtk::iota(char_list,n,static_cast<unsigned char>('A'));
 
-   iterator_type itr(k,char_list.begin(),char_list.end());
-
    const std::size_t combination_count = static_cast<std::size_t>(strtk::n_choose_k(n,k));
 
    for (std::size_t i = 0; i < combination_count; ++i)
@@ -74,7 +72,8 @@ void nth_combination_example01()
       strtk::nth_combination_sequence(i,n,k,std::back_inserter(index_list));
 
       list_type nth_combination;
-      strtk::nth_combination_sequence(i,k,
+      strtk::nth_combination_sequence(i,
+                                      k,
                                       char_list.begin(),char_list.end(),
                                       std::back_inserter(nth_combination));
 
@@ -96,8 +95,6 @@ void nth_combination_example02()
 
    next_comb_list = char_list;
 
-   iterator_type itr(k,char_list.begin(),char_list.end());
-
    const std::size_t combination_count = static_cast<std::size_t>(strtk::n_choose_k(n,k));
 
    for (std::size_t i = 0; i < combination_count; ++i)
@@ -106,7 +103,8 @@ void nth_combination_example02()
       strtk::nth_combination_sequence(i,n,k,std::back_inserter(index_list));
 
       list_type nth_combination;
-      strtk::nth_combination_sequence(i,k,
+      strtk::nth_combination_sequence(i,
+                                      k,
                                       char_list.begin(),char_list.end(),
                                       std::back_inserter(nth_combination),
                                       strtk::nth_combination_options::zero_based_index |
@@ -124,9 +122,39 @@ void nth_combination_example02()
    std::cout << std::endl << std::endl;
 }
 
+void nth_combination_example03()
+{
+   typedef std::vector<unsigned char> list_type;
+   typedef strtk::combination_iterator<list_type::iterator> iterator_type;
+   list_type char_list;
+
+   strtk::iota(char_list,n,static_cast<unsigned char>('A'));
+
+   // Obtain 5th combination
+   list_type nth_combination;
+   strtk::nth_combination_sequence(4,
+                                   k,
+                                   char_list.begin(),char_list.end(),
+                                   std::back_inserter(nth_combination),
+                                   strtk::nth_combination_options::zero_based_index |
+                                   strtk::nth_combination_options::complete_index);
+
+   //Iterate beginning from 5th combination to the end
+   std::size_t i = 4;
+   do
+   {
+      std::cout << strtk::text::right_align(4,'0',i++) << " | "
+                << strtk::join("",nth_combination)     << std::endl;
+   }
+   while (strtk::next_combination(nth_combination.begin(),
+                                  nth_combination.begin() + k,
+                                  nth_combination.end()));
+}
+
 int main()
 {
    nth_combination_example01();
    nth_combination_example02();
+   nth_combination_example03();
    return 0;
 }
