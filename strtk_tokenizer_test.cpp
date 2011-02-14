@@ -601,7 +601,7 @@ inline void std_double_to_string(const double& d, std::string& s)
    s.assign(buffer);
 }
 
-inline bool isnan(const double& v)
+inline bool strtk_isnan(const double& v)
 {
    volatile double d = v;
    return d != d;
@@ -876,7 +876,7 @@ bool test_double_convert()
          return false;
       }
 
-      if ((d[i] != v) && (!isnan(v)))
+      if ((d[i] != v) && (!strtk_isnan(v)))
       {
          std::cout << "test_double_convert() double check[" << i << "]" << std::endl;
          return false;
