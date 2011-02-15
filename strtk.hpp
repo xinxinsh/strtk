@@ -10462,7 +10462,7 @@ namespace strtk
          static const char inf_uc[] = "INFINITY";
          static const char inf_lc[] = "infinity";
          static const std::size_t inf_length = 8;
-         if (std::distance(itr,end) > inf_length)
+         if (std::distance(itr,end) > static_cast<int>(inf_length))
             return false;
          const char* lc_itr = inf_lc;
          const char* uc_itr = inf_uc;
