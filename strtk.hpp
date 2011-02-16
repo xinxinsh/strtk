@@ -2567,13 +2567,15 @@ namespace strtk
                   ++range.second;
                else if (include_all_delimiters)
                   while ((end != range.second) && delimiter(*range.second)) ++range.second;
-               *(out++) = range;
+               *out = range;
+               ++out;
                if ((!include_all_delimiters) && compress_delimiters)
                   while ((end != range.second) && delimiter(*range.second)) ++range.second;
             }
             else
             {
-               *(out++) = range;
+               *out = range;
+               ++out;
                if (compress_delimiters)
                   while ((end != (++range.second)) && delimiter(*range.second)) ;
                else
@@ -2588,7 +2590,8 @@ namespace strtk
 
       if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
-         *(out++) = range;
+         *out = range;
+         ++out;
          ++token_count;
       }
 
@@ -2676,7 +2679,8 @@ namespace strtk
             if (include_delimiters)
             {
                ++range.second;
-               *(out++) = range;
+               *out = range;
+               ++out;
                if (++match_count >= token_count)
                   return match_count;
                if (compress_delimiters)
@@ -2684,7 +2688,8 @@ namespace strtk
             }
             else
             {
-               *(out++) = range;
+               *out = range;
+               ++out;
                if (++match_count >= token_count)
                   return match_count;
                if (compress_delimiters)
@@ -2700,7 +2705,8 @@ namespace strtk
 
       if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
-         *(out++) = range;
+         *out = range;
+         ++out;
          ++match_count;
       }
 
@@ -5719,7 +5725,8 @@ namespace strtk
       inline void process_column(const itr_list_type::value_type& range, OutputIterator out) const
       {
          typedef typename std::iterator_traits<OutputIterator>::value_type output_type;
-         *(out++) = string_to_type_converter<output_type>(range.first,range.second);
+         *out = string_to_type_converter<output_type>(range.first,range.second);
+         ++out;
       }
 
       template<typename OutputIterator>
@@ -5729,7 +5736,8 @@ namespace strtk
          output_type value;
          if (string_to_type_converter(range.first,range.second,value))
          {
-            *(out++) = value;
+            *out = value;
+            ++out;
          }
       }
 
@@ -11387,6 +11395,7 @@ namespace strtk
             dest_file.write(&buffer[0],static_cast<std::streamsize>(remaining_bytes));
             remaining_bytes = 0;
          }
+
          src_file.close();
          dest_file.close();
          return true;
@@ -12352,7 +12361,8 @@ namespace strtk
                   node_list_iterator end = node_list_.end();
                   while (end != itr)
                   {
-                     delete *itr++;
+                     delete *itr;
+                     ++itr;
                   }
                }
             }
@@ -12430,6 +12440,7 @@ namespace strtk
          {
             if (0 == std::distance(begin,end))
                return;
+
             key_iterator_t itr = begin;
             key_value_t key = *itr;
             node_ptr parent = 0;
