@@ -8689,11 +8689,35 @@ namespace strtk
          const value_type dimension_;
       };
 
-      std::size_t table_size = static_cast<std::size_t>(n * (n / 2) + (n & 1));
-      value_type* table = new value_type[table_size];
-      std::fill_n(table,table_size,0);
-      value_type result = n_choose_k_impl(table,n).compute(n,k);
-      delete [] table;
+      static const std::size_t static_table_dim = 100;
+      static const std::size_t static_table_size = static_cast<std::size_t>((static_table_dim * static_table_dim) / 2);
+      static value_type static_table[static_table_size];
+      static bool static_table_initialized = false;
+
+      if (!static_table_initialized && (n <= static_table_dim))
+      {
+         std::fill_n(static_table,static_table_size,0);
+         static_table_initialized = true;
+      }
+
+      const std::size_t table_size = static_cast<std::size_t>(n * (n / 2) + (n & 1));
+
+      unsigned long long dimension = static_table_dim;
+      value_type* table = 0;
+
+      if (table_size <= static_table_size)
+         table = static_table;
+      else
+      {
+         dimension = n;
+         table = new value_type[table_size];
+         std::fill_n(table,table_size,0);
+      }
+
+      value_type result = n_choose_k_impl(table,dimension).compute(n,k);
+
+      if (table != static_table)
+         delete [] table;
 
       return result;
    }
