@@ -8669,11 +8669,12 @@ namespace strtk
          inline value_type& lookup(const value_type& n, const value_type& k)
          {
             const std::size_t difference = static_cast<std::size_t>(n - k);
-            return table_[static_cast<std::size_t>((dimension_ * n) + ((k < difference) ? k : difference))];
+            return table_[static_cast<std::size_t>((dimension_ * n) + std::min<value_type>(k,difference))];
          }
 
          inline value_type compute(const value_type& n, const value_type& k)
          {
+            // n-Choose-k = (n-1)-Choose-(k-1) + (n-1)-Choose-k
             if ((0 == k) || (k == n))
                return 1;
             value_type v1 = lookup(n - 1,k - 1);
@@ -10533,7 +10534,7 @@ namespace strtk
                return false;
          }
 
-         const std::size_t length = static_cast<std::size_t>(std::distance(lower_case ? inf_lc : inf_uc,inf_itr));
+         const std::size_t length = static_cast<std::size_t>(std::distance(static_cast<const char*>(lower_case ? inf_lc : inf_uc),inf_itr));
 
          if ((3 != length) && (inf_length != length))
             return false;
