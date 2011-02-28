@@ -8749,6 +8749,7 @@ namespace strtk
       value_type j = 0;
       value_type x = 0;
       ++n;
+
       for (std::size_t i = 1; i <= (k - 1); ++i)
       {
          index_list[i - 1] = 0;
@@ -8756,9 +8757,10 @@ namespace strtk
          {
             index_list[i - 1] = index_list[i - 2];
          }
+
          do
          {
-            index_list[i - 1] = index_list[i - 1] + 1;
+            index_list[i - 1] += 1;
             j = n_choose_k(r - index_list[i - 1], k - i);
             x += j;
          }
