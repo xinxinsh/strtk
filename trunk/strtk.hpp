@@ -10492,7 +10492,7 @@ namespace strtk
          if (std::distance(itr,end) != static_cast<int>(nan_length))
             return false;
 
-         const char* nan_itr   = ('n' == *itr) ? nan_lc : nan_uc;
+         const char* nan_itr = ('n' == *itr) ? nan_lc : nan_uc;
 
          while (end != itr)
          {
