@@ -1137,9 +1137,10 @@ bool test_construct_and_parse()
 
 bool test_int_uint_convert()
 {
-   static const std::size_t count = 1000000;
+   static const std::size_t count = 10000000;
    std::string s;
    s.reserve(32);
+
    {
       int t = 0;
       for (int i = -static_cast<int>(count); i < static_cast<int>(count); ++i)
@@ -1165,7 +1166,7 @@ bool test_int_uint_convert()
 
    {
       unsigned int t = 0;
-      for (unsigned int i = 0; i < count; ++i)
+      for (unsigned int i = 0; i < (2 * count); ++i)
       {
          if (!strtk::type_to_string(i,s))
          {
@@ -1330,44 +1331,84 @@ bool test_int_uint_convert()
 
       if (strtk::string_to_type_converter(s1,t))
       {
-         std::cout << "test_int_uint_convert() - Failed bad test for min int str: " << s << std::endl;
+         std::cout << "test_int_uint_convert() - Failed bad test for min int str: " << s1 << std::endl;
          return false;
       }
 
       if (strtk::string_to_type_converter(s2,t))
       {
-         std::cout << "test_int_uint_convert() - Failed bad test for max1 int str: " << s << std::endl;
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 int str: " << s2 << std::endl;
          return false;
       }
 
       if (strtk::string_to_type_converter(s3,t))
       {
-         std::cout << "test_int_uint_convert() - Failed bad test for max2 int str: " << s << std::endl;
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 int str: " << s3 << std::endl;
          return false;
       }
    }
 
    {
-      std::string s1 = "-9223372036854775808";
-      std::string s2 = "+9223372036854775808";
-      std::string s3 =  "9223372036854775808";
-      int t = 0;
+      std::string s1 = "-0009223372036854775809";
+      std::string s2 = "+0009223372036854775808";
+      std::string s3 =  "0009223372036854775808";
+      std::string s4 =  "0009999999999999999999";
+      long long t = 0;
 
       if (strtk::string_to_type_converter(s1,t))
       {
-         std::cout << "test_int_uint_convert() - Failed bad test for min long long str: " << s << std::endl;
+         std::cout << "test_int_uint_convert() - Failed bad test for min long long str: " << s1 << std::endl;
          return false;
       }
 
       if (strtk::string_to_type_converter(s2,t))
       {
-         std::cout << "test_int_uint_convert() - Failed bad test for max1 long long str: " << s << std::endl;
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 long long str: " << s2 << std::endl;
          return false;
       }
 
       if (strtk::string_to_type_converter(s3,t))
       {
-         std::cout << "test_int_uint_convert() - Failed bad test for max2 long long str: " << s << std::endl;
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 long long str: " << s3 << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s4,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for extreme long long str: " << s4 << std::endl;
+         return false;
+      }
+   }
+
+   {
+      std::string s1 = "-00018446744073709551616";
+      std::string s2 = "+00018446744073709551616";
+      std::string s3 =  "00018446744073709551616";
+      std::string s4 =  "00099999999999999999999";
+
+      unsigned long long t = 0;
+
+      if (strtk::string_to_type_converter(s1,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for min unsigned long long str: " << s1 << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s2,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max1 unsigned long long str: " << s2 << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s3,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for max2 unsigned long long str: " << s3 << std::endl;
+         return false;
+      }
+
+      if (strtk::string_to_type_converter(s4,t))
+      {
+         std::cout << "test_int_uint_convert() - Failed bad test for extreme unsigned long long str: " << s4 << std::endl;
          return false;
       }
    }
