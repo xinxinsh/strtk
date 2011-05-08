@@ -10127,10 +10127,10 @@ namespace strtk
       template<> struct numeric<short>              { enum { length =  5, size = 16, bound_length =  4}; };
       template<> struct numeric<unsigned short>     { enum { length =  5, size = 16, bound_length =  4}; };
 
-      template<> struct numeric<int>                { enum { length = 10, size = 16, bound_length =  8}; };
+      template<> struct numeric<int>                { enum { length = 10, size = 16, bound_length =  9}; };
       template<> struct numeric<unsigned int>       { enum { length = 10, size = 16, bound_length =  9}; };
 
-      template<> struct numeric<long>               { enum { length = 10, size = 16, bound_length =  8}; };
+      template<> struct numeric<long>               { enum { length = 10, size = 16, bound_length =  9}; };
       template<> struct numeric<unsigned long>      { enum { length = 10, size = 16, bound_length =  9}; };
 
       template<> struct numeric<long long>          { enum { length = 19, size = 24, bound_length = 18}; };
@@ -10415,39 +10415,38 @@ namespace strtk
                   return false;
             }
 
-
             if (interim_end != end)
             {
                if (1 == std::distance(interim_end,end))
                {
                   typedef unsigned long long num_type;
                   static const num_type max = static_cast<num_type>(std::numeric_limits<T>::max());
-                  static const num_type min = static_cast<num_type>(-1 * std::numeric_limits<T>::min());
-                  static const num_type pos_penultimate_bound = static_cast<num_type>(max / 10);
-                  static const num_type neg_penultimate_bound = static_cast<num_type>(min / 10);
-                  static const num_type pos_final_digit = static_cast<num_type>(max % 10);
-                  static const num_type neg_final_digit = static_cast<num_type>(min % 10);
+                  static const num_type min = static_cast<num_type>(static_cast<long long>(-1) * std::numeric_limits<T>::min());
+                  static const num_type positive_penultimate_bound = static_cast<num_type>(max / 10);
+                  static const num_type negative_penultimate_bound = static_cast<num_type>(min / 10);
+                  static const num_type positive_final_digit = static_cast<num_type>(max % 10);
+                  static const num_type negative_final_digit = static_cast<num_type>(min % 10);
 
                   digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
                   if (is_valid_digit(digit))
                   {
                      if (negative)
                      {
-                        if (static_cast<num_type>(t) > neg_penultimate_bound)
+                        if (static_cast<num_type>(t) > negative_penultimate_bound)
                            return false;
                         else if (
-                                 (neg_penultimate_bound == static_cast<num_type>(t)) &&
-                                 (neg_final_digit < static_cast<num_type>(digit))
+                                 (negative_penultimate_bound == static_cast<num_type>(t)) &&
+                                 (negative_final_digit < static_cast<num_type>(digit))
                                 )
                            return false;
                      }
                      else
                      {
-                        if (static_cast<num_type>(t) > pos_penultimate_bound)
+                        if (static_cast<num_type>(t) > positive_penultimate_bound)
                            return false;
                         else if (
-                                 (pos_penultimate_bound == static_cast<num_type>(t)) &&
-                                 (pos_final_digit < static_cast<num_type>(digit))
+                                 (positive_penultimate_bound == static_cast<num_type>(t)) &&
+                                 (positive_final_digit < static_cast<num_type>(digit))
                                 )
                            return false;
                      }
@@ -13362,6 +13361,5 @@ namespace strtk
    } // namespace information
 
 } // namespace strtk
-
 
 #endif
