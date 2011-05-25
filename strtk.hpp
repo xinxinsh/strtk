@@ -10034,7 +10034,10 @@ namespace strtk
                if (0 != --count)
                   ++itr;
                else
-                  break;
+               {
+                  std::advance(itr,1 - n);
+                  return itr;
+               }
             }
             else
             {
@@ -10044,9 +10047,7 @@ namespace strtk
                count = n;
             }
          }
-
-         std::advance(itr,1 - n);
-         return itr;
+         return end;
       }
    }
 
