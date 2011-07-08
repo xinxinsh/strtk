@@ -770,7 +770,7 @@ namespace strtk
 
    private:
 
-      single_delimiter_predicate<T> operator=(const single_delimiter_predicate<T>&);
+      single_delimiter_predicate<T>& operator=(const single_delimiter_predicate<T>&);
 
       const T delimiter_;
    };
@@ -831,9 +831,7 @@ namespace strtk
    private:
 
       multiple_delimiter_predicate(const multiple_delimiter_predicate<T>& mdp);
-      multiple_delimiter_predicate operator=(const multiple_delimiter_predicate<T>& mdp);
-
-   private:
+      multiple_delimiter_predicate& operator=(const multiple_delimiter_predicate<T>& mdp);
 
       std::size_t length_;
       T* delimiter_;
@@ -5597,7 +5595,7 @@ namespace strtk
    private:
 
       token_grid(const token_grid& tg);
-      token_grid operator=(const token_grid& tg);
+      token_grid& operator=(const token_grid& tg);
 
       class double_quotes_predicate
       {
@@ -5841,7 +5839,7 @@ namespace strtk
    private:
 
       filter_on_wildcard_match(const filter_on_wildcard_match& fom);
-      filter_on_wildcard_match operator=(const filter_on_wildcard_match& fom);
+      filter_on_wildcard_match& operator=(const filter_on_wildcard_match& fom);
 
       bool allow_through_on_match_;
       std::string match_pattern_;
@@ -9431,7 +9429,7 @@ namespace strtk
 
          private:
 
-            short_string_impl operator=(const short_string_impl&);
+            short_string_impl& operator=(const short_string_impl&);
             mutable std::string* s;
          };
       }
@@ -10987,6 +10985,8 @@ namespace strtk
 
          bool instate = false;
 
+         int pre_decimal = 0;
+
          if ('.' != *itr)
          {
             const Iterator curr = itr;
@@ -10999,6 +10999,7 @@ namespace strtk
                else
                   break;
                ++itr;
+               ++pre_decimal;
             }
             if (curr != itr) instate = true;
          }
@@ -11078,8 +11079,8 @@ namespace strtk
          if (0 != exponent)
          {
             if (
-                 (std::numeric_limits<T>::max_exponent10 < exponent) ||
-                 (std::numeric_limits<T>::min_exponent10 > exponent)
+                 (std::numeric_limits<T>::max_exponent10 < (exponent + pre_decimal)) ||
+                 (std::numeric_limits<T>::min_exponent10 > (exponent + pre_decimal))
                )
             {
                return false;
