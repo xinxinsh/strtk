@@ -10904,7 +10904,7 @@ namespace strtk
 
          while (end != itr)
          {
-            if (*nan_itr == *itr)
+            if (*nan_itr == static_cast<char>(*itr))
             {
                ++itr;
                ++nan_itr;
@@ -10934,7 +10934,7 @@ namespace strtk
 
          while (end != itr)
          {
-            if (*inf_itr == *itr)
+            if (*inf_itr == static_cast<char>(*itr))
             {
                ++itr;
                ++inf_itr;
