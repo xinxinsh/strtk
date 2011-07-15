@@ -36,6 +36,11 @@
 #include "strtk.hpp"
 
 
+/*
+   Note: For performance reasons, if TR1 is available then the
+         following definition of std::map should be replaced
+         with std::unordered_map.
+*/
 typedef std::map<std::string,unsigned int> map_t;
 
 template<typename Predicate>
