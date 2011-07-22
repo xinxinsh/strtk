@@ -2471,7 +2471,7 @@ namespace strtk
    {
    public:
 
-      explicit inline functional_inserter_iterator(Function& function)
+      explicit inline functional_inserter_iterator(Function function)
       : function_(function)
       {}
 
@@ -2518,7 +2518,7 @@ namespace strtk
 
    private:
 
-      Function& function_;
+      Function function_;
    };
 
    template<typename Function>
@@ -8161,7 +8161,7 @@ namespace strtk
             template<typename,typename> class Sequence>
    inline void iota(Sequence<T,Allocator>& sequence, const T& value)
    {
-      iota(sequence.begin(),sequence.end(),value);
+      strtk::iota(sequence.begin(),sequence.end(),value);
    }
 
    template<typename T,
@@ -8169,7 +8169,7 @@ namespace strtk
             typename Allocator>
    inline void iota(std::set<T,Comparator,Allocator>& set, const T& value)
    {
-      iota(set.begin(),set.end(),value);
+      strtk::iota(set.begin(),set.end(),value);
    }
 
    template<typename InputIterator, typename OutputIterator>
