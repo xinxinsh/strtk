@@ -79,6 +79,8 @@ public:
 
 private:
 
+   inline line_parser& operator=(const line_parser&);
+
    unsigned long long& word_count_;
    map_t& map_;
    Predicate& p_;
