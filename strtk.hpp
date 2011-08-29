@@ -9437,22 +9437,22 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[ 0] - '0') * 1000000000000000L);
-                 x += ((itr[ 1] - '0') *  100000000000000L);
-                 x += ((itr[ 2] - '0') *   10000000000000L);
-                 x += ((itr[ 3] - '0') *    1000000000000L);
-                 x += ((itr[ 4] - '0') *     100000000000L);
-                 x += ((itr[ 5] - '0') *      10000000000L);
-                 x += ((itr[ 6] - '0') *       1000000000L);
-                 x += ((itr[ 7] - '0') *        100000000L);
-                 x += ((itr[ 8] - '0') *         10000000L);
-                 x += ((itr[ 9] - '0') *          1000000L);
-                 x += ((itr[10] - '0') *           100000L);
-                 x += ((itr[11] - '0') *            10000L);
-                 x += ((itr[12] - '0') *             1000L);
-                 x += ((itr[13] - '0') *              100L);
-                 x += ((itr[14] - '0') *               10L);
-                 x += ((itr[15] - '0') *                1L);
+               T x  = static_cast<T>((itr[ 0] - '0') * 1000000000000000);
+                 x += static_cast<T>((itr[ 1] - '0') *  100000000000000);
+                 x += static_cast<T>((itr[ 2] - '0') *   10000000000000);
+                 x += static_cast<T>((itr[ 3] - '0') *    1000000000000);
+                 x += static_cast<T>((itr[ 4] - '0') *     100000000000);
+                 x += static_cast<T>((itr[ 5] - '0') *      10000000000);
+                 x += static_cast<T>((itr[ 6] - '0') *       1000000000);
+                 x += static_cast<T>((itr[ 7] - '0') *        100000000);
+                 x += static_cast<T>((itr[ 8] - '0') *         10000000);
+                 x += static_cast<T>((itr[ 9] - '0') *          1000000);
+                 x += static_cast<T>((itr[10] - '0') *           100000);
+                 x += static_cast<T>((itr[11] - '0') *            10000);
+                 x += static_cast<T>((itr[12] - '0') *             1000);
+                 x += static_cast<T>((itr[13] - '0') *              100);
+                 x += static_cast<T>((itr[14] - '0') *               10);
+                 x += static_cast<T>((itr[15] - '0') *                1);
                t = x;
             }
          };
@@ -9462,21 +9462,21 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[ 0] - '0') * 100000000000000L);
-                 x += ((itr[ 1] - '0') *  10000000000000L);
-                 x += ((itr[ 2] - '0') *   1000000000000L);
-                 x += ((itr[ 3] - '0') *    100000000000L);
-                 x += ((itr[ 4] - '0') *     10000000000L);
-                 x += ((itr[ 5] - '0') *      1000000000L);
-                 x += ((itr[ 6] - '0') *       100000000L);
-                 x += ((itr[ 7] - '0') *        10000000L);
-                 x += ((itr[ 8] - '0') *         1000000L);
-                 x += ((itr[ 9] - '0') *          100000L);
-                 x += ((itr[10] - '0') *           10000L);
-                 x += ((itr[11] - '0') *            1000L);
-                 x += ((itr[12] - '0') *             100L);
-                 x += ((itr[13] - '0') *              10L);
-                 x += ((itr[14] - '0') *               1L);
+               T x  = static_cast<T>((itr[ 0] - '0') * 100000000000000);
+                 x += static_cast<T>((itr[ 1] - '0') *  10000000000000);
+                 x += static_cast<T>((itr[ 2] - '0') *   1000000000000);
+                 x += static_cast<T>((itr[ 3] - '0') *    100000000000);
+                 x += static_cast<T>((itr[ 4] - '0') *     10000000000);
+                 x += static_cast<T>((itr[ 5] - '0') *      1000000000);
+                 x += static_cast<T>((itr[ 6] - '0') *       100000000);
+                 x += static_cast<T>((itr[ 7] - '0') *        10000000);
+                 x += static_cast<T>((itr[ 8] - '0') *         1000000);
+                 x += static_cast<T>((itr[ 9] - '0') *          100000);
+                 x += static_cast<T>((itr[10] - '0') *           10000);
+                 x += static_cast<T>((itr[11] - '0') *            1000);
+                 x += static_cast<T>((itr[12] - '0') *             100);
+                 x += static_cast<T>((itr[13] - '0') *              10);
+                 x += static_cast<T>((itr[14] - '0') *               1);
                t = x;
             }
          };
@@ -9486,20 +9486,20 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[ 0] - '0') * 10000000000000L);
-                 x += ((itr[ 1] - '0') *  1000000000000L);
-                 x += ((itr[ 2] - '0') *   100000000000L);
-                 x += ((itr[ 3] - '0') *    10000000000L);
-                 x += ((itr[ 4] - '0') *     1000000000L);
-                 x += ((itr[ 5] - '0') *      100000000L);
-                 x += ((itr[ 6] - '0') *       10000000L);
-                 x += ((itr[ 7] - '0') *        1000000L);
-                 x += ((itr[ 8] - '0') *         100000L);
-                 x += ((itr[ 9] - '0') *          10000L);
-                 x += ((itr[10] - '0') *           1000L);
-                 x += ((itr[11] - '0') *            100L);
-                 x += ((itr[12] - '0') *             10L);
-                 x += ((itr[13] - '0') *              1L);
+               T x  = static_cast<T>((itr[ 0] - '0') * 10000000000000);
+                 x += static_cast<T>((itr[ 1] - '0') *  1000000000000);
+                 x += static_cast<T>((itr[ 2] - '0') *   100000000000);
+                 x += static_cast<T>((itr[ 3] - '0') *    10000000000);
+                 x += static_cast<T>((itr[ 4] - '0') *     1000000000);
+                 x += static_cast<T>((itr[ 5] - '0') *      100000000);
+                 x += static_cast<T>((itr[ 6] - '0') *       10000000);
+                 x += static_cast<T>((itr[ 7] - '0') *        1000000);
+                 x += static_cast<T>((itr[ 8] - '0') *         100000);
+                 x += static_cast<T>((itr[ 9] - '0') *          10000);
+                 x += static_cast<T>((itr[10] - '0') *           1000);
+                 x += static_cast<T>((itr[11] - '0') *            100);
+                 x += static_cast<T>((itr[12] - '0') *             10);
+                 x += static_cast<T>((itr[13] - '0') *              1);
                t = x;
             }
          };
@@ -9509,19 +9509,19 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[ 0] - '0') * 1000000000000L);
-                 x += ((itr[ 1] - '0') *  100000000000L);
-                 x += ((itr[ 2] - '0') *   10000000000L);
-                 x += ((itr[ 3] - '0') *    1000000000L);
-                 x += ((itr[ 4] - '0') *     100000000L);
-                 x += ((itr[ 5] - '0') *      10000000L);
-                 x += ((itr[ 6] - '0') *       1000000L);
-                 x += ((itr[ 7] - '0') *        100000L);
-                 x += ((itr[ 8] - '0') *         10000L);
-                 x += ((itr[ 9] - '0') *          1000L);
-                 x += ((itr[10] - '0') *           100L);
-                 x += ((itr[11] - '0') *            10L);
-                 x += ((itr[12] - '0') *             1L);
+               T x  = static_cast<T>((itr[ 0] - '0') * 1000000000000);
+                 x += static_cast<T>((itr[ 1] - '0') *  100000000000);
+                 x += static_cast<T>((itr[ 2] - '0') *   10000000000);
+                 x += static_cast<T>((itr[ 3] - '0') *    1000000000);
+                 x += static_cast<T>((itr[ 4] - '0') *     100000000);
+                 x += static_cast<T>((itr[ 5] - '0') *      10000000);
+                 x += static_cast<T>((itr[ 6] - '0') *       1000000);
+                 x += static_cast<T>((itr[ 7] - '0') *        100000);
+                 x += static_cast<T>((itr[ 8] - '0') *         10000);
+                 x += static_cast<T>((itr[ 9] - '0') *          1000);
+                 x += static_cast<T>((itr[10] - '0') *           100);
+                 x += static_cast<T>((itr[11] - '0') *            10);
+                 x += static_cast<T>((itr[12] - '0') *             1);
                t = x;
             }
          };
@@ -9531,18 +9531,18 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[ 0] - '0') * 100000000000L);
-                 x += ((itr[ 1] - '0') *  10000000000L);
-                 x += ((itr[ 2] - '0') *   1000000000L);
-                 x += ((itr[ 3] - '0') *    100000000L);
-                 x += ((itr[ 4] - '0') *     10000000L);
-                 x += ((itr[ 5] - '0') *      1000000L);
-                 x += ((itr[ 6] - '0') *       100000L);
-                 x += ((itr[ 7] - '0') *        10000L);
-                 x += ((itr[ 8] - '0') *         1000L);
-                 x += ((itr[ 9] - '0') *          100L);
-                 x += ((itr[10] - '0') *           10L);
-                 x += ((itr[11] - '0') *            1L);
+               T x  = static_cast<T>((itr[ 0] - '0') * 100000000000);
+                 x += static_cast<T>((itr[ 1] - '0') *  10000000000);
+                 x += static_cast<T>((itr[ 2] - '0') *   1000000000);
+                 x += static_cast<T>((itr[ 3] - '0') *    100000000);
+                 x += static_cast<T>((itr[ 4] - '0') *     10000000);
+                 x += static_cast<T>((itr[ 5] - '0') *      1000000);
+                 x += static_cast<T>((itr[ 6] - '0') *       100000);
+                 x += static_cast<T>((itr[ 7] - '0') *        10000);
+                 x += static_cast<T>((itr[ 8] - '0') *         1000);
+                 x += static_cast<T>((itr[ 9] - '0') *          100);
+                 x += static_cast<T>((itr[10] - '0') *           10);
+                 x += static_cast<T>((itr[11] - '0') *            1);
                t = x;
             }
          };
@@ -9552,17 +9552,17 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[ 0] - '0') * 10000000000L);
-                 x += ((itr[ 1] - '0') *  1000000000L);
-                 x += ((itr[ 2] - '0') *   100000000L);
-                 x += ((itr[ 3] - '0') *    10000000L);
-                 x += ((itr[ 4] - '0') *     1000000L);
-                 x += ((itr[ 5] - '0') *      100000L);
-                 x += ((itr[ 6] - '0') *       10000L);
-                 x += ((itr[ 7] - '0') *        1000L);
-                 x += ((itr[ 8] - '0') *         100L);
-                 x += ((itr[ 9] - '0') *          10L);
-                 x += ((itr[10] - '0') *           1L);
+               T x  = static_cast<T>((itr[ 0] - '0') * 10000000000);
+                 x += static_cast<T>((itr[ 1] - '0') *  1000000000);
+                 x += static_cast<T>((itr[ 2] - '0') *   100000000);
+                 x += static_cast<T>((itr[ 3] - '0') *    10000000);
+                 x += static_cast<T>((itr[ 4] - '0') *     1000000);
+                 x += static_cast<T>((itr[ 5] - '0') *      100000);
+                 x += static_cast<T>((itr[ 6] - '0') *       10000);
+                 x += static_cast<T>((itr[ 7] - '0') *        1000);
+                 x += static_cast<T>((itr[ 8] - '0') *         100);
+                 x += static_cast<T>((itr[ 9] - '0') *          10);
+                 x += static_cast<T>((itr[10] - '0') *           1);
                t = x;
             }
          };
@@ -9572,16 +9572,16 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 1000000000);
-                 x += ((itr[1] - '0') *  100000000);
-                 x += ((itr[2] - '0') *   10000000);
-                 x += ((itr[3] - '0') *    1000000);
-                 x += ((itr[4] - '0') *     100000);
-                 x += ((itr[5] - '0') *      10000);
-                 x += ((itr[6] - '0') *       1000);
-                 x += ((itr[7] - '0') *        100);
-                 x += ((itr[8] - '0') *         10);
-                 x += ((itr[9] - '0') *          1);
+               T x  = static_cast<T>((itr[0] - '0') * 1000000000);
+                 x += static_cast<T>((itr[1] - '0') *  100000000);
+                 x += static_cast<T>((itr[2] - '0') *   10000000);
+                 x += static_cast<T>((itr[3] - '0') *    1000000);
+                 x += static_cast<T>((itr[4] - '0') *     100000);
+                 x += static_cast<T>((itr[5] - '0') *      10000);
+                 x += static_cast<T>((itr[6] - '0') *       1000);
+                 x += static_cast<T>((itr[7] - '0') *        100);
+                 x += static_cast<T>((itr[8] - '0') *         10);
+                 x += static_cast<T>((itr[9] - '0') *          1);
                t = x;
             }
          };
@@ -9591,15 +9591,15 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 100000000);
-                 x += ((itr[1] - '0') *  10000000);
-                 x += ((itr[2] - '0') *   1000000);
-                 x += ((itr[3] - '0') *    100000);
-                 x += ((itr[4] - '0') *     10000);
-                 x += ((itr[5] - '0') *      1000);
-                 x += ((itr[6] - '0') *       100);
-                 x += ((itr[7] - '0') *        10);
-                 x += ((itr[8] - '0') *         1);
+               T x  = static_cast<T>((itr[0] - '0') * 100000000);
+                 x += static_cast<T>((itr[1] - '0') *  10000000);
+                 x += static_cast<T>((itr[2] - '0') *   1000000);
+                 x += static_cast<T>((itr[3] - '0') *    100000);
+                 x += static_cast<T>((itr[4] - '0') *     10000);
+                 x += static_cast<T>((itr[5] - '0') *      1000);
+                 x += static_cast<T>((itr[6] - '0') *       100);
+                 x += static_cast<T>((itr[7] - '0') *        10);
+                 x += static_cast<T>((itr[8] - '0') *         1);
                t = x;
             }
          };
@@ -9609,14 +9609,14 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 10000000);
-                 x += ((itr[1] - '0') *  1000000);
-                 x += ((itr[2] - '0') *   100000);
-                 x += ((itr[3] - '0') *    10000);
-                 x += ((itr[4] - '0') *     1000);
-                 x += ((itr[5] - '0') *      100);
-                 x += ((itr[6] - '0') *       10);
-                 x += ((itr[7] - '0') *        1);
+               T x  = static_cast<T>((itr[0] - '0') * 10000000);
+                 x += static_cast<T>((itr[1] - '0') *  1000000);
+                 x += static_cast<T>((itr[2] - '0') *   100000);
+                 x += static_cast<T>((itr[3] - '0') *    10000);
+                 x += static_cast<T>((itr[4] - '0') *     1000);
+                 x += static_cast<T>((itr[5] - '0') *      100);
+                 x += static_cast<T>((itr[6] - '0') *       10);
+                 x += static_cast<T>((itr[7] - '0') *        1);
                t = x;
             }
          };
@@ -9626,13 +9626,13 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 1000000);
-                 x += ((itr[1] - '0') *  100000);
-                 x += ((itr[2] - '0') *   10000);
-                 x += ((itr[3] - '0') *    1000);
-                 x += ((itr[4] - '0') *     100);
-                 x += ((itr[5] - '0') *      10);
-                 x += ((itr[6] - '0') *       1);
+               T x  = static_cast<T>((itr[0] - '0') * 1000000);
+                 x += static_cast<T>((itr[1] - '0') *  100000);
+                 x += static_cast<T>((itr[2] - '0') *   10000);
+                 x += static_cast<T>((itr[3] - '0') *    1000);
+                 x += static_cast<T>((itr[4] - '0') *     100);
+                 x += static_cast<T>((itr[5] - '0') *      10);
+                 x += static_cast<T>((itr[6] - '0') *       1);
                t = x;
             }
          };
@@ -9642,12 +9642,12 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 100000);
-                 x += ((itr[1] - '0') *  10000);
-                 x += ((itr[2] - '0') *   1000);
-                 x += ((itr[3] - '0') *    100);
-                 x += ((itr[4] - '0') *     10);
-                 x += ((itr[5] - '0') *      1);
+               T x  = static_cast<T>((itr[0] - '0') * 100000);
+                 x += static_cast<T>((itr[1] - '0') *  10000);
+                 x += static_cast<T>((itr[2] - '0') *   1000);
+                 x += static_cast<T>((itr[3] - '0') *    100);
+                 x += static_cast<T>((itr[4] - '0') *     10);
+                 x += static_cast<T>((itr[5] - '0') *      1);
                t = x;
             }
          };
@@ -9657,11 +9657,11 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 10000);
-                 x += ((itr[1] - '0') *  1000);
-                 x += ((itr[2] - '0') *   100);
-                 x += ((itr[3] - '0') *    10);
-                 x += ((itr[4] - '0') *     1);
+               T x  = static_cast<T>((itr[0] - '0') * 10000);
+                 x += static_cast<T>((itr[1] - '0') *  1000);
+                 x += static_cast<T>((itr[2] - '0') *   100);
+                 x += static_cast<T>((itr[3] - '0') *    10);
+                 x += static_cast<T>((itr[4] - '0') *     1);
                t = x;
             }
          };
@@ -9671,10 +9671,10 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 1000);
-                 x += ((itr[1] - '0') *  100);
-                 x += ((itr[2] - '0') *   10);
-                 x += ((itr[3] - '0') *    1);
+               T x  = static_cast<T>((itr[0] - '0') * 1000);
+                 x += static_cast<T>((itr[1] - '0') *  100);
+                 x += static_cast<T>((itr[2] - '0') *   10);
+                 x += static_cast<T>((itr[3] - '0') *    1);
                t = x;
             }
          };
@@ -9684,9 +9684,9 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 100);
-                 x += ((itr[1] - '0') *  10);
-                 x += ((itr[2] - '0') *   1);
+               T x  = static_cast<T>((itr[0] - '0') * 100);
+                 x += static_cast<T>((itr[1] - '0') *  10);
+                 x += static_cast<T>((itr[2] - '0') *   1);
                t = x;
             }
          };
@@ -9696,8 +9696,8 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = ((itr[0] - '0') * 10);
-                 x += ((itr[1] - '0') *  1);
+               T x  = static_cast<T>((itr[0] - '0') * 10);
+                 x += static_cast<T>((itr[1] - '0') *  1);
                t = x;
             }
          };
@@ -9707,7 +9707,7 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               t = ((itr[0] - '0') * 1);
+               t = static_cast<T>((itr[0] - '0') * 1);
             }
          };
 
