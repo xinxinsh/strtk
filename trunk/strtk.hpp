@@ -9127,14 +9127,381 @@ namespace strtk
 
    namespace fast
    {
+      /*
+        Note: The following routines perform no sanity checks at all
+              upon the input data. Hence they should only be used with
+              data that is known to be completely 'valid' and correctly
+              representable with the provided type.
+      */
       namespace details
       {
+
+         template<typename Iterator, int N>
+         struct all_digits_check_impl
+         {
+            static inline bool process(Iterator)
+            {
+               return false;
+            }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,16>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[12] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[13] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[14] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[15] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,15>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[12] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[13] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[14] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,14>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[12] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[13] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,13>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[12] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,12>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[11] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,11>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[10] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,10>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 9] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,9>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 8] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,8>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 7] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,7>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 6] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,6>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 5] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,5>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 4] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,4>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 3] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,3>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 2] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,2>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
+                static_cast<unsigned char>(itr[ 1] - '0') <= 9;
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,1>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return
+                static_cast<unsigned char>(itr[ 0] - '0') <= 9;
+           }
+         };
 
          template<typename T, typename Iterator, int N>
          struct numeric_convert_impl
          {
             static inline void process(Iterator, T&)
             {}
+         };
+
+         template<typename T, typename Iterator>
+         struct numeric_convert_impl<T,Iterator,16>
+         {
+            static inline void process(Iterator itr, T& t)
+            {
+               T x  = ((itr[ 0] - '0') * 1000000000000000L);
+                 x += ((itr[ 1] - '0') *  100000000000000L);
+                 x += ((itr[ 2] - '0') *   10000000000000L);
+                 x += ((itr[ 3] - '0') *    1000000000000L);
+                 x += ((itr[ 4] - '0') *     100000000000L);
+                 x += ((itr[ 5] - '0') *      10000000000L);
+                 x += ((itr[ 6] - '0') *       1000000000L);
+                 x += ((itr[ 7] - '0') *        100000000L);
+                 x += ((itr[ 8] - '0') *         10000000L);
+                 x += ((itr[ 9] - '0') *          1000000L);
+                 x += ((itr[10] - '0') *           100000L);
+                 x += ((itr[11] - '0') *            10000L);
+                 x += ((itr[12] - '0') *             1000L);
+                 x += ((itr[13] - '0') *              100L);
+                 x += ((itr[14] - '0') *               10L);
+                 x += ((itr[15] - '0') *                1L);
+               t = x;
+            }
+         };
+
+         template<typename T, typename Iterator>
+         struct numeric_convert_impl<T,Iterator,15>
+         {
+            static inline void process(Iterator itr, T& t)
+            {
+               T x  = ((itr[ 0] - '0') * 100000000000000L);
+                 x += ((itr[ 1] - '0') *  10000000000000L);
+                 x += ((itr[ 2] - '0') *   1000000000000L);
+                 x += ((itr[ 3] - '0') *    100000000000L);
+                 x += ((itr[ 4] - '0') *     10000000000L);
+                 x += ((itr[ 5] - '0') *      1000000000L);
+                 x += ((itr[ 6] - '0') *       100000000L);
+                 x += ((itr[ 7] - '0') *        10000000L);
+                 x += ((itr[ 8] - '0') *         1000000L);
+                 x += ((itr[ 9] - '0') *          100000L);
+                 x += ((itr[10] - '0') *           10000L);
+                 x += ((itr[11] - '0') *            1000L);
+                 x += ((itr[12] - '0') *             100L);
+                 x += ((itr[13] - '0') *              10L);
+                 x += ((itr[14] - '0') *               1L);
+               t = x;
+            }
+         };
+
+         template<typename T, typename Iterator>
+         struct numeric_convert_impl<T,Iterator,14>
+         {
+            static inline void process(Iterator itr, T& t)
+            {
+               T x  = ((itr[ 0] - '0') * 10000000000000L);
+                 x += ((itr[ 1] - '0') *  1000000000000L);
+                 x += ((itr[ 2] - '0') *   100000000000L);
+                 x += ((itr[ 3] - '0') *    10000000000L);
+                 x += ((itr[ 4] - '0') *     1000000000L);
+                 x += ((itr[ 5] - '0') *      100000000L);
+                 x += ((itr[ 6] - '0') *       10000000L);
+                 x += ((itr[ 7] - '0') *        1000000L);
+                 x += ((itr[ 8] - '0') *         100000L);
+                 x += ((itr[ 9] - '0') *          10000L);
+                 x += ((itr[10] - '0') *           1000L);
+                 x += ((itr[11] - '0') *            100L);
+                 x += ((itr[12] - '0') *             10L);
+                 x += ((itr[13] - '0') *              1L);
+               t = x;
+            }
          };
 
          template<typename T, typename Iterator>
@@ -9152,7 +9519,7 @@ namespace strtk
                  x += ((itr[ 7] - '0') *        100000L);
                  x += ((itr[ 8] - '0') *         10000L);
                  x += ((itr[ 9] - '0') *          1000L);
-                 x += ((itr[ 0] - '0') *           100L);
+                 x += ((itr[10] - '0') *           100L);
                  x += ((itr[11] - '0') *            10L);
                  x += ((itr[12] - '0') *             1L);
                t = x;
@@ -9340,30 +9707,58 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               t = ((itr[1] - '0') * 1);
+               t = ((itr[0] - '0') * 1);
             }
          };
 
          template<typename T, typename Iterator>
          struct numeric_convert_impl<T,Iterator,0>
          {
-            static inline void process(Iterator, T&)
-            {}
+            static inline void process(Iterator, T& t)
+            {
+               t = 0;
+            }
          };
-
 
       } // namespace details
 
       template<int N, typename T, typename Iterator>
-      inline void numeric_convert(Iterator itr, T& t)
+      inline void numeric_convert(Iterator itr, T& t,const bool digit_check = false)
       {
-         typedef typename details::is_valid_iterator<Iterator>::type itr_type;
+         typedef typename strtk::details::is_valid_iterator<Iterator>::type itr_type;
+         if (digit_check)
+         {
+             if (!details::all_digits_check_impl<Iterator,N>(itr))
+             {
+                t = 0;
+                return;
+             }
+         }
+
          details::numeric_convert_impl<T,Iterator,N>::process(itr,t);
       }
 
-      template<typename T, typename Iterator>
-      inline void numeric_convert(const std::size_t& n, Iterator itr, T& t)
+      template<int N, typename T>
+      inline void numeric_convert(const std::string& s, T& t,const bool digit_check = false)
       {
+         numeric_convert<N,T,const char*>(s.data(),t,digit_check);
+      }
+
+      template<typename T, typename Iterator>
+      inline void numeric_convert(const std::size_t& n,
+                                  Iterator itr, T& t,
+                                  const bool digit_check = false)
+      {
+
+         if (digit_check)
+         {
+             if (!all_digits_check(n,itr))
+             {
+                t = 0;
+                return;
+             }
+         }
+
          switch (n)
          {
             case  0 : details::numeric_convert_impl<T,Iterator, 0>::process(itr,t); return;
@@ -9380,41 +9775,143 @@ namespace strtk
             case 11 : details::numeric_convert_impl<T,Iterator,11>::process(itr,t); return;
             case 12 : details::numeric_convert_impl<T,Iterator,12>::process(itr,t); return;
             case 13 : details::numeric_convert_impl<T,Iterator,13>::process(itr,t); return;
+            case 14 : details::numeric_convert_impl<T,Iterator,14>::process(itr,t); return;
+            case 15 : details::numeric_convert_impl<T,Iterator,15>::process(itr,t); return;
+            case 16 : details::numeric_convert_impl<T,Iterator,16>::process(itr,t); return;
             default : return;
          }
       }
 
+      template<typename T>
+      inline void numeric_convert(const std::string& s, T& t, const bool digit_check = false)
+      {
+         numeric_convert(s.size(),s.data(),t,digit_check);
+      }
+
       template<int N, typename T, typename Iterator>
-      inline void numeric_convert_check_sign(Iterator itr, T& t)
+      inline void signed_numeric_convert(Iterator itr, T& t, const bool digit_check = false)
       {
          if ('-' == *itr)
          {
-            numeric_convert<T,Iterator,N - 1>::process((itr + 1),t);
+            numeric_convert<T,Iterator,N - 1>((itr + 1),t,digit_check);
             t = -t;
          }
          else if ('+' == *itr)
          {
-            numeric_convert<T,Iterator,N - 1>::process((itr + 1),t);
+            numeric_convert<T,Iterator,N - 1>((itr + 1),t,digit_check);
          }
          else
-            numeric_convert<T,Iterator,N>::process(itr,t);
+            numeric_convert<T,Iterator,N>(itr,t,digit_check);
       }
 
       template<typename T, typename Iterator>
-      inline void numeric_convert_check_sign(const std::size_t& n, Iterator itr, T& t)
+      inline void signed_numeric_convert(const std::size_t& n,
+                                         Iterator itr,
+                                         T& t,
+                                         const bool digit_check = false)
       {
          if ('-' == *itr)
          {
-            numeric_convert(n - 1,(itr + 1),t);
+            numeric_convert((n - 1),(itr + 1),t,digit_check);
             t = -t;
          }
          else if ('+' == *itr)
          {
-            numeric_convert(n - 1,(itr + 1),t);
+            numeric_convert((n - 1),(itr + 1),t,digit_check);
          }
          else
-            numeric_convert(n - 1,(itr + 1),t);
+            numeric_convert(n,itr,t,digit_check);
       }
+
+      template<int N, typename T>
+      inline void signed_numeric_convert(const std::string& s,
+                                         T& t,
+                                         const bool digit_check = false)
+      {
+         signed_numeric_convert<N,T,const char*>(s.data(),t,digit_check);
+      }
+
+      template<typename T>
+      inline void signed_numeric_convert(const std::string& s,
+                                         T& t,
+                                         const bool digit_check = false)
+      {
+         signed_numeric_convert<T,const char*>(s.size(),s.data(),t,digit_check);
+      }
+
+      template<int N, typename T, typename Iterator>
+      inline bool all_digits_check(Iterator itr)
+      {
+         typedef typename strtk::details::is_valid_iterator<Iterator>::type itr_type;
+         return details::all_digits_check_impl<Iterator,N>::process(itr);
+      }
+
+      template<int N, typename T, typename Iterator>
+      inline bool all_digits_check(const std::string& s)
+      {
+         return all_digits_check<N,T,const char*>(s.data());
+      }
+
+      template<typename Iterator>
+      inline bool all_digits_check(const std::size_t& n, Iterator itr)
+      {
+         switch (n)
+         {
+            case  0 : return details::all_digits_check_impl<Iterator, 0>::process(itr);
+            case  1 : return details::all_digits_check_impl<Iterator, 1>::process(itr);
+            case  2 : return details::all_digits_check_impl<Iterator, 2>::process(itr);
+            case  3 : return details::all_digits_check_impl<Iterator, 3>::process(itr);
+            case  4 : return details::all_digits_check_impl<Iterator, 4>::process(itr);
+            case  5 : return details::all_digits_check_impl<Iterator, 5>::process(itr);
+            case  6 : return details::all_digits_check_impl<Iterator, 6>::process(itr);
+            case  7 : return details::all_digits_check_impl<Iterator, 7>::process(itr);
+            case  8 : return details::all_digits_check_impl<Iterator, 8>::process(itr);
+            case  9 : return details::all_digits_check_impl<Iterator, 9>::process(itr);
+            case 10 : return details::all_digits_check_impl<Iterator,10>::process(itr);
+            case 11 : return details::all_digits_check_impl<Iterator,11>::process(itr);
+            case 12 : return details::all_digits_check_impl<Iterator,12>::process(itr);
+            case 13 : return details::all_digits_check_impl<Iterator,13>::process(itr);
+            case 14 : return details::all_digits_check_impl<Iterator,14>::process(itr);
+            case 15 : return details::all_digits_check_impl<Iterator,15>::process(itr);
+            case 16 : return details::all_digits_check_impl<Iterator,16>::process(itr);
+            default : return false;
+         }
+      }
+
+      inline bool all_digits_check(const std::string& s)
+      {
+         return all_digits_check(s.size(),s.data());
+      }
+
+      template<int N, typename Iterator>
+      inline void signed_all_digits_check(Iterator itr)
+      {
+         if (('-' == *itr) || ('+' == *itr))
+            all_digits_check<Iterator,N - 1>((itr + 1));
+         else
+            all_digits_check<Iterator,N>(itr);
+      }
+
+      template<typename Iterator>
+      inline void signed_all_digits_check(const std::size_t& n, Iterator itr)
+      {
+         if (('-' == *itr) || ('+' == *itr))
+            all_digits_check(n - 1,(itr + 1));
+         else
+            all_digits_check(n - 1,(itr + 1));
+      }
+
+      template<int N>
+      inline void signed_all_digits_check(const std::string& s)
+      {
+         return signed_all_digits_check<N,const char*>(s.data());
+      }
+
+      inline void signed_all_digits_check(const std::string& s)
+      {
+         return signed_all_digits_check(s.size(),s.data());
+      }
+
 
    } // namespace fast
 
@@ -9450,6 +9947,37 @@ namespace strtk
          {
             read_buffer_size_ = 0;
             buffer_ = original_buffer_;
+         }
+
+         inline bool rewind(const std::size_t& n_bytes)
+         {
+            if (n_bytes <= read_buffer_size_)
+            {
+               read_buffer_size_ -= n_bytes;
+               buffer_ -= n_bytes;
+               return true;
+            }
+            else
+               return false;
+         }
+
+         inline bool seek(const int& n_bytes)
+         {
+            if (n_bytes < 0)
+               return rewind(-n_bytes);
+            else if (n_bytes > 0)
+            {
+               if ((read_buffer_size_ + n_bytes) <= buffer_length_)
+               {
+                  read_buffer_size_ += n_bytes;
+                  buffer_ += n_bytes;
+                  return true;
+               }
+               else
+                  return false;
+            }
+            else
+               return true;
          }
 
          inline void clear()
@@ -9910,7 +10438,7 @@ namespace strtk
               if (!r(size))
                  return false;
                s->resize(size);
-               if(!r(const_cast<char*>(s->data()),size))
+               if (!r(const_cast<char*>(s->data()),size))
                   return false;
                return true;
             }
@@ -9924,7 +10452,7 @@ namespace strtk
                const size_type size = static_cast<size_type>(s->size());
                if (!w(size))
                   return false;
-               if(!w(s->data(),size,false))
+               if (!w(s->data(),size,false))
                   return false;
                return true;
             }
@@ -10559,7 +11087,7 @@ namespace strtk
                ++itr;
                while ((end != itr) && !p(*itr))
                   ++itr;
-               if(!stateful_predicate)
+               if (!stateful_predicate)
                   count = n;
                else
                {
@@ -14569,6 +15097,7 @@ namespace strtk
          {
             prev_t_ = t_;
             assign(t);
+            return *this;
          }
 
          inline T& operator()()
