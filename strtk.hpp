@@ -9130,8 +9130,7 @@ namespace strtk
       /*
         Note: The following routines perform no sanity checks at all
               upon the input data. Hence they should only be used with
-              data that is known to be completely 'valid' and correctly
-              representable with the provided type.
+              data that is known to be completely 'valid'.
       */
       namespace details
       {
@@ -9141,8 +9140,38 @@ namespace strtk
          {
             static inline bool process(Iterator)
             {
-               return false;
+               throw "all_digits_check_impl - unsupported value for N.";
             }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,19>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return static_cast<unsigned char>(itr[0] - '0') <= 9 &&
+                      all_digits_check_impl<Iterator,18>::process(itr + 1);
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,18>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return static_cast<unsigned char>(itr[0] - '0') <= 9 &&
+                      all_digits_check_impl<Iterator,17>::process(itr + 1);
+           }
+         };
+
+         template<typename Iterator>
+         struct all_digits_check_impl<Iterator,17>
+         {
+            static inline bool process(Iterator itr)
+            {
+               return static_cast<unsigned char>(itr[0] - '0') <= 9 &&
+                      all_digits_check_impl<Iterator,16>::process(itr + 1);
+           }
          };
 
          template<typename Iterator>
@@ -9429,7 +9458,37 @@ namespace strtk
          struct numeric_convert_impl
          {
             static inline void process(Iterator, T&)
-            {}
+            { throw "numeric_convert_impl - unsupported value for N."; }
+         };
+
+         template<typename T, typename Iterator>
+         struct numeric_convert_impl<T,Iterator,19>
+         {
+            static inline void process(Iterator itr, T& t)
+            {
+               strtk::fast::details::numeric_convert_impl<T,Iterator,18>::process(itr + 1,t);
+               t += static_cast<T>((itr[0] - '0') * 1000000000000000000L);
+            }
+         };
+
+         template<typename T, typename Iterator>
+         struct numeric_convert_impl<T,Iterator,18>
+         {
+            static inline void process(Iterator itr, T& t)
+            {
+               strtk::fast::details::numeric_convert_impl<T,Iterator,17>::process(itr + 1,t);
+               t += static_cast<T>((itr[0] - '0') * 100000000000000000L);
+            }
+         };
+
+         template<typename T, typename Iterator>
+         struct numeric_convert_impl<T,Iterator,17>
+         {
+            static inline void process(Iterator itr, T& t)
+            {
+               numeric_convert_impl<T,Iterator,16>::process(itr + 1,t);
+               t += static_cast<T>((itr[0] - '0') * 10000000000000000L);
+            }
          };
 
          template<typename T, typename Iterator>
@@ -9437,22 +9496,22 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = static_cast<T>((itr[ 0] - '0') * 1000000000000000);
-                 x += static_cast<T>((itr[ 1] - '0') *  100000000000000);
-                 x += static_cast<T>((itr[ 2] - '0') *   10000000000000);
-                 x += static_cast<T>((itr[ 3] - '0') *    1000000000000);
-                 x += static_cast<T>((itr[ 4] - '0') *     100000000000);
-                 x += static_cast<T>((itr[ 5] - '0') *      10000000000);
-                 x += static_cast<T>((itr[ 6] - '0') *       1000000000);
-                 x += static_cast<T>((itr[ 7] - '0') *        100000000);
-                 x += static_cast<T>((itr[ 8] - '0') *         10000000);
-                 x += static_cast<T>((itr[ 9] - '0') *          1000000);
-                 x += static_cast<T>((itr[10] - '0') *           100000);
-                 x += static_cast<T>((itr[11] - '0') *            10000);
-                 x += static_cast<T>((itr[12] - '0') *             1000);
-                 x += static_cast<T>((itr[13] - '0') *              100);
-                 x += static_cast<T>((itr[14] - '0') *               10);
-                 x += static_cast<T>((itr[15] - '0') *                1);
+               T x  = static_cast<T>((itr[ 0] - '0') * 1000000000000000L);
+                 x += static_cast<T>((itr[ 1] - '0') *  100000000000000L);
+                 x += static_cast<T>((itr[ 2] - '0') *   10000000000000L);
+                 x += static_cast<T>((itr[ 3] - '0') *    1000000000000L);
+                 x += static_cast<T>((itr[ 4] - '0') *     100000000000L);
+                 x += static_cast<T>((itr[ 5] - '0') *      10000000000L);
+                 x += static_cast<T>((itr[ 6] - '0') *       1000000000L);
+                 x += static_cast<T>((itr[ 7] - '0') *        100000000L);
+                 x += static_cast<T>((itr[ 8] - '0') *         10000000L);
+                 x += static_cast<T>((itr[ 9] - '0') *          1000000L);
+                 x += static_cast<T>((itr[10] - '0') *           100000L);
+                 x += static_cast<T>((itr[11] - '0') *            10000L);
+                 x += static_cast<T>((itr[12] - '0') *             1000L);
+                 x += static_cast<T>((itr[13] - '0') *              100L);
+                 x += static_cast<T>((itr[14] - '0') *               10L);
+                 x += static_cast<T>((itr[15] - '0') *                1L);
                t = x;
             }
          };
@@ -9462,22 +9521,22 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = static_cast<T>((itr[ 0] - '0') * 100000000000000);
-                 x += static_cast<T>((itr[ 1] - '0') *  10000000000000);
-                 x += static_cast<T>((itr[ 2] - '0') *   1000000000000);
-                 x += static_cast<T>((itr[ 3] - '0') *    100000000000);
-                 x += static_cast<T>((itr[ 4] - '0') *     10000000000);
-                 x += static_cast<T>((itr[ 5] - '0') *      1000000000);
-                 x += static_cast<T>((itr[ 6] - '0') *       100000000);
-                 x += static_cast<T>((itr[ 7] - '0') *        10000000);
-                 x += static_cast<T>((itr[ 8] - '0') *         1000000);
-                 x += static_cast<T>((itr[ 9] - '0') *          100000);
-                 x += static_cast<T>((itr[10] - '0') *           10000);
-                 x += static_cast<T>((itr[11] - '0') *            1000);
-                 x += static_cast<T>((itr[12] - '0') *             100);
-                 x += static_cast<T>((itr[13] - '0') *              10);
-                 x += static_cast<T>((itr[14] - '0') *               1);
-               t = x;
+               T x  = static_cast<T>((itr[ 0] - '0') * 100000000000000L);
+                 x += static_cast<T>((itr[ 1] - '0') *  10000000000000L);
+                 x += static_cast<T>((itr[ 2] - '0') *   1000000000000L);
+                 x += static_cast<T>((itr[ 3] - '0') *    100000000000L);
+                 x += static_cast<T>((itr[ 4] - '0') *     10000000000L);
+                 x += static_cast<T>((itr[ 5] - '0') *      1000000000L);
+                 x += static_cast<T>((itr[ 6] - '0') *       100000000L);
+                 x += static_cast<T>((itr[ 7] - '0') *        10000000L);
+                 x += static_cast<T>((itr[ 8] - '0') *         1000000L);
+                 x += static_cast<T>((itr[ 9] - '0') *          100000L);
+                 x += static_cast<T>((itr[10] - '0') *           10000L);
+                 x += static_cast<T>((itr[11] - '0') *            1000L);
+                 x += static_cast<T>((itr[12] - '0') *             100L);
+                 x += static_cast<T>((itr[13] - '0') *              10L);
+                 x += static_cast<T>((itr[14] - '0') *               1L);
+               t = x; 
             }
          };
 
@@ -9486,22 +9545,22 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = static_cast<T>((itr[ 0] - '0') * 10000000000000);
-                 x += static_cast<T>((itr[ 1] - '0') *  1000000000000);
-                 x += static_cast<T>((itr[ 2] - '0') *   100000000000);
-                 x += static_cast<T>((itr[ 3] - '0') *    10000000000);
-                 x += static_cast<T>((itr[ 4] - '0') *     1000000000);
-                 x += static_cast<T>((itr[ 5] - '0') *      100000000);
-                 x += static_cast<T>((itr[ 6] - '0') *       10000000);
-                 x += static_cast<T>((itr[ 7] - '0') *        1000000);
-                 x += static_cast<T>((itr[ 8] - '0') *         100000);
-                 x += static_cast<T>((itr[ 9] - '0') *          10000);
-                 x += static_cast<T>((itr[10] - '0') *           1000);
-                 x += static_cast<T>((itr[11] - '0') *            100);
-                 x += static_cast<T>((itr[12] - '0') *             10);
-                 x += static_cast<T>((itr[13] - '0') *              1);
-               t = x;
-            }
+               T x  = static_cast<T>((itr[ 0] - '0') * 10000000000000L);
+                 x += static_cast<T>((itr[ 1] - '0') *  1000000000000L);
+                 x += static_cast<T>((itr[ 2] - '0') *   100000000000L);
+                 x += static_cast<T>((itr[ 3] - '0') *    10000000000L);
+                 x += static_cast<T>((itr[ 4] - '0') *     1000000000L);
+                 x += static_cast<T>((itr[ 5] - '0') *      100000000L);
+                 x += static_cast<T>((itr[ 6] - '0') *       10000000L);
+                 x += static_cast<T>((itr[ 7] - '0') *        1000000L);
+                 x += static_cast<T>((itr[ 8] - '0') *         100000L);
+                 x += static_cast<T>((itr[ 9] - '0') *          10000L);
+                 x += static_cast<T>((itr[10] - '0') *           1000L);
+                 x += static_cast<T>((itr[11] - '0') *            100L);
+                 x += static_cast<T>((itr[12] - '0') *             10L);
+                 x += static_cast<T>((itr[13] - '0') *              1L);
+               t = x; 
+            }         
          };
 
          template<typename T, typename Iterator>
@@ -9509,21 +9568,21 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = static_cast<T>((itr[ 0] - '0') * 1000000000000);
-                 x += static_cast<T>((itr[ 1] - '0') *  100000000000);
-                 x += static_cast<T>((itr[ 2] - '0') *   10000000000);
-                 x += static_cast<T>((itr[ 3] - '0') *    1000000000);
-                 x += static_cast<T>((itr[ 4] - '0') *     100000000);
-                 x += static_cast<T>((itr[ 5] - '0') *      10000000);
-                 x += static_cast<T>((itr[ 6] - '0') *       1000000);
-                 x += static_cast<T>((itr[ 7] - '0') *        100000);
-                 x += static_cast<T>((itr[ 8] - '0') *         10000);
-                 x += static_cast<T>((itr[ 9] - '0') *          1000);
-                 x += static_cast<T>((itr[10] - '0') *           100);
-                 x += static_cast<T>((itr[11] - '0') *            10);
-                 x += static_cast<T>((itr[12] - '0') *             1);
-               t = x;
-            }
+               T x  = static_cast<T>((itr[ 0] - '0') * 1000000000000L);
+                 x += static_cast<T>((itr[ 1] - '0') *  100000000000L);
+                 x += static_cast<T>((itr[ 2] - '0') *   10000000000L);
+                 x += static_cast<T>((itr[ 3] - '0') *    1000000000L);
+                 x += static_cast<T>((itr[ 4] - '0') *     100000000L);
+                 x += static_cast<T>((itr[ 5] - '0') *      10000000L);
+                 x += static_cast<T>((itr[ 6] - '0') *       1000000L);
+                 x += static_cast<T>((itr[ 7] - '0') *        100000L);
+                 x += static_cast<T>((itr[ 8] - '0') *         10000L);
+                 x += static_cast<T>((itr[ 9] - '0') *          1000L);
+                 x += static_cast<T>((itr[10] - '0') *           100L);
+                 x += static_cast<T>((itr[11] - '0') *            10L);
+                 x += static_cast<T>((itr[12] - '0') *             1L);
+               t = x; 
+            }         
          };
 
          template<typename T, typename Iterator>
@@ -9531,18 +9590,18 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = static_cast<T>((itr[ 0] - '0') * 100000000000);
-                 x += static_cast<T>((itr[ 1] - '0') *  10000000000);
-                 x += static_cast<T>((itr[ 2] - '0') *   1000000000);
-                 x += static_cast<T>((itr[ 3] - '0') *    100000000);
-                 x += static_cast<T>((itr[ 4] - '0') *     10000000);
-                 x += static_cast<T>((itr[ 5] - '0') *      1000000);
-                 x += static_cast<T>((itr[ 6] - '0') *       100000);
-                 x += static_cast<T>((itr[ 7] - '0') *        10000);
-                 x += static_cast<T>((itr[ 8] - '0') *         1000);
-                 x += static_cast<T>((itr[ 9] - '0') *          100);
-                 x += static_cast<T>((itr[10] - '0') *           10);
-                 x += static_cast<T>((itr[11] - '0') *            1);
+               T x  = static_cast<T>((itr[ 0] - '0') * 100000000000L);
+                 x += static_cast<T>((itr[ 1] - '0') *  10000000000L);
+                 x += static_cast<T>((itr[ 2] - '0') *   1000000000L);
+                 x += static_cast<T>((itr[ 3] - '0') *    100000000L);
+                 x += static_cast<T>((itr[ 4] - '0') *     10000000L);
+                 x += static_cast<T>((itr[ 5] - '0') *      1000000L);
+                 x += static_cast<T>((itr[ 6] - '0') *       100000L);
+                 x += static_cast<T>((itr[ 7] - '0') *        10000L);
+                 x += static_cast<T>((itr[ 8] - '0') *         1000L);
+                 x += static_cast<T>((itr[ 9] - '0') *          100L);
+                 x += static_cast<T>((itr[10] - '0') *           10L);
+                 x += static_cast<T>((itr[11] - '0') *            1L);
                t = x;
             }
          };
@@ -9552,18 +9611,18 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               T x  = static_cast<T>((itr[ 0] - '0') * 10000000000);
-                 x += static_cast<T>((itr[ 1] - '0') *  1000000000);
-                 x += static_cast<T>((itr[ 2] - '0') *   100000000);
-                 x += static_cast<T>((itr[ 3] - '0') *    10000000);
-                 x += static_cast<T>((itr[ 4] - '0') *     1000000);
-                 x += static_cast<T>((itr[ 5] - '0') *      100000);
-                 x += static_cast<T>((itr[ 6] - '0') *       10000);
-                 x += static_cast<T>((itr[ 7] - '0') *        1000);
-                 x += static_cast<T>((itr[ 8] - '0') *         100);
-                 x += static_cast<T>((itr[ 9] - '0') *          10);
-                 x += static_cast<T>((itr[10] - '0') *           1);
-               t = x;
+               T x  = static_cast<T>((itr[ 0] - '0') * 10000000000L);
+                 x += static_cast<T>((itr[ 1] - '0') *  1000000000L);
+                 x += static_cast<T>((itr[ 2] - '0') *   100000000L);
+                 x += static_cast<T>((itr[ 3] - '0') *    10000000L);
+                 x += static_cast<T>((itr[ 4] - '0') *     1000000L);
+                 x += static_cast<T>((itr[ 5] - '0') *      100000L);
+                 x += static_cast<T>((itr[ 6] - '0') *       10000L);
+                 x += static_cast<T>((itr[ 7] - '0') *        1000L);
+                 x += static_cast<T>((itr[ 8] - '0') *         100L);
+                 x += static_cast<T>((itr[ 9] - '0') *          10L);
+                 x += static_cast<T>((itr[10] - '0') *           1L);
+               t = x; 
             }
          };
 
@@ -9582,8 +9641,8 @@ namespace strtk
                  x += static_cast<T>((itr[7] - '0') *        100);
                  x += static_cast<T>((itr[8] - '0') *         10);
                  x += static_cast<T>((itr[9] - '0') *          1);
-               t = x;
-            }
+               t = x; 
+            }         
          };
 
          template<typename T, typename Iterator>
@@ -9617,7 +9676,7 @@ namespace strtk
                  x += static_cast<T>((itr[5] - '0') *      100);
                  x += static_cast<T>((itr[6] - '0') *       10);
                  x += static_cast<T>((itr[7] - '0') *        1);
-               t = x;
+               t = x; 
             }
          };
 
@@ -9633,8 +9692,8 @@ namespace strtk
                  x += static_cast<T>((itr[4] - '0') *     100);
                  x += static_cast<T>((itr[5] - '0') *      10);
                  x += static_cast<T>((itr[6] - '0') *       1);
-               t = x;
-            }
+               t = x; 
+            }         
          };
 
          template<typename T, typename Iterator>
@@ -9662,7 +9721,7 @@ namespace strtk
                  x += static_cast<T>((itr[2] - '0') *   100);
                  x += static_cast<T>((itr[3] - '0') *    10);
                  x += static_cast<T>((itr[4] - '0') *     1);
-               t = x;
+               t = x; 
             }
          };
 
@@ -9675,8 +9734,8 @@ namespace strtk
                  x += static_cast<T>((itr[1] - '0') *  100);
                  x += static_cast<T>((itr[2] - '0') *   10);
                  x += static_cast<T>((itr[3] - '0') *    1);
-               t = x;
-            }
+               t = x; 
+            }         
          };
 
          template<typename T, typename Iterator>
@@ -9722,134 +9781,17 @@ namespace strtk
 
       } // namespace details
 
-      template<int N, typename T, typename Iterator>
-      inline void numeric_convert(Iterator itr, T& t,const bool digit_check = false)
-      {
-         typedef typename strtk::details::is_valid_iterator<Iterator>::type itr_type;
-         if (digit_check)
-         {
-             if (!details::all_digits_check_impl<Iterator,N>(itr))
-             {
-                t = 0;
-                return;
-             }
-         }
-
-         details::numeric_convert_impl<T,Iterator,N>::process(itr,t);
-      }
-
-      template<int N, typename T>
-      inline void numeric_convert(const std::string& s, T& t,const bool digit_check = false)
-      {
-         numeric_convert<N,T,const char*>(s.data(),t,digit_check);
-      }
-
-      template<typename T, typename Iterator>
-      inline void numeric_convert(const std::size_t& n,
-                                  Iterator itr, T& t,
-                                  const bool digit_check = false)
-      {
-
-         if (digit_check)
-         {
-             if (!all_digits_check(n,itr))
-             {
-                t = 0;
-                return;
-             }
-         }
-
-         switch (n)
-         {
-            case  0 : details::numeric_convert_impl<T,Iterator, 0>::process(itr,t); return;
-            case  1 : details::numeric_convert_impl<T,Iterator, 1>::process(itr,t); return;
-            case  2 : details::numeric_convert_impl<T,Iterator, 2>::process(itr,t); return;
-            case  3 : details::numeric_convert_impl<T,Iterator, 3>::process(itr,t); return;
-            case  4 : details::numeric_convert_impl<T,Iterator, 4>::process(itr,t); return;
-            case  5 : details::numeric_convert_impl<T,Iterator, 5>::process(itr,t); return;
-            case  6 : details::numeric_convert_impl<T,Iterator, 6>::process(itr,t); return;
-            case  7 : details::numeric_convert_impl<T,Iterator, 7>::process(itr,t); return;
-            case  8 : details::numeric_convert_impl<T,Iterator, 8>::process(itr,t); return;
-            case  9 : details::numeric_convert_impl<T,Iterator, 9>::process(itr,t); return;
-            case 10 : details::numeric_convert_impl<T,Iterator,10>::process(itr,t); return;
-            case 11 : details::numeric_convert_impl<T,Iterator,11>::process(itr,t); return;
-            case 12 : details::numeric_convert_impl<T,Iterator,12>::process(itr,t); return;
-            case 13 : details::numeric_convert_impl<T,Iterator,13>::process(itr,t); return;
-            case 14 : details::numeric_convert_impl<T,Iterator,14>::process(itr,t); return;
-            case 15 : details::numeric_convert_impl<T,Iterator,15>::process(itr,t); return;
-            case 16 : details::numeric_convert_impl<T,Iterator,16>::process(itr,t); return;
-            default : return;
-         }
-      }
-
-      template<typename T>
-      inline void numeric_convert(const std::string& s, T& t, const bool digit_check = false)
-      {
-         numeric_convert(s.size(),s.data(),t,digit_check);
-      }
-
-      template<int N, typename T, typename Iterator>
-      inline void signed_numeric_convert(Iterator itr, T& t, const bool digit_check = false)
-      {
-         if ('-' == *itr)
-         {
-            numeric_convert<T,Iterator,N - 1>((itr + 1),t,digit_check);
-            t = -t;
-         }
-         else if ('+' == *itr)
-         {
-            numeric_convert<T,Iterator,N - 1>((itr + 1),t,digit_check);
-         }
-         else
-            numeric_convert<T,Iterator,N>(itr,t,digit_check);
-      }
-
-      template<typename T, typename Iterator>
-      inline void signed_numeric_convert(const std::size_t& n,
-                                         Iterator itr,
-                                         T& t,
-                                         const bool digit_check = false)
-      {
-         if ('-' == *itr)
-         {
-            numeric_convert((n - 1),(itr + 1),t,digit_check);
-            t = -t;
-         }
-         else if ('+' == *itr)
-         {
-            numeric_convert((n - 1),(itr + 1),t,digit_check);
-         }
-         else
-            numeric_convert(n,itr,t,digit_check);
-      }
-
-      template<int N, typename T>
-      inline void signed_numeric_convert(const std::string& s,
-                                         T& t,
-                                         const bool digit_check = false)
-      {
-         signed_numeric_convert<N,T,const char*>(s.data(),t,digit_check);
-      }
-
-      template<typename T>
-      inline void signed_numeric_convert(const std::string& s,
-                                         T& t,
-                                         const bool digit_check = false)
-      {
-         signed_numeric_convert<T,const char*>(s.size(),s.data(),t,digit_check);
-      }
-
-      template<int N, typename T, typename Iterator>
+      template<int N, typename Iterator>
       inline bool all_digits_check(Iterator itr)
       {
          typedef typename strtk::details::is_valid_iterator<Iterator>::type itr_type;
          return details::all_digits_check_impl<Iterator,N>::process(itr);
       }
 
-      template<int N, typename T, typename Iterator>
+      template<int N, typename Iterator>
       inline bool all_digits_check(const std::string& s)
       {
-         return all_digits_check<N,T,const char*>(s.data());
+         return all_digits_check<N,const char*>(s.data());
       }
 
       template<typename Iterator>
@@ -9874,8 +9816,17 @@ namespace strtk
             case 14 : return details::all_digits_check_impl<Iterator,14>::process(itr);
             case 15 : return details::all_digits_check_impl<Iterator,15>::process(itr);
             case 16 : return details::all_digits_check_impl<Iterator,16>::process(itr);
+            case 17 : return details::all_digits_check_impl<Iterator,17>::process(itr);
+            case 18 : return details::all_digits_check_impl<Iterator,18>::process(itr);
+            case 19 : return details::all_digits_check_impl<Iterator,19>::process(itr);
             default : return false;
          }
+      }
+
+      template<typename Iterator>
+      inline bool all_digits_check(Iterator begin, Iterator end)
+      {
+         return all_digits_check(std::distance(begin,end),begin);
       }
 
       inline bool all_digits_check(const std::string& s)
@@ -9884,34 +9835,158 @@ namespace strtk
       }
 
       template<int N, typename Iterator>
-      inline void signed_all_digits_check(Iterator itr)
+      inline bool signed_all_digits_check(Iterator itr)
       {
          if (('-' == *itr) || ('+' == *itr))
-            all_digits_check<Iterator,N - 1>((itr + 1));
+            return all_digits_check<Iterator,N - 1>((itr + 1));
          else
-            all_digits_check<Iterator,N>(itr);
+            return all_digits_check<Iterator,N>(itr);
       }
 
       template<typename Iterator>
-      inline void signed_all_digits_check(const std::size_t& n, Iterator itr)
+      inline bool signed_all_digits_check(const std::size_t& n, Iterator itr)
       {
          if (('-' == *itr) || ('+' == *itr))
-            all_digits_check(n - 1,(itr + 1));
+            return all_digits_check(n - 1,(itr + 1));
          else
-            all_digits_check(n - 1,(itr + 1));
+            return all_digits_check(n - 1,(itr + 1));
       }
 
       template<int N>
-      inline void signed_all_digits_check(const std::string& s)
+      inline bool signed_all_digits_check(const std::string& s)
       {
          return signed_all_digits_check<N,const char*>(s.data());
       }
 
-      inline void signed_all_digits_check(const std::string& s)
+      template<typename Iterator>
+      inline bool signed_all_digits_check(Iterator begin, Iterator end)
+      {
+         return signed_all_digits_check(std::distance(begin,end),begin);
+      }
+
+      inline bool signed_all_digits_check(const std::string& s)
       {
          return signed_all_digits_check(s.size(),s.data());
       }
 
+      template<int N, typename T, typename Iterator>
+      inline void numeric_convert(Iterator itr, T& t,const bool digit_check = false)
+      {
+         typedef typename strtk::details::is_valid_iterator<Iterator>::type itr_type;
+         if (digit_check)
+         {
+             if (!all_digits_check<N,Iterator>(itr))
+             {
+                t = 0;
+                return;
+             }
+         }
+
+         details::numeric_convert_impl<T,Iterator,N>::process(itr,t);
+      }
+
+      template<int N, typename T>
+      inline void numeric_convert(const std::string& s, T& t,const bool digit_check = false)
+      {
+         numeric_convert<N,T,const char*>(s.data(),t,digit_check);
+      }
+
+      template<typename T, typename Iterator>
+      inline bool numeric_convert(const std::size_t& n,
+                                  Iterator itr, T& t,
+                                  const bool digit_check = false)
+      {
+         if (digit_check)
+         {
+             if (!all_digits_check(n,itr))
+             {
+                return false;
+             }
+         }
+
+         switch (n)
+         {
+            case  0 : details::numeric_convert_impl<T,Iterator, 0>::process(itr,t); return true;
+            case  1 : details::numeric_convert_impl<T,Iterator, 1>::process(itr,t); return true;
+            case  2 : details::numeric_convert_impl<T,Iterator, 2>::process(itr,t); return true;
+            case  3 : details::numeric_convert_impl<T,Iterator, 3>::process(itr,t); return true;
+            case  4 : details::numeric_convert_impl<T,Iterator, 4>::process(itr,t); return true;
+            case  5 : details::numeric_convert_impl<T,Iterator, 5>::process(itr,t); return true;
+            case  6 : details::numeric_convert_impl<T,Iterator, 6>::process(itr,t); return true;
+            case  7 : details::numeric_convert_impl<T,Iterator, 7>::process(itr,t); return true;
+            case  8 : details::numeric_convert_impl<T,Iterator, 8>::process(itr,t); return true;
+            case  9 : details::numeric_convert_impl<T,Iterator, 9>::process(itr,t); return true;
+            case 10 : details::numeric_convert_impl<T,Iterator,10>::process(itr,t); return true;
+            case 11 : details::numeric_convert_impl<T,Iterator,11>::process(itr,t); return true;
+            case 12 : details::numeric_convert_impl<T,Iterator,12>::process(itr,t); return true;
+            case 13 : details::numeric_convert_impl<T,Iterator,13>::process(itr,t); return true;
+            case 14 : details::numeric_convert_impl<T,Iterator,14>::process(itr,t); return true;
+            case 15 : details::numeric_convert_impl<T,Iterator,15>::process(itr,t); return true;
+            case 16 : details::numeric_convert_impl<T,Iterator,16>::process(itr,t); return true;
+            case 17 : details::numeric_convert_impl<T,Iterator,17>::process(itr,t); return true;
+            case 18 : details::numeric_convert_impl<T,Iterator,18>::process(itr,t); return true;
+            case 19 : details::numeric_convert_impl<T,Iterator,19>::process(itr,t); return true;
+            default : return false;
+         }
+      }
+
+      template<typename T>
+      inline void numeric_convert(const std::string& s, T& t, const bool digit_check = false)
+      {
+         numeric_convert(s.size(),s.data(),t,digit_check);
+      }
+
+      template<int N, typename T, typename Iterator>
+      inline void signed_numeric_convert(Iterator itr, T& t, const bool digit_check = false)
+      {
+         if ('-' == *itr)
+         {
+            numeric_convert<N - 1,T,Iterator>((itr + 1),t,digit_check);
+            t = -t;
+         }
+         else if ('+' == *itr)
+         {
+            numeric_convert<N - 1,T,Iterator>((itr + 1),t,digit_check);
+         }
+         else
+            numeric_convert<N,T,Iterator>(itr,t,digit_check);
+      }
+
+      template<typename T, typename Iterator>
+      inline bool signed_numeric_convert(const std::size_t& n,
+                                         Iterator itr,
+                                         T& t,
+                                         const bool digit_check = false)
+      {
+         if ('-' == *itr)
+         {
+            bool result = numeric_convert((n - 1),(itr + 1),t,digit_check);
+            t = -t;
+            return result;
+         }
+         else if ('+' == *itr)
+         {
+            return numeric_convert((n - 1),(itr + 1),t,digit_check);
+         }
+         else
+            return numeric_convert(n,itr,t,digit_check);
+      }
+
+      template<int N, typename T>
+      inline void signed_numeric_convert(const std::string& s,
+                                         T& t,
+                                         const bool digit_check = false)
+      {
+         signed_numeric_convert<N,T,const char*>(s.data(),t,digit_check);
+      }
+
+      template<typename T>
+      inline bool signed_numeric_convert(const std::string& s,
+                                         T& t,
+                                         const bool digit_check = false)
+      {
+         return signed_numeric_convert<T,const char*>(s.size(),s.data(),t,digit_check);
+      }
 
    } // namespace fast
 
