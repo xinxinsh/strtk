@@ -609,6 +609,86 @@ inline bool strtk_isnan(const double& v)
    return d != d;
 }
 
+bool test_fast_convert()
+{
+   {
+      int v = 0;
+      for(int i = -100000000; i < +100000000; ++i)
+      {
+         if (!strtk::fast::signed_numeric_convert(strtk::type_to_string(i),v,true))
+         {
+            std::cout << "test_fast_convert() - Failed Fast convert 1  i = " << i << std::endl;
+         }
+
+         if (i != v)
+         {
+            std::cout << "test_fast_convert() - Failed Fast convert 2 "
+                      << " i = " << i
+                      << " v = " << v << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      unsigned int v = 0;
+      for(unsigned int i = 0; i < 1000000000; ++i)
+      {
+         if (!strtk::fast::signed_numeric_convert(strtk::type_to_string(i),v,true))
+         {
+            std::cout << "test_fast_convert() - Failed Fast convert 1  i = " << i << std::endl;
+         }
+
+         if (i != v)
+         {
+            std::cout << "test_fast_convert() - Failed Fast convert 2  "
+                      << "i = " << i
+                      << "v = " << v << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      std::string s[] = {
+                            "0000000000000000",   "1111111111111111",   "2222222222222222",   "3333333333333333",   "4444444444444444",
+                            "5555555555555555",   "6666666666666666",   "1234567890123456",   "9876543210987654",   "1919191919191919",
+                           "00000000000000000",  "11111111111111111",  "22222222222222222",  "33333333333333333",  "44444444444444444",
+                           "55555555555555555",  "66666666666666666",  "12345678901234567",  "98765432109876543",  "19191919191919191",
+                          "000000000000000000", "111111111111111111", "222222222222222222", "333333333333333333", "444444444444444444",
+                          "555555555555555555", "666666666666666666", "123456789012345677", "987654321098765432", "191919191919191919"
+                        };
+
+      unsigned long long v[] = {
+                              0000000000000000LL,   1111111111111111LL,   2222222222222222LL,   3333333333333333LL,   4444444444444444LL,
+                              5555555555555555LL,   6666666666666666LL,   1234567890123456LL,   9876543210987654LL,   1919191919191919LL,
+                             00000000000000000LL,  11111111111111111LL,  22222222222222222LL,  33333333333333333LL,  44444444444444444LL,
+                             55555555555555555LL,  66666666666666666LL,  12345678901234567LL,  98765432109876543LL,  19191919191919191LL,
+                            000000000000000000LL, 111111111111111111LL, 222222222222222222LL, 333333333333333333LL, 444444444444444444LL,
+                            555555555555555555LL, 666666666666666666LL, 123456789012345677LL, 987654321098765432LL, 191919191919191919LL
+                        };
+
+      for (std::size_t i = 0 ; i < (sizeof(s) / sizeof(std::string)); ++i)
+      {
+         unsigned long long t = 0;
+         strtk::fast::signed_numeric_convert(s[i],t);
+         if (t != v[i])
+         {
+            strtk::fast::signed_numeric_convert(s[i],t);
+
+            std::cout << "test_fast_convert() - Failed Fast convert Special Test unsigned long long "
+                      << " index = " << i
+                      << " t = " << t
+                      << " v[index] = " << v[i] << std::endl;
+            return false;
+         }
+      }
+   }
+
+   return true;
+
+}
+
 bool test_double_convert()
 {
    static const std::string double_str[] =
@@ -1840,6 +1920,7 @@ int main()
    result &= test_empty_filter_itr();
    result &= test_construct_and_parse();
    result &= test_double_convert();
+   result &= test_fast_convert();
    result &= test_int_uint_convert();
    result &= test_parse1();
    result &= test_parse2();
