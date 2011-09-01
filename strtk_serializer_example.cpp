@@ -591,9 +591,6 @@ bool test04(char* buffer, const unsigned int buffer_size)
          return false;
       }
 
-      std::vector< std::pair<unsigned long long,person> >::iterator itr1 = p_out_list.begin();
-      std::deque< std::pair<unsigned long long,person> >::iterator itr2 = p_in_list.begin();
-
       if (!std::equal(p_out_list.begin(),p_out_list.end(),p_in_list.begin()))
       {
          std::cout << "test04() - Failure in comparison between p_out_list and p_in_list!" << std::endl;
