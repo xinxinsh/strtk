@@ -10020,7 +10020,7 @@ namespace strtk
          if ('-' == *itr)
          {
             numeric_convert<N - 1,T,Iterator>((itr + 1),t,digit_check);
-            typename details::supported_conversion_to_type<T>::type type;
+            typename strtk::details::supported_conversion_to_type<T>::type type;
             details::negate(t,type);
          }
          else if ('+' == *itr)
