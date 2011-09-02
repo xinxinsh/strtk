@@ -3559,7 +3559,7 @@ namespace strtk
 
       if ((rounds = (length % 3)) > 0)
       {
-         switch(rounds)
+         switch (rounds)
          {
             case 1 : {
                        unsigned int block  = (unsigned char) (*itr) << 16;
@@ -3664,7 +3664,7 @@ namespace strtk
       const std::size_t remainder = (length % 4);
       if (remainder > 0)
       {
-         switch(remainder)
+         switch (remainder)
          {
             case 2 : {
                         unsigned int block  = base64_to_bin[*(itr++)] << 18;
@@ -3920,7 +3920,7 @@ namespace strtk
       const unsigned char* itr1 = begin1;
       const unsigned char* itr2 = begin2;
 
-      switch(operation)
+      switch (operation)
       {
          case bitwise_operation::eAND : while (itr1 != end1) { *(out++) = *(itr1++) & *(itr2++); } return;
          case bitwise_operation::eOR  : while (itr1 != end1) { *(out++) = *(itr1++) | *(itr2++); } return;
@@ -11320,7 +11320,7 @@ namespace strtk
                                                                            Iterator itr,
                                                                            const Iterator end)
       {
-         switch(mode)
+         switch (mode)
          {
             case find_mode::exactly_n : return find_exactly_n_consecutive_values(n,p,itr,end);
             case find_mode::atleast_n : return find_atleast_n_consecutive_values(n,p,itr,end);
@@ -11383,7 +11383,7 @@ namespace strtk
                                              Iterator itr,
                                              const Iterator end)
       {
-         switch(mode)
+         switch (mode)
          {
             case find_mode::exactly_n : return match_exactly_n_consecutive_values(n,p,itr,end);
             case find_mode::atleast_n : return match_atleast_n_consecutive_values(n,p,itr,end);
@@ -11399,7 +11399,7 @@ namespace strtk
                                                                           find_mode::type mode,
                                                                           typename details::range_type<Iterator>::type range)
    {
-      switch(type)
+      switch (type)
       {
          case find_type::digits  : return details::find_n_consecutive_values<Iterator>(n,
                                                                                        mode,
@@ -11436,7 +11436,7 @@ namespace strtk
                                    find_mode::type mode,
                                    typename details::range_type<Iterator>::type range)
    {
-      switch(type)
+      switch (type)
       {
          case find_type::digits  : return details::match_n_consecutive_values<Iterator>(n,
                                                                                        mode,
