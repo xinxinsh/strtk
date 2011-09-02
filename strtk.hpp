@@ -8567,6 +8567,9 @@ namespace strtk
       strtk_register_rand_real_type_tag(double)
       strtk_register_rand_real_type_tag(long double)
 
+      #undef strtk_register_rand_int_type_tag
+      #undef strtk_register_rand_real_type_tag
+
       template<typename T, typename OutputIterator, typename RandomNumberGenerator>
       inline void generate_random_values_impl(const std::size_t& count,
                                               const T& min,
@@ -11931,6 +11934,8 @@ namespace strtk
       strtk_register_pod_type(double)
       strtk_register_pod_type(long double)
 
+      #undef strtk_register_pod_type
+
       template<typename>
       struct numeric { enum { length = 0, size = 32, bound_length = 0, min_exp = 0, max_exp = 0 }; };
 
@@ -12073,6 +12078,16 @@ namespace strtk
       #define strtk_register_userdef_type_sink(T)\
       namespace strtk { namespace details { strtk_register_sink_type_tag(T) }}
 
+      #undef strtk_register_unsigned_type_tag
+      #undef strtk_register_signed_type_tag
+      #undef strtk_register_real_type_tag
+      #undef strtk_register_byte_type_tag
+      #undef strtk_register_hex_type_tag
+      #undef strtk_register_base64_type_tag
+      #undef strtk_register_supported_iterator_type
+      #undef strtk_register_stdstring_range_type_tag
+      #undef strtk_register_sequence_iterator_type
+
       template<typename T>
       struct precision
       {  static void set(std::iostream&) {}  };
@@ -12083,6 +12098,8 @@ namespace strtk
       strtk_register_iostream_precision(float)
       strtk_register_iostream_precision(double)
       strtk_register_iostream_precision(long double)
+
+      #undef strtk_register_iostream_precision
 
       template<typename Iterator, typename T, typename Tag>
       inline bool string_to_type_converter_impl(Iterator& begin, const Iterator end, T& t, not_supported_type_tag)
@@ -12915,6 +12932,8 @@ namespace strtk
       strtk_register_type_name(float)
       strtk_register_type_name(long double)
       strtk_register_type_name(std::string)
+
+      #undef strtk_register_type_name
 
       template <typename T>
       inline std::string type_name(const T&)
@@ -15615,9 +15634,37 @@ namespace strtk
    } // namespace util
 
    template<typename Iterator>
-   std::size_t distance(const std::pair<Iterator,Iterator>& p)
+   inline std::size_t distance(const std::pair<Iterator,Iterator>& p)
    {
       return std::distance(p.first,p.second);
+   }
+
+   template<typename Iterator1, typename Iterator2>
+   inline std::pair<Iterator1,Iterator2> make_pair(const std::string& s)
+   {
+      return std::make_pair<Iterator1,Iterator2>(
+            reinterpret_cast<Iterator1>(const_cast<char*>(s.data())),
+            reinterpret_cast<Iterator2>(const_cast<char*>(s.data() + s.size())));
+   }
+
+   template<typename Iterator1, typename Iterator2>
+   inline std::pair<Iterator1,Iterator2> make_pair(const std::pair<const char*, const char*> p)
+   {
+      return std::make_pair<Iterator1,Iterator2>(
+            reinterpret_cast<Iterator1>(const_cast<char*>(p.first)),
+            reinterpret_cast<Iterator2>(const_cast<char*>(p.second)));
+   }
+
+   template<typename Iterator>
+   inline std::pair<Iterator,Iterator> make_pair(const std::string& s)
+   {
+      return make_pair<Iterator,Iterator>(s);
+   }
+
+   template<typename Iterator>
+   inline std::pair<Iterator,Iterator> make_pair(const std::pair<const char*, const char*> p)
+   {
+      return make_pair<Iterator,Iterator>(p);
    }
 
 } // namespace strtk
@@ -15660,6 +15707,8 @@ namespace
    strtk_register_pair_to_ostream(std::string::const_iterator)
    strtk_register_pair_to_ostream(const std::string::iterator)
    strtk_register_pair_to_ostream(const std::string::const_iterator)
+
+   #undef strtk_register_pair_to_ostream
 
 } // namespace anonymous
 
