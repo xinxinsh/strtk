@@ -215,7 +215,7 @@ namespace strtk
 
    template<typename T>
    inline bool read_line_as_value(std::istream& stream,
-                                   T& t,
+                                  T& t,
                                   const std::size_t& buffer_size = one_kilobyte)
    {
       std::string buffer;
@@ -11800,6 +11800,9 @@ namespace strtk
                                                     out);
    }
 
+   // Required for broken versions of GCC pre 4.5
+   namespace util { class value; }
+
    namespace details
    {
       static const unsigned char digit_table[] =
@@ -12128,6 +12131,12 @@ namespace strtk
             begin = end;
             return true;
          #endif
+      }
+
+      template<typename Iterator>
+      inline bool string_to_type_converter_impl(Iterator&, const Iterator, strtk::util::value&, not_supported_type_tag)
+      {
+         return false;
       }
 
       template<typename Iterator>
@@ -15332,6 +15341,96 @@ namespace strtk
 
       };
 
+      class value
+      {
+      private:
+
+         class type_holder_base
+         {
+         public:
+
+            typedef const unsigned char* itr_type;
+
+            virtual ~type_holder_base(){}
+
+            virtual bool operator()(itr_type begin, itr_type end) const = 0;
+
+            inline bool operator()(const char* begin, const char* end) const
+            {
+               return operator()(reinterpret_cast<itr_type>(begin),
+                                 reinterpret_cast<itr_type>(end));
+            }
+
+            template<typename Iterator>
+            inline bool operator()(const std::pair<Iterator,Iterator>& p) const
+            {
+               return operator()(p.first,p.second);
+            }
+         };
+
+         template<typename T>
+         class type_holder : public type_holder_base
+         {
+         public:
+
+            typedef T* type_ptr;
+
+            explicit type_holder(T& t)
+            : value_ptr_(&t)
+            {}
+
+            inline virtual bool operator()(itr_type begin, itr_type end) const
+            {
+               return strtk::string_to_type_converter<itr_type,T>(begin,end,(*value_ptr_));
+            }
+
+         private:
+
+            mutable type_ptr value_ptr_;
+         };
+
+      public:
+
+         value()
+         : type_holder_(0)
+         {}
+
+         template<typename T>
+         value(T& t)
+         : type_holder_(new type_holder<T>(t))
+         {}
+
+        ~value()
+         {
+            if (type_holder_)
+               delete type_holder_;
+         }
+
+         inline bool operator!() const
+         {
+            return (0 == type_holder_);
+         }
+
+         template<typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end) const
+         {
+            if (0 != type_holder_)
+               return (*type_holder_).operator()(begin,end);
+            else
+               return false;
+         }
+
+         template<typename InputIterator>
+         inline bool operator()(const std::pair<InputIterator,InputIterator>& r) const
+         {
+            return operator()(r.first,r.second);
+         }
+
+      private:
+
+         type_holder_base* type_holder_;
+      };
+
       template<typename Key,
                typename T,
                typename Comparator,
@@ -15424,7 +15523,7 @@ namespace strtk
                typename T,
                typename Comparator,
                typename Allocator>
-      inline void delete_all(const std::map<Key,T*,Comparator,Allocator>& cont)
+      inline void delete_all(std::map<Key,T*,Comparator,Allocator>& cont)
       {
          typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
          typename std::map<Key,T*,Comparator,Allocator>::iterator end = cont.end();
@@ -15439,7 +15538,7 @@ namespace strtk
       template<typename T,
                typename Comparator,
                typename Allocator>
-      inline void delete_all(const std::set<T*,Comparator,Allocator>& cont)
+      inline void delete_all(std::set<T*,Comparator,Allocator>& cont)
       {
          typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
          typename std::set<T*,Comparator,Allocator>::iterator end = cont.end();
@@ -15477,7 +15576,7 @@ namespace strtk
                typename Comparator,
                typename Allocator>
       inline void delete_if(const Predicate& p,
-                            const std::map<Key,T*,Comparator,Allocator>& cont)
+                            std::map<Key,T*,Comparator,Allocator>& cont)
       {
          typename std::map<Key,T*,Comparator,Allocator>::iterator itr = cont.begin();
          while (cont.end() != itr)
@@ -15497,7 +15596,7 @@ namespace strtk
                typename Comparator,
                typename Allocator>
       inline void delete_if(const Predicate& p,
-                            const std::set<T*,Comparator,Allocator>& cont)
+                            std::set<T*,Comparator,Allocator>& cont)
       {
          typename std::set<T*,Comparator,Allocator>::iterator itr = cont.begin();
          while (cont.end() != itr)
@@ -15665,6 +15764,191 @@ namespace strtk
    inline std::pair<Iterator,Iterator> make_pair(const std::pair<const char*, const char*> p)
    {
       return make_pair<Iterator,Iterator>(p);
+   }
+
+   namespace keyvalue
+   {
+      template<typename KeyValueMap>
+      class parser
+      {
+      public:
+
+         typedef unsigned char char_type;
+         typedef std::pair<char_type*,char_type*> range_type;
+
+         struct options
+         {
+            char_type   pair_block_delimiter;
+            char_type   pair_delimiter;
+            std::size_t key_count;
+         };
+
+         parser(const options& opts)
+         : options_(opts),
+           kv_map_(options_),
+           pair_block_sdp_(options_.pair_block_delimiter),
+           pair_delimiter_sdp_(options_.pair_delimiter)
+         {
+            pair_list_.reserve(strtk::one_kilobyte);
+         }
+
+         template<typename T>
+         inline bool register_keyvalue(const typename KeyValueMap::key_type& key, T& t)
+         {
+            return kv_map_.register_keyvalue(key,t);
+         }
+
+         inline bool operator()(const range_type& data)
+         {
+            const std::size_t pair_count = split(pair_block_sdp_,
+                                                 data.first,
+                                                 data.second,
+                                                 pair_list_.begin());
+
+            if (0 == pair_count)
+               return false;
+
+            range_type key_range;
+            range_type value_range;
+
+            for (std::size_t i = 0; i < pair_count; ++i)
+            {
+               range_type& r = pair_list_[i];
+
+               if (!split_pair(r.first,r.second,
+                               pair_delimiter_sdp_,
+                               key_range,value_range))
+                  return false;
+
+               if (!kv_map_(key_range,value_range))
+                  return false;
+            }
+
+            return true;
+         }
+
+         inline bool operator()(const std::string& s)
+         {
+            return operator()(strtk::make_pair<range_type::first_type>(s));
+         }
+
+      private:
+
+         options options_;
+         KeyValueMap kv_map_;
+         single_delimiter_predicate<char_type> pair_block_sdp_;
+         single_delimiter_predicate<char_type> pair_delimiter_sdp_;
+         std::vector<range_type> pair_list_;
+      };
+
+      class uintkey_map
+      {
+      public:
+         typedef unsigned int key_type;
+
+         template<typename Options>
+         uintkey_map(const Options& options)
+         {
+            value_lut_.resize(options.key_count,0);
+         }
+
+         virtual ~uintkey_map()
+         {
+            strtk::util::delete_all(value_lut_);
+         }
+
+         template<typename Range>
+         inline bool operator()(const Range key_range, const Range value_range)
+         {
+            std::size_t key = 0;
+            if (!fast::numeric_convert(distance(key_range),key_range.first,key,true))
+               return false;
+
+            if (key >= value_lut_.size())
+               return false;
+
+            if (0 == value_lut_[key])
+               return false;
+
+            const strtk::util::value& v = (*value_lut_[key]);
+
+            if (!v)
+               return false;
+
+            if (!v(value_range))
+               return false;
+
+            return true;
+         }
+
+         template<typename T>
+         inline bool register_keyvalue(const key_type& key, T& t)
+         {
+            if (key < value_lut_.size())
+            {
+               value_lut_[key] = new strtk::util::value(t);
+               return true;
+            }
+            else
+               return false;
+         }
+
+      private:
+
+         std::vector<strtk::util::value*> value_lut_;
+      };
+
+
+      class stringkey_map
+      {
+      public:
+
+         typedef std::string key_type;
+
+         typedef std::map<std::string,strtk::util::value*> map_type;
+
+         template<typename Options>
+         stringkey_map(const Options&)
+         {}
+
+         virtual ~stringkey_map()
+         {
+            strtk::util::delete_all(value_map_);
+         }
+
+         template<typename Range>
+         inline bool operator()(const Range key_range, const Range value_range)
+         {
+            std::string key(key_range.first,key_range.second);
+
+            map_type::iterator itr = value_map_.find(key);
+
+            if (value_map_.end() == itr)
+               return false;
+
+            const util::value& v = (*(*itr).second);
+
+            if(!v)
+               return false;
+
+            if(!v(value_range))
+               return false;
+
+            return true;
+         }
+
+         template<typename T>
+         inline bool register_keyvalue(const key_type& key, T& t)
+         {
+            value_map_[key] = new strtk::util::value(t);
+            return true;
+         }
+
+      private:
+
+         map_type value_map_;
+      };
+
    }
 
 } // namespace strtk
