@@ -15778,6 +15778,12 @@ namespace strtk
 
          struct options
          {
+            options()
+            : pair_block_delimiter(0),
+              pair_delimiter(0),
+              key_count(0)
+            {}
+
             char_type   pair_block_delimiter;
             char_type   pair_delimiter;
             std::size_t key_count;
