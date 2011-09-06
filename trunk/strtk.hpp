@@ -9115,7 +9115,6 @@ namespace strtk
          }
       }
 
-
       inline combination_iterator(iterator end)
       : begin_(end),
         end_(end),
@@ -15820,13 +15819,22 @@ namespace strtk
             return kv_map_.register_keyvalue(key,t);
          }
 
-         inline bool operator()(const range_type& data)
+         inline bool operator()(const range_type& data, const bool ignore_failures = false)
          {
+            if (ignore_failures)
+            {
+               pair_token_processor processor(*this);
+               split(pair_block_sdp_,
+                     data.first,
+                     data.second,
+                     strtk::functional_inserter(processor));
+               return true;
+            }
+
             const std::size_t pair_count = split(pair_block_sdp_,
                                                  data.first,
                                                  data.second,
                                                  pair_list_.begin());
-
             if (0 == pair_count)
                return false;
 
@@ -15836,7 +15844,6 @@ namespace strtk
             for (std::size_t i = 0; i < pair_count; ++i)
             {
                range_type& r = pair_list_[i];
-
                if (!split_pair(r.first,r.second,
                                pair_delimiter_sdp_,
                                key_range,value_range))
@@ -15849,12 +15856,41 @@ namespace strtk
             return true;
          }
 
-         inline bool operator()(const std::string& s)
+         inline bool operator()(const std::string& s, const bool ignore_failures = false)
          {
-            return operator()(strtk::make_pair<range_type::first_type>(s));
+            return operator()(strtk::make_pair<range_type::first_type>(s),ignore_failures);
          }
 
       private:
+
+         class pair_token_processor
+         {
+         public:
+
+            pair_token_processor(parser<KeyValueMap>& p)
+            : parser_(p)
+            {}
+
+            inline void operator()(const range_type& r)
+            {
+               if (r.first == r.second)
+                  return;
+               if (split_pair(r.first,r.second,
+                              parser_.pair_delimiter_sdp_,
+                              key_range,
+                              value_range))
+               {
+                  parser_.kv_map_(key_range,value_range);
+               }
+            }
+
+         private:
+            pair_token_processor operator=(const pair_token_processor&);
+
+            parser<KeyValueMap>& parser_;
+            range_type key_range;
+            range_type value_range;
+         };
 
          options options_;
          KeyValueMap kv_map_;
