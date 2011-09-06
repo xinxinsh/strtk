@@ -15381,12 +15381,12 @@ namespace strtk
 
             inline virtual bool operator()(itr_type begin, itr_type end) const
             {
-               return strtk::string_to_type_converter<itr_type,T>(begin,end,(*value_ptr_));
+               return strtk::string_to_type_converter(begin,end,(*value_ptr_));
             }
 
          private:
 
-            mutable type_ptr value_ptr_;
+            type_ptr value_ptr_;
          };
 
       public:
@@ -15396,19 +15396,28 @@ namespace strtk
          {}
 
          template<typename T>
-         value(T& t)
-         : type_holder_(new type_holder<T>(t))
-         {}
-
-        ~value()
+         explicit value(T& t)
+         : type_holder_(new(type_holder_buffer_)type_holder<T>(t))
          {
-            if (type_holder_)
-               delete type_holder_;
+            //static_assert(type_holder_buffer_size >= sizeof(type_holder<T>),
+            //              "type_holder_buffer_size must greater than sizeof(type_holder<T>)");
          }
 
          inline bool operator!() const
          {
             return (0 == type_holder_);
+         }
+
+         inline value& operator=(const value& v)
+         {
+            if (0 != v.type_holder_)
+            {
+               std::copy(v.type_holder_buffer_,
+                         v.type_holder_buffer_ + type_holder_buffer_size,
+                         type_holder_buffer_);
+               type_holder_ = reinterpret_cast<type_holder_base*>(type_holder_buffer_);
+            }
+            return *this;
          }
 
          template<typename InputIterator>
@@ -15426,9 +15435,16 @@ namespace strtk
             return operator()(r.first,r.second);
          }
 
+         inline bool operator()(const std::string& s) const
+         {
+            return operator()(s.data(),s.data() + s.size());
+         }
+
       private:
 
          type_holder_base* type_holder_;
+         enum { type_holder_buffer_size = 2 * sizeof(type_holder<unsigned long long>) };
+         unsigned char type_holder_buffer_[type_holder_buffer_size];
       };
 
       template<typename Key,
