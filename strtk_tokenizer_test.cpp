@@ -1776,6 +1776,114 @@ bool test_parse4()
    return true;
 }
 
+bool test_kv_parse()
+{
+   {
+      std::string s;
+      s.reserve(strtk::one_kilobyte);
+      std::pair<const char*, const char*> p;
+
+      for (int i = -10000000; i < +10000000; ++i)
+      {
+         strtk::type_to_string(i,s);
+         p = strtk::make_pair<const char*>(s);
+         int x = 0;
+         strtk::util::value v(x);
+         if (!v(p))
+         {
+            std::cout << "test_kv_parse() - (int) failed parse at index: " << i << std::endl;
+            return false;
+         }
+
+         if (x != i)
+         {
+            std::cout << "test_kv_parse() - (int) failed value test at index: " << i << " x:" << x << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      std::string s;
+      s.reserve(strtk::one_kilobyte);
+      std::pair<const char*, const char*> p;
+
+      for (unsigned int i = 0; i < 20000000; ++i)
+      {
+         strtk::type_to_string(i,s);
+         p = strtk::make_pair<const char*>(s);
+         unsigned int x = 0;
+         strtk::util::value v(x);
+         if (!v(p))
+         {
+            std::cout << "test_kv_parse() - (unsigned int) failed parse at index: " << i << std::endl;
+            return false;
+         }
+
+         if (x != i)
+         {
+            std::cout << "test_kv_parse() - (unsigned int) failed value test at index: " << i << " x:" << x << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      std::string s;
+      s.reserve(strtk::one_kilobyte);
+      std::pair<const char*, const char*> p;
+
+      for (int i = -10000000; i < +10000000; ++i)
+      {
+         float f = i * 0.7f;
+         strtk::type_to_string(f,s);
+         p = strtk::make_pair<const char*>(s);
+         float x = 0;
+         strtk::util::value v(x);
+         if (!v(p))
+         {
+            std::cout << "test_kv_parse() - (float) failed parse at index: " << i << std::endl;
+            return false;
+         }
+
+         if (std::abs(x - f) > 0.0000001f)
+         {
+            std::cout << "test_kv_parse() - (float) failed value test at index: " << i << " x:" << x << std::endl;
+            return false;
+         }
+      }
+   }
+
+   {
+      std::string s;
+      s.reserve(strtk::one_kilobyte);
+      std::pair<const char*, const char*> p;
+
+      for (int i = -10000000; i < +10000000; ++i)
+      {
+         double d = i * 0.7;
+         strtk::type_to_string(d,s);
+         p = strtk::make_pair<const char*>(s);
+         double x = 0;
+         strtk::util::value v(x);
+         if (!v(p))
+         {
+            std::cout << "test_kv_parse() - (double) failed parse at index: " << i << std::endl;
+            return false;
+         }
+
+         if (std::abs(x - d) > 0.0000001)
+         {
+            std::cout << "test_kv_parse() - (double) failed value test at index: " << i << " x:" << x << std::endl;
+            return false;
+         }
+      }
+   }
+
+   return true;
+
+}
+
 bool test_replace_pattern()
 {
    typedef std::pair<std::string,std::string> sp_type;
@@ -1926,6 +2034,7 @@ int main()
    result &= test_parse2();
    result &= test_parse3();
    result &= test_parse4();
+   result &= test_kv_parse();
    result &= test_replace_pattern();
    result &= test_n_choose_k();
    return (false == result ? 1 : 0);
