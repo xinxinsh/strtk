@@ -1591,23 +1591,23 @@ namespace strtk
    }
 
    template<typename Iterator>
-   inline bool imatch(const std::string& s, const Iterator begin, const Iterator end)
+   inline Iterator imatch(const std::string& s, const Iterator begin, const Iterator end)
    {
       for (const std::string* itr = begin; end != itr; ++itr)
       {
          if (imatch(s,*itr))
          {
-            return true;
+            return itr;
          }
       }
-      return false;
+      return end;
    }
 
    template<typename Allocator,
             template<typename,typename> class Sequence>
    inline bool imatch(const std::string& s, const Sequence<std::string,Allocator>& sequence)
    {
-      return imatch(s,sequence.begin(),sequence.end());
+      return (sequence.end() != imatch(s,sequence.begin(),sequence.end()));
    }
 
    template<typename Comparator, typename Allocator>
@@ -15396,10 +15396,8 @@ namespace strtk
 
          template<typename T>
          explicit value(T& t)
-         : type_holder_(new(type_holder_buffer_)type_holder<T>(t))
          {
-            //static_assert(type_holder_buffer_size >= sizeof(type_holder<T>),
-            //              "type_holder_buffer_size must greater than sizeof(type_holder<T>)");
+            assign(t);
          }
 
          inline bool operator!() const
@@ -15407,14 +15405,24 @@ namespace strtk
             return (0 == type_holder_);
          }
 
+         inline bool operator==(const value& v)
+         {
+            return (0 !=   type_holder_) &&
+                   (0 != v.type_holder_) &&
+                   (type_holder_ == v.type_holder_);
+         }
+
          inline value& operator=(const value& v)
          {
-            if (0 != v.type_holder_)
+            if (&v != this)
             {
-               std::copy(v.type_holder_buffer_,
-                         v.type_holder_buffer_ + type_holder_buffer_size,
-                         type_holder_buffer_);
-               type_holder_ = reinterpret_cast<type_holder_base*>(type_holder_buffer_);
+               if (0 != v.type_holder_)
+               {
+                  std::copy(v.type_holder_buffer_,
+                            v.type_holder_buffer_ + type_holder_buffer_size,
+                            type_holder_buffer_);
+                  type_holder_ = reinterpret_cast<type_holder_base*>(type_holder_buffer_);
+               }
             }
             return *this;
          }
@@ -15439,9 +15447,36 @@ namespace strtk
             return operator()(s.data(),s.data() + s.size());
          }
 
+         template<typename T>
+         inline void assign(T& t)
+         {
+            static const std::size_t type_size = sizeof(type_holder<T>(t));
+            type_holder_ = construct<T, type_size <= type_holder_buffer_size>::type(t,type_holder_buffer_);
+         }
+
       private:
 
-         type_holder_base* type_holder_;
+         typedef type_holder_base* type_holder_ptr;
+
+         template<typename T, bool b>
+         struct construct
+         {
+            inline static type_holder_ptr type(T&, unsigned char*)
+            {
+               return reinterpret_cast<type_holder_ptr>(0);
+            }
+         };
+
+         template<typename T>
+         struct construct<T,true>
+         {
+            inline static type_holder_ptr type(T& t, unsigned char* buffer)
+            {
+               return new(buffer)type_holder<T>(t);
+            }
+         };
+
+         type_holder_ptr type_holder_;
          enum { type_holder_buffer_size = 2 * sizeof(type_holder<unsigned long long>) };
          unsigned char type_holder_buffer_[type_holder_buffer_size];
       };
@@ -15806,6 +15841,7 @@ namespace strtk
 
          parser(const options& opts)
          : options_(opts),
+           parse_failures_(0),
            kv_map_(options_),
            pair_block_sdp_(options_.pair_block_delimiter),
            pair_delimiter_sdp_(options_.pair_delimiter)
@@ -15823,6 +15859,7 @@ namespace strtk
          {
             if (ignore_failures)
             {
+               parse_failures_ = 0;
                pair_token_processor processor(*this);
                split(pair_block_sdp_,
                      data.first,
@@ -15861,6 +15898,11 @@ namespace strtk
             return operator()(strtk::make_pair<range_type::first_type>(s),ignore_failures);
          }
 
+         inline std::size_t failure_count() const
+         {
+            return parse_failures_;
+         }
+
       private:
 
          class pair_token_processor
@@ -15880,8 +15922,11 @@ namespace strtk
                               key_range,
                               value_range))
                {
-                  parser_.kv_map_(key_range,value_range);
+                  if(!parser_.kv_map_(key_range,value_range))
+                     ++parser_.parse_failures_;
                }
+               else
+                  ++parser_.parse_failures_;
             }
 
          private:
@@ -15893,6 +15938,7 @@ namespace strtk
          };
 
          options options_;
+         std::size_t parse_failures_;
          KeyValueMap kv_map_;
          single_delimiter_predicate<char_type> pair_block_sdp_;
          single_delimiter_predicate<char_type> pair_delimiter_sdp_;
@@ -15907,13 +15953,11 @@ namespace strtk
          template<typename Options>
          uintkey_map(const Options& options)
          {
-            value_lut_.resize(options.key_count,0);
+            value_lut_.resize(options.key_count,strtk::util::value());
          }
 
          virtual ~uintkey_map()
-         {
-            strtk::util::delete_all(value_lut_);
-         }
+         {}
 
          template<typename Range>
          inline bool operator()(const Range key_range, const Range value_range)
@@ -15921,21 +15965,13 @@ namespace strtk
             std::size_t key = 0;
             if (!fast::numeric_convert(distance(key_range),key_range.first,key,true))
                return false;
-
             if (key >= value_lut_.size())
                return false;
-
-            if (0 == value_lut_[key])
-               return false;
-
-            const strtk::util::value& v = (*value_lut_[key]);
-
+            const strtk::util::value& v = value_lut_[key];
             if (!v)
                return false;
-
             if (!v(value_range))
                return false;
-
             return true;
          }
 
@@ -15944,7 +15980,7 @@ namespace strtk
          {
             if (key < value_lut_.size())
             {
-               value_lut_[key] = new strtk::util::value(t);
+               value_lut_[key] = strtk::util::value(t);
                return true;
             }
             else
@@ -15953,7 +15989,7 @@ namespace strtk
 
       private:
 
-         std::vector<strtk::util::value*> value_lut_;
+         std::vector<strtk::util::value> value_lut_;
       };
 
 
@@ -15963,42 +15999,34 @@ namespace strtk
 
          typedef std::string key_type;
 
-         typedef std::map<std::string,strtk::util::value*> map_type;
+         typedef std::map<std::string,strtk::util::value> map_type;
 
          template<typename Options>
          stringkey_map(const Options&)
          {}
 
          virtual ~stringkey_map()
-         {
-            strtk::util::delete_all(value_map_);
-         }
+         {}
 
          template<typename Range>
          inline bool operator()(const Range key_range, const Range value_range)
          {
             std::string key(key_range.first,key_range.second);
-
             map_type::iterator itr = value_map_.find(key);
-
             if (value_map_.end() == itr)
                return false;
-
-            const util::value& v = (*(*itr).second);
-
+            const util::value& v = (*itr).second;
             if(!v)
                return false;
-
             if(!v(value_range))
                return false;
-
             return true;
          }
 
          template<typename T>
          inline bool register_keyvalue(const key_type& key, T& t)
          {
-            value_map_[key] = new strtk::util::value(t);
+            value_map_[key] = strtk::util::value(t);
             return true;
          }
 
