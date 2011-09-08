@@ -1776,8 +1776,119 @@ bool test_parse4()
    return true;
 }
 
+namespace test_details
+{
+   struct data_store
+   {
+      static const std::size_t member_count = 11;
+
+      data_store()
+      :   c(0),
+         uc(0),
+          s(0),
+         us(0),
+          i(0),
+         ui(0),
+         ll(0),
+        ull(0),
+        d(0.0),
+        f(0.0),
+       str("")
+      {}
+
+      char                 c;
+      unsigned char       uc;
+      short                s;
+      unsigned short      us;
+      int                  i;
+      unsigned int        ui;
+      long long           ll;
+      unsigned long long ull;
+      double               d;
+      float                f;
+      std::string        str;
+
+   };
+}
+
 bool test_kv_parse()
 {
+   {
+      static const std::size_t rounds = 20000000;
+
+      std::string slist[] =
+      {
+         "A",
+         "z",
+         "-123",
+         "456",
+         "-12345678",
+         "789012345",
+         "-43654364634645235",
+         "777777777777777777",
+         "1234.56789",
+         "0.0003f",
+         "abcdefghijklmnopqrstuvwxyz",
+      };
+
+      test_details::data_store ds;
+      strtk::util::value v1;
+      strtk::util::value v2;
+      for (std::size_t i = 0; i < rounds; ++i)
+      {
+         v1.assign(ds.  c); if (!v1(slist[ 0])) { std::cout << "Failed parsing slist[00] via v1!" << std::endl; return false; }
+         v1.assign(ds. uc); if (!v1(slist[ 1])) { std::cout << "Failed parsing slist[01] via v1!" << std::endl; return false; }
+         v1.assign(ds.  s); if (!v1(slist[ 2])) { std::cout << "Failed parsing slist[02] via v1!" << std::endl; return false; }
+         v1.assign(ds. us); if (!v1(slist[ 3])) { std::cout << "Failed parsing slist[03] via v1!" << std::endl; return false; }
+         v1.assign(ds.  i); if (!v1(slist[ 4])) { std::cout << "Failed parsing slist[04] via v1!" << std::endl; return false; }
+         v1.assign(ds. ui); if (!v1(slist[ 5])) { std::cout << "Failed parsing slist[05] via v1!" << std::endl; return false; }
+         v1.assign(ds. ll); if (!v1(slist[ 6])) { std::cout << "Failed parsing slist[06] via v1!" << std::endl; return false; }
+         v1.assign(ds.ull); if (!v1(slist[ 7])) { std::cout << "Failed parsing slist[07] via v1!" << std::endl; return false; }
+         v1.assign(ds.  d); if (!v1(slist[ 8])) { std::cout << "Failed parsing slist[08] via v1!" << std::endl; return false; }
+         v1.assign(ds.  f); if (!v1(slist[ 9])) { std::cout << "Failed parsing slist[09] via v1!" << std::endl; return false; }
+         v1.assign(ds.str); if (!v1(slist[10])) { std::cout << "Failed parsing slist[10] via v1!" << std::endl; return false; }
+
+         if ('A'                          != ds.  c) { std::cout << "Failed check v1 for ds.  c!" << std::endl; return false; }
+         if ('z'                          != ds. uc) { std::cout << "Failed check v1 for ds. uc!" << std::endl; return false; }
+         if (-123                         != ds.  s) { std::cout << "Failed check v1 for ds.  s!" << std::endl; return false; }
+         if (456                          != ds. us) { std::cout << "Failed check v1 for ds. us!" << std::endl; return false; }
+         if (-12345678                    != ds.  i) { std::cout << "Failed check v1 for ds.  i!" << std::endl; return false; }
+         if (789012345                    != ds. ui) { std::cout << "Failed check v1 for ds. ui!" << std::endl; return false; }
+         if (-43654364634645235           != ds. ll) { std::cout << "Failed check v1 for ds. ll!" << std::endl; return false; }
+         if (777777777777777777           != ds.ull) { std::cout << "Failed check v1 for ds.ull!" << std::endl; return false; }
+         if (1234.56789                   != ds.  d) { std::cout << "Failed check v1 for ds.  d!" << std::endl; return false; }
+         if (0.0003f                      != ds.  f) { std::cout << "Failed check v1 for ds.  f!" << std::endl; return false; }
+         if ("abcdefghijklmnopqrstuvwxyz" != ds.str) { std::cout << "Failed check v1 for ds.str!" << std::endl; return false; }
+
+         v2 = v1;
+
+         v2.assign(ds.  c); if (!v2(slist[ 0])) { std::cout << "Failed parsing slist[00] via v2!" << std::endl; return false; }
+         v2.assign(ds. uc); if (!v2(slist[ 1])) { std::cout << "Failed parsing slist[01] via v2!" << std::endl; return false; }
+         v2.assign(ds.  s); if (!v2(slist[ 2])) { std::cout << "Failed parsing slist[02] via v2!" << std::endl; return false; }
+         v2.assign(ds. us); if (!v2(slist[ 3])) { std::cout << "Failed parsing slist[03] via v2!" << std::endl; return false; }
+         v2.assign(ds.  i); if (!v2(slist[ 4])) { std::cout << "Failed parsing slist[04] via v2!" << std::endl; return false; }
+         v2.assign(ds. ui); if (!v2(slist[ 5])) { std::cout << "Failed parsing slist[05] via v2!" << std::endl; return false; }
+         v2.assign(ds. ll); if (!v2(slist[ 6])) { std::cout << "Failed parsing slist[06] via v2!" << std::endl; return false; }
+         v2.assign(ds.ull); if (!v2(slist[ 7])) { std::cout << "Failed parsing slist[07] via v2!" << std::endl; return false; }
+         v2.assign(ds.  d); if (!v2(slist[ 8])) { std::cout << "Failed parsing slist[08] via v2!" << std::endl; return false; }
+         v2.assign(ds.  f); if (!v2(slist[ 9])) { std::cout << "Failed parsing slist[09] via v2!" << std::endl; return false; }
+         v2.assign(ds.str); if (!v2(slist[10])) { std::cout << "Failed parsing slist[10] via v2!" << std::endl; return false; }
+
+         if ('A'                          != ds.  c) { std::cout << "Failed check v2 for ds.  c!" << std::endl; return false; }
+         if ('z'                          != ds. uc) { std::cout << "Failed check v2 for ds. uc!" << std::endl; return false; }
+         if (-123                         != ds.  s) { std::cout << "Failed check v2 for ds.  s!" << std::endl; return false; }
+         if (456                          != ds. us) { std::cout << "Failed check v2 for ds. us!" << std::endl; return false; }
+         if (-12345678                    != ds.  i) { std::cout << "Failed check v2 for ds.  i!" << std::endl; return false; }
+         if (789012345                    != ds. ui) { std::cout << "Failed check v2 for ds. ui!" << std::endl; return false; }
+         if (-43654364634645235           != ds. ll) { std::cout << "Failed check v2 for ds. ll!" << std::endl; return false; }
+         if (777777777777777777           != ds.ull) { std::cout << "Failed check v2 for ds.ull!" << std::endl; return false; }
+         if (1234.56789                   != ds.  d) { std::cout << "Failed check v2 for ds.  d!" << std::endl; return false; }
+         if (0.0003f                      != ds.  f) { std::cout << "Failed check v2 for ds.  f!" << std::endl; return false; }
+         if ("abcdefghijklmnopqrstuvwxyz" != ds.str) { std::cout << "Failed check v2 for ds.str!" << std::endl; return false; }
+
+      }
+   }
+
    {
       std::string s;
       s.reserve(strtk::one_kilobyte);
