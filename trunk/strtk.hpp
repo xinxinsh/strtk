@@ -15395,7 +15395,7 @@ namespace strtk
          {}
 
          template<typename T>
-         explicit value(T& t)
+         inline explicit value(T& t)
          {
             assign(t);
          }
@@ -15405,7 +15405,7 @@ namespace strtk
             return (0 == type_holder_);
          }
 
-         inline bool operator==(const value& v)
+         inline bool operator==(const value& v) const
          {
             return (0 !=   type_holder_) &&
                    (0 != v.type_holder_) &&
@@ -15451,7 +15451,7 @@ namespace strtk
          inline void assign(T& t)
          {
             static const std::size_t type_size = sizeof(type_holder<T>(t));
-            type_holder_ = construct<T, type_size <= type_holder_buffer_size>::type(t,type_holder_buffer_);
+            type_holder_ = construct<T,type_size <= type_holder_buffer_size>::type(t,type_holder_buffer_);
          }
 
       private:
@@ -15818,6 +15818,20 @@ namespace strtk
 
    namespace keyvalue
    {
+       template<typename CharType>
+	   struct options
+	   {
+	      typedef CharType char_type;
+
+		  options()
+		  : pair_block_delimiter(0),
+			pair_delimiter(0)
+		  {}
+
+		  char_type   pair_block_delimiter;
+		  char_type   pair_delimiter;
+      };
+
       template<typename KeyValueMap>
       class parser
       {
@@ -15826,23 +15840,10 @@ namespace strtk
          typedef unsigned char char_type;
          typedef std::pair<char_type*,char_type*> range_type;
 
-         struct options
-         {
-            options()
-            : pair_block_delimiter(0),
-              pair_delimiter(0),
-              key_count(0)
-            {}
-
-            char_type   pair_block_delimiter;
-            char_type   pair_delimiter;
-            std::size_t key_count;
-         };
-
-         parser(const options& opts)
+         template<typename Options>
+         parser(const Options& opts)
          : options_(opts),
-           parse_failures_(0),
-           kv_map_(options_),
+           kv_map_(opts),
            pair_block_sdp_(options_.pair_block_delimiter),
            pair_delimiter_sdp_(options_.pair_delimiter)
          {
@@ -15857,40 +15858,42 @@ namespace strtk
 
          inline bool operator()(const range_type& data, const bool ignore_failures = false)
          {
-            if (ignore_failures)
+            if (!ignore_failures)
             {
-               parse_failures_ = 0;
-               pair_token_processor processor(*this);
-               split(pair_block_sdp_,
-                     data.first,
-                     data.second,
-                     strtk::functional_inserter(processor));
-               return true;
+				const std::size_t pair_count = split(pair_block_sdp_,
+													 data.first,
+													 data.second,
+													 pair_list_.begin());
+				if (0 == pair_count)
+				   return false;
+
+				range_type key_range;
+				range_type value_range;
+
+				for (std::size_t i = 0; i < pair_count; ++i)
+				{
+				   const range_type& r = pair_list_[i];
+				   if (!split_pair(r.first,r.second,
+								   pair_delimiter_sdp_,
+								   key_range,value_range))
+					  return false;
+
+				   if (!kv_map_(key_range,value_range))
+					  return false;
+				}
+
+				return true;
             }
-
-            const std::size_t pair_count = split(pair_block_sdp_,
-                                                 data.first,
-                                                 data.second,
-                                                 pair_list_.begin());
-            if (0 == pair_count)
-               return false;
-
-            range_type key_range;
-            range_type value_range;
-
-            for (std::size_t i = 0; i < pair_count; ++i)
+            else
             {
-               range_type& r = pair_list_[i];
-               if (!split_pair(r.first,r.second,
-                               pair_delimiter_sdp_,
-                               key_range,value_range))
-                  return false;
-
-               if (!kv_map_(key_range,value_range))
-                  return false;
+                parse_failures_ = 0;
+                pair_token_processor processor(*this);
+                split(pair_block_sdp_,
+                      data.first,
+                      data.second,
+                      strtk::functional_inserter(processor));
+                return true;
             }
-
-            return true;
          }
 
          inline bool operator()(const std::string& s, const bool ignore_failures = false)
@@ -15937,7 +15940,7 @@ namespace strtk
             range_type value_range;
          };
 
-         options options_;
+         options<char_type> options_;
          std::size_t parse_failures_;
          KeyValueMap kv_map_;
          single_delimiter_predicate<char_type> pair_block_sdp_;
@@ -15947,8 +15950,22 @@ namespace strtk
 
       class uintkey_map
       {
+      private:
+    	  typedef unsigned char char_type;
+    	  typedef strtk::keyvalue::options<char_type> general_options;
+
       public:
          typedef unsigned int key_type;
+
+         struct options : public general_options
+         {
+            options()
+            : general_options(),
+              key_count(0)
+            {}
+
+            std::size_t key_count;
+         };
 
          template<typename Options>
          uintkey_map(const Options& options)
