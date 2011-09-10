@@ -77,6 +77,7 @@ int main()
 {
    static const std::size_t rounds = 1000000;
 
+   // Format: key_0=value_1|key_2=value_2|......|key_n=value_n
    static const std::string data[] =
                       {
                          //Seq 00
@@ -94,17 +95,17 @@ int main()
    static const std::size_t data_size = sizeof(data) / sizeof(std::string);
 
    {
-      data_store ds;
-
       typedef strtk::keyvalue::parser<strtk::keyvalue::uintkey_map> kvp_type;
 
-      kvp_type::options options;
+      strtk::keyvalue::uintkey_map::options options;
 
       options.key_count            = 130; //[110,129]
       options.pair_block_delimiter = '|';
       options.pair_delimiter       = '=';
 
       kvp_type kvp(options);
+
+      data_store ds;
 
       kvp.register_keyvalue(121,ds.  c);
       kvp.register_keyvalue(122,ds. uc);
@@ -142,16 +143,18 @@ int main()
    }
 
    {
-      data_store ds;
-
+      typedef unsigned char char_type;
       typedef strtk::keyvalue::parser<strtk::keyvalue::stringkey_map> kvp_type;
+      typedef strtk::keyvalue::options<char_type> opts_type;
 
-      kvp_type::options options;
+      opts_type options;
 
       options.pair_block_delimiter = '|';
       options.pair_delimiter       = '=';
 
       kvp_type kvp(options);
+
+      data_store ds;
 
       kvp.register_keyvalue("121",ds.  c);
       kvp.register_keyvalue("122",ds. uc);
