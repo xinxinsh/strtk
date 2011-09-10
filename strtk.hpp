@@ -236,8 +236,9 @@ namespace strtk
       struct hex_type_tag {};
       struct base64_type_tag {};
       struct ignore_token_type_tag {};
-      struct stdstring_type_tag{};
-      struct stdstring_range_type_tag{};
+      struct stdstring_type_tag {};
+      struct stdstring_range_type_tag {};
+      struct value_type_tag {};
       struct sink_type_tag {};
 
       template<typename T>
@@ -292,6 +293,12 @@ namespace strtk
       return string_to_type_converter_impl(itr,end,t,type);
    }
 
+   template<typename Iterator, typename T>
+   inline bool string_to_type_converter(const std::pair<Iterator,Iterator>& range, T& t)
+   {
+      return string_to_type_converter(range.first,range.second,t);
+   }
+
    template<typename T, typename Iterator>
    inline T string_to_type_converter(const Iterator begin, const Iterator end)
    {
@@ -303,6 +310,12 @@ namespace strtk
          return t;
       else
          throw;
+   }
+
+   template<typename T, typename Iterator>
+   inline T string_to_type_converter(const std::pair<Iterator,Iterator>& range)
+   {
+      return string_to_type_converter<T>(range.first.range.second);
    }
 
    template<typename T>
@@ -11987,6 +12000,9 @@ namespace strtk
       template<> struct supported_conversion_to_type<std::string> { typedef stdstring_type_tag type; };
       template<> struct supported_iterator_type<std::string> { enum { value = true }; };
 
+      template<> struct supported_conversion_to_type<strtk::util::value> { typedef value_type_tag type; };
+      template<> struct supported_iterator_type<strtk::util::value> { enum { value = true }; };
+
       #define strtk_register_stdstring_range_type_tag(T)\
       template<> struct supported_conversion_to_type< std::pair<T,T> >{ typedef stdstring_range_type_tag type; };
 
@@ -12133,9 +12149,9 @@ namespace strtk
       }
 
       template<typename Iterator>
-      inline bool string_to_type_converter_impl(Iterator&, const Iterator, strtk::util::value&, not_supported_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& begin, const Iterator end, strtk::util::value& v, value_type_tag)
       {
-         return false;
+         return v(begin,end);
       }
 
       template<typename Iterator>
@@ -15818,18 +15834,18 @@ namespace strtk
 
    namespace keyvalue
    {
-       template<typename CharType>
-	   struct options
-	   {
-	      typedef CharType char_type;
+      template<typename CharType>
+      struct options
+      {
+         typedef CharType char_type;
 
-		  options()
-		  : pair_block_delimiter(0),
-			pair_delimiter(0)
-		  {}
+         options()
+         : pair_block_delimiter(0),
+           pair_delimiter(0)
+         {}
 
-		  char_type   pair_block_delimiter;
-		  char_type   pair_delimiter;
+         char_type pair_block_delimiter;
+         char_type pair_delimiter;
       };
 
       template<typename KeyValueMap>
@@ -15860,29 +15876,29 @@ namespace strtk
          {
             if (!ignore_failures)
             {
-				const std::size_t pair_count = split(pair_block_sdp_,
-													 data.first,
-													 data.second,
-													 pair_list_.begin());
-				if (0 == pair_count)
-				   return false;
+               const std::size_t pair_count = split(pair_block_sdp_,
+                                           data.first,
+                                           data.second,
+                                           pair_list_.begin());
+               if (0 == pair_count)
+                  return false;
 
-				range_type key_range;
-				range_type value_range;
+               range_type key_range;
+               range_type value_range;
 
-				for (std::size_t i = 0; i < pair_count; ++i)
-				{
-				   const range_type& r = pair_list_[i];
-				   if (!split_pair(r.first,r.second,
-								   pair_delimiter_sdp_,
-								   key_range,value_range))
-					  return false;
+               for (std::size_t i = 0; i < pair_count; ++i)
+               {
+                  const range_type& r = pair_list_[i];
+                  if (!split_pair(r.first,r.second,
+                              pair_delimiter_sdp_,
+                              key_range,value_range))
+                    return false;
 
-				   if (!kv_map_(key_range,value_range))
-					  return false;
-				}
+                  if (!kv_map_(key_range,value_range))
+                    return false;
+               }
 
-				return true;
+               return true;
             }
             else
             {
@@ -15951,8 +15967,8 @@ namespace strtk
       class uintkey_map
       {
       private:
-    	  typedef unsigned char char_type;
-    	  typedef strtk::keyvalue::options<char_type> general_options;
+         typedef unsigned char char_type;
+         typedef strtk::keyvalue::options<char_type> general_options;
 
       public:
          typedef unsigned int key_type;

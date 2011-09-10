@@ -17,18 +17,21 @@
 
 
 /*
-   Description: This example demonstrates the high-performance parsing of a sequence
-                of key-value pairs. An example data object named "data_store" is used
-                which contains 11 various types of members that need populating. Each
-                member is mapped via a key to value which is registered with the parser.
-                The examples below demonstrate parsing of keys as unsigned int and of
-                std::string types. An array of 5 sequences of key-value pairs, in various
-                orderings, are passed to the key-value parser. The parser processes each
-                sequence, splitting them up into pairs and subsequently processing each
-                pair, mapping parsed values to the appropriate registered value. The whole
-                process is timed, and details such as total time and rate of pairs parsed
-                per second is displayed. Note a running total is maintained so as to
-                overcome the effects of overzealous optimizers.
+   Description: This example demonstrates parsing of a sequence of key-value
+                pairs. An example data object named "data_store" is used which
+                contains 11 various types of members that need populating. Each
+                member is mapped via a key to value which is registered with the
+                parser. The examples below demonstrate parsing of keys as
+                unsigned int and of std::string types.
+
+                An array of 5 sequences of key-value pairs, in various orderings,
+                are passed to the key-value parser. The parser processes each
+                sequence, splitting them up into pairs and subsequently
+                processing each pair, mapping parsed values to the appropriate
+                registered value. The whole process is timed, and details such as
+                total time and rate of pairs parsed per second is displayed. Note
+                a running total is maintained so as to overcome the effects of
+                overzealous optimizers.
 */
 
 
