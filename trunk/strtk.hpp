@@ -10102,7 +10102,7 @@ namespace strtk
          : original_buffer_(reinterpret_cast<char*>(buffer)),
            buffer_(reinterpret_cast<char*>(buffer)),
            buffer_length_(buffer_length * sizeof(T)),
-           read_buffer_size_(0)
+           amount_read_sofar_(0)
          {}
 
          inline bool operator!() const
@@ -10114,15 +10114,30 @@ namespace strtk
 
          inline void reset()
          {
-            read_buffer_size_ = 0;
+            amount_read_sofar_ = 0;
             buffer_ = original_buffer_;
+         }
+
+         inline std::size_t position() const
+         {
+            return amount_read_sofar_;
+         }
+
+         inline const char* position_ptr() const
+         {
+        	 return buffer_ ;
+         }
+
+         inline std::size_t amount_read()
+         {
+            return amount_read_sofar_;
          }
 
          inline bool rewind(const std::size_t& n_bytes)
          {
-            if (n_bytes <= read_buffer_size_)
+            if (n_bytes <= amount_read_sofar_)
             {
-               read_buffer_size_ -= n_bytes;
+               amount_read_sofar_ -= n_bytes;
                buffer_ -= n_bytes;
                return true;
             }
@@ -10136,9 +10151,9 @@ namespace strtk
                return rewind(-n_bytes);
             else if (n_bytes > 0)
             {
-               if ((read_buffer_size_ + n_bytes) <= buffer_length_)
+               if ((amount_read_sofar_ + n_bytes) <= buffer_length_)
                {
-                  read_buffer_size_ += n_bytes;
+                  amount_read_sofar_ += n_bytes;
                   buffer_ += n_bytes;
                   return true;
                }
@@ -10155,11 +10170,6 @@ namespace strtk
             std::memset(buffer_,0x00,buffer_length_);
          }
 
-         inline std::size_t read_size() const
-         {
-            return read_buffer_size_;
-         }
-
          template<typename T>
          inline bool operator()(T*& data, uint32_t& length)
          {
@@ -10173,7 +10183,7 @@ namespace strtk
             (*data) = new T[length];
             std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(*data));
             buffer_ += raw_size;
-            read_buffer_size_ += raw_size;
+            amount_read_sofar_ += raw_size;
             return true;
          }
 
@@ -10191,7 +10201,7 @@ namespace strtk
                       buffer_ + length,
                       const_cast<char*>(output.data()));
             buffer_ += length;
-            read_buffer_size_ += length;
+            amount_read_sofar_ += length;
             return true;
          }
 
@@ -10206,7 +10216,7 @@ namespace strtk
                       buffer_ + raw_size,
                       reinterpret_cast<char*>(data));
             buffer_ += length;
-            read_buffer_size_ += length;
+            amount_read_sofar_ += length;
             return true;
          }
 
@@ -10237,9 +10247,10 @@ namespace strtk
 
             for (std::size_t i = 0; i < size; ++i)
             {
-               if (!operator()(t))
+               if (operator()(t))
+                  seq.push_back(t);
+               else
                   return false;
-               seq.push_back(t);
             }
             return true;
          }
@@ -10250,21 +10261,11 @@ namespace strtk
             uint32_t size = 0;
             if (!read_pod(size))
                return false;
-            vec.reserve(size);
-
             const std::size_t raw_size = size * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
-
-            T t;
-            for (std::size_t i = 0; i < size; ++i)
-            {
-               if (!operator()(t))
-                  return false;
-               vec.push_back(t);
-            }
-
-            return true;
+            vec.resize(size);
+            return selector<T>::type::batch_vector_read(*this,size,vec,false);
          }
 
          template<typename T,
@@ -10300,21 +10301,30 @@ namespace strtk
 
          inline bool operator()(std::ifstream& stream)
          {
-            if (0 == read_buffer_size_) return false;
-            stream.read(original_buffer_,static_cast<std::streamsize>(read_buffer_size_));
+            if (0 == amount_read_sofar_) return false;
+            stream.read(original_buffer_,static_cast<std::streamsize>(amount_read_sofar_));
             return true;
          }
 
          template<typename T>
          inline bool operator()(T& output)
          {
-            return selector<T,typename strtk::details::is_pod<T>::result_t>::run(*this,output);
+            return selector<T>::type::run(*this,output);
          }
 
          template<typename T>
          inline bool operator()(const T& output)
          {
-            return selector<T,typename strtk::details::is_pod<T>::result_t>::run(*this,const_cast<T&>(output));
+            return selector<T>::type::run(*this,const_cast<T&>(output));
+         }
+
+         template<typename T>
+         inline bool operator()(T& output, const std::size_t& size)
+         {
+            if (buffer_capacity_ok(size))
+               return strtk::string_to_type_converter<char*,T>(buffer_,buffer_ + size,output);
+            else
+               return false;
          }
 
       private:
@@ -10325,45 +10335,95 @@ namespace strtk
 
          inline bool buffer_capacity_ok(const std::size_t& required_read_qty)
          {
-            return ((required_read_qty + read_buffer_size_) < buffer_length_);
+            return ((required_read_qty + amount_read_sofar_) <= buffer_length_);
          }
 
-         template<typename T, typename IsPOD>
+         template<typename Type>
          struct selector
          {
-            template<typename Reader>
-            static inline bool run(Reader& r, T& t)
+         private:
+
+            template<typename T, typename IsPOD>
+            struct selector_impl
             {
-               return t(r);
-            }
+               template<typename Reader>
+               static inline bool run(Reader& r, T& t)
+               {
+                  return t(r);
+               }
+
+               template<typename Reader,
+                        typename Allocator>
+               static inline bool batch_vector_read(Reader& r,
+                                                    const std::size_t& size,
+                                                    std::vector<T,Allocator>& v,
+                                                    const bool)
+               {
+                  T t;
+                  for (std::size_t i = 0; i < size; ++i)
+                  {
+                     if (r.operator()(t))
+                        v[i] = t;
+                     else
+                        return false;
+                  }
+                  return true;
+               }
+            };
+
+            template<typename T>
+            struct selector_impl<T,details::yes_t>
+            {
+               template<typename Reader>
+               static inline bool run(Reader& r,
+                                      T& t,
+                                      const bool perform_buffer_capacity_check = true)
+               {
+                  return r.read_pod(t,perform_buffer_capacity_check);
+               }
+
+               template<typename Reader,
+                        typename Allocator>
+               static inline bool batch_vector_read(Reader& r,
+                                                    const std::size_t& size,
+                                                    std::vector<T,Allocator>& v,
+                                                    const bool perform_buffer_capacity_check = true)
+               {
+                  for (std::size_t i = 0; i < size; ++i)
+                  {
+                     if (r.read_pod(v[i],perform_buffer_capacity_check))
+                        continue;
+                     else
+                        return false;
+                  }
+                  return true;
+               }
+            };
+
+         public:
+
+            typedef selector_impl<Type,typename strtk::details::is_pod<Type>::result_t> type;
          };
 
          template<typename T>
-         struct selector<T,details::yes_t>
-         {
-            template<typename Reader>
-            static inline bool run(Reader& r, T& t)
-            {
-               return r.read_pod(t);
-            }
-         };
-
-         template<typename T>
-         inline bool read_pod(T& data)
+         inline bool read_pod(T& data, const bool perform_buffer_capacity_check = true)
          {
             static const std::size_t data_length = sizeof(T);
-            if (!buffer_capacity_ok(data_length))
-               return false;
+            if (perform_buffer_capacity_check)
+            {
+               if (!buffer_capacity_ok(data_length))
+                  return false;
+            }
             data = (*reinterpret_cast<T*>(buffer_));
             buffer_ += data_length;
-            read_buffer_size_ += data_length;
+            amount_read_sofar_ += data_length;
             return true;
          }
 
          char* const original_buffer_;
          char* buffer_;
          std::size_t buffer_length_;
-         std::size_t read_buffer_size_;
+         std::size_t amount_read_sofar_;
 
       };
 
@@ -10381,7 +10441,7 @@ namespace strtk
          : original_buffer_(reinterpret_cast<char*>(buffer)),
            buffer_(reinterpret_cast<char*>(buffer)),
            buffer_length_(buffer_length * sizeof(T)),
-           written_buffer_size_(0)
+           amount_written_sofar_(0)
          {}
 
          inline bool operator!() const
@@ -10393,19 +10453,29 @@ namespace strtk
 
          inline void reset()
          {
-            written_buffer_size_ = 0;
+            amount_written_sofar_ = 0;
             buffer_ = original_buffer_;
+         }
+
+         inline std::size_t position() const
+         {
+            return amount_written_sofar_;
+         }
+
+         inline const char* position_ptr() const
+         {
+        	 return buffer_ ;
+         }
+
+         inline std::size_t amount_written() const
+         {
+            return amount_written_sofar_;
          }
 
          inline void clear()
          {
             reset();
             std::memset(buffer_,0x00,buffer_length_);
-         }
-
-         inline std::size_t write_size() const
-         {
-            return written_buffer_size_;
          }
 
          template<typename T>
@@ -10421,7 +10491,7 @@ namespace strtk
             const char* ptr = reinterpret_cast<const char*>(data);
             std::copy(ptr, ptr + raw_size, buffer_);
             buffer_ += raw_size;
-            written_buffer_size_ += raw_size;
+            amount_written_sofar_ += raw_size;
 
             return true;
          }
@@ -10491,8 +10561,8 @@ namespace strtk
 
          inline std::size_t operator()(std::ofstream& stream)
          {
-            stream.write(original_buffer_,static_cast<std::streamsize>(written_buffer_size_));
-            return written_buffer_size_;
+            stream.write(original_buffer_,static_cast<std::streamsize>(amount_written_sofar_));
+            return amount_written_sofar_;
          }
 
          template<typename T>
@@ -10501,15 +10571,48 @@ namespace strtk
             return selector<T,typename strtk::details::is_pod<T>::result_t>::run(*this,input);
          }
 
+         enum padding_mode
+         {
+            right_padding = 0,
+            left_padding  = 1
+         };
+
+         template<typename T>
+         inline bool operator()(const T& input,
+                                const std::size_t& size,
+                                const padding_mode pmode,
+                                const char padding = ' ')
+         {
+            if (amount_written_sofar_ + size <= buffer_length_)
+            {
+               std::string s;
+               s.reserve(size);
+               if(!strtk::type_to_string<T>(input,s))
+                  return false;
+               else if (s.size() > size)
+                  return false;
+               else if (s.size() < size)
+               {
+                  if (right_padding == pmode)
+                     s.resize(size - s.size(),padding);
+                  else
+                     s = std::string(size - s.size(),padding) + s;
+               }
+               return operator()<const char>(s.data(),size,false);
+            }
+            else
+               return false;
+         }
+
       private:
 
          writer();
          writer(const writer& s);
          writer& operator=(const writer& s);
 
-         inline bool buffer_capacity_ok(const std::size_t& required_read_qty)
+         inline bool buffer_capacity_ok(const std::size_t& required_write_qty)
          {
-            return ((required_read_qty + written_buffer_size_) < buffer_length_);
+            return ((required_write_qty + amount_written_sofar_) <= buffer_length_);
          }
 
          template<typename T, typename IsPOD>
@@ -10536,20 +10639,20 @@ namespace strtk
          inline bool write_pod(const T& data)
          {
             static const std::size_t data_length = sizeof(T);
-            if ((data_length + written_buffer_size_) > buffer_length_)
+            if ((data_length + amount_written_sofar_) > buffer_length_)
             {
                return false;
             }
             *(reinterpret_cast<T*>(buffer_)) = data;
             buffer_ += data_length;
-            written_buffer_size_ += data_length;
+            amount_written_sofar_ += data_length;
             return true;
          }
 
          char* const original_buffer_;
          char* buffer_;
          std::size_t buffer_length_;
-         std::size_t written_buffer_size_;
+         std::size_t amount_written_sofar_;
 
       };
 
