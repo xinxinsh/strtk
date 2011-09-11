@@ -10372,7 +10372,7 @@ namespace strtk
             };
 
             template<typename T>
-            struct selector_impl<T,details::yes_t>
+            struct selector_impl<T,strtk::details::yes_t>
             {
                template<typename Reader>
                static inline bool run(Reader& r,
@@ -10492,7 +10492,6 @@ namespace strtk
             std::copy(ptr, ptr + raw_size, buffer_);
             buffer_ += raw_size;
             amount_written_sofar_ += raw_size;
-
             return true;
          }
 
@@ -10517,11 +10516,11 @@ namespace strtk
          inline bool operator()(const Sequence<T,Allocator>& seq)
          {
             const uint32_t size = seq.size();
-            if (!operator()(size))
+            const std::size_t raw_size = (size * sizeof(T)) + sizeof(size);
+            if (!buffer_capacity_ok(raw_size))
                return false;
 
-            const std::size_t raw_size = size * sizeof(T);
-            if (!buffer_capacity_ok(raw_size))
+            if (!operator()(size))
                return false;
 
             typename Sequence<T,Allocator>::const_iterator itr = seq.begin();
@@ -10533,6 +10532,19 @@ namespace strtk
                ++itr;
             }
             return true;
+         }
+
+         template<typename T,
+                  typename Allocator>
+         inline bool operator()(const std::vector<T,Allocator>& vec)
+         {
+            const uint32_t size = vec.size();
+            const std::size_t raw_size = (size * sizeof(T)) + sizeof(size);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+            if (!operator()(size))
+               return false;
+            return selector<T>::type::batch_vector_writer(*this,raw_size,vec);
          }
 
          template<typename T,
@@ -10568,7 +10580,7 @@ namespace strtk
          template<typename T>
          inline bool operator()(const T& input)
          {
-            return selector<T,typename strtk::details::is_pod<T>::result_t>::run(*this,input);
+            return selector<T>::type::run(*this,input);
          }
 
          enum padding_mode
@@ -10615,33 +10627,74 @@ namespace strtk
             return ((required_write_qty + amount_written_sofar_) <= buffer_length_);
          }
 
-         template<typename T, typename IsPOD>
+         template<typename Type>
          struct selector
          {
-            template<typename Writer>
-            static inline bool run(Writer& w, const T& t)
+         private:
+
+            template<typename T, typename IsPOD>
+            struct selector_impl
             {
-               return t(w);
-            }
+               template<typename Writer>
+               static inline bool run(Writer& w, const T& t)
+               {
+                  return t(w);
+               }
+
+               template<typename Writer,
+                        typename Allocator>
+               static inline bool batch_vector_writer(Writer& w,
+                                                      const std::size_t&, 
+                                                      const std::vector<T,Allocator>& v)
+               {
+                  for (std::size_t i = 0; i < v.size(); ++i)
+                  {
+                     if (w.operator()(v[i]))
+                        continue;
+                     else
+                        return false;
+                  }
+                  return true;
+               }
+            };
+
+            template<typename T>
+            struct selector_impl<T,strtk::details::yes_t>
+            {
+               template<typename Writer>
+               static inline bool run(Writer& w, const T& t)
+               {
+                  return w.write_pod(t);
+               }
+
+               template<typename Writer,
+                        typename Allocator>
+               static inline bool batch_vector_writer(Writer& w,
+                                                      const std::size_t& raw_size, 
+                                                      const std::vector<T,Allocator>& v)
+               {
+                  const char* ptr = reinterpret_cast<const char*>(&v[0]);
+                  std::copy(ptr, ptr + raw_size, w.buffer_);
+                  w.buffer_ += raw_size;
+                  w.amount_written_sofar_ += raw_size;
+                  return true;
+               }
+            };
+
+         public:
+            typedef selector_impl<Type,typename strtk::details::is_pod<Type>::result_t> type;
          };
 
          template<typename T>
-         struct selector<T,details::yes_t>
-         {
-            template<typename Writer>
-            static inline bool run(Writer& w, const T& t)
-            {
-               return w.write_pod(t);
-            }
-         };
-
-         template<typename T>
-         inline bool write_pod(const T& data)
+         inline bool write_pod(const T& data, const bool perform_buffer_capacity_check = true)
          {
             static const std::size_t data_length = sizeof(T);
-            if ((data_length + amount_written_sofar_) > buffer_length_)
+            if (perform_buffer_capacity_check)
             {
-               return false;
+               if ((data_length + amount_written_sofar_) > buffer_length_)
+               {
+                  return false;
+               }
             }
             *(reinterpret_cast<T*>(buffer_)) = data;
             buffer_ += data_length;
@@ -16000,7 +16053,6 @@ namespace strtk
                   if (!kv_map_(key_range,value_range))
                     return false;
                }
-
                return true;
             }
             else
