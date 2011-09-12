@@ -3485,6 +3485,13 @@ namespace strtk
                          const_cast<char*>(output.data()));
    }
 
+   inline std::string convert_bin_to_hex(const std::string& binary_data)
+   {
+      std::string output;
+      convert_bin_to_hex(binary_data,output);
+      return output;
+   }
+
    inline bool convert_hex_to_bin(const unsigned char* begin, const unsigned char* end, unsigned char* out)
    {
       if (1 == (std::distance(begin,end) % 2))
@@ -10792,6 +10799,87 @@ namespace strtk
       typedef details::short_string_impl<reader::uint16_t> short_string;
       typedef details::short_string_impl<reader::uint8_t> pascal_string;
 
+      namespace details
+      {
+         template <typename T>
+         class big_little_endian_handler_impl
+         {
+         public:
+
+            explicit big_little_endian_handler_impl(T& t)
+            //Need to check if T is of type int, uint, short or ushort etc.
+            : t_(t)
+            {}
+
+            inline bool operator()(strtk::binary::reader& reader) const
+            {
+               if(!reader(t_))
+                  return false;
+               if (is_little_endian())
+                  convert(t_);
+               return true;
+            }
+
+            inline bool operator()(strtk::binary::writer& writer) const
+            {
+               if (is_little_endian())
+               {
+                  T t = t_;
+                  convert(t);
+                  return writer(t);
+               }
+               else if(writer(t_))
+                  return true;
+               else
+                  return false;
+            }
+
+            operator const T()
+            {
+                return t_;
+            }
+
+         private:
+
+            static inline bool is_little_endian()
+            {
+               static const unsigned int n = 1;
+               static const bool result = (static_cast<char>(1) == *(reinterpret_cast<const char*>(&n)));
+               return result;
+            }
+
+            static inline void convert(unsigned short& v)
+            {
+               //static_assert(2 == sizeof(v),"");
+               v = (v >> 8) |
+                   (v << 8);
+            }
+
+            static inline void convert(unsigned int& v)
+            {
+               //static_assert(4 == sizeof(v),"");
+               v = (v >> 24) |
+                   (v >>  8) |
+                   (v <<  8) |
+                   (v << 24);
+            }
+
+            T& t_;
+         };
+      }
+
+      template<typename T>
+      details::big_little_endian_handler_impl<T> be_to_le_endian(T& t)
+      {
+         return details::big_little_endian_handler_impl<T>(t);
+      }
+
+      template<typename T>
+      details::big_little_endian_handler_impl<T> le_to_be_endian(T& t)
+      {
+         return details::big_little_endian_handler_impl<T>(t);
+      }
+
    } // namespace binary
 
    class ignore_token
@@ -15986,6 +16074,64 @@ namespace strtk
    inline std::pair<Iterator,Iterator> make_pair(const std::pair<const char*, const char*> p)
    {
       return make_pair<Iterator,Iterator>(p);
+   }
+
+   template<std::size_t N>
+   inline std::string make_string(const unsigned char (&s)[N], const std::size_t& length = N)
+   {
+      static const std::string null_string;
+      if (N < length)
+         return null_string;
+      else
+         return std::string(&s[0],&s[0] + length);
+   }
+
+   template<std::size_t N>
+   inline std::string make_string(const char (&s)[N], const std::size_t& length = N)
+   {
+      static const std::string null_string;
+      if (N < length)
+         return null_string;
+      else
+         return std::string(&s[0],&s[0] + length);
+   }
+
+   template<typename T, std::size_t N>
+   inline bool clear_array(T (&a)[N], const T& t, const std::size_t& length = N)
+   {
+      if (N < length)
+         return false;
+      else
+         std::fill_n(&a[0],length,t);
+      return true;
+   }
+
+   template<std::size_t N>
+   inline bool set_array(unsigned char (&a)[N],
+                         const std::string& s,
+                         const bool pad = false,
+                         const unsigned char padding = '0')
+   {
+      if (N < s.size())
+         return false;
+      std::copy(s.data(),s.data() + s.size(), &a[0]);
+      if ((s.size() < N) && pad)
+         std::fill_n(&a[s.size()],N - s.size(),padding);
+      return true;
+   }
+
+   template<std::size_t N, std::size_t M>
+   inline bool set_array(unsigned char (&dest)[N],
+                         unsigned char (&src)[M],
+                         const bool pad = false,
+                         const unsigned char padding = '0')
+   {
+      if (N < M)
+         return false;
+      std::copy(src,src + N, &dest[0]);
+      if ((M < N) && pad)
+         std::fill_n(&dest[M],N -M,padding);
+      return true;
    }
 
    namespace keyvalue
