@@ -10094,6 +10094,32 @@ namespace strtk
    namespace binary
    {
 
+      namespace details
+      {
+         static inline bool is_little_endian()
+         {
+            static const unsigned int n = 1;
+            static const bool result = (static_cast<char>(1) == *(reinterpret_cast<const char*>(&n)));
+            return result;
+         }
+
+         static inline unsigned int convert(const unsigned short& v)
+         {
+            //static_assert(2 == sizeof(v),"");
+            return ((v >> 8) & 0x00FF) |
+                   ((v << 8) & 0xFFFF);
+         }
+
+         static inline unsigned int convert(const unsigned int& v)
+         {
+            //static_assert(4 == sizeof(v),"");
+            return ((v >> 24) & 0x000000FF) |
+                   ((v >>  8) & 0x0000FF00) |
+                   ((v <<  8) & 0x00FF0000) |
+                   ((v << 24) & 0xFF000000);
+         }
+      }
+
       class reader
       {
       public:
@@ -10119,10 +10145,12 @@ namespace strtk
                    (0 == buffer_);
          }
 
-         inline void reset()
+         inline void reset(const bool clear_buffer = false)
          {
             amount_read_sofar_ = 0;
             buffer_ = original_buffer_;
+            if (clear_buffer)
+               clear();
          }
 
          inline std::size_t position() const
@@ -10326,10 +10354,59 @@ namespace strtk
          }
 
          template<typename T>
+         inline bool be_to_native(T& output)
+         {
+            if (details::is_little_endian())
+            {
+               if(!operator()<T>(output)) return false;
+               output = details::convert(output);
+               return true;
+            }
+            else
+               return operator()(output);
+         }
+
+         template<typename T>
+         inline bool le_to_native(T& output)
+         {
+            if (details::is_little_endian())
+               return operator()(output);
+            else
+            {
+               if(!operator()<T>(output)) return false;
+               output = details::convert(output);
+               return true;
+            }
+         }
+
+         template<typename T, std::size_t N>
+         inline bool operator()(T (&output)[N])
+         {
+            const std::size_t raw_size = N * sizeof(T);
+            if (buffer_capacity_ok(raw_size))
+            {
+               std::copy(buffer_,
+                         buffer_ + raw_size,
+                         reinterpret_cast<char*>(output));
+               buffer_ += raw_size;
+               amount_read_sofar_ += raw_size;
+               return true;
+            }
+            else
+               return false;
+         }
+
+
+         template<typename T>
          inline bool operator()(T& output, const std::size_t& size)
          {
             if (buffer_capacity_ok(size))
-               return strtk::string_to_type_converter<char*,T>(buffer_,buffer_ + size,output);
+            {
+               bool result = strtk::string_to_type_converter<char*,T>(buffer_,buffer_ + size,output);
+               buffer_ += size;
+               amount_read_sofar_ += size;
+               return result;
+            }
             else
                return false;
          }
@@ -10431,7 +10508,6 @@ namespace strtk
          char* buffer_;
          std::size_t buffer_length_;
          std::size_t amount_read_sofar_;
-
       };
 
       class writer
@@ -10485,6 +10561,23 @@ namespace strtk
             std::memset(buffer_,0x00,buffer_length_);
          }
 
+         template<typename T, std::size_t N>
+         inline bool operator()(const T (&data)[N], const bool write_length = false)
+         {
+            if (write_length && !operator()(N))
+               return false;
+
+            const std::size_t raw_size = N * sizeof(T);
+            if (!buffer_capacity_ok(raw_size))
+               return false;
+
+            const char* ptr = reinterpret_cast<const char*>(data);
+            std::copy(ptr, ptr + raw_size, buffer_);
+            buffer_ += raw_size;
+            amount_written_sofar_ += raw_size;
+            return true;
+         }
+
          template<typename T>
          inline bool operator()(const T* data, const uint32_t& length, const bool write_length = true)
          {
@@ -10523,10 +10616,6 @@ namespace strtk
          inline bool operator()(const Sequence<T,Allocator>& seq)
          {
             const uint32_t size = seq.size();
-            const std::size_t raw_size = (size * sizeof(T)) + sizeof(size);
-            if (!buffer_capacity_ok(raw_size))
-               return false;
-
             if (!operator()(size))
                return false;
 
@@ -10588,6 +10677,26 @@ namespace strtk
          inline bool operator()(const T& input)
          {
             return selector<T>::type::run(*this,input);
+         }
+
+         template<typename T>
+         inline bool native_to_be(const T& input)
+         {
+            if (details::is_little_endian())
+            {
+               return operator()<T>(details::convert(input));
+            }
+            else
+               return operator()<T>(input);
+         }
+
+         template<typename T>
+         inline bool native_to_le(T& input)
+         {
+            if (details::is_little_endian())
+               return operator()<T>(input);
+            else
+               return operator()<T>(details::convert(input));
          }
 
          enum padding_mode
@@ -10686,6 +10795,7 @@ namespace strtk
                   w.amount_written_sofar_ += raw_size;
                   return true;
                }
+
             };
 
          public:
@@ -10713,7 +10823,6 @@ namespace strtk
          char* buffer_;
          std::size_t buffer_length_;
          std::size_t amount_written_sofar_;
-
       };
 
       #define strtk_binary_reader_begin()\
@@ -10839,33 +10948,9 @@ namespace strtk
                 return t_;
             }
 
-         private:
-
-            static inline bool is_little_endian()
-            {
-               static const unsigned int n = 1;
-               static const bool result = (static_cast<char>(1) == *(reinterpret_cast<const char*>(&n)));
-               return result;
-            }
-
-            static inline void convert(unsigned short& v)
-            {
-               //static_assert(2 == sizeof(v),"");
-               v = (v >> 8) |
-                   (v << 8);
-            }
-
-            static inline void convert(unsigned int& v)
-            {
-               //static_assert(4 == sizeof(v),"");
-               v = (v >> 24) |
-                   (v >>  8) |
-                   (v <<  8) |
-                   (v << 24);
-            }
-
             T& t_;
          };
+
       }
 
       template<typename T>
@@ -10878,6 +10963,32 @@ namespace strtk
       details::big_little_endian_handler_impl<T> le_to_be_endian(T& t)
       {
          return details::big_little_endian_handler_impl<T>(t);
+      }
+
+      template<typename T>
+      inline bool read_bigendian_to_native(reader& r, T& t)
+      {
+         if (details::is_little_endian())
+         {
+            if(!r(t)) return false;
+            details::convert(t);
+            return true;
+         }
+         else
+            return r(t);
+      }
+
+      template<typename T>
+      inline bool write_native_to_bigendian(writer& w, T& t)
+      {
+         if (details::is_little_endian())
+         {
+            if(!w(t)) return false;
+            details::convert(t);
+            return true;
+         }
+         else
+            return w(t);
       }
 
    } // namespace binary
@@ -16130,7 +16241,7 @@ namespace strtk
          return false;
       std::copy(src,src + N, &dest[0]);
       if ((M < N) && pad)
-         std::fill_n(&dest[M],N -M,padding);
+         std::fill_n(&dest[M],N - M,padding);
       return true;
    }
 
