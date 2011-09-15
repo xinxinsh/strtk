@@ -10103,20 +10103,26 @@ namespace strtk
             return result;
          }
 
-         static inline unsigned int convert(const unsigned short& v)
+         static inline unsigned short convert(const unsigned short& v)
          {
             //static_assert(2 == sizeof(v),"");
-            return ((v >> 8) & 0x00FF) |
-                   ((v << 8) & 0xFFFF);
+            return ((v >> 8) & 0x00FF) | ((v << 8) & 0xFFFF);
          }
 
          static inline unsigned int convert(const unsigned int& v)
          {
             //static_assert(4 == sizeof(v),"");
-            return ((v >> 24) & 0x000000FF) |
-                   ((v >>  8) & 0x0000FF00) |
-                   ((v <<  8) & 0x00FF0000) |
-                   ((v << 24) & 0xFF000000);
+            return ((v >> 24) & 0x000000FF) | ((v << 24) & 0x0000FF00) |
+                   ((v <<  8) & 0x00FF0000) | ((v >>  8) & 0xFF000000);
+         }
+
+        static inline unsigned long long convert(const unsigned long long& v)
+         {
+            //static_assert(8 == sizeof(v),"");
+            return ((v >> 56) & 0x00000000000000FF) | ((v << 56) & 0xFF00000000000000) |
+                   ((v >> 40) & 0x000000000000FF00) | ((v << 40) & 0x00FF000000000000) |
+                   ((v >> 24) & 0x0000000000FF0000) | ((v << 24) & 0x0000FF0000000000) |
+                   ((v >>  8) & 0x00000000FF000000) | ((v <<  8) & 0x000000FF00000000) ;
          }
       }
 
@@ -10795,7 +10801,6 @@ namespace strtk
                   w.amount_written_sofar_ += raw_size;
                   return true;
                }
-
             };
 
          public:
@@ -10907,89 +10912,6 @@ namespace strtk
 
       typedef details::short_string_impl<reader::uint16_t> short_string;
       typedef details::short_string_impl<reader::uint8_t> pascal_string;
-
-      namespace details
-      {
-         template <typename T>
-         class big_little_endian_handler_impl
-         {
-         public:
-
-            explicit big_little_endian_handler_impl(T& t)
-            //Need to check if T is of type int, uint, short or ushort etc.
-            : t_(t)
-            {}
-
-            inline bool operator()(strtk::binary::reader& reader) const
-            {
-               if(!reader(t_))
-                  return false;
-               if (is_little_endian())
-                  convert(t_);
-               return true;
-            }
-
-            inline bool operator()(strtk::binary::writer& writer) const
-            {
-               if (is_little_endian())
-               {
-                  T t = t_;
-                  convert(t);
-                  return writer(t);
-               }
-               else if(writer(t_))
-                  return true;
-               else
-                  return false;
-            }
-
-            operator const T()
-            {
-                return t_;
-            }
-
-            T& t_;
-         };
-
-      }
-
-      template<typename T>
-      details::big_little_endian_handler_impl<T> be_to_le_endian(T& t)
-      {
-         return details::big_little_endian_handler_impl<T>(t);
-      }
-
-      template<typename T>
-      details::big_little_endian_handler_impl<T> le_to_be_endian(T& t)
-      {
-         return details::big_little_endian_handler_impl<T>(t);
-      }
-
-      template<typename T>
-      inline bool read_bigendian_to_native(reader& r, T& t)
-      {
-         if (details::is_little_endian())
-         {
-            if(!r(t)) return false;
-            details::convert(t);
-            return true;
-         }
-         else
-            return r(t);
-      }
-
-      template<typename T>
-      inline bool write_native_to_bigendian(writer& w, T& t)
-      {
-         if (details::is_little_endian())
-         {
-            if(!w(t)) return false;
-            details::convert(t);
-            return true;
-         }
-         else
-            return w(t);
-      }
 
    } // namespace binary
 
@@ -16415,9 +16337,8 @@ namespace strtk
             const strtk::util::value& v = value_lut_[key];
             if (!v)
                return false;
-            if (!v(value_range))
-               return false;
-            return true;
+            else
+               return v(value_range);
          }
 
          template<typename T>
@@ -16436,7 +16357,6 @@ namespace strtk
 
          std::vector<strtk::util::value> value_lut_;
       };
-
 
       class stringkey_map
       {
@@ -16463,9 +16383,8 @@ namespace strtk
             const util::value& v = (*itr).second;
             if(!v)
                return false;
-            if(!v(value_range))
-               return false;
-            return true;
+            else
+               return v(value_range);
          }
 
          template<typename T>
