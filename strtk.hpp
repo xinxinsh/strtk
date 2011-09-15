@@ -10160,7 +10160,7 @@ namespace strtk
 
          inline const char* position_ptr() const
          {
-        	 return buffer_ ;
+            return buffer_ ;
          }
 
          inline std::size_t amount_read()
@@ -10547,7 +10547,7 @@ namespace strtk
 
          inline const char* position_ptr() const
          {
-        	 return buffer_ ;
+            return buffer_ ;
          }
 
          inline std::size_t amount_written() const
@@ -10760,7 +10760,7 @@ namespace strtk
                template<typename Writer,
                         typename Allocator>
                static inline bool batch_vector_writer(Writer& w,
-                                                      const std::size_t&, 
+                                                      const std::size_t&,
                                                       const std::vector<T,Allocator>& v)
                {
                   for (std::size_t i = 0; i < v.size(); ++i)
@@ -10786,7 +10786,7 @@ namespace strtk
                template<typename Writer,
                         typename Allocator>
                static inline bool batch_vector_writer(Writer& w,
-                                                      const std::size_t& raw_size, 
+                                                      const std::size_t& raw_size,
                                                       const std::vector<T,Allocator>& v)
                {
                   const char* ptr = reinterpret_cast<const char*>(&v[0]);
