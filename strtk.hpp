@@ -10212,17 +10212,20 @@ namespace strtk
          }
 
          template<typename T>
-         inline bool operator()(T*& data, uint32_t& length)
+         inline bool operator()(T*& data, uint32_t& length, const bool read_length = true)
          {
-            if (!operator()(length))
+            if (read_length && !operator()(length))
                return false;
 
             const std::size_t raw_size = length * sizeof(T);
             if (!buffer_capacity_ok(raw_size))
                return false;
 
-            (*data) = new T[length];
-            std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(*data));
+            if (read_length)
+            {
+               data = new T[length];
+            }
+            std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(data));
             buffer_ += raw_size;
             amount_read_sofar_ += raw_size;
             return true;
@@ -10241,21 +10244,6 @@ namespace strtk
             std::copy(buffer_,
                       buffer_ + length,
                       const_cast<char*>(output.data()));
-            buffer_ += length;
-            amount_read_sofar_ += length;
-            return true;
-         }
-
-         template<typename T>
-         inline bool operator()(T* data, const std::size_t& length)
-         {
-            const std::size_t raw_size = length * sizeof(T);
-            if (!buffer_capacity_ok(raw_size))
-               return false;
-
-            std::copy(buffer_,
-                      buffer_ + raw_size,
-                      reinterpret_cast<char*>(data));
             buffer_ += length;
             amount_read_sofar_ += length;
             return true;
@@ -10477,15 +10465,13 @@ namespace strtk
                static inline bool batch_vector_read(Reader& r,
                                                     const std::size_t& size,
                                                     std::vector<T,Allocator>& v,
-                                                    const bool perform_buffer_capacity_check = true)
+                                                    const bool)
                {
-                  for (std::size_t i = 0; i < size; ++i)
-                  {
-                     if (r.read_pod(v[i],perform_buffer_capacity_check))
-                        continue;
-                     else
-                        return false;
-                  }
+                  const std::size_t raw_size = sizeof(T) * size;
+                  char* ptr = const_cast<char*>(reinterpret_cast<const char*>(&v[0]));
+                  std::copy(r.buffer_, r.buffer_ + raw_size, ptr);
+                  r.buffer_ += raw_size;
+                  r.amount_read_sofar_ += raw_size;
                   return true;
                }
             };
@@ -10540,10 +10526,12 @@ namespace strtk
                    (0 == buffer_);
          }
 
-         inline void reset()
+         inline void reset(const bool clear_buffer = false)
          {
             amount_written_sofar_ = 0;
             buffer_ = original_buffer_;
+            if (clear_buffer)
+               clear();
          }
 
          inline std::size_t position() const
@@ -10641,8 +10629,8 @@ namespace strtk
          inline bool operator()(const std::vector<T,Allocator>& vec)
          {
             const uint32_t size = vec.size();
-            const std::size_t raw_size = (size * sizeof(T)) + sizeof(size);
-            if (!buffer_capacity_ok(raw_size))
+            const std::size_t raw_size = (size * sizeof(T));
+            if (!buffer_capacity_ok(raw_size + sizeof(size)))
                return false;
             if (!operator()(size))
                return false;
@@ -10884,7 +10872,9 @@ namespace strtk
               if (!r(size))
                  return false;
                s->resize(size);
-               if (!r(const_cast<char*>(s->data()),size))
+               char* ptr = const_cast<char*>(s->data());
+               strtk::binary::reader::uint32_t length = size;
+               if (!r(ptr,length,false))
                   return false;
                return true;
             }
@@ -14901,7 +14891,6 @@ namespace strtk
                                                              0x80   //10000000
                                                            };
 
-
       class filter
       {
       protected:
@@ -14910,6 +14899,16 @@ namespace strtk
          typedef unsigned char cell_type;
 
       public:
+
+         filter()
+         : salt_count_(0),
+           table_size_(0),
+           raw_table_size_(0),
+           predicted_inserted_element_count_(0),
+           inserted_element_count_(0),
+           random_seed_(0),
+           desired_false_positive_probability_(0.0)
+         {}
 
          filter(const std::size_t& predicted_inserted_element_count,
                 const double& false_positive_probability,
@@ -14932,19 +14931,46 @@ namespace strtk
             this->operator=(filter);
          }
 
-         filter& operator = (const filter& f)
+         inline bool operator == (const filter& f) const
          {
-            salt_count_ = f.salt_count_;
-            table_size_ = f.table_size_;
-            raw_table_size_ = f.raw_table_size_;
-            predicted_inserted_element_count_ = f.predicted_inserted_element_count_;
-            inserted_element_count_ = f.inserted_element_count_;
-            random_seed_ = f.random_seed_;
-            desired_false_positive_probability_ = f.desired_false_positive_probability_;
-            delete[] bit_table_;
-            bit_table_ = new cell_type[raw_table_size_];
-            std::copy(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
-            salt_ = f.salt_;
+            if (this == &f)
+               return true;
+            else
+            {
+               return
+               (salt_count_                         == f.salt_count_) &&
+               (table_size_                         == f.table_size_) &&
+               (raw_table_size_                     == f.raw_table_size_) &&
+               (predicted_inserted_element_count_   == f.predicted_inserted_element_count_) &&
+               (inserted_element_count_             == f.inserted_element_count_) &&
+               (random_seed_                        == f.random_seed_) &&
+               (desired_false_positive_probability_ == f.desired_false_positive_probability_) &&
+               (salt_                               == f.salt_) &&
+               std::equal(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
+            }
+         }
+
+         inline bool operator != (const filter& f) const
+         {
+            return !operator==(f);
+         }
+
+         inline filter& operator = (const filter& f)
+         {
+            if (this != &f)
+            {
+               salt_count_ = f.salt_count_;
+               table_size_ = f.table_size_;
+               raw_table_size_ = f.raw_table_size_;
+               predicted_inserted_element_count_ = f.predicted_inserted_element_count_;
+               inserted_element_count_ = f.inserted_element_count_;
+               random_seed_ = f.random_seed_;
+               desired_false_positive_probability_ = f.desired_false_positive_probability_;
+               delete[] bit_table_;
+               bit_table_ = new cell_type[raw_table_size_];
+               std::copy(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
+               salt_ = f.salt_;
+            }
             return *this;
          }
 
@@ -15140,6 +15166,80 @@ namespace strtk
          inline const cell_type* table() const
          {
             return bit_table_;
+         }
+
+         inline bool write_to_file(const std::string& file_name) const
+         {
+            if (0 == table_size_)
+               return false;
+            const std::size_t buffer_size = sizeof(                        salt_count_) +
+                                            sizeof(                        table_size_) +
+                                            sizeof(                    raw_table_size_) +
+                                            sizeof(  predicted_inserted_element_count_) +
+                                            sizeof(            inserted_element_count_) +
+                                            sizeof(                       random_seed_) +
+                                            sizeof(desired_false_positive_probability_) +
+                                            salt_count_ * sizeof(           bloom_type) +
+                                            raw_table_size_ * sizeof(        cell_type) +
+                                            64; // handle array sizes etc.
+            std::ofstream ostream(file_name.c_str(),std::ios::binary);
+            if (!ostream)
+               return false;
+            unsigned char* buffer = new unsigned char[buffer_size];
+            strtk::binary::writer writer(buffer,buffer_size);
+            writer.reset(true);
+            bool result = writer(salt_count_)                         &&
+                          writer(table_size_)                         &&
+                          writer(raw_table_size_)                     &&
+                          writer(predicted_inserted_element_count_)   &&
+                          writer(inserted_element_count_)             &&
+                          writer(random_seed_)                        &&
+                          writer(desired_false_positive_probability_) &&
+                          writer(salt_)                               &&
+                          writer(bit_table_,raw_table_size_);
+            if (result)
+            {
+               writer(ostream);
+            }
+            delete[] buffer;
+            return result;
+         }
+
+         inline bool read_from_file(const std::string& file_name)
+         {
+            std::ifstream istream(file_name.c_str(),std::ios::binary);
+            if (!istream)
+               return false;
+            salt_count_                         = 0;
+            table_size_                         = 0;
+            raw_table_size_                     = 0;
+            predicted_inserted_element_count_   = 0;
+            inserted_element_count_             = 0;
+            random_seed_                        = 0;
+            bit_table_                          = 0;
+            desired_false_positive_probability_ = 0.0;
+            salt_.clear();
+            const std::size_t buffer_size = strtk::fileio::file_size(file_name);
+            unsigned char* buffer = new unsigned char[buffer_size];
+            strtk::binary::reader reader(buffer,buffer_size);
+            reader.reset(true);
+            reader(istream,buffer_size);
+            istream.close();
+            bool result = reader(salt_count_)                         &&
+                          reader(table_size_)                         &&
+                          reader(raw_table_size_)                     &&
+                          reader(predicted_inserted_element_count_)   &&
+                          reader(inserted_element_count_)             &&
+                          reader(random_seed_)                        &&
+                          reader(desired_false_positive_probability_) &&
+                          reader(salt_)                               &&
+                          reader(bit_table_,raw_table_size_);
+            if (result)
+            {
+               reader(istream);
+            }
+            delete[] buffer;
+            return result;
          }
 
       protected:
