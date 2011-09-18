@@ -1854,8 +1854,8 @@ bool test_kv_parse()
          if (456                          != ds. us) { std::cout << "Failed check v1 for ds. us!" << std::endl; return false; }
          if (-12345678                    != ds.  i) { std::cout << "Failed check v1 for ds.  i!" << std::endl; return false; }
          if (789012345                    != ds. ui) { std::cout << "Failed check v1 for ds. ui!" << std::endl; return false; }
-         if (-43654364634645235           != ds. ll) { std::cout << "Failed check v1 for ds. ll!" << std::endl; return false; }
-         if (777777777777777777           != ds.ull) { std::cout << "Failed check v1 for ds.ull!" << std::endl; return false; }
+         if (-43654364634645235LL         != ds. ll) { std::cout << "Failed check v1 for ds. ll!" << std::endl; return false; }
+         if (777777777777777777LL         != ds.ull) { std::cout << "Failed check v1 for ds.ull!" << std::endl; return false; }
          if (1234.56789                   != ds.  d) { std::cout << "Failed check v1 for ds.  d!" << std::endl; return false; }
          if (0.0003f                      != ds.  f) { std::cout << "Failed check v1 for ds.  f!" << std::endl; return false; }
          if ("abcdefghijklmnopqrstuvwxyz" != ds.str) { std::cout << "Failed check v1 for ds.str!" << std::endl; return false; }
@@ -1880,8 +1880,8 @@ bool test_kv_parse()
          if (456                          != ds. us) { std::cout << "Failed check v2 for ds. us!" << std::endl; return false; }
          if (-12345678                    != ds.  i) { std::cout << "Failed check v2 for ds.  i!" << std::endl; return false; }
          if (789012345                    != ds. ui) { std::cout << "Failed check v2 for ds. ui!" << std::endl; return false; }
-         if (-43654364634645235           != ds. ll) { std::cout << "Failed check v2 for ds. ll!" << std::endl; return false; }
-         if (777777777777777777           != ds.ull) { std::cout << "Failed check v2 for ds.ull!" << std::endl; return false; }
+         if (-43654364634645235LL         != ds. ll) { std::cout << "Failed check v2 for ds. ll!" << std::endl; return false; }
+         if (777777777777777777LL         != ds.ull) { std::cout << "Failed check v2 for ds.ull!" << std::endl; return false; }
          if (1234.56789                   != ds.  d) { std::cout << "Failed check v2 for ds.  d!" << std::endl; return false; }
          if (0.0003f                      != ds.  f) { std::cout << "Failed check v2 for ds.  f!" << std::endl; return false; }
          if ("abcdefghijklmnopqrstuvwxyz" != ds.str) { std::cout << "Failed check v2 for ds.str!" << std::endl; return false; }

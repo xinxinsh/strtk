@@ -176,10 +176,7 @@ int main()
             if (kvp(data[j]))
                total += ds.ui1;
             else
-            {
-               printf("FAIL! [%lu]\n",j);
                return 1;
-            }
          }
       }
       timer.stop();
