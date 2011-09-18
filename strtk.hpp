@@ -14938,15 +14938,15 @@ namespace strtk
             else
             {
                return
-               (salt_count_                         == f.salt_count_) &&
-               (table_size_                         == f.table_size_) &&
-               (raw_table_size_                     == f.raw_table_size_) &&
-               (predicted_inserted_element_count_   == f.predicted_inserted_element_count_) &&
-               (inserted_element_count_             == f.inserted_element_count_) &&
-               (random_seed_                        == f.random_seed_) &&
-               (desired_false_positive_probability_ == f.desired_false_positive_probability_) &&
-               (salt_                               == f.salt_) &&
-               std::equal(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
+                  (salt_count_                         == f.salt_count_)                         &&
+                  (table_size_                         == f.table_size_)                         &&
+                  (raw_table_size_                     == f.raw_table_size_)                     &&
+                  (predicted_inserted_element_count_   == f.predicted_inserted_element_count_)   &&
+                  (inserted_element_count_             == f.inserted_element_count_)             &&
+                  (random_seed_                        == f.random_seed_)                        &&
+                  (desired_false_positive_probability_ == f.desired_false_positive_probability_) &&
+                  (salt_                               == f.salt_)                               &&
+                  std::equal(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
             }
          }
 

@@ -910,7 +910,34 @@ bool example07(char* buffer, const unsigned int buffer_size)
    return true;
 }
 
-bool example08(char* buffer)
+bool example08(char* buffer, const unsigned int buffer_size)
+{
+   {
+      strtk::binary::writer writer(buffer,buffer_size);
+      writer.reset(true);
+      std::vector<int> v;
+      std::deque<double> d;
+      std::list<char> c;
+      strtk::util::push_back(v,1,2,3,4,5);
+      strtk::util::push_back(d,1.1,2.2,3.3,4.4,5.5);
+      strtk::util::push_back(c,'A','B','C','D','E','F');
+      writer(v);
+      writer(d);
+      writer(c);
+   }
+   {
+      strtk::binary::reader reader(buffer,buffer_size);
+      std::vector<int> v;
+      std::deque<double> d;
+      std::list<char> c;
+      reader(v);
+      reader(d);
+      reader(c);
+   }
+   return true;
+}
+
+bool example09(char* buffer)
 {
    char in_char = -17;
    unsigned char in_uchar = 200;
@@ -979,7 +1006,7 @@ bool example08(char* buffer)
    return true;
 }
 
-bool example09(char* buffer)
+bool example10(char* buffer)
 {
    const size_t size = 10;
    const int intlst[size] = { -1, 2, -3, 4, -5, 6, -7, 8, -9, 10 };
@@ -1038,15 +1065,16 @@ int main()
 {
    static const std::size_t max_buffer_size = 10 * strtk::one_megabyte; // 10MB
    char* buffer = new char[max_buffer_size];
-   example01(buffer,max_buffer_size);
-   example02(buffer,max_buffer_size);
-   example03(buffer,max_buffer_size);
-   example04(buffer,max_buffer_size);
-   example05(buffer,max_buffer_size);
-   example06(buffer,max_buffer_size);
-   example07(buffer,max_buffer_size);
-   example08(buffer);
-   example09(buffer);
+   //example01(buffer,max_buffer_size);
+   //example02(buffer,max_buffer_size);
+   //example03(buffer,max_buffer_size);
+   //example04(buffer,max_buffer_size);
+   //example05(buffer,max_buffer_size);
+   //example06(buffer,max_buffer_size);
+   //example07(buffer,max_buffer_size);
+   example08(buffer,max_buffer_size);
+   //example09(buffer);
+   //example10(buffer);
    delete[] buffer;
    return 0;
 }
