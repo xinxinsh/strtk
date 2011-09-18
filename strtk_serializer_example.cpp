@@ -1065,16 +1065,16 @@ int main()
 {
    static const std::size_t max_buffer_size = 10 * strtk::one_megabyte; // 10MB
    char* buffer = new char[max_buffer_size];
-   //example01(buffer,max_buffer_size);
-   //example02(buffer,max_buffer_size);
-   //example03(buffer,max_buffer_size);
-   //example04(buffer,max_buffer_size);
-   //example05(buffer,max_buffer_size);
-   //example06(buffer,max_buffer_size);
-   //example07(buffer,max_buffer_size);
+   example01(buffer,max_buffer_size);
+   example02(buffer,max_buffer_size);
+   example03(buffer,max_buffer_size);
+   example04(buffer,max_buffer_size);
+   example05(buffer,max_buffer_size);
+   example06(buffer,max_buffer_size);
+   example07(buffer,max_buffer_size);
    example08(buffer,max_buffer_size);
-   //example09(buffer);
-   //example10(buffer);
+   example09(buffer);
+   example10(buffer);
    delete[] buffer;
    return 0;
 }
