@@ -15196,7 +15196,7 @@ namespace strtk
                           writer(random_seed_)                        &&
                           writer(desired_false_positive_probability_) &&
                           writer(salt_)                               &&
-                          writer(bit_table_,raw_table_size_,true);
+                          writer(bit_table_,raw_table_size_);
             if (result)
             {
                writer(ostream);
