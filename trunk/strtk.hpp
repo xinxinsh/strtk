@@ -15196,7 +15196,7 @@ namespace strtk
                           writer(random_seed_)                        &&
                           writer(desired_false_positive_probability_) &&
                           writer(salt_)                               &&
-                          writer(bit_table_,raw_table_size_);
+                          writer(bit_table_,raw_table_size_,true);
             if (result)
             {
                writer(ostream);
@@ -15391,12 +15391,12 @@ namespace strtk
 
          std::vector<bloom_type> salt_;
          unsigned char*          bit_table_;
-         std::size_t             salt_count_;
-         std::size_t             table_size_;
-         std::size_t             raw_table_size_;
-         std::size_t             predicted_inserted_element_count_;
-         std::size_t             inserted_element_count_;
-         std::size_t             random_seed_;
+         unsigned int            salt_count_;
+         unsigned int            table_size_;
+         unsigned int            raw_table_size_;
+         unsigned int            predicted_inserted_element_count_;
+         unsigned int            inserted_element_count_;
+         unsigned int            random_seed_;
          double                  desired_false_positive_probability_;
       };
 
