@@ -10116,7 +10116,7 @@ namespace strtk
                    ((v <<  8) & 0x00FF0000) | ((v >>  8) & 0xFF000000);
          }
 
-        static inline unsigned long long convert(const unsigned long long& v)
+         static inline unsigned long long convert(const unsigned long long& v)
          {
             //static_assert(8 == sizeof(v),"");
             return ((v >> 56) & 0x00000000000000FFLL) | ((v << 56) & 0xFF00000000000000LL) |
@@ -10124,6 +10124,22 @@ namespace strtk
                    ((v >> 24) & 0x0000000000FF0000LL) | ((v << 24) & 0x0000FF0000000000LL) |
                    ((v >>  8) & 0x00000000FF000000LL) | ((v <<  8) & 0x000000FF00000000LL) ;
          }
+
+         static inline short convert(const short& v)
+         {
+            return static_cast<short>(convert(static_cast<unsigned short>(v)));
+         }
+
+         static inline int convert(const int& v)
+         {
+            return static_cast<int>(convert(static_cast<unsigned int>(v)));
+         }
+
+         static inline unsigned long long convert(const long long& v)
+         {
+            return static_cast<long long>(convert(static_cast<unsigned long long>(v)));
+         }
+
       }
 
       class reader
@@ -10350,6 +10366,7 @@ namespace strtk
          template<typename T>
          inline bool be_to_native(T& output)
          {
+            //From big-endian to native
             if (details::is_little_endian())
             {
                if(!operator()<T>(output)) return false;
@@ -10363,6 +10380,7 @@ namespace strtk
          template<typename T>
          inline bool le_to_native(T& output)
          {
+            //From little-endian to native
             if (details::is_little_endian())
                return operator()(output);
             else
@@ -10676,6 +10694,7 @@ namespace strtk
          template<typename T>
          inline bool native_to_be(const T& input)
          {
+            //From native to big-endian
             if (details::is_little_endian())
             {
                return operator()<T>(details::convert(input));
@@ -10687,6 +10706,7 @@ namespace strtk
          template<typename T>
          inline bool native_to_le(T& input)
          {
+            //From native to little-endian
             if (details::is_little_endian())
                return operator()<T>(input);
             else
