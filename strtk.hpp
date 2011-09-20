@@ -10140,6 +10140,32 @@ namespace strtk
             return static_cast<long long>(convert(static_cast<unsigned long long>(v)));
          }
 
+         class marker
+         {
+         private:
+            typedef std::pair<std::size_t,char*> mark_type;
+
+         public:
+
+            inline bool reset(std::size_t& v1, char*& v2)
+            {
+               if (stack_.empty())
+                  return false;
+               v1 = stack_.top().first;
+               v2 = stack_.top().second;
+               stack_.pop();
+               return true;
+            }
+
+            inline void mark(const std::size_t& v1,char* v2)
+            {
+               stack_.push(std::make_pair(v1,v2));
+            }
+
+         private:
+            std::stack<mark_type> stack_;
+         };
+
       }
 
       class reader
@@ -10423,6 +10449,16 @@ namespace strtk
                return false;
          }
 
+         inline void mark()
+         {
+            marker_.mark(amount_read_sofar_,buffer_);
+         }
+
+         inline bool reset_to_mark()
+         {
+            return marker_.reset(amount_read_sofar_,buffer_);
+         }
+
       private:
 
          reader();
@@ -10518,6 +10554,7 @@ namespace strtk
          char* buffer_;
          std::size_t buffer_length_;
          std::size_t amount_read_sofar_;
+         details::marker marker_;
       };
 
       class writer
@@ -10746,6 +10783,16 @@ namespace strtk
                return false;
          }
 
+         inline void mark()
+         {
+            marker_.mark(amount_written_sofar_,buffer_);
+         }
+
+         inline bool reset_to_mark()
+         {
+            return marker_.reset(amount_written_sofar_,buffer_);
+         }
+
       private:
 
          writer();
@@ -10836,6 +10883,7 @@ namespace strtk
          char* buffer_;
          std::size_t buffer_length_;
          std::size_t amount_written_sofar_;
+         details::marker marker_;
       };
 
       #define strtk_binary_reader_begin()\
@@ -16714,3 +16762,4 @@ namespace strtk
 } // namespace strtk
 
 #endif
+
