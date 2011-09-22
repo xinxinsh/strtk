@@ -10395,7 +10395,7 @@ namespace strtk
             //From big-endian to native
             if (details::is_little_endian())
             {
-               if(!operator()<T>(output)) return false;
+               if (!operator()<T>(output)) return false;
                output = details::convert(output);
                return true;
             }
@@ -10411,7 +10411,7 @@ namespace strtk
                return operator()(output);
             else
             {
-               if(!operator()<T>(output)) return false;
+               if (!operator()<T>(output)) return false;
                output = details::convert(output);
                return true;
             }
@@ -10766,7 +10766,7 @@ namespace strtk
             {
                std::string s;
                s.reserve(size);
-               if(!strtk::type_to_string<T>(input,s))
+               if (!strtk::type_to_string<T>(input,s))
                   return false;
                else if (s.size() > size)
                   return false;
@@ -16443,7 +16443,7 @@ namespace strtk
                               key_range,
                               value_range))
                {
-                  if(!parser_.kv_map_(key_range,value_range))
+                  if (!parser_.kv_map_(key_range,value_range))
                      ++parser_.parse_failures_;
                }
                else
@@ -16549,7 +16549,7 @@ namespace strtk
             if (value_map_.end() == itr)
                return false;
             const util::value& v = (*itr).second;
-            if(!v)
+            if (!v)
                return false;
             else
                return v(value_range);
