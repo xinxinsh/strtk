@@ -16392,12 +16392,13 @@ namespace strtk
                for (std::size_t i = 0; i < pair_count; ++i)
                {
                   const range_type& r = pair_list_[i];
-                  if (!split_pair(r.first,r.second,
+                  if (0 == std::distance(r.first,r.second))
+                     continue;
+                  else if (!split_pair(r.first,r.second,
                               pair_delimiter_sdp_,
                               key_range,value_range))
                     return false;
-
-                  if (!kv_map_(key_range,value_range))
+                  else if (!kv_map_(key_range,value_range))
                     return false;
                }
                return true;
