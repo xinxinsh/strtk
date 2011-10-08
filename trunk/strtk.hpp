@@ -2066,7 +2066,7 @@ namespace strtk
       }
 
       template<typename Iterator>
-      inline void operator()(const std::pair<Iterator,Iterator>& r)
+      inline void operator()(const std::pair<Iterator,Iterator>& r) const
       {
          T t;
          if (string_to_type_converter(r.first,r.second,t))
@@ -6074,7 +6074,7 @@ namespace strtk
       bool allow_through_on_match_;
       const std::string* begin_;
       const std::string* end_;
-      OutputPredicate& predicate_;
+      OutputPredicate predicate_;
    };
 
    template<typename Iterator, typename MatchPredicate>
