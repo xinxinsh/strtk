@@ -16517,9 +16517,9 @@ namespace strtk
             if (!ignore_failures)
             {
                const std::size_t pair_count = split(pair_block_sdp_,
-                                           data.first,
-                                           data.second,
-                                           pair_list_.begin());
+                                                    data.first,
+                                                    data.second,
+                                                    pair_list_.begin());
                if (0 == pair_count)
                   return false;
 
@@ -16532,8 +16532,8 @@ namespace strtk
                   if (0 == std::distance(r.first,r.second))
                      continue;
                   else if (!split_pair(r.first,r.second,
-                              pair_delimiter_sdp_,
-                              key_range,value_range))
+                                       pair_delimiter_sdp_,
+                                       key_range,value_range))
                     return false;
                   else if (!kv_map_(key_range,value_range))
                     return false;
