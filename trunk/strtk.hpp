@@ -8615,6 +8615,9 @@ namespace strtk
       #define strtk_register_rand_real_type_tag(T)\
       template<> struct supported_random_type<T> { typedef rand_real_type_tag type;  enum { value = true }; };
 
+      strtk_register_rand_int_type_tag(char)
+      strtk_register_rand_int_type_tag(unsigned char)
+
       strtk_register_rand_int_type_tag(short)
       strtk_register_rand_int_type_tag(int)
       strtk_register_rand_int_type_tag(long)
@@ -15549,43 +15552,43 @@ namespace strtk
 
          inline bloom_type hash_ap(const unsigned char* begin, std::size_t remaining_length, bloom_type hash) const
          {
-              const unsigned char* itr = begin;
-              unsigned int loop = 0;
-              while (remaining_length >= 8)
-              {
-                 const unsigned int& i1 = *(reinterpret_cast<const unsigned int*>(itr)); itr += sizeof(unsigned int);
-                 const unsigned int& i2 = *(reinterpret_cast<const unsigned int*>(itr)); itr += sizeof(unsigned int);
-                 hash ^= (hash <<  7) ^  i1 * (hash >> 3) ^
-                      (~((hash << 11) + (i2 ^ (hash >> 5))));
-                 remaining_length -= 8;
-              }
-              while (remaining_length >= 4)
-              {
-                 const unsigned int& i = *(reinterpret_cast<const unsigned int*>(itr));
-                 if (loop & 0x01)
-                    hash ^=    (hash <<  7) ^  i * (hash >> 3);
-                 else
-                    hash ^= (~((hash << 11) + (i ^ (hash >> 5))));
-                 ++loop;
-                 remaining_length -= 4;
-                 itr += sizeof(unsigned int);
-              }
-              while (remaining_length >= 2)
-              {
-                 const unsigned short& i = *(reinterpret_cast<const unsigned short*>(itr));
-                 if (loop & 0x01)
-                    hash ^=    (hash <<  7) ^  i * (hash >> 3);
-                 else
-                    hash ^= (~((hash << 11) + (i ^ (hash >> 5))));
-                 ++loop;
-                 remaining_length -= 2;
-                 itr += sizeof(unsigned short);
-              }
-              if (remaining_length)
-              {
-                 hash += ((*itr) ^ (hash * 0xA5A5A5A5)) + loop;
-              }
-              return hash;
+            const unsigned char* itr = begin;
+            unsigned int loop = 0;
+            while (remaining_length >= 8)
+            {
+               const unsigned int& i1 = *(reinterpret_cast<const unsigned int*>(itr)); itr += sizeof(unsigned int);
+               const unsigned int& i2 = *(reinterpret_cast<const unsigned int*>(itr)); itr += sizeof(unsigned int);
+               hash ^= (hash <<  7) ^  i1 * (hash >> 3) ^
+                    (~((hash << 11) + (i2 ^ (hash >> 5))));
+               remaining_length -= 8;
+            }
+            while (remaining_length >= 4)
+            {
+               const unsigned int& i = *(reinterpret_cast<const unsigned int*>(itr));
+               if (loop & 0x01)
+                  hash ^=    (hash <<  7) ^  i * (hash >> 3);
+               else
+                  hash ^= (~((hash << 11) + (i ^ (hash >> 5))));
+               ++loop;
+               remaining_length -= 4;
+               itr += sizeof(unsigned int);
+            }
+            while (remaining_length >= 2)
+            {
+               const unsigned short& i = *(reinterpret_cast<const unsigned short*>(itr));
+               if (loop & 0x01)
+                  hash ^=    (hash <<  7) ^  i * (hash >> 3);
+               else
+                  hash ^= (~((hash << 11) + (i ^ (hash >> 5))));
+               ++loop;
+               remaining_length -= 2;
+               itr += sizeof(unsigned short);
+            }
+            if (remaining_length)
+            {
+               hash += ((*itr) ^ (hash * 0xA5A5A5A5)) + loop;
+            }
+            return hash;
          }
 
          std::vector<bloom_type> salt_;
@@ -16534,9 +16537,9 @@ namespace strtk
                   else if (!split_pair(r.first,r.second,
                                        pair_delimiter_sdp_,
                                        key_range,value_range))
-                    return false;
+                     return false;
                   else if (!kv_map_(key_range,value_range))
-                    return false;
+                     return false;
                }
                return true;
             }
