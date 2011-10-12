@@ -3407,18 +3407,18 @@ namespace strtk
    inline const char* first_non_repeated_char(const char* begin, const char* end)
    {
       static const std::size_t lut_size = 256;
-      unsigned long long lut[lut_size];
+      unsigned long long int lut[lut_size];
 
-      std::fill_n(lut,lut_size,std::numeric_limits<unsigned long long>::max());
+      std::fill_n(lut,lut_size,std::numeric_limits<unsigned long long int>::max());
 
-      static const unsigned long long not_yet_encountered = std::numeric_limits<unsigned long long>::max();
-      static const unsigned long long repeated = not_yet_encountered - 1;
+      static const unsigned long long int not_yet_encountered = std::numeric_limits<unsigned long long int>::max();
+      static const unsigned long long int repeated = not_yet_encountered - 1;
 
       const char* itr = begin;
-      unsigned long long position = 0;
+      unsigned long long int position = 0;
       while (end != itr)
       {
-         unsigned long long& element = lut[static_cast<unsigned int>(*itr)];
+         unsigned long long int& element = lut[static_cast<unsigned int>(*itr)];
          if (not_yet_encountered == element)
          {
             element = position;
@@ -3950,9 +3950,9 @@ namespace strtk
    template<std::size_t n>
    struct interleave_ary;
 
-   template<> struct interleave_ary<sizeof(unsigned short)>     { typedef unsigned short     type; };
-   template<> struct interleave_ary<sizeof(unsigned int  )>     { typedef unsigned int       type; };
-   template<> struct interleave_ary<sizeof(unsigned long long)> { typedef unsigned long long type; };
+   template<> struct interleave_ary<sizeof(unsigned short)>         { typedef unsigned short         type; };
+   template<> struct interleave_ary<sizeof(unsigned int  )>         { typedef unsigned int           type; };
+   template<> struct interleave_ary<sizeof(unsigned long long int)> { typedef unsigned long long int type; };
 
    template<std::size_t n>
    inline void create_nway_interleave_table(typename interleave_ary<n>::type table[256])
@@ -4049,7 +4049,7 @@ namespace strtk
              high_bit_count(*(ptr + 2)) + high_bit_count(*(ptr + 3));
    }
 
-   inline std::size_t high_bit_count(const long long& ll)
+   inline std::size_t high_bit_count(const long long int& ll)
    {
       const unsigned char* ptr = reinterpret_cast<const unsigned char*>(&ll);
       return high_bit_count(*(ptr + 0)) + high_bit_count(*(ptr + 1)) +
@@ -8947,7 +8947,7 @@ namespace strtk
       return true;
    }
 
-   inline unsigned long long n_choose_k(const unsigned long long& n, const unsigned long long& k)
+   inline unsigned long long int n_choose_k(const unsigned long long int& n, const unsigned long long int& k)
    {
       if (n  < k) return 0;
       if (0 == n) return 0;
@@ -8955,7 +8955,7 @@ namespace strtk
       if (n == k) return 1;
       if (1 == k) return n;
 
-      typedef unsigned long long value_type;
+      typedef unsigned long long int value_type;
 
       class n_choose_k_impl
       {
@@ -9011,7 +9011,7 @@ namespace strtk
 
       const std::size_t table_size = static_cast<std::size_t>(n * (n / 2) + (n & 1));
 
-      unsigned long long dimension = static_table_dim;
+      unsigned long long int dimension = static_table_dim;
       value_type* table = 0;
 
       if (table_size <= static_table_size)
@@ -9033,10 +9033,10 @@ namespace strtk
 
    inline void initialize_n_choose_k()
    {
-      const unsigned long long max_n = 100LL;
-      for (unsigned long long n = 0; n < max_n; ++n)
+      const unsigned long long int max_n = 100LL;
+      for (unsigned long long int n = 0; n < max_n; ++n)
       {
-         for (unsigned long long k = 0; k < max_n; ++k)
+         for (unsigned long long int k = 0; k < max_n; ++k)
          {
             n_choose_k(n,k);
          }
@@ -9044,7 +9044,7 @@ namespace strtk
    }
 
    template<typename OutputIterator>
-   inline void nth_combination_sequence(unsigned long long n,
+   inline void nth_combination_sequence(unsigned long long int n,
                                         const std::size_t& r,
                                         const std::size_t& k,
                                         OutputIterator out,
@@ -9052,7 +9052,7 @@ namespace strtk
    {
       //Compute the indicies for the n'th combination of r-choose-k
       //n must be in the range [0,r-choose-k)
-      typedef unsigned long long value_type;
+      typedef unsigned long long int value_type;
 
       std::vector<std::size_t> index_list(k,0);
       value_type j = 0;
@@ -10158,7 +10158,7 @@ namespace strtk
                    ((v <<  8) & 0x00FF0000) | ((v >>  8) & 0xFF000000);
          }
 
-         static inline unsigned long long convert(const unsigned long long& v)
+         static inline unsigned long long int convert(const unsigned long long int& v)
          {
             //static_assert(8 == sizeof(v),"");
             return ((v >> 56) & 0x00000000000000FFLL) | ((v << 56) & 0xFF00000000000000LL) |
@@ -10177,9 +10177,9 @@ namespace strtk
             return static_cast<int>(convert(static_cast<unsigned int>(v)));
          }
 
-         static inline unsigned long long convert(const long long& v)
+         static inline unsigned long long int convert(const long long int& v)
          {
-            return static_cast<long long>(convert(static_cast<unsigned long long>(v)));
+            return static_cast<long long>(convert(static_cast<unsigned long long int>(v)));
          }
 
          class marker
@@ -10218,6 +10218,7 @@ namespace strtk
          typedef unsigned int uint32_t;
          typedef unsigned short uint16_t;
          typedef unsigned char uint8_t;
+         typedef unsigned long long int uint64_t;
 
          template<typename T>
          reader(T* buffer,
@@ -10312,6 +10313,19 @@ namespace strtk
             std::copy(buffer_, buffer_ + raw_size, reinterpret_cast<char*>(data));
             buffer_ += raw_size;
             amount_read_sofar_ += raw_size;
+            return true;
+         }
+
+         template<typename T>
+         inline bool operator()(T*& data, uint64_t& length, const bool read_length = true)
+         {
+            uint32_t l = 0;
+            if (read_length)
+               l = static_cast<uint32_t>(length);
+            if (!operator()(data,l,read_length))
+               return false;
+            if (read_length)
+               length = l;
             return true;
          }
 
@@ -12393,21 +12407,21 @@ namespace strtk
       template<typename>
       struct numeric { enum { length = 0, size = 32, bound_length = 0, min_exp = 0, max_exp = 0 }; };
 
-      template<> struct numeric<short>              { enum { length =  5, size = 16, bound_length =  4}; };
-      template<> struct numeric<unsigned short>     { enum { length =  5, size = 16, bound_length =  4}; };
+      template<> struct numeric<short>                  { enum { length =  5, size = 16, bound_length =  4}; };
+      template<> struct numeric<unsigned short>         { enum { length =  5, size = 16, bound_length =  4}; };
 
-      template<> struct numeric<int>                { enum { length = 10, size = 16, bound_length =  9}; };
-      template<> struct numeric<unsigned int>       { enum { length = 10, size = 16, bound_length =  9}; };
+      template<> struct numeric<int>                    { enum { length = 10, size = 16, bound_length =  9}; };
+      template<> struct numeric<unsigned int>           { enum { length = 10, size = 16, bound_length =  9}; };
 
-      template<> struct numeric<long>               { enum { length = 10, size = 16, bound_length =  9}; };
-      template<> struct numeric<unsigned long>      { enum { length = 10, size = 16, bound_length =  9}; };
+      template<> struct numeric<long>                   { enum { length = 10, size = 16, bound_length =  9}; };
+      template<> struct numeric<unsigned long>          { enum { length = 10, size = 16, bound_length =  9}; };
 
-      template<> struct numeric<long long>          { enum { length = 19, size = 24, bound_length = 18}; };
-      template<> struct numeric<unsigned long long> { enum { length = 20, size = 24, bound_length = 19}; };
+      template<> struct numeric<long long>              { enum { length = 19, size = 24, bound_length = 18}; };
+      template<> struct numeric<unsigned long long int> { enum { length = 20, size = 24, bound_length = 19}; };
 
-      template<> struct numeric<float>              { enum { min_exp =  -38, max_exp =  +38, precision = 10}; };
-      template<> struct numeric<double>             { enum { min_exp = -308, max_exp = +308, precision = 15}; };
-      template<> struct numeric<long double>        { enum { min_exp = -308, max_exp = +308, precision = 15}; };
+      template<> struct numeric<float>                  { enum { min_exp =  -38, max_exp =  +38, precision = 10}; };
+      template<> struct numeric<double>                 { enum { min_exp = -308, max_exp = +308, precision = 15}; };
+      template<> struct numeric<long double>            { enum { min_exp = -308, max_exp = +308, precision = 15}; };
 
       #define strtk_register_unsigned_type_tag(T)\
       template<> struct supported_conversion_to_type<T> { typedef unsigned_type_tag type; };\
@@ -12468,7 +12482,7 @@ namespace strtk
       strtk_register_unsigned_type_tag(unsigned short)
       strtk_register_unsigned_type_tag(unsigned int)
       strtk_register_unsigned_type_tag(unsigned long)
-      strtk_register_unsigned_type_tag(unsigned long long)
+      strtk_register_unsigned_type_tag(unsigned long long int)
 
       strtk_register_signed_type_tag(short)
       strtk_register_signed_type_tag(int)
@@ -12489,7 +12503,7 @@ namespace strtk
       strtk_register_hex_number_type_tag(hex_to_number_sink<unsigned short>)
       strtk_register_hex_number_type_tag(hex_to_number_sink<unsigned int>)
       strtk_register_hex_number_type_tag(hex_to_number_sink<unsigned long>)
-      strtk_register_hex_number_type_tag(hex_to_number_sink<unsigned long long>)
+      strtk_register_hex_number_type_tag(hex_to_number_sink<unsigned long long int>)
 
       strtk_register_base64_type_tag(base64_to_number_sink<short>)
       strtk_register_base64_type_tag(base64_to_number_sink<int>)
@@ -12497,7 +12511,7 @@ namespace strtk
       strtk_register_base64_type_tag(base64_to_number_sink<unsigned short>)
       strtk_register_base64_type_tag(base64_to_number_sink<unsigned int>)
       strtk_register_base64_type_tag(base64_to_number_sink<unsigned long>)
-      strtk_register_base64_type_tag(base64_to_number_sink<unsigned long long>)
+      strtk_register_base64_type_tag(base64_to_number_sink<unsigned long long int>)
 
       strtk_register_stdstring_range_type_tag(std::string::iterator)
       strtk_register_stdstring_range_type_tag(std::string::const_iterator)
@@ -12531,7 +12545,7 @@ namespace strtk
       strtk_register_sink_type_tag(unsigned short)
       strtk_register_sink_type_tag(unsigned int)
       strtk_register_sink_type_tag(unsigned long)
-      strtk_register_sink_type_tag(unsigned long long)
+      strtk_register_sink_type_tag(unsigned long long int)
       strtk_register_sink_type_tag(std::string)
 
       #define strtk_register_userdef_type_sink(T)\
@@ -12690,7 +12704,7 @@ namespace strtk
             {
                if (1 == std::distance(interim_end,end))
                {
-                  typedef unsigned long long num_type;
+                  typedef unsigned long long int num_type;
                   static const num_type max               = static_cast<num_type>(std::numeric_limits<T>::max());
                   static const num_type penultimate_bound = static_cast<num_type>(max / 10);
                   static const num_type final_digit       = static_cast<num_type>(max % 10);
@@ -12810,7 +12824,7 @@ namespace strtk
             {
                if (1 == std::distance(interim_end,end))
                {
-                  typedef unsigned long long num_type;
+                  typedef unsigned long long int num_type;
                   static const num_type max = static_cast<num_type>(std::numeric_limits<T>::max());
                   static const num_type min = static_cast<num_type>(static_cast<long long>(-1) * std::numeric_limits<T>::min());
                   static const num_type positive_penultimate_bound = static_cast<num_type>(max / 10);
@@ -12898,7 +12912,7 @@ namespace strtk
             }
             else
             {
-               typedef unsigned long long base_type;
+               typedef unsigned long long int base_type;
                static const base_type max_limit = +std::numeric_limits<T>::max();
                static const base_type min_limit = -std::numeric_limits<T>::min();
                base_type tmp = static_cast<base_type>(t) * 10 + digit;
@@ -13385,7 +13399,7 @@ namespace strtk
       strtk_register_type_name(unsigned short)
       strtk_register_type_name(unsigned int)
       strtk_register_type_name(unsigned long)
-      strtk_register_type_name(unsigned long long)
+      strtk_register_type_name(unsigned long long int)
       strtk_register_type_name(double)
       strtk_register_type_name(float)
       strtk_register_type_name(long double)
@@ -15067,6 +15081,71 @@ namespace strtk
 
       public:
 
+         struct parameters
+         {
+            parameters()
+            : minimum_size(0),
+              maximum_size(std::numeric_limits<unsigned long long int>::max()),
+              minimum_number_of_hashes(0),
+              maximum_number_of_hashes(std::numeric_limits<unsigned int>::max()),
+              projected_element_count(10000),
+              false_positive_probability(1.0 / projected_element_count),
+              random_seed(0xA5A5A5A55A5A5A5ALL)
+            {}
+
+            inline bool operator!()
+            {
+               return (minimum_size > maximum_size) ||
+                      (minimum_number_of_hashes > maximum_number_of_hashes) ||
+                      (0 == projected_element_count) ||
+                      (0 == random_seed) ||
+                      (0xFFFFFFFFFFFFFFFFLL == random_seed);
+            }
+
+            //Allowed min/max size of the bloom filter in bits
+            unsigned long long int minimum_size;
+            unsigned long long int maximum_size;
+
+            //Allowed min/max number of hash functions
+            unsigned int minimum_number_of_hashes;
+            unsigned int maximum_number_of_hashes;
+
+            //The approximate number of elements to be inserted
+            //into the bloom filter, should be within one order
+            //of magnitude. The default is 10000.
+            unsigned long long int projected_element_count;
+
+            //The approximate false positive probability expected
+            //from the bloom filter. The default is the reciprocal
+            //of the projected_element_count.
+            double false_positive_probability;
+
+            unsigned long long int random_seed;
+
+            inline bool operator()(strtk::binary::reader& reader)
+            {
+               return reader(minimum_size) &&
+                      reader(maximum_size) &&
+                      reader(minimum_number_of_hashes) &&
+                      reader(maximum_number_of_hashes) &&
+                      reader(projected_element_count) &&
+                      reader(false_positive_probability) &&
+                      reader(random_seed);
+            }
+
+            inline bool operator()(strtk::binary::writer& writer)
+            {
+               return writer(minimum_size) &&
+                      writer(maximum_size) &&
+                      writer(minimum_number_of_hashes) &&
+                      writer(maximum_number_of_hashes) &&
+                      writer(projected_element_count) &&
+                      writer(false_positive_probability) &&
+                      writer(random_seed);
+            }
+
+         };
+
          filter()
          : bit_table_(0),
            salt_count_(0),
@@ -15080,7 +15159,7 @@ namespace strtk
 
          filter(const std::size_t& predicted_inserted_element_count,
                 const double& false_positive_probability,
-                const std::size_t& random_seed)
+                const unsigned int& random_seed)
          : bit_table_(0),
            predicted_inserted_element_count_(predicted_inserted_element_count),
            inserted_element_count_(0),
@@ -15101,9 +15180,7 @@ namespace strtk
 
          inline bool operator == (const filter& f) const
          {
-            if (this == &f)
-               return true;
-            else
+            if (this != &f)
             {
                return
                   (salt_count_                         == f.salt_count_)                         &&
@@ -15116,6 +15193,8 @@ namespace strtk
                   (salt_                               == f.salt_)                               &&
                   std::equal(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
             }
+            else
+               return true;
          }
 
          inline bool operator != (const filter& f) const
@@ -15577,8 +15656,8 @@ namespace strtk
          std::vector<bloom_type> salt_;
          unsigned char*          bit_table_;
          unsigned int            salt_count_;
-         unsigned int            table_size_;
-         unsigned int            raw_table_size_;
+         unsigned long long int  table_size_;
+         unsigned long long int  raw_table_size_;
          unsigned int            predicted_inserted_element_count_;
          unsigned int            inserted_element_count_;
          unsigned int            random_seed_;
@@ -15704,7 +15783,7 @@ namespace strtk
          compute_pod_hash(static_cast<int>(data),hash);
       }
 
-      inline void compute_pod_hash(const unsigned long long& data, unsigned int& hash)
+      inline void compute_pod_hash(const unsigned long long int& data, unsigned int& hash)
       {
          const unsigned char* itr = reinterpret_cast<const unsigned char*>(&data);
          hash ^=  ((hash <<  7) ^  itr[0] * (hash >> 3));
@@ -16061,7 +16140,7 @@ namespace strtk
          };
 
          type_holder_ptr type_holder_;
-         enum { type_holder_buffer_size = 2 * sizeof(type_holder<unsigned long long>) };
+         enum { type_holder_buffer_size = 2 * sizeof(type_holder<unsigned long long int>) };
          unsigned char type_holder_buffer_[type_holder_buffer_size];
       };
 
@@ -16800,7 +16879,7 @@ namespace strtk
                in_use_ = false;
             }
 
-            inline unsigned long long usec_time() const
+            inline unsigned long long int usec_time() const
             {
                if (!in_use_)
                {
@@ -16808,10 +16887,10 @@ namespace strtk
                      return 1000000 * (stop_time_.tv_sec  - start_time_.tv_sec ) +
                                       (stop_time_.tv_usec - start_time_.tv_usec);
                   else
-                     return std::numeric_limits<unsigned long long>::max();
+                     return std::numeric_limits<unsigned long long int>::max();
                }
                else
-                  return std::numeric_limits<unsigned long long>::max();
+                  return std::numeric_limits<unsigned long long int>::max();
             }
 
             inline double time() const
