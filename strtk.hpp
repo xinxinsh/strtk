@@ -16732,26 +16732,57 @@ namespace strtk
          std::vector<strtk::util::value> value_lut_;
       };
 
-      class stringkey_map
+      namespace details
+      {
+         template<typename Range,typename KType>
+         struct keygen
+         {
+            static inline KType transform(const Range&)
+            {
+               return KType();
+            }
+         };
+
+         template<typename Range>
+         struct keygen<Range,std::string>
+         {
+            static inline std::string transform(const Range& key_range)
+            {
+               return std::string(key_range.first,key_range.second);
+            }
+         };
+
+         template<typename Range>
+         struct keygen<Range,unsigned int>
+         {
+            static inline unsigned int transform(const Range& key_range)
+            {
+               unsigned int result = 0;
+               strtk::fast::numeric_convert(std::distance(key_range.first,key_range.second),key_range.first,result,true);
+               return result;
+            }
+         };
+      }
+
+      template<typename KeyType, typename MapType = std::map<KeyType,strtk::util::value> >
+      class key_map
       {
       public:
 
-         typedef std::string key_type;
-
-         typedef std::map<std::string,strtk::util::value> map_type;
+         typedef KeyType key_type;
+         typedef MapType map_type;
 
          template<typename Options>
-         stringkey_map(const Options&)
+         key_map(const Options&)
          {}
 
-         virtual ~stringkey_map()
+         virtual ~key_map()
          {}
 
          template<typename Range>
          inline bool operator()(const Range key_range, const Range value_range)
          {
-            std::string key(key_range.first,key_range.second);
-            map_type::iterator itr = value_map_.find(key);
+            typename map_type::iterator itr = value_map_.find(details::keygen<Range,key_type>::transform(key_range));
             if (value_map_.end() == itr)
                return false;
             const util::value& v = (*itr).second;
@@ -16773,8 +16804,9 @@ namespace strtk
          map_type value_map_;
       };
 
-   }
+      typedef key_map<std::string> stringkey_map;
 
+   }
 } // namespace strtk
 
 namespace
