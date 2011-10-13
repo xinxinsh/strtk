@@ -10148,6 +10148,11 @@ namespace strtk
             return result;
          }
 
+         static inline bool is_big_endian()
+         {
+            return !is_little_endian();
+         }
+
          static inline unsigned short convert(const unsigned short& v)
          {
             //static_assert(2 == sizeof(v),"");
