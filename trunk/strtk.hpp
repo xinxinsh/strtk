@@ -536,7 +536,7 @@ namespace strtk
      {
         while (end != itr)
         {
-           stream << *itr << delimiter;
+           stream << (*itr) << delimiter;
            ++itr;
            ++count;
         }
@@ -545,7 +545,7 @@ namespace strtk
      {
         while (end != itr)
         {
-           stream << *itr;
+           stream << (*itr);
            ++itr;
            ++count;
         }
@@ -571,7 +571,7 @@ namespace strtk
      {
         while (end != itr)
         {
-           stream << *itr << delimiter;
+           stream << (*itr) << delimiter;
            ++itr;
            ++count;
         }
@@ -580,7 +580,7 @@ namespace strtk
      {
         while (end != itr)
         {
-           stream << *itr;
+           stream << (*itr);
            ++itr;
            ++count;
         }
@@ -622,7 +622,7 @@ namespace strtk
    {
       while (n)
       {
-         *out = *itr;
+         (*out) = (*itr);
          ++itr;
          ++out;
          --n;
@@ -641,7 +641,7 @@ namespace strtk
       {
          if (predicate(*itr))
          {
-            *(out++) = *itr;
+            *(out++) = (*itr);
          }
          ++itr;
       }
@@ -921,7 +921,7 @@ namespace strtk
          {
             if (itr1 != itr2)
             {
-               *itr2 = *itr1;
+               (*itr2) = (*itr1);
             }
             ++itr1;
             ++itr2;
@@ -991,10 +991,10 @@ namespace strtk
          {
             if (itr1 != itr2)
             {
-               *itr2 = *itr1;
+               (*itr2) = (*itr1);
             }
 
-            prev = *itr1;
+            prev = (*itr1);
             ++itr1;
             ++itr2;
          }
@@ -1102,9 +1102,9 @@ namespace strtk
          {
             if (itr1 != itr2)
             {
-               *itr2 = *itr1;
+               (*itr2) = (*itr1);
             }
-            prev = *itr1;
+            prev = (*itr1);
             ++itr1;
             ++itr2;
          }
@@ -1307,7 +1307,10 @@ namespace strtk
    {
       for (Iterator itr = begin; end != itr; ++itr)
       {
-         if (c1 == *itr) *itr = c2;
+         if (c1 == (*itr)) 
+         {
+            (*itr) = c2;
+         }
       }
    }
 
@@ -3250,7 +3253,7 @@ namespace strtk
       std::size_t count = 0;
       while (end != ++itr)
       {
-         if (*prev == *itr)
+         if ((*prev) == (*itr))
             ++count;
          else
             prev = itr;
@@ -3301,9 +3304,9 @@ namespace strtk
       while (end != ++itr)
       {
          if (*itr < min_value)
-            min_value = *itr;
+            min_value = (*itr);
          else if (*itr > max_value)
-            max_value = *itr;
+            max_value = (*itr);
       }
    }
 
@@ -4179,7 +4182,7 @@ namespace strtk
 
       while (end1 != itr1)
       {
-         if (*itr1 != *itr2)
+         if ((*itr1) != (*itr2))
             ++distance;
       }
 
@@ -8386,11 +8389,11 @@ namespace strtk
       InputIterator itr = begin;
       while (end != itr)
       {
-         *out = *itr;
+         (*out) = (*itr);
          ++out;
          if (ins(*itr++))
          {
-            *out = ins();
+            (*out) = ins();
             ++out;
             size += 2;
          }
@@ -8406,7 +8409,7 @@ namespace strtk
       Iterator itr = begin;
       while (end != itr)
       {
-         *itr = value++;
+         (*itr) = value++;
          ++itr;
       }
    }
@@ -8477,7 +8480,7 @@ namespace strtk
       InputIterator itr = begin;
       while (end != itr)
       {
-         const std::string& s = *itr;
+         const std::string& s = (*itr);
          ++itr;
          if (s.size() < r0)
             continue;
@@ -8834,10 +8837,10 @@ namespace strtk
       --itr2;
       while (first != itr1)
       {
-         if (*--itr1 < *itr2)
+         if (*--itr1 < (*itr2))
          {
             Iterator j = k;
-            while (!(*itr1 < *j)) ++j;
+            while (!((*itr1) < (*j))) ++j;
             std::iter_swap(itr1,j);
             ++itr1;
             ++j;
@@ -9020,7 +9023,7 @@ namespace strtk
       {
          dimension = n;
          table = new value_type[table_size];
-         std::fill_n(table,table_size,0LL);
+         std::fill_n(table,table_size,0ULL);
       }
 
       value_type result = n_choose_k_impl(table,dimension).compute(n,k);
@@ -9033,7 +9036,7 @@ namespace strtk
 
    inline void initialize_n_choose_k()
    {
-      const unsigned long long int max_n = 100LL;
+      const unsigned long long int max_n = 100ULL;
       for (unsigned long long int n = 0; n < max_n; ++n)
       {
          for (unsigned long long int k = 0; k < max_n; ++k)
@@ -9979,7 +9982,7 @@ namespace strtk
       template<int N, typename Iterator>
       inline bool signed_all_digits_check(Iterator itr)
       {
-         if (('-' == *itr) || ('+' == *itr))
+         if (('-' == (*itr)) || ('+' == (*itr)))
             return all_digits_check<Iterator,N - 1>((itr + 1));
          else
             return all_digits_check<Iterator,N>(itr);
@@ -9988,7 +9991,7 @@ namespace strtk
       template<typename Iterator>
       inline bool signed_all_digits_check(const std::size_t& n, Iterator itr)
       {
-         if (('-' == *itr) || ('+' == *itr))
+         if (('-' == (*itr)) || ('+' == (*itr)))
             return all_digits_check(n - 1,(itr + 1));
          else
             return all_digits_check(n - 1,(itr + 1));
@@ -10081,13 +10084,13 @@ namespace strtk
       template<int N, typename T, typename Iterator>
       inline void signed_numeric_convert(Iterator itr, T& t, const bool digit_check = false)
       {
-         if ('-' == *itr)
+         if ('-' == (*itr))
          {
             numeric_convert<N - 1,T,Iterator>((itr + 1),t,digit_check);
             typename strtk::details::supported_conversion_to_type<T>::type type;
             details::negate(t,type);
          }
-         else if ('+' == *itr)
+         else if ('+' == (*itr))
          {
             numeric_convert<N - 1,T,Iterator>((itr + 1),t,digit_check);
          }
@@ -10101,13 +10104,13 @@ namespace strtk
                                          T& t,
                                          const bool digit_check = false)
       {
-         if ('-' == *itr)
+         if ('-' == (*itr))
          {
             bool result = numeric_convert((n - 1),(itr + 1),t,digit_check);
             typename strtk::details::supported_conversion_to_type<T>::type type;
             return details::negate<T>(t,type) && result;
          }
-         else if ('+' == *itr)
+         else if ('+' == (*itr))
          {
             return numeric_convert((n - 1),(itr + 1),t,digit_check);
          }
@@ -12622,13 +12625,13 @@ namespace strtk
       {
          if (end == itr) return false;
 
-         if ('+' == *itr)
+         if ('+' == (*itr))
             ++itr;
 
          if (end == itr)
             return false;
 
-         while ((end != itr) && ('0' == *itr)) ++itr;
+         while ((end != itr) && ('0' == (*itr))) ++itr;
          const std::size_t length = std::distance(itr,end);
 
          if (length > numeric<T>::length)
@@ -12738,9 +12741,9 @@ namespace strtk
 
          bool negative = false;
 
-         if ('+' == *itr)
+         if ('+' == (*itr))
             ++itr;
-         else if ('-' == *itr)
+         else if ('-' == (*itr))
          {
             ++itr;
             negative = true;
@@ -12748,7 +12751,7 @@ namespace strtk
 
          if (end == itr) return false;
 
-         while ((end != itr) && ('0' == *itr)) ++itr;
+         while ((end != itr) && ('0' == (*itr))) ++itr;
          const std::size_t length = std::distance(itr,end);
 
          if (length > numeric<T>::length)
@@ -12881,9 +12884,9 @@ namespace strtk
          T t = 0;
          bool negative = false;
 
-         if ('+' == *itr)
+         if ('+' == (*itr))
             ++itr;
-         else if ('-' == *itr)
+         else if ('-' == (*itr))
          {
             ++itr;
             negative = true;
@@ -12893,7 +12896,7 @@ namespace strtk
             return false;
 
          unsigned int digit_count = 0;
-         while ((end != itr) && ('0' == *itr)) ++itr;
+         while ((end != itr) && ('0' == (*itr))) ++itr;
 
          bool return_result = true;
          while (end != itr)
@@ -12936,7 +12939,7 @@ namespace strtk
          static const std::size_t nan_length = 3;
          if (std::distance(itr,end) != static_cast<int>(nan_length))
             return false;
-         if (static_cast<type>('n') == *itr)
+         if (static_cast<type>('n') == (*itr))
          {
             if ((static_cast<type>('a') != *(itr + 1)) || (static_cast<type>('n') != *(itr + 2)))
             {
@@ -12960,7 +12963,7 @@ namespace strtk
          const std::size_t length = std::distance(itr,end);
          if ((3 != length) && (inf_length != length))
             return false;
-         const char* inf_itr   = ('i' == *itr) ? inf_lc : inf_uc;
+         const char* inf_itr   = ('i' == (*itr)) ? inf_lc : inf_uc;
          while (end != itr)
          {
             if (*inf_itr == static_cast<char>(*itr))
@@ -12985,9 +12988,9 @@ namespace strtk
          if (end == itr) return false;
          double d = 0.0;
          bool negative = false;
-         if ('+' == *itr)
+         if ('+' == (*itr))
             ++itr;
-         else if ('-' == *itr)
+         else if ('-' == (*itr))
          {
             ++itr;
             negative = true;
@@ -12996,11 +12999,11 @@ namespace strtk
          if (end == itr)
             return false;
 
-         if (('i' == *itr) || ('I' == *itr))
+         if (('i' == (*itr)) || ('I' == (*itr)))
          {
             return parse_inf(itr,end,t,negative);
          }
-         else if (('n' == *itr) || ('N' == *itr))
+         else if (('n' == (*itr)) || ('N' == (*itr)))
          {
             return parse_nan(itr,end,t);
          }
@@ -13009,13 +13012,13 @@ namespace strtk
 
          int pre_decimal = 0;
 
-         if ('.' != *itr)
+         if ('.' != (*itr))
          {
             const Iterator curr = itr;
-            while ((end != itr) && ('0' == *itr)) ++itr;
+            while ((end != itr) && ('0' == (*itr))) ++itr;
             while (end != itr)
             {
-               const unsigned int digit = static_cast<unsigned int>(*itr - '0');
+               const unsigned int digit = static_cast<unsigned int>((*itr) - '0');
                if (digit < 10)
                   d = (d * 10.0) + digit;
                else
@@ -13030,13 +13033,13 @@ namespace strtk
 
          if (end != itr)
          {
-            if ('.' == *itr)
+            if ('.' == (*itr))
             {
                ++itr;
                const Iterator curr = itr;
                while (end != itr)
                {
-                  const unsigned int digit = static_cast<unsigned int>(*itr - '0');
+                  const unsigned int digit = static_cast<unsigned int>((*itr) - '0');
                   if (digit < 10)
                      d = (d * 10.0) + digit;
                   else
@@ -13050,7 +13053,7 @@ namespace strtk
 
             if (end != itr)
             {
-               typename std::iterator_traits<Iterator>::value_type c = *itr;
+               typename std::iterator_traits<Iterator>::value_type c = (*itr);
 
                if (('e' == c) || ('E' == c))
                {
@@ -13061,7 +13064,7 @@ namespace strtk
                      if (end == itr)
                         return false;
                      else
-                        c = *itr;
+                        c = (*itr);
                   }
 
                   if ((exp < numeric<T>::min_exp) || (numeric<T>::max_exp < exp))
@@ -13081,11 +13084,11 @@ namespace strtk
                   if ((10.0 != d) || (exponent != -1))
                      return false;
 
-                  if (('i' == *itr) || ('I' == *itr))
+                  if (('i' == (*itr)) || ('I' == (*itr)))
                   {
                      return parse_inf(itr,end,t,negative);
                   }
-                  else if (('n' == *itr) || ('N' == *itr))
+                  else if (('n' == (*itr)) || ('N' == (*itr)))
                   {
                      return parse_nan(itr,end,t);
                   }
@@ -13178,7 +13181,7 @@ namespace strtk
       {
          if (1 != std::distance(itr,end))
             return false;
-         t = (('0' == *itr) ? false : true);
+         t = (('0' == (*itr)) ? false : true);
          itr = end;
          return true;
       }
@@ -14842,7 +14845,7 @@ namespace strtk
                   node_list_iterator end = node_list_.end();
                   while (end != itr)
                   {
-                     delete *itr;
+                     delete (*itr);
                      ++itr;
                   }
                }
@@ -14857,7 +14860,7 @@ namespace strtk
                while (end != itr)
                {
                   if (key_value == (*itr)->key_value_)
-                     return *itr;
+                     return (*itr);
                   else
                      ++itr;
                }
@@ -14923,7 +14926,7 @@ namespace strtk
                return;
 
             key_iterator_t itr = begin;
-            key_value_t key = *itr;
+            key_value_t key = (*itr);
             node_ptr parent = 0;
             node_ptr n = head_;
             node_ptr next_node = 0;
@@ -14931,7 +14934,7 @@ namespace strtk
 
             while (end != itr)
             {
-               key = *itr;
+               key = (*itr);
                if (0 == (next_node = n->get_node(key)))
                {
                   n->add_node(next_node = new node_t(key));
@@ -15090,7 +15093,7 @@ namespace strtk
               maximum_number_of_hashes(std::numeric_limits<unsigned int>::max()),
               projected_element_count(10000),
               false_positive_probability(1.0 / projected_element_count),
-              random_seed(0xA5A5A5A55A5A5A5ALL)
+              random_seed(0xA5A5A5A55A5A5A5AULL)
             {}
 
             inline bool operator!()
@@ -15099,7 +15102,7 @@ namespace strtk
                       (minimum_number_of_hashes > maximum_number_of_hashes) ||
                       (0 == projected_element_count) ||
                       (0 == random_seed) ||
-                      (0xFFFFFFFFFFFFFFFFLL == random_seed);
+                      (0xFFFFFFFFFFFFFFFFULL == random_seed);
             }
 
             //Allowed min/max size of the bloom filter in bits
@@ -16839,7 +16842,10 @@ namespace strtk
 
          #ifdef WIN32
             timer()
-            : in_use_(false)
+            : in_use_(false),
+              start_time_(0),
+              stop_time_(0),
+              clock_frequency_(0)
             {
                QueryPerformanceFrequency(&clock_frequency_);
             }
@@ -16865,7 +16871,12 @@ namespace strtk
 
             timer()
             : in_use_(false)
-            {}
+            {
+               start_time_.tv_sec  = 0;
+               start_time_.tv_usec = 0; 
+               stop_time_.tv_sec   = 0;
+               stop_time_.tv_usec  = 0; 
+            }
 
             inline void start()
             {
