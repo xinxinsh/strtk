@@ -1307,7 +1307,7 @@ namespace strtk
    {
       for (Iterator itr = begin; end != itr; ++itr)
       {
-         if (c1 == (*itr)) 
+         if (c1 == (*itr))
          {
             (*itr) = c2;
          }
@@ -10626,9 +10626,11 @@ namespace strtk
       public:
 
          // should be sourced from cstdint
+         // should be sourced from cstdint
          typedef unsigned int uint32_t;
          typedef unsigned short uint16_t;
          typedef unsigned char uint8_t;
+         typedef unsigned long long int uint64_t;
 
          template<typename T>
          writer(T* buffer, const std::size_t& buffer_length)
@@ -10706,6 +10708,24 @@ namespace strtk
             buffer_ += raw_size;
             amount_written_sofar_ += raw_size;
             return true;
+         }
+
+         template<typename T>
+         inline bool operator()(const T* data, const uint64_t& length)
+         {
+            return operator()(data,static_cast<uint32_t>(length),false);
+         }
+
+         template<typename T>
+         inline bool operator()(const T* data, const uint16_t& length)
+         {
+            return operator()(data,static_cast<uint32_t>(length),false);
+         }
+
+         template<typename T>
+         inline bool operator()(const T* data, const uint8_t& length)
+         {
+            return operator()(data,static_cast<uint32_t>(length),false);
          }
 
          template<typename T1, typename T2>
@@ -11020,7 +11040,7 @@ namespace strtk
                const size_type size = static_cast<size_type>(s->size());
                if (!w(size))
                   return false;
-               if (!w(s->data(),size,false))
+               if (!w(s->data(),size))
                   return false;
                return true;
             }
@@ -15416,7 +15436,7 @@ namespace strtk
             return end;
          }
 
-         inline virtual std::size_t size() const
+         inline virtual unsigned long long int size() const
          {
             return table_size_;
          }
@@ -15506,7 +15526,8 @@ namespace strtk
                                             sizeof(                       random_seed_) +
                                             sizeof(desired_false_positive_probability_) +
                                             salt_count_ * sizeof(           bloom_type) +
-                                            raw_table_size_ * sizeof(        cell_type) +
+                                              static_cast<std::size_t>(raw_table_size_) *
+                                                                      sizeof(cell_type) +
                                             64; // handle array sizes etc.
             std::ofstream ostream(file_name.c_str(),std::ios::binary);
             if (!ostream)
@@ -15638,7 +15659,7 @@ namespace strtk
                     so as to allow for the generation of unique bloom filter
                     instances.
                   */
-                  salt_[i] = salt_[i] * salt_[(i + 3) % salt_.size()] + random_seed_;
+                  salt_[i] = salt_[i] * salt_[(i + 3) % salt_.size()] + static_cast<bloom_type>(random_seed_);
                 }
             }
             else
@@ -15703,9 +15724,9 @@ namespace strtk
          unsigned int            salt_count_;
          unsigned long long int  table_size_;
          unsigned long long int  raw_table_size_;
-         unsigned int            projected_element_count_;
+         unsigned long long int  projected_element_count_;
          unsigned int            inserted_element_count_;
-         unsigned int            random_seed_;
+         unsigned long long int  random_seed_;
          double                  desired_false_positive_probability_;
       };
 
@@ -15740,7 +15761,7 @@ namespace strtk
             size_list.push_back(table_size_);
          }
 
-         inline virtual std::size_t size() const
+         inline virtual unsigned long long int size() const
          {
             return size_list.back();
          }
@@ -15752,8 +15773,8 @@ namespace strtk
                return false;
             }
 
-            std::size_t original_table_size = size_list.back();
-            std::size_t new_table_size = static_cast<std::size_t>((size_list.back() * (1.0 - (percentage / 100.0))));
+            unsigned long long int original_table_size = size_list.back();
+            unsigned long long int new_table_size = static_cast<unsigned long long int>((size_list.back() * (1.0 - (percentage / 100.0))));
             new_table_size -= (((new_table_size % bits_per_char) != 0) ? (new_table_size % bits_per_char) : 0);
 
             if ((bits_per_char > new_table_size) || (new_table_size >= original_table_size))
@@ -15762,7 +15783,7 @@ namespace strtk
             }
 
             desired_false_positive_probability_ = effective_fpp();
-            cell_type* tmp = new cell_type[new_table_size / bits_per_char];
+            cell_type* tmp = new cell_type[static_cast<std::size_t>(new_table_size / bits_per_char)];
             std::copy(bit_table_, bit_table_ + (new_table_size / bits_per_char), tmp);
             cell_type* itr = bit_table_ + (new_table_size / bits_per_char);
             cell_type* end = bit_table_ + (original_table_size / bits_per_char);
@@ -15792,7 +15813,7 @@ namespace strtk
             bit = bit_index % bits_per_char;
          }
 
-         std::vector<std::size_t> size_list;
+         std::vector<unsigned long long int> size_list;
       };
 
    }
@@ -16914,10 +16935,7 @@ namespace strtk
 
          #ifdef WIN32
             timer()
-            : in_use_(false),
-              start_time_(0),
-              stop_time_(0),
-              clock_frequency_(0)
+            : in_use_(false)
             {
                QueryPerformanceFrequency(&clock_frequency_);
             }
@@ -16945,9 +16963,9 @@ namespace strtk
             : in_use_(false)
             {
                start_time_.tv_sec  = 0;
-               start_time_.tv_usec = 0; 
+               start_time_.tv_usec = 0;
                stop_time_.tv_sec   = 0;
-               stop_time_.tv_usec  = 0; 
+               stop_time_.tv_usec  = 0;
             }
 
             inline void start()
