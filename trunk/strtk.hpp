@@ -15080,6 +15080,143 @@ namespace strtk
                                                              0x80   //10000000
                                                            };
 
+      class parameters
+      {
+      public:
+
+         parameters()
+         : minimum_size(1),
+           maximum_size(std::numeric_limits<unsigned long long int>::max()),
+           minimum_number_of_hashes(1),
+           maximum_number_of_hashes(std::numeric_limits<unsigned int>::max()),
+           projected_element_count(10000),
+           false_positive_probability(1.0 / projected_element_count),
+           random_seed(0xA5A5A5A55A5A5A5AULL)
+         {}
+
+         virtual ~parameters()
+         {}
+
+         inline bool operator!()
+         {
+            return (minimum_size > maximum_size)      ||
+                   (minimum_number_of_hashes > maximum_number_of_hashes) ||
+                   (minimum_number_of_hashes < 1)     ||
+                   (0 == maximum_number_of_hashes)    ||
+                   (0 == projected_element_count)     ||
+                   (false_positive_probability < 0.0) ||
+                   (std::numeric_limits<double>::infinity() == std::abs(false_positive_probability)) ||
+                   (0 == random_seed)                 ||
+                   (0xFFFFFFFFFFFFFFFFULL == random_seed);
+         }
+
+         //Allowed min/max size of the bloom filter in bits
+         unsigned long long int minimum_size;
+         unsigned long long int maximum_size;
+
+         //Allowed min/max number of hash functions
+         unsigned int minimum_number_of_hashes;
+         unsigned int maximum_number_of_hashes;
+
+         //The approximate number of elements to be inserted
+         //into the bloom filter, should be within one order
+         //of magnitude. The default is 10000.
+         unsigned long long int projected_element_count;
+
+         //The approximate false positive probability expected
+         //from the bloom filter. The default is the reciprocal
+         //of the projected_element_count.
+         double false_positive_probability;
+
+         unsigned long long int random_seed;
+
+         inline bool operator()(strtk::binary::reader& reader)
+         {
+            return reader(minimum_size) &&
+                   reader(maximum_size) &&
+                   reader(minimum_number_of_hashes) &&
+                   reader(maximum_number_of_hashes) &&
+                   reader(projected_element_count) &&
+                   reader(false_positive_probability) &&
+                   reader(random_seed);
+         }
+
+         inline bool operator()(strtk::binary::writer& writer)
+         {
+            return writer(minimum_size) &&
+                   writer(maximum_size) &&
+                   writer(minimum_number_of_hashes) &&
+                   writer(maximum_number_of_hashes) &&
+                   writer(projected_element_count) &&
+                   writer(false_positive_probability) &&
+                   writer(random_seed);
+         }
+
+         struct optimal_parameters_t
+         {
+            optimal_parameters_t()
+            : number_of_hashes(0),
+              table_size(0)
+            {}
+
+            unsigned int number_of_hashes;
+            unsigned long long int table_size;
+         };
+
+         optimal_parameters_t optimal_parameters;
+
+         virtual bool compute_optimal_parameters()
+         {
+            /*
+              Note:
+              The following will attempt to find the number of hash functions
+              and minimum amount of storage bits required to construct a bloom
+              filter consistent with the user defined false positive probability
+              and estimated element insertion count.
+            */
+
+            if (!(*this))
+               return false;
+
+            double min_m = std::numeric_limits<double>::infinity();
+            double min_k = 0.0;
+            double curr_m = 0.0;
+            double k = 1.0;
+
+            while (k < 1000.0)
+            {
+               double numerator   = (- k * projected_element_count);
+               double denominator = std::log(1.0 - std::pow(false_positive_probability, 1.0 / k));
+               curr_m = numerator / denominator;
+               if (curr_m < min_m)
+               {
+                  min_m = curr_m;
+                  min_k = k;
+               }
+               k += 1.0;
+            }
+
+            optimal_parameters_t& optp = optimal_parameters;
+
+            optp.number_of_hashes = static_cast<std::size_t>(min_k);
+            optp.table_size = static_cast<unsigned long long int>(min_m);
+            optp.table_size += (((optp.table_size % bits_per_char) != 0) ? (bits_per_char - (optp.table_size % bits_per_char)) : 0);
+
+            if (optp.number_of_hashes < minimum_number_of_hashes)
+               optp.number_of_hashes = minimum_number_of_hashes;
+            else if (optp.number_of_hashes > maximum_number_of_hashes)
+               optp.number_of_hashes = maximum_number_of_hashes;
+
+            if (optp.table_size < minimum_size)
+               optp.table_size = minimum_size;
+            else if (optp.table_size > maximum_size)
+               optp.table_size = maximum_size;
+
+            return true;
+         }
+
+      };
+
       class filter
       {
       protected:
@@ -15089,95 +15226,29 @@ namespace strtk
 
       public:
 
-         struct parameters
-         {
-            parameters()
-            : minimum_size(0),
-              maximum_size(std::numeric_limits<unsigned long long int>::max()),
-              minimum_number_of_hashes(0),
-              maximum_number_of_hashes(std::numeric_limits<unsigned int>::max()),
-              projected_element_count(10000),
-              false_positive_probability(1.0 / projected_element_count),
-              random_seed(0xA5A5A5A55A5A5A5AULL)
-            {}
-
-            inline bool operator!()
-            {
-               return (minimum_size > maximum_size) ||
-                      (minimum_number_of_hashes > maximum_number_of_hashes) ||
-                      (0 == projected_element_count) ||
-                      (0 == random_seed) ||
-                      (0xFFFFFFFFFFFFFFFFULL == random_seed);
-            }
-
-            //Allowed min/max size of the bloom filter in bits
-            unsigned long long int minimum_size;
-            unsigned long long int maximum_size;
-
-            //Allowed min/max number of hash functions
-            unsigned int minimum_number_of_hashes;
-            unsigned int maximum_number_of_hashes;
-
-            //The approximate number of elements to be inserted
-            //into the bloom filter, should be within one order
-            //of magnitude. The default is 10000.
-            unsigned long long int projected_element_count;
-
-            //The approximate false positive probability expected
-            //from the bloom filter. The default is the reciprocal
-            //of the projected_element_count.
-            double false_positive_probability;
-
-            unsigned long long int random_seed;
-
-            inline bool operator()(strtk::binary::reader& reader)
-            {
-               return reader(minimum_size) &&
-                      reader(maximum_size) &&
-                      reader(minimum_number_of_hashes) &&
-                      reader(maximum_number_of_hashes) &&
-                      reader(projected_element_count) &&
-                      reader(false_positive_probability) &&
-                      reader(random_seed);
-            }
-
-            inline bool operator()(strtk::binary::writer& writer)
-            {
-               return writer(minimum_size) &&
-                      writer(maximum_size) &&
-                      writer(minimum_number_of_hashes) &&
-                      writer(maximum_number_of_hashes) &&
-                      writer(projected_element_count) &&
-                      writer(false_positive_probability) &&
-                      writer(random_seed);
-            }
-
-         };
-
          filter()
          : bit_table_(0),
            salt_count_(0),
            table_size_(0),
            raw_table_size_(0),
-           predicted_inserted_element_count_(0),
+           projected_element_count_(0),
            inserted_element_count_(0),
            random_seed_(0),
            desired_false_positive_probability_(0.0)
          {}
 
-         filter(const std::size_t& predicted_inserted_element_count,
-                const double& false_positive_probability,
-                const unsigned int& random_seed)
+         filter(const parameters& p)
          : bit_table_(0),
-           predicted_inserted_element_count_(predicted_inserted_element_count),
+           projected_element_count_(p.projected_element_count),
            inserted_element_count_(0),
-           random_seed_((random_seed) ? random_seed : 0xA5A5A5A5),
-           desired_false_positive_probability_(false_positive_probability)
+           random_seed_((p.random_seed) ? p.random_seed : 0xA5A5A5A5),
+           desired_false_positive_probability_(p.false_positive_probability)
          {
-            find_optimal_parameters();
+            salt_count_ = p.optimal_parameters.number_of_hashes;
+            table_size_ = p.optimal_parameters.table_size;
             generate_unique_salt();
             raw_table_size_ = table_size_ / bits_per_char;
-            bit_table_ = new cell_type[raw_table_size_];
+            bit_table_ = new cell_type[static_cast<std::size_t>(raw_table_size_)];
             std::fill_n(bit_table_,raw_table_size_,0x00);
          }
 
@@ -15194,7 +15265,7 @@ namespace strtk
                   (salt_count_                         == f.salt_count_)                         &&
                   (table_size_                         == f.table_size_)                         &&
                   (raw_table_size_                     == f.raw_table_size_)                     &&
-                  (predicted_inserted_element_count_   == f.predicted_inserted_element_count_)   &&
+                  (projected_element_count_   == f.projected_element_count_)   &&
                   (inserted_element_count_             == f.inserted_element_count_)             &&
                   (random_seed_                        == f.random_seed_)                        &&
                   (desired_false_positive_probability_ == f.desired_false_positive_probability_) &&
@@ -15217,12 +15288,12 @@ namespace strtk
                salt_count_ = f.salt_count_;
                table_size_ = f.table_size_;
                raw_table_size_ = f.raw_table_size_;
-               predicted_inserted_element_count_ = f.predicted_inserted_element_count_;
+               projected_element_count_ = f.projected_element_count_;
                inserted_element_count_ = f.inserted_element_count_;
                random_seed_ = f.random_seed_;
                desired_false_positive_probability_ = f.desired_false_positive_probability_;
                delete[] bit_table_;
-               bit_table_ = new cell_type[raw_table_size_];
+               bit_table_ = new cell_type[static_cast<std::size_t>(raw_table_size_)];
                std::copy(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
                salt_ = f.salt_;
             }
@@ -15430,7 +15501,7 @@ namespace strtk
             const std::size_t buffer_size = sizeof(                        salt_count_) +
                                             sizeof(                        table_size_) +
                                             sizeof(                    raw_table_size_) +
-                                            sizeof(  predicted_inserted_element_count_) +
+                                            sizeof(  projected_element_count_) +
                                             sizeof(            inserted_element_count_) +
                                             sizeof(                       random_seed_) +
                                             sizeof(desired_false_positive_probability_) +
@@ -15446,7 +15517,7 @@ namespace strtk
             bool result = writer(salt_count_)                         &&
                           writer(table_size_)                         &&
                           writer(raw_table_size_)                     &&
-                          writer(predicted_inserted_element_count_)   &&
+                          writer(projected_element_count_)   &&
                           writer(inserted_element_count_)             &&
                           writer(random_seed_)                        &&
                           writer(desired_false_positive_probability_) &&
@@ -15469,7 +15540,7 @@ namespace strtk
             salt_count_                         = 0;
             table_size_                         = 0;
             raw_table_size_                     = 0;
-            predicted_inserted_element_count_   = 0;
+            projected_element_count_   = 0;
             inserted_element_count_             = 0;
             random_seed_                        = 0;
             desired_false_positive_probability_ = 0.0;
@@ -15486,7 +15557,7 @@ namespace strtk
             bool result = reader(salt_count_)                         &&
                           reader(table_size_)                         &&
                           reader(raw_table_size_)                     &&
-                          reader(predicted_inserted_element_count_)   &&
+                          reader(projected_element_count_)   &&
                           reader(inserted_element_count_)             &&
                           reader(random_seed_)                        &&
                           reader(desired_false_positive_probability_) &&
@@ -15586,40 +15657,6 @@ namespace strtk
             }
          }
 
-         void find_optimal_parameters()
-         {
-            /*
-              Note:
-              The following will attempt to find the number of hash functions
-              and minimum amount of storage bits required to construct a bloom
-              filter consistent with the user defined false positive probability
-              and estimated element insertion count.
-            */
-
-            double min_m = std::numeric_limits<double>::infinity();
-            double min_k = 0.0;
-            double curr_m = 0.0;
-            double k = 1.0;
-
-            while (k < 1000.0)
-            {
-               double numerator   = (- k * predicted_inserted_element_count_);
-               double denominator = std::log(1.0 - std::pow(desired_false_positive_probability_, 1.0 / k));
-               curr_m = numerator / denominator;
-
-               if (curr_m < min_m)
-               {
-                  min_m = curr_m;
-                  min_k = k;
-               }
-               k += 1.0;
-            }
-
-            salt_count_ = static_cast<std::size_t>(min_k);
-            table_size_ = static_cast<std::size_t>(min_m);
-            table_size_ += (((table_size_ % bits_per_char) != 0) ? (bits_per_char - (table_size_ % bits_per_char)) : 0);
-         }
-
          inline bloom_type hash_ap(const unsigned char* begin, std::size_t remaining_length, bloom_type hash) const
          {
             const unsigned char* itr = begin;
@@ -15666,7 +15703,7 @@ namespace strtk
          unsigned int            salt_count_;
          unsigned long long int  table_size_;
          unsigned long long int  raw_table_size_;
-         unsigned int            predicted_inserted_element_count_;
+         unsigned int            projected_element_count_;
          unsigned int            inserted_element_count_;
          unsigned int            random_seed_;
          double                  desired_false_positive_probability_;
@@ -15697,10 +15734,8 @@ namespace strtk
       {
       public:
 
-         compressible_filter(const std::size_t& predicted_element_count,
-                             const double& false_positive_probability,
-                             const std::size_t& random_seed)
-         : filter(predicted_element_count,false_positive_probability,random_seed)
+         compressible_filter(const parameters& p)
+         : filter(p)
          {
             size_list.push_back(table_size_);
          }
