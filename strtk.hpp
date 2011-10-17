@@ -241,6 +241,7 @@ namespace strtk
       struct stdstring_range_type_tag {};
       struct value_type_tag {};
       struct sink_type_tag {};
+      struct attribute_type_tag {};
 
       template<typename T>
       struct supported_conversion_to_type
@@ -678,7 +679,6 @@ namespace strtk
             return itr;
          *(out++) = *(itr++);
       }
-
       return end;
    }
 
@@ -11040,7 +11040,7 @@ namespace strtk
                const size_type size = static_cast<size_type>(s->size());
                if (!w(size))
                   return false;
-               if (!w(s->data(),size))
+               if (!w(s->data(),size, false))
                   return false;
                return true;
             }
@@ -11719,7 +11719,6 @@ namespace strtk
          if (static_cast<unsigned int>(std::distance(itr,end)) < n)
             return typename range_type<Iterator>::type(end,end);
          std::size_t count = n;
-
          while (end != itr)
          {
             if (p(*itr))
@@ -11746,7 +11745,6 @@ namespace strtk
                }
             }
          }
-
          return typename range_type<Iterator>::type(end,end);
       }
 
@@ -11773,13 +11771,11 @@ namespace strtk
                   std::advance(itr,-static_cast<int>(count));
                   return typename range_type<Iterator>::type(itr,itr + count);
                }
-
                while ((end != itr) && !p(*itr))
                   ++itr;
                count = 0;
             }
          }
-
          if (count >= n)
          {
             std::advance(itr,-static_cast<int>(count));
@@ -12499,7 +12495,6 @@ namespace strtk
       template<> struct supported_conversion_to_type<sink_type<std::priority_queue<T> > > { typedef sink_type_tag type; };\
 
       template<> struct supported_conversion_to_type<ignore_token>{ typedef ignore_token_type_tag type; };
-
 
       #define strtk_register_sequence_iterator_type(sequence)\
       strtk_register_supported_iterator_type(sequence<char>::iterator)\
@@ -16003,6 +15998,17 @@ namespace strtk
             return *this;
          }
 
+         inline bool operator==(const T& t)
+         {
+            return initialised_ && (t_ == t);
+         }
+
+         template<typename TConvertibleType>
+         inline bool operator!=(const TConvertibleType& t)
+         {
+            return !(operator==(t));
+         }
+
          inline T& operator()()
          {
             return t_;
@@ -16014,6 +16020,11 @@ namespace strtk
          }
 
          inline operator T() const
+         {
+            return t_;
+         }
+
+         inline operator T()
          {
             return t_;
          }
@@ -16030,7 +16041,7 @@ namespace strtk
 
          inline bool changed() const
          {
-            return (t_ != prev_t_);
+            return (initialised_ && (t_ != prev_t_));
          }
 
          inline const T& value() const
@@ -16067,6 +16078,72 @@ namespace strtk
 
       };
 
+      inline bool operator==(const char* s, const attribute<std::string>& attrib)
+      {
+         return attrib.value() == s;
+      }
+
+      inline bool operator!=(const char* s, const attribute<std::string>& attrib)
+      {
+         return !(s == attrib.value());
+      }
+
+      template<typename T>
+      static inline std::ostream& operator<<(std::ostream& os, const attribute<T>& attrib)
+      {
+         return (os << attrib.value());
+      }
+
+   } // namespace utils
+
+   namespace details
+   {
+      #define strtk_register_attribute_type_tag(T)\
+      template<> struct supported_conversion_to_type< strtk::util::attribute<T> >{ typedef attribute_type_tag type; };\
+      template<> struct supported_conversion_from_type< strtk::util::attribute<T> > { typedef attribute_type_tag type; };
+
+      strtk_register_attribute_type_tag(unsigned short)
+      strtk_register_attribute_type_tag(unsigned int)
+      strtk_register_attribute_type_tag(unsigned long)
+      strtk_register_attribute_type_tag(unsigned long long int)
+      strtk_register_attribute_type_tag(short)
+      strtk_register_attribute_type_tag(int)
+      strtk_register_attribute_type_tag(long)
+      strtk_register_attribute_type_tag(long long)
+      strtk_register_attribute_type_tag(float)
+      strtk_register_attribute_type_tag(double)
+      strtk_register_attribute_type_tag(long double)
+      strtk_register_attribute_type_tag(unsigned char)
+      strtk_register_attribute_type_tag(signed char)
+      strtk_register_attribute_type_tag(char)
+      strtk_register_attribute_type_tag(std::string)
+
+      template<typename Iterator, typename T>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, strtk::util::attribute<T>& result, attribute_type_tag)
+      {
+         if (strtk::string_to_type_converter(itr,end,result.value()))
+         {
+            result.initialised() = true;
+            return true;
+         }
+         else
+            return false;
+      }
+
+      template<typename T>
+      inline bool type_to_string_converter_impl(const strtk::util::attribute<T>& attrib, std::string& result, attribute_type_tag)
+      {
+         if (!attrib.initialised())
+            return false;
+         return strtk::type_to_string(attrib.value(),result);
+      }
+
+      #undef strtk_register_attribute_type_tag
+
+   } // namespace details
+
+   namespace util
+   {
       class value
       {
       private:
@@ -16108,6 +16185,11 @@ namespace strtk
             inline virtual bool operator()(itr_type begin, itr_type end) const
             {
                return strtk::string_to_type_converter(begin,end,(*value_ptr_));
+            }
+
+            inline operator T() const
+            {
+               return (*value_ptr_);
             }
 
          private:
@@ -16823,8 +16905,10 @@ namespace strtk
             static inline unsigned int transform(const Range& key_range)
             {
                unsigned int result = 0;
-               strtk::fast::numeric_convert(std::distance(key_range.first,key_range.second),key_range.first,result,true);
-               return result;
+               if (strtk::fast::numeric_convert(std::distance(key_range.first,key_range.second),key_range.first,result,true))
+                  return result;
+               else
+                  return std::numeric_limits<unsigned int>::max();
             }
          };
       }
@@ -17058,7 +17142,7 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.7182818284590452353602874713526624977";
+      static const char* version = "2.71828182845904523536028747135266249775724";
       static const char* date    = "20111111";
 
       static inline std::string data()
