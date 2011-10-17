@@ -37,10 +37,10 @@
 
                 In the second example a data object named complex_data is used which
                 contains six members of various types, three of which are STL sequences.
-                Twelve sequences of key-value pairs representing POD data and sequences
-                of values. Parsing of the sequences are carried out, upon a successful
-                parse operation the members of the complex_data instance is printed to
-                stdout.
+                There are twelve whole sequences of key-value pairs representing POD 
+                data and sequences of values. Parsing of the sequences are carried out, 
+                upon a successful parse operation the members of the complex_data instance 
+                are printed to stdout.
 
 */
 

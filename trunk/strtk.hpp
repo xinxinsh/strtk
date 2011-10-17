@@ -10711,21 +10711,21 @@ namespace strtk
          }
 
          template<typename T>
-         inline bool operator()(const T* data, const uint64_t& length)
+         inline bool operator()(const T* data, const uint64_t& length, const bool write_length = true)
          {
-            return operator()(data,static_cast<uint32_t>(length),false);
+            return operator()(data,static_cast<uint32_t>(length),write_length);
          }
 
          template<typename T>
-         inline bool operator()(const T* data, const uint16_t& length)
+         inline bool operator()(const T* data, const uint16_t& length, const bool write_length = true)
          {
-            return operator()(data,static_cast<uint32_t>(length),false);
+            return operator()(data,static_cast<uint32_t>(length),write_length);
          }
 
          template<typename T>
-         inline bool operator()(const T* data, const uint8_t& length)
+         inline bool operator()(const T* data, const uint8_t& length, const bool write_length = true)
          {
-            return operator()(data,static_cast<uint32_t>(length),false);
+            return operator()(data,static_cast<uint32_t>(length),write_length);
          }
 
          template<typename T1, typename T2>
@@ -10740,7 +10740,7 @@ namespace strtk
 
          inline bool operator()(const std::string& input)
          {
-            return operator()(input.data(),input.size());
+            return operator()<const char>(input.data(),static_cast<uint32_t>(input.size()));
          }
 
          template<typename T,
@@ -10861,7 +10861,7 @@ namespace strtk
                   else
                      s = std::string(size - s.size(),padding) + s;
                }
-               return operator()<const char>(s.data(),size,false);
+               return operator()<const char>(s.data(),static_cast<uint32_t>(size),false);
             }
             else
                return false;
@@ -15261,7 +15261,7 @@ namespace strtk
          : bit_table_(0),
            projected_element_count_(p.projected_element_count),
            inserted_element_count_(0),
-           random_seed_((p.random_seed) ? p.random_seed : 0xA5A5A5A5),
+           random_seed_((p.random_seed * 0xA5A5A5A5) + 1),
            desired_false_positive_probability_(p.false_positive_probability)
          {
             salt_count_ = p.optimal_parameters.number_of_hashes;
@@ -15538,7 +15538,7 @@ namespace strtk
             bool result = writer(salt_count_)                         &&
                           writer(table_size_)                         &&
                           writer(raw_table_size_)                     &&
-                          writer(projected_element_count_)   &&
+                          writer(projected_element_count_)            &&
                           writer(inserted_element_count_)             &&
                           writer(random_seed_)                        &&
                           writer(desired_false_positive_probability_) &&
@@ -15561,7 +15561,7 @@ namespace strtk
             salt_count_                         = 0;
             table_size_                         = 0;
             raw_table_size_                     = 0;
-            projected_element_count_   = 0;
+            projected_element_count_            = 0;
             inserted_element_count_             = 0;
             random_seed_                        = 0;
             desired_false_positive_probability_ = 0.0;
@@ -15578,7 +15578,7 @@ namespace strtk
             bool result = reader(salt_count_)                         &&
                           reader(table_size_)                         &&
                           reader(raw_table_size_)                     &&
-                          reader(projected_element_count_)   &&
+                          reader(projected_element_count_)            &&
                           reader(inserted_element_count_)             &&
                           reader(random_seed_)                        &&
                           reader(desired_false_positive_probability_) &&
