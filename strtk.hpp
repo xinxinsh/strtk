@@ -15218,7 +15218,7 @@ namespace strtk
 
             optimal_parameters_t& optp = optimal_parameters;
 
-            optp.number_of_hashes = static_cast<std::size_t>(min_k);
+            optp.number_of_hashes = static_cast<unsigned int>(min_k);
             optp.table_size = static_cast<unsigned long long int>(min_m);
             optp.table_size += (((optp.table_size % bits_per_char) != 0) ? (bits_per_char - (optp.table_size % bits_per_char)) : 0);
 
@@ -16781,7 +16781,11 @@ namespace strtk
          {
             if (key < value_lut_.size())
             {
-               value_lut_[key] = strtk::util::value(t);
+               strtk::util::value& v = value_lut_[key];
+               if (!v)
+                  v = strtk::util::value(t);
+               else
+                  v.assign(t);
                return true;
             }
             else
@@ -16856,7 +16860,11 @@ namespace strtk
          template<typename T>
          inline bool register_keyvalue(const key_type& key, T& t)
          {
-            value_map_[key] = strtk::util::value(t);
+            strtk::util::value& v = value_map_[key];
+            if (!v)
+               v = strtk::util::value(t);
+            else
+               v.assign(t);
             return true;
          }
 
