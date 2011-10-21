@@ -2645,6 +2645,60 @@ namespace strtk
       return token_count;
    }
 
+   template<typename DelimiterPredicate,
+            typename Iterator,
+            typename OutputIterator>
+   inline std::size_t split(const DelimiterPredicate& delimiter,
+                            const std::pair<Iterator,Iterator>& range,
+                            OutputIterator out,
+                            const split_options::type split_option = split_options::default_mode)
+   {
+      return split(delimiter,
+                   range.first,range.second,
+                   out,
+                   split_option);
+   }
+
+   template<typename DelimiterPredicate,
+            typename Iterator,
+            typename OutputIterator>
+   inline std::size_t split(const char* delimiters,
+                            const std::pair<Iterator,Iterator>& range,
+                            OutputIterator out,
+                            const split_options::type split_option = split_options::default_mode)
+   {
+      if (1 == details::strnlen(delimiters,256))
+         return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                      range.first,range.second,
+                      out,
+                      split_option);
+      else
+         return split(multiple_char_delimiter_predicate(delimiters),
+                      range.first,range.second,
+                      out,
+                      split_option);
+   }
+
+   template<typename DelimiterPredicate,
+            typename Iterator,
+            typename OutputIterator>
+   inline std::size_t split(const std::string& delimiters,
+                            const std::pair<Iterator,Iterator>& range,
+                            OutputIterator out,
+                            const split_options::type split_option = split_options::default_mode)
+   {
+      if (1 == delimiters.size())
+         return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                      range.first,range.second,
+                      out,
+                      split_option);
+      else
+         return split(multiple_char_delimiter_predicate(delimiters),
+                      range.first,range.second,
+                      out,
+                      split_option);
+   }
+
    template<typename OutputIterator>
    inline std::size_t split(const char* delimiters,
                             const std::string& str,
@@ -6963,6 +7017,129 @@ namespace strtk
       else
          return split_n(multiple_char_delimiter_predicate(delimiters),
                         begin,end,
+                        n,
+                        range_to_type_push_inserter(priority_queue),
+                        split_option);
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline std::size_t parse_n(const std::pair<InputIterator,InputIterator>& range,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              Sequence<T,Allocator>& sequence,
+                              const split_options::type& split_option = split_options::compress_delimiters)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        range.first,range.second,
+                        n,
+                        range_to_type_back_inserter(sequence),
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        range.first,range.second,
+                        n,
+                        range_to_type_back_inserter(sequence),
+                        split_option);
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Comparator,
+             typename Allocator>
+   inline std::size_t parse_n(const std::pair<InputIterator,InputIterator>& range,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              std::set<T,Comparator,Allocator>& set,
+                              const split_options::type& split_option = split_options::compress_delimiters)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        range.first,range.second,
+                        n,
+                        range_to_type_inserter(set),
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        range.first,range.second,
+                        n,
+                        range_to_type_inserter(set),
+                        split_option);
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Container>
+   inline std::size_t parse_n(const std::pair<InputIterator,InputIterator>& range,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              std::queue<T,Container>& queue,
+                              const split_options::type& split_option = split_options::compress_delimiters)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        range.first,range.second,
+                        n,
+                        range_to_type_push_inserter(queue),
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        range.first,range.second,
+                        n,
+                        range_to_type_push_inserter(queue),
+                        split_option);
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Container>
+   inline std::size_t parse_n(const std::pair<InputIterator,InputIterator>& range,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              std::stack<T,Container>& stack,
+                              const split_options::type& split_option = split_options::compress_delimiters)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        range.first,range.second,
+                        n,
+                        range_to_type_push_inserter(stack),
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        range.first,range.second,
+                        n,
+                        range_to_type_push_inserter(stack),
+                        split_option);
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Container,
+             typename Comparator>
+   inline std::size_t parse_n(const std::pair<InputIterator,InputIterator>& range,
+                              const std::string& delimiters,
+                              const std::size_t& n,
+                              std::priority_queue<T,Container,Comparator>& priority_queue,
+                              const split_options::type& split_option = split_options::compress_delimiters)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (1 == delimiters.size())
+         return split_n(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                        range.first,range.second,
+                        n,
+                        range_to_type_push_inserter(priority_queue),
+                        split_option);
+      else
+         return split_n(multiple_char_delimiter_predicate(delimiters),
+                        range.first,range.second,
                         n,
                         range_to_type_push_inserter(priority_queue),
                         split_option);
