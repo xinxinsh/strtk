@@ -1727,6 +1727,64 @@ namespace strtk
       return ifind_all(pattern,data,std::back_inserter(seq));
    }
 
+   template<typename InputIterator>
+   inline bool begins_with(const InputIterator pattern_begin,
+                           const InputIterator pattern_end,
+                           const InputIterator begin,
+                           const InputIterator end)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (std::distance(pattern_begin,pattern_end) <= std::distance(begin,end))
+      {
+         return std::equal(pattern_begin,pattern_end,begin);
+      }
+      else
+         return false;
+   }
+
+   inline bool begins_with(const std::string& pattern, const std::string& data)
+   {
+      if (pattern.size() <= data.size())
+      {
+         return begins_with(pattern.data(),
+                            pattern.data() + pattern.size(),
+                            data.data(),
+                            data.data() + data.size());
+      }
+      else
+         return false;
+   }
+
+   template<typename InputIterator>
+   inline bool ends_with(const InputIterator pattern_begin,
+                         const InputIterator pattern_end,
+                         const InputIterator begin,
+                         const InputIterator end)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      const std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
+      const std::size_t data_length = std::distance(begin,end);
+      if (pattern_length <= data_length)
+      {
+         return std::equal(pattern_begin,pattern_end, begin + (data_length - pattern_length));
+      }
+      else
+         return false;
+   }
+
+   inline bool ends_with(const std::string& pattern, const std::string& data)
+   {
+      if (pattern.size() <= data.size())
+      {
+         return ends_with(pattern.data(),
+                          pattern.data() + pattern.size(),
+                          data.data(),
+                          data.data() + data.size());
+      }
+      else
+         return false;
+   }
+
    namespace tokenize_options
    {
       typedef std::size_t type;
@@ -8886,7 +8944,7 @@ namespace strtk
          strtk::iota(table_, table_ + 256, 0);
          for (std::size_t i = 0; i < itable.size(); ++i)
          {
-            table_[static_cast<unsigned int>(itable[i])] = otable[i];
+            table_[static_cast<unsigned int>(itable[i])] = static_cast<unsigned char>(otable[i]);
          }
       }
 
@@ -8901,7 +8959,7 @@ namespace strtk
       }
 
    private:
-      int table_[256];
+      unsigned char table_[256];
    };
 
    inline std::string translate(const translation_table& trans_table, const std::string& s)
@@ -15218,6 +15276,139 @@ namespace strtk
       return data + (set.size() * sizeof(T));
    }
 
+   class string_condition
+   {
+   private:
+
+      typedef const unsigned char* itr_type;
+
+      inline bool condition_equal(const itr_type begin, const itr_type end) const
+      {
+         if (s.size() == static_cast<std::size_t>(std::distance(begin,end)))
+         {
+            return std::equal(s_begin,s_end,begin);
+         }
+         else
+            return false;
+      }
+
+      inline bool condition_notequal(const itr_type begin,const itr_type end) const
+      {
+         if (s.size() == static_cast<std::size_t>(std::distance(begin,end)))
+         {
+            return !std::equal(s_begin,s_end,begin);
+         }
+         else
+            return true;
+      }
+
+      inline bool condition_like(const itr_type begin, const itr_type end) const
+      {
+         return match(s_begin,s_end,begin,end,(unsigned char)'*',(unsigned char)'?');
+      }
+
+      inline bool condition_begins_with(const itr_type begin, const itr_type end) const
+      {
+         if (s.size() == static_cast<std::size_t>(std::distance(begin,end)))
+         {
+            return strtk::begins_with(s_begin,s_end,begin,end);
+         }
+         else
+            return false;
+      }
+
+      inline bool condition_ends_with(const itr_type begin, const itr_type end) const
+      {
+         if (s.size() == static_cast<std::size_t>(std::distance(begin,end)))
+         {
+            return strtk::ends_with(s_begin,s_end,begin,end);
+         }
+         else
+            return false;
+      }
+
+      inline bool condition_within(const itr_type begin, const itr_type end) const
+      {
+         if (s.size() <= static_cast<std::size_t>(std::distance(begin,end)))
+         {
+            return std::search(begin,end,s_begin,s_end);
+         }
+         else
+            return false;
+      }
+
+      inline bool condition_notwithin(const itr_type begin, const itr_type end) const
+      {
+         if (s.size() <= static_cast<std::size_t>(std::distance(begin,end)))
+         {
+            return !std::search(begin,end,s_begin,s_end);
+         }
+         else
+            return true;
+      }
+
+      typedef bool (string_condition::*condition_method)(const itr_type begin, const itr_type end) const;
+
+   public:
+
+      enum condition_type
+      {
+         equal       =  0,
+         notequal    =  1,
+         like        =  2,
+         begins_with =  4,
+         ends_with   =  8,
+         within      = 16,
+         notwithin   = 32
+      };
+
+      inline explicit string_condition(condition_type cond_type, const std::string& str)
+      : cond_type_(cond_type),
+        s(str),
+        s_begin(reinterpret_cast<const unsigned char*>(s.data())),
+        s_end(reinterpret_cast<const unsigned char*>(s.data() + str.size())),
+        condition_method_(0)
+      {
+         switch(cond_type)
+         {
+            case equal       : condition_method_ = &string_condition::condition_equal;
+                                                   break;
+            case notequal    : condition_method_ = &string_condition::condition_notequal;
+                                                   break;
+            case like        : condition_method_ = &string_condition::condition_like;
+                                                   break;
+            case begins_with : condition_method_ = &string_condition::condition_begins_with;
+                                                   break;
+            case ends_with   : condition_method_ = &string_condition::condition_ends_with;
+                                                   break;
+            case within      : condition_method_ = &string_condition::condition_within;
+                                                   break;
+            case notwithin   : condition_method_ = &string_condition::condition_notwithin;
+                                                   break;
+         }
+      }
+
+      template<typename Iterator>
+      bool operator()(const Iterator begin, const Iterator end)
+      {
+         return ((*this).*condition_method_)(begin,end);
+      }
+
+      bool operator()(const std::string str)
+      {
+         return operator()(reinterpret_cast<const unsigned char*>(str.data()),
+                           reinterpret_cast<const unsigned char*>(str.data() + str.size()));
+      }
+
+   private:
+
+      condition_type cond_type_;
+      std::string s;
+      const unsigned char* s_begin;
+      const unsigned char* s_end;
+      condition_method condition_method_;
+   };
+
    namespace trie
    {
       template<typename KeyIterator, typename ValueType>
@@ -15676,7 +15867,7 @@ namespace strtk
                   (salt_count_                         == f.salt_count_)                         &&
                   (table_size_                         == f.table_size_)                         &&
                   (raw_table_size_                     == f.raw_table_size_)                     &&
-                  (projected_element_count_   == f.projected_element_count_)   &&
+                  (projected_element_count_            == f.projected_element_count_)            &&
                   (inserted_element_count_             == f.inserted_element_count_)             &&
                   (random_seed_                        == f.random_seed_)                        &&
                   (desired_false_positive_probability_ == f.desired_false_positive_probability_) &&
