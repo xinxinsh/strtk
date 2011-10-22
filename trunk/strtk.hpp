@@ -15394,7 +15394,7 @@ namespace strtk
          return ((*this).*condition_method_)(begin,end);
       }
 
-      bool operator()(const std::string str)
+      bool operator()(const std::string& str)
       {
          return operator()(reinterpret_cast<const unsigned char*>(str.data()),
                            reinterpret_cast<const unsigned char*>(str.data() + str.size()));
