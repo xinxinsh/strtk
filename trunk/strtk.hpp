@@ -8941,7 +8941,7 @@ namespace strtk
          {
             throw;
          }
-         strtk::iota(table_, table_ + 256, 0);
+         strtk::iota(table_, table_ + 256, static_cast<unsigned char>(0));
          for (std::size_t i = 0; i < itable.size(); ++i)
          {
             table_[static_cast<unsigned int>(itable[i])] = static_cast<unsigned char>(otable[i]);
@@ -15331,7 +15331,7 @@ namespace strtk
       {
          if (s.size() <= static_cast<std::size_t>(std::distance(begin,end)))
          {
-            return std::search(begin,end,s_begin,s_end);
+            return (end != std::search(begin,end,s_begin,s_end));
          }
          else
             return false;
@@ -15341,7 +15341,7 @@ namespace strtk
       {
          if (s.size() <= static_cast<std::size_t>(std::distance(begin,end)))
          {
-            return !std::search(begin,end,s_begin,s_end);
+            return (end == std::search(begin,end,s_begin,s_end));
          }
          else
             return true;
