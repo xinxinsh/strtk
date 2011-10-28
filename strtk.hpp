@@ -809,7 +809,7 @@ namespace strtk
 
       multiple_delimiter_predicate(const T* d_begin, const T* d_end)
       : length_(std::distance(d_begin,d_end)),
-        delimiter_(new T[length_]),
+        delimiter_((length_ <= sbo_buffer_size) ? sbo_buffer : new T[length_]),
         delimiter_end_(delimiter_ + length_)
       {
          std::copy(d_begin,d_end, delimiter_);
@@ -826,7 +826,7 @@ namespace strtk
       template<typename Iterator>
       multiple_delimiter_predicate(const Iterator begin, const Iterator end)
       : length_(std::distance(begin,end)),
-        delimiter_(new T[length_]),
+        delimiter_((length_ <= sbo_buffer_size) ? sbo_buffer : new T[length_]),
         delimiter_end_(delimiter_ + length_)
       {
          //static_assert(T == std::iterator_traits<Iterator>::value_type);
@@ -836,7 +836,7 @@ namespace strtk
       template<typename Type>
       multiple_delimiter_predicate(const range::adapter<Type>& r)
       : length_(std::distance(r.begin(),r.end())),
-        delimiter_(new T[length_]),
+        delimiter_((length_ <= sbo_buffer_size) ? sbo_buffer : new T[length_]),
         delimiter_end_(delimiter_ + length_)
       {
          //static_assert(T == std::iterator_traits<Iterator>::value_type);
@@ -845,7 +845,10 @@ namespace strtk
 
      ~multiple_delimiter_predicate()
       {
-        delete[] delimiter_;
+         if (length_ > sbo_buffer_size)
+         {
+            delete[] delimiter_;
+         }
       }
 
       inline bool operator()(const T& d) const
@@ -861,6 +864,8 @@ namespace strtk
       std::size_t length_;
       T* delimiter_;
       T* delimiter_end_;
+      enum { sbo_buffer_size = 32 };
+      T sbo_buffer[sbo_buffer_size]; 
    };
 
    struct multiple_char_delimiter_predicate
@@ -13269,7 +13274,7 @@ namespace strtk
                interim_length -= 2;
             }
 
-            while (interim_end != itr)
+            if (interim_end != itr)
             {
                digit[0] = static_cast<unsigned int>(*itr - '0');
                if (digit[0] >= 10) return false;
