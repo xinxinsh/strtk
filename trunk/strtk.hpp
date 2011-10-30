@@ -865,7 +865,7 @@ namespace strtk
       T* delimiter_;
       T* delimiter_end_;
       enum { sbo_buffer_size = 32 };
-      T sbo_buffer[sbo_buffer_size]; 
+      T sbo_buffer[sbo_buffer_size];
    };
 
    struct multiple_char_delimiter_predicate
