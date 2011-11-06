@@ -279,7 +279,7 @@ namespace strtk
       struct no_t  {};
       struct yes_t {};
 
-      template <typename T> 
+      template <typename T>
       struct is_pod
       {
          typedef no_t result_t;
@@ -771,8 +771,8 @@ namespace strtk
       }
 
       template <typename T,
-               typename Allocator,
-               template <typename,typename> class Sequence>
+                typename Allocator,
+                template <typename,typename> class Sequence>
       inline adapter<typename Sequence<T,Allocator>::iterator> type(const Sequence<T,Allocator>& seq)
       {
          return adapter<typename Sequence<T,Allocator>::iterator>(seq.begin(),seq.end());
@@ -2996,7 +2996,7 @@ namespace strtk
    }
 
    template <typename DelimiterPredicate,
-            typename OutputIterator>
+             typename OutputIterator>
    inline std::size_t split_n(const DelimiterPredicate& delimiter,
                               const std::string& str,
                               const std::size_t& token_count,
@@ -4994,8 +4994,8 @@ namespace strtk
          }
 
          template <typename T,
-                  typename Comparator,
-                  typename Allocator>
+                   typename Comparator,
+                   typename Allocator>
          inline bool parse(std::set<T,Comparator,Allocator>& set) const
          {
             return parse(range(0),set);
@@ -5014,8 +5014,8 @@ namespace strtk
          }
 
          template <typename T,
-                  typename Container,
-                  typename Comparator>
+                   typename Container,
+                   typename Comparator>
          inline bool parse(std::priority_queue<T,Container,Comparator>& priority_queue) const
          {
             return parse(range(0),priority_queue);
@@ -7296,8 +7296,8 @@ namespace strtk
                    t1,t2,t3,t4,t5,t6,t7);
    }
 
-   template  <typename T1, typename T2, typename T3, typename T4,
-            typename T5, typename T6>
+   template <typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6>
    inline bool parse(const std::string& data,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
@@ -8873,8 +8873,8 @@ namespace strtk
    }
 
    template <typename T,
-            typename Comparator,
-            typename Allocator>
+             typename Comparator,
+             typename Allocator>
    inline void iota(std::set<T,Comparator,Allocator>& set, const T& value)
    {
       strtk::iota(set.begin(),set.end(),value);
@@ -14601,8 +14601,8 @@ namespace strtk
       }
 
       template <typename T,
-               typename Allocator,
-               template <typename,typename> class Sequence>
+                typename Allocator,
+                template <typename,typename> class Sequence>
       inline bool read_pod(std::ifstream& stream,
                            const std::size_t& count,
                            Sequence<T,Allocator>& sequence)
