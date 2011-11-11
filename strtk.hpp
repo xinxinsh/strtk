@@ -7478,8 +7478,7 @@ namespace strtk
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             Sequence<T,Allocator>& sequence,
                             const bool break_on_fail = true)
    {
@@ -7501,158 +7500,140 @@ namespace strtk
    template <typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8,
              typename T9>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2, T3& t3, T4& t4,
                             T5& t5, T6& t6, T7& t7, T8& t8,
                             T9& t9)
 
    {
-      static const std::size_t param_count = 9;
-      if (param_count != argc) return 0;
+      if (9 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[3]),t3)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[4]),t4)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[5]),t5)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[6]),t6)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[7]),t7)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[8]),t8)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[9]),t9)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[2]),t3)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[3]),t4)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[4]),t5)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[5]),t6)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[6]),t7)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[7]),t8)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[8]),t9)) return result; ++result;
       return result;
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2, T3& t3, T4& t4,
                             T5& t5, T6& t6, T7& t7, T8& t8)
 
    {
-      static const std::size_t param_count = 8;
-      if (param_count != argc) return 0;
+      if (8 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[3]),t3)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[4]),t4)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[5]),t5)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[6]),t6)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[7]),t7)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[8]),t8)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[2]),t3)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[3]),t4)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[4]),t5)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[5]),t6)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[6]),t7)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[7]),t8)) return result; ++result;
       return result;
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2, T3& t3, T4& t4,
                             T5& t5, T6& t6, T7& t7)
 
    {
-      static const std::size_t param_count = 7;
-      if (param_count != argc) return 0;
+      if (7 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[3]),t3)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[4]),t4)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[5]),t5)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[6]),t6)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[7]),t7)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[2]),t3)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[3]),t4)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[4]),t5)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[5]),t6)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[6]),t7)) return result; ++result;
       return result;
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2, T3& t3, T4& t4,
                             T5& t5, T6& t6)
 
    {
-      static const std::size_t param_count = 6;
-      if (param_count != argc) return 0;
+      if (6 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[3]),t3)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[4]),t4)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[5]),t5)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[6]),t6)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[2]),t3)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[3]),t4)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[4]),t5)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[5]),t6)) return result; ++result;
       return result;
    }
 
    template <typename T1, typename T2, typename T3, typename T4, typename T5>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
    {
-      static const std::size_t param_count = 5;
-      if (param_count != argc) return 0;
+      if (5 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[3]),t3)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[4]),t4)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[5]),t5)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[2]),t3)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[3]),t4)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[4]),t5)) return result; ++result;
       return result;
    }
 
    template <typename T1, typename T2, typename T3, typename T4>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2, T3& t3, T4& t4)
    {
-      static const std::size_t param_count = 4;
-      if (param_count != argc) return 0;
+      if (4 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[3]),t3)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[4]),t4)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[2]),t3)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[3]),t4)) return result; ++result;
       return result;
    }
 
    template <typename T1, typename T2, typename T3>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2, T3& t3)
    {
-      static const std::size_t param_count = 3;
-      if (param_count != argc) return 0;
+      if (3 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[3]),t3)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[2]),t3)) return result; ++result;
       return result;
    }
 
-   template <typename T1, typename T2, typename T3>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   template <typename T1, typename T2>
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1, T2& t2)
    {
-      static const std::size_t param_count = 2;
-      if (param_count != argc) return 0;
+      if (2 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
-      if (!string_to_type_converter(std::string(argv[2]),t2)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[1]),t2)) return result; ++result;
       return result;
    }
 
-   template <typename T1, typename T2, typename T3>
-   inline std::size_t parse(int argc,
-                            char* argv[],
+   template <typename T1>
+   inline std::size_t parse(const int& argc, char* argv[],
                             T1& t1)
    {
-      static const std::size_t param_count = 1;
-      if (param_count != argc) return 0;
+      if (1 != argc) return 0;
       std::size_t result = 0;
-      if (!string_to_type_converter(std::string(argv[1]),t1)) return result; ++result;
+      if (!string_to_type_converter(std::string(argv[0]),t1)) return result; ++result;
       return result;
    }
 
@@ -15829,7 +15810,7 @@ namespace strtk
 
             while (k < 1000.0)
             {
-               double numerator   = (- k * projected_element_count);
+               double numerator   = -k * projected_element_count;
                double denominator = std::log(1.0 - std::pow(false_positive_probability, 1.0 / k));
                curr_m = numerator / denominator;
                if (curr_m < min_m)
@@ -17243,6 +17224,73 @@ namespace strtk
 
 
    } // namespace util
+
+   namespace details
+   {
+      typedef const unsigned char* ptr;
+
+      template<typename T>
+      bool cmpimpl(ptr c1, ptr c2) { return (*reinterpret_cast<T>(c1)) == (*reinterpret_cast<T>(c2)); }
+
+      template<std::size_t K>
+      struct size_impl { static inline bool cmp(ptr,ptr) { return true; } };
+
+      template<>
+      struct size_impl<8> { static inline bool cmp(ptr c1, ptr c2) { return cmpimpl<const unsigned long long*>(c1,c2); } };
+
+      template<>
+      struct size_impl<4> { static inline bool cmp(ptr c1, ptr c2) { return cmpimpl<const unsigned int*>(c1,c2); } };
+
+      template<>
+      struct size_impl<2> { static inline bool cmp(ptr c1, ptr c2) { return cmpimpl<const unsigned short*>(c1,c2); } };
+
+      template<>
+      struct size_impl<1> { static inline bool cmp(ptr c1, ptr c2) { return cmpimpl<const unsigned char*>(c1,c2); } };
+
+      template<std::size_t X>
+      struct next_size { enum { size = (X >= 8) ? 8 : ((X >= 4) ? 4 : ((X >= 2) ? 2 : 1)) }; };
+
+      template<std::size_t N>
+      struct memcmp_n_impl
+      {
+         static inline bool process(details::ptr c1, details::ptr c2)
+         {
+            static const std::size_t size = details::next_size<N>::size;
+            return  details::size_impl<size>::cmp(c1,c2) && memcmp_n_impl<N - size>::process(c1 + size, c2 + size);
+         }
+
+         static inline bool process(const char* c1, const char* c2)
+         {
+            return memcmp_n_impl<N>::process(reinterpret_cast<details::ptr>(c1),reinterpret_cast<details::ptr>(c2));
+         }
+
+         template<std::size_t K1, std::size_t K2>
+         static inline bool process(const unsigned char (&c1)[K1], const unsigned char (&c2)[K2])
+         {
+            return memcmp_n_impl<N>::process(static_cast<ptr>(c1),static_cast<ptr>(c2));
+         }
+      };
+
+      template<> struct memcmp_n_impl<0> { static inline bool process(ptr,ptr) { return true; } };
+   }
+
+   template<std::size_t N>
+   inline bool memcmp_n(details::ptr c1, details::ptr c2)
+   {
+      return details::memcmp_n_impl<N>::process(c1,c2);
+   }
+
+   template<std::size_t N>
+   inline bool memcmp_n(const char* c1, const char* c2)
+   {
+      return details::memcmp_n_impl<N>::process(c1,c2);
+   }
+
+   template<std::size_t N,std::size_t K1, std::size_t K2>
+   inline bool memcmp_n(const unsigned char (&c1)[K1], const unsigned char (&c2)[K2])
+   {
+      return details::memcmp_n_impl<N>::process(c1,c2);
+   }
 
    namespace details
    {
