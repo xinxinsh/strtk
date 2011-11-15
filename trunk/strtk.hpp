@@ -13441,7 +13441,7 @@ namespace strtk
          const std::size_t length = std::distance(itr,end);
          if ((3 != length) && (inf_length != length))
             return false;
-         const char* inf_itr   = ('i' == (*itr)) ? inf_lc : inf_uc;
+         const char* inf_itr = ('i' == (*itr)) ? inf_lc : inf_uc;
          while (end != itr)
          {
             if (*inf_itr == static_cast<char>(*itr))
@@ -17866,8 +17866,10 @@ namespace strtk
                if (!in_use_)
                {
                   if (stop_time_.tv_sec >= start_time_.tv_sec)
+                  {
                      return 1000000 * (stop_time_.tv_sec  - start_time_.tv_sec ) +
                                       (stop_time_.tv_usec - start_time_.tv_usec);
+                  }
                   else
                      return std::numeric_limits<unsigned long long int>::max();
                }
