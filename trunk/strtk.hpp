@@ -6160,6 +6160,7 @@ namespace strtk
    struct filter_non_empty_range
    {
    public:
+
       filter_non_empty_range(OutputIterator out)
       : out_(out)
       {}
@@ -8958,6 +8959,7 @@ namespace strtk
    class translation_table
    {
    public:
+
       translation_table(const std::string& itable, const std::string& otable)
       {
          if (itable.size() != otable.size())
@@ -9435,6 +9437,7 @@ namespace strtk
       class bound_range
       {
       public:
+
          bound_range(Function f, Iterator first, Iterator last)
          : f_(f),
            first_(first),
@@ -9458,6 +9461,7 @@ namespace strtk
       class bound_range_conditional
       {
       public:
+
          bound_range_conditional(Function f, Iterator first, Iterator last)
          : f_(f),
            first_(first),
@@ -12027,6 +12031,7 @@ namespace strtk
    class sink_type
    {
    public:
+
       typedef typename Container::value_type value_type;
 
       inline sink_type(const std::string& delimiters,
@@ -17724,6 +17729,7 @@ namespace strtk
          typedef strtk::keyvalue::options<char_type> general_options;
 
       public:
+
          typedef unsigned int key_type;
 
          struct options : public general_options
