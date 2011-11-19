@@ -9313,65 +9313,193 @@ namespace strtk
       return true;
    }
 
-   template <typename Iterator, typename Function>
+   namespace details
+   {
+      /*
+         Credits:
+         (C) Copyright Howard Hinnant 2005-2011.
+         Use, modification and distribution are subject to the Boost Software License,
+         Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+         http://www.boost.org/LICENSE_1_0.txt).
+      */
+      template<typename Iterator>
+      static inline void rotate_discontinuous(Iterator first1, Iterator last1,
+                                              typename std::iterator_traits<Iterator>::difference_type d1,
+                                              Iterator first2, Iterator last2,
+                                              typename std::iterator_traits<Iterator>::difference_type d2)
+      {
+         using std::swap;
+         if (d1 <= d2)
+            std::rotate(first2, std::swap_ranges(first1, last1, first2), last2);
+         else
+         {
+            Iterator i1 = last1;
+            while (first2 != last2)
+            {
+               swap(*--i1,*--last2);
+            }
+            std::rotate(first1, i1, last1);
+         }
+      }
+
+      template<typename Iterator, class Function>
+      inline void combine_discontinuous(Iterator first1, Iterator last1, typename std::iterator_traits<Iterator>::difference_type d1,
+                                        Iterator first2, Iterator last2, typename std::iterator_traits<Iterator>::difference_type d2,
+                                        Function& f,
+                                        typename std::iterator_traits<Iterator>::difference_type d = 0)
+      {
+         typedef typename std::iterator_traits<Iterator>::difference_type D;
+         using std::swap;
+         if ((0 == d1) || (0 == d2))
+            return f();
+         if (1 == d1)
+         {
+            Iterator i2 = first2;
+            while (i2 != last2)
+            {
+               f();
+               swap(*first1, *i2);
+               ++i2;
+            }
+         }
+         else
+         {
+            Iterator f1p = first1;
+            std::advance(f1p,1);
+            Iterator i2 = first2;
+            D d22 = d2;
+            while (i2 != last2)
+            {
+               combine_discontinuous(f1p, last1, d1 - 1, i2, last2, d22, f, d + 1);
+               swap(*first1, *i2);
+               ++i2;
+               --d22;
+            }
+         }
+         f();
+         if (0 != d)
+         {
+            Iterator f2p = first2;
+            std::advance(f2p,1);
+            rotate_discontinuous(first1, last1, d1, f2p, last2, d2 - 1);
+         }
+         else
+            rotate_discontinuous(first1, last1, d1, first2, last2, d2);
+      }
+
+      template<typename Iterator, class Function>
+      inline bool combine_discontinuous_conditional(Iterator first1, Iterator last1, typename std::iterator_traits<Iterator>::difference_type d1,
+                                                    Iterator first2, Iterator last2, typename std::iterator_traits<Iterator>::difference_type d2,
+                                                    Function& f,
+                                                    typename std::iterator_traits<Iterator>::difference_type d = 0)
+      {
+         typedef typename std::iterator_traits<Iterator>::difference_type D;
+         using std::swap;
+         if (d1 == 0 || d2 == 0)
+            return f();
+         if (d1 == 1)
+         {
+            for (Iterator i2 = first2; i2 != last2; ++i2)
+            {
+               if (!f())
+                  return false;
+               swap(*first1, *i2);
+            }
+         }
+         else
+         {
+            Iterator f1p = std::next(first1);
+            Iterator i2 = first2;
+            for (D d22 = d2; i2 != last2; ++i2, --d22)
+            {
+               if (!combine_discontinuous_conditional(f1p, last1, d1-1, i2, last2, d22, f, d+1))
+                  return false;
+               swap(*first1, *i2);
+            }
+         }
+         if (!f())
+            return false;
+         if (d != 0)
+            rotate_discontinuous(first1, last1, d1, std::next(first2), last2, d2-1);
+         else
+            rotate_discontinuous(first1, last1, d1, first2, last2, d2);
+         return true;
+      }
+
+      template<class Function, typename Iterator>
+      class bound_range
+      {
+      public:
+         bound_range(Function f, Iterator first, Iterator last)
+         : f_(f),
+           first_(first),
+           last_(last)
+         {}
+
+         inline void operator()()
+         {
+            f_(first_,last_);
+         }
+
+      private:
+         inline bound_range& operator=(const bound_range&);
+
+         Function f_;
+         Iterator first_;
+         Iterator last_;
+      };
+
+      template<class Function, typename Iterator>
+      class bound_range_conditional
+      {
+      public:
+         bound_range_conditional(Function f, Iterator first, Iterator last)
+         : f_(f),
+           first_(first),
+           last_(last)
+         {}
+
+         inline bool operator()()
+         {
+            return f_(first_,last_);
+         }
+
+      private:
+         inline bound_range_conditional& operator=(const bound_range_conditional&);
+
+         Function f_;
+         Iterator first_;
+         Iterator last_;
+      };
+
+   }
+
+   template<typename Iterator, typename Function>
    inline void for_each_combination(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
          return;
-      do
-      {
-         function(begin,begin + size);
-      }
-      while (next_combination(begin,begin + size,end));
+      Iterator mid = begin + size;
+      details::bound_range<Function&, Iterator> func(function,begin,mid);
+      details::combine_discontinuous(begin, mid,
+                                     std::distance(begin,mid),
+                                     mid, end,
+                                     std::distance(mid,end),
+                                     func);
    }
 
-   template <typename Iterator, typename Function>
-   inline bool for_each_combination_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
-   {
-      if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
-         return false;
-      do
-      {
-         if (!function(begin,begin + size))
-            return false;
-      }
-      while (next_combination(begin,begin + size,end));
-      return true;
-   }
-
-   template <typename Iterator, typename Function>
-   inline void for_each_combutation(Iterator begin, Iterator end, const std::size_t& size, Function function)
+   template<typename Iterator, typename Function>
+   inline void for_each_combination_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
          return;
-      // for each permutation of each combination
-      do
-      {
-         do
-         {
-            function(begin,begin + size);
-         }
-         while (std::next_permutation(begin,begin + size));
-      }
-      while (next_combination(begin,begin + size,end));
-   }
-
-   template <typename Iterator, typename Function>
-   inline bool for_each_combutation_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
-   {
-      if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
-         return false;
-      do
-      {
-         do
-         {
-            if (!function(begin,begin + size))
-               return false;
-         }
-         while (std::next_permutation(begin,begin + size));
-      }
-      while (next_combination(begin,begin + size,end));
-      return true;
+      Iterator mid = begin + size;
+      details::bound_range_conditional<Function&, Iterator> func(function,begin,mid);
+      details::combine_discontinuous_conditional(begin, mid,
+                                                 std::distance(begin,mid),
+                                                 mid, end,
+                                                 std::distance(mid,end),
+                                                 func);
    }
 
    inline unsigned long long int n_choose_k(const unsigned long long int& n, const unsigned long long int& k)
