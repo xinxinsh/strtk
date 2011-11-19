@@ -9408,7 +9408,8 @@ namespace strtk
          }
          else
          {
-            Iterator f1p = std::next(first1);
+            Iterator f1p = first1;
+            std::advance(f1p,1);
             Iterator i2 = first2;
             for (D d22 = d2; i2 != last2; ++i2, --d22)
             {
@@ -9420,7 +9421,11 @@ namespace strtk
          if (!f())
             return false;
          if (d != 0)
-            rotate_discontinuous(first1, last1, d1, std::next(first2), last2, d2-1);
+         {
+            Iterator f2p = first2;
+            std::advance(f2p,1);
+            rotate_discontinuous(first1, last1, d1, f2p, last2, d2-1);
+         }
          else
             rotate_discontinuous(first1, last1, d1, first2, last2, d2);
          return true;
