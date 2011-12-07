@@ -13649,17 +13649,21 @@ namespace strtk
          if (end == itr)
             return false;
 
-         if (('i' == (*itr)) || ('I' == (*itr)))
+         if (('I' <= (*itr)) && ((*itr) <= 'n'))
          {
-            return parse_inf(itr,end,t,negative);
-         }
-         else if (('n' == (*itr)) || ('N' == (*itr)))
-         {
-            return parse_nan(itr,end,t);
+            if (('i' == (*itr)) || ('I' == (*itr)))
+            {
+               return parse_inf(itr,end,t,negative);
+            }
+            else if (('n' == (*itr)) || ('N' == (*itr)))
+            {
+               return parse_nan(itr,end,t);
+            }
+            else
+               return false;
          }
 
          bool instate = false;
-
          int pre_decimal = 0;
 
          if ('.' != (*itr))
@@ -13667,15 +13671,27 @@ namespace strtk
             const Iterator curr = itr;
             while ((end != itr) && ('0' == (*itr))) ++itr;
             const Iterator post_zero_cull_itr = itr;
+            unsigned char digit = 0;
+
+            #define parse_digit_1 \
+            if ((digit = static_cast<unsigned char>((*itr) - '0')) < 10) { d *= 10.0; d += digit; } else break; if (end == ++itr) break; \
+
+            #define parse_digit_2 \
+            if ((digit = static_cast<unsigned char>((*itr) - '0')) < 10) { d *= 10.0; d += digit; } else break; ++itr;\
+
             while (end != itr)
             {
-               const unsigned int digit = static_cast<unsigned int>((*itr) - '0');
-               if (digit < 10)
-                  d = (d * 10.0) + digit;
-               else
-                  break;
-               ++itr;
+               parse_digit_1
+               parse_digit_1
+               parse_digit_1
+               parse_digit_1
+               parse_digit_1
+               parse_digit_1
+               parse_digit_1
+               parse_digit_2
             }
+            #undef parse_digit_1
+            #undef parse_digit_2
             if (curr != itr) instate = true;
             pre_decimal = std::distance(post_zero_cull_itr,itr);
          }
@@ -13688,18 +13704,29 @@ namespace strtk
             {
                ++itr;
                const Iterator curr = itr;
+               unsigned char digit = 0;
+
+               #define parse_digit_1 \
+               if ((digit = static_cast<unsigned char>((*itr) - '0')) < 10) { d *= 10.0; d += digit; } else break; if (end == ++itr) break; \
+
+               #define parse_digit_2 \
+               if ((digit = static_cast<unsigned char>((*itr) - '0')) < 10) { d *= 10.0; d += digit; } else break; ++itr;\
+
                while (end != itr)
                {
-                  const unsigned int digit = static_cast<unsigned int>((*itr) - '0');
-                  if (digit < 10)
-                     d = (d * 10.0) + digit;
-                  else
-                     break;
-                  ++itr;
-                  --exponent;
+                  parse_digit_1
+                  parse_digit_1
+                  parse_digit_1
+                  parse_digit_1
+                  parse_digit_1
+                  parse_digit_1
+                  parse_digit_1
+                  parse_digit_2
                }
-
+               #undef parse_digit_1
+               #undef parse_digit_2
                if (curr != itr) instate = true;
+               exponent -= static_cast<int>(std::distance(curr,itr));
             }
 
             if (end != itr)
@@ -13731,20 +13758,22 @@ namespace strtk
                   ++itr;
                   if (end == itr)
                      return false;
-
                   if ((10.0 != d) || (exponent != -1))
                      return false;
-
-                  if (('i' == (*itr)) || ('I' == (*itr)))
+                  if (('I' <= (*itr)) && ((*itr) <= 'n'))
                   {
-                     return parse_inf(itr,end,t,negative);
+                     if (('i' == (*itr)) || ('I' == (*itr)))
+                     {
+                        return parse_inf(itr,end,t,negative);
+                     }
+                     else if (('n' == (*itr)) || ('N' == (*itr)))
+                     {
+                        return parse_nan(itr,end,t);
+                     }
+                     else
+                        return false;
                   }
-                  else if (('n' == (*itr)) || ('N' == (*itr)))
-                  {
-                     return parse_nan(itr,end,t);
-                  }
-                  else
-                     return false;
+                  return false;
                }
             }
          }
