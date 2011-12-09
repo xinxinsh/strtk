@@ -13584,7 +13584,7 @@ namespace strtk
          bool return_result = true;
          while (end != itr)
          {
-            const T digit = static_cast<T>(*itr - '0');
+            const unsigned char digit = (*itr - '0');
             if (digit > 9)
             {
                return_result = false;
