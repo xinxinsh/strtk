@@ -13271,9 +13271,11 @@ namespace strtk
       }
 
       template <typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, T& result, unsigned_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr_external, const Iterator end, T& result, unsigned_type_tag)
       {
-         if (end == itr) return false;
+         if (end == itr_external) return false;
+
+         Iterator itr = itr_external;
 
          if ('+' == (*itr))
             ++itr;
@@ -13287,70 +13289,86 @@ namespace strtk
          if (length > numeric<T>::length)
             return false;
 
-         T t  = 0;
-         T t1 = 0;
-         T t2 = 0;
-         T t3 = 0;
-
          static const std::size_t bound_length = numeric<T>::bound_length;
+         T t  = 0;
 
          if (0 != length)
          {
-            static const unsigned int radix[] =  {
-                                                  1,
-                                                  10,
-                                                  100,
-                                                  1000,
-                                                  10000
-                                                 };
-
             std::size_t interim_length = std::min<std::size_t>(bound_length,length);
             const Iterator interim_end = itr + interim_length;
+            unsigned int digit[8];
+            T t0 = 0;
+            T t1 = 0;
+            T t2 = 0;
+            T t3 = 0;
+            T t4 = 0;
 
-            unsigned int digit[4];
+            while (interim_length >= 8)
+            {
+               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                    ((digit[1] = (itr[1] - '0')) < 10) &&
+                    ((digit[2] = (itr[2] - '0')) < 10) &&
+                    ((digit[3] = (itr[3] - '0')) < 10) &&
+                    ((digit[4] = (itr[4] - '0')) < 10) &&
+                    ((digit[5] = (itr[5] - '0')) < 10) &&
+                    ((digit[6] = (itr[6] - '0')) < 10) &&
+                    ((digit[7] = (itr[7] - '0')) < 10) )
+               {
+                  t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
+                  t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
+                  t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
+                  t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
+                  t4 = static_cast<T>(t * 100000000);
+                  t  = t0 + t1 + t2 + t3 + t4;
+                  itr += 8;
+                  interim_length -= 8;
+               }
+               else
+                  return false;
+            }
 
             while (interim_length >= 4)
             {
-               digit[0] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[1] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[2] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[3] = static_cast<unsigned int>(*itr - '0'); ++itr;
-
-               if ( (digit[0] >= 10) ||
-                    (digit[1] >= 10) ||
-                    (digit[2] >= 10) ||
-                    (digit[3] >= 10) ) return false;
-
-               t1 = static_cast<T>(digit[0] * radix[3]) + static_cast<T>(digit[1] * radix[2]);
-               t2 = static_cast<T>(digit[2] * radix[1]) + static_cast<T>(digit[3]);
-               t3 = static_cast<T>(t * radix[4]);
-               t  = t1 + t2 + t3;
-
-               interim_length -= 4;
+               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                    ((digit[1] = (itr[1] - '0')) < 10) &&
+                    ((digit[2] = (itr[2] - '0')) < 10) &&
+                    ((digit[3] = (itr[3] - '0')) < 10) )
+               {
+                  t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
+                  t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
+                  t3 = static_cast<T>(t * 10000                       );
+                  t  = t1 + t2 + t3;
+                  itr += 4;
+                  interim_length -= 4;
+               }
+               else
+                  return false;
             }
 
             while (interim_length >= 2)
             {
-               digit[0] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[1] = static_cast<unsigned int>(*itr - '0'); ++itr;
-
-               if ( (digit[0] >= 10) ||
-                    (digit[1] >= 10) ) return false;
-
-               t1 = static_cast<T>(digit[0] * radix[1]) + static_cast<T>(digit[1]);
-               t2 = static_cast<T>(t * radix[2]);
-               t  = t1 + t2;
-
-               interim_length -= 2;
+               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                    ((digit[1] = (itr[1] - '0')) < 10) )
+               {
+                  t1 = static_cast<T>(digit[0] * 10 + digit[1]);
+                  t2 = static_cast<T>(t * 100                 );
+                  t  = t1 + t2;
+                  itr += 2;
+                  interim_length -= 2;
+               }
+               else
+                  return false;
             }
 
-            while (interim_end != itr)
+            if (interim_length)
             {
-               digit[0] = static_cast<unsigned int>(*itr - '0');
-               if (digit[0] >= 10) return false;
-               t1 = static_cast<T>(t * radix[1]);
-               t  = static_cast<T>(digit[0]) + t1;
-               ++itr;
+               if ((digit[0] = (itr[0] - '0')) < 10)
+               {
+                  t = static_cast<T>(digit[0] + t * 10);
+                  ++itr;
+               }
+               else
+                  return false;
             }
 
             if (interim_end != end)
@@ -13369,8 +13387,7 @@ namespace strtk
                         return false;
                      else if ((penultimate_bound == t) && (final_digit < digit[0]))
                         return false;
-                     t1 = static_cast<T>(t * radix[1]);
-                     t  = static_cast<T>(digit[0]) + t1;
+                     t = static_cast<T>(digit[0] + t * 10);
                   }
                   else
                      return false;
@@ -13385,9 +13402,11 @@ namespace strtk
       }
 
       template <typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, T& result, signed_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr_external, const Iterator end, T& result, signed_type_tag)
       {
-         if (end == itr) return false;
+         if (end == itr_external) return false;
+
+         Iterator itr = itr_external;
 
          bool negative = false;
 
@@ -13402,75 +13421,92 @@ namespace strtk
          if (end == itr) return false;
 
          while ((end != itr) && ('0' == (*itr))) ++itr;
+
          const std::size_t length = std::distance(itr,end);
 
          if (length > numeric<T>::length)
             return false;
 
-         T t  = 0;
-         T t1 = 0;
-         T t2 = 0;
-         T t3 = 0;
-
          static const std::size_t bound_length = numeric<T>::bound_length;
+         T t  = 0;
 
          if (0 != length)
          {
-            static const unsigned int radix[] =  {
-                                                  1,
-                                                  10,
-                                                  100,
-                                                  1000,
-                                                  10000
-                                                 };
-
             std::size_t interim_length = std::min<std::size_t>(bound_length,length);
             const Iterator interim_end = itr + interim_length;
+            unsigned int digit[8];
+            T t0 = 0;
+            T t1 = 0;
+            T t2 = 0;
+            T t3 = 0;
+            T t4 = 0;
 
-            unsigned int digit[4];
+            while (interim_length >= 8)
+            {
+               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                    ((digit[1] = (itr[1] - '0')) < 10) &&
+                    ((digit[2] = (itr[2] - '0')) < 10) &&
+                    ((digit[3] = (itr[3] - '0')) < 10) &&
+                    ((digit[4] = (itr[4] - '0')) < 10) &&
+                    ((digit[5] = (itr[5] - '0')) < 10) &&
+                    ((digit[6] = (itr[6] - '0')) < 10) &&
+                    ((digit[7] = (itr[7] - '0')) < 10) )
+               {
+                  t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
+                  t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
+                  t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
+                  t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
+                  t4 = static_cast<T>(t * 100000000);
+                  t  = t0 + t1 + t2 + t3 + t4;
+                  itr += 8;
+                  interim_length -= 8;
+               }
+               else
+                  return false;
+            }
 
             while (interim_length >= 4)
             {
-               digit[0] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[1] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[2] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[3] = static_cast<unsigned int>(*itr - '0'); ++itr;
-
-               if ( (digit[0] >= 10) ||
-                    (digit[1] >= 10) ||
-                    (digit[2] >= 10) ||
-                    (digit[3] >= 10) ) return false;
-
-               t1 = static_cast<T>(digit[0] * radix[3]) + static_cast<T>(digit[1] * radix[2]);
-               t2 = static_cast<T>(digit[2] * radix[1]) + static_cast<T>(digit[3]);
-               t3 = static_cast<T>(t * radix[4]);
-               t  = t1 + t2 + t3;
-
-               interim_length -= 4;
+               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                    ((digit[1] = (itr[1] - '0')) < 10) &&
+                    ((digit[2] = (itr[2] - '0')) < 10) &&
+                    ((digit[3] = (itr[3] - '0')) < 10) )
+               {
+                  t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
+                  t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
+                  t3 = static_cast<T>(t * 10000                       );
+                  t  = t1 + t2 + t3;
+                  itr += 4;
+                  interim_length -= 4;
+               }
+               else
+                  return false;
             }
 
             while (interim_length >= 2)
             {
-               digit[0] = static_cast<unsigned int>(*itr - '0'); ++itr;
-               digit[1] = static_cast<unsigned int>(*itr - '0'); ++itr;
-
-               if ( (digit[0] >= 10) ||
-                    (digit[1] >= 10) ) return false;
-
-               t1 = static_cast<T>(digit[0] * radix[1]) + static_cast<T>(digit[1]);
-               t2 = static_cast<T>(t * radix[2]);
-               t  = t1 + t2;
-
-               interim_length -= 2;
+               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                    ((digit[1] = (itr[1] - '0')) < 10) )
+               {
+                  t1 = static_cast<T>(digit[0] * 10 + digit[1]);
+                  t2 = static_cast<T>(t * 100                 );
+                  t  = t1 + t2;
+                  itr += 2;
+                  interim_length -= 2;
+               }
+               else
+                  return false;
             }
 
-            if (interim_end != itr)
+            if (interim_length)
             {
-               digit[0] = static_cast<unsigned int>(*itr - '0');
-               if (digit[0] >= 10) return false;
-               t1 = static_cast<T>(t * radix[1]);
-               t = static_cast<T>(digit[0]) + t1;
-               ++itr;
+               if ((digit[0] = (itr[0] - '0')) < 10)
+               {
+                  t = static_cast<T>(digit[0] + t * 10);
+                  ++itr;
+               }
+               else
+                  return false;
             }
 
             if (interim_end != end)
@@ -13487,7 +13523,7 @@ namespace strtk
 
                   digit[0] = static_cast<unsigned int>(*itr - '0');
 
-                  if (digit[0] <= 9)
+                  if (digit[0] < 10)
                   {
                      if (negative)
                      {
@@ -13509,9 +13545,7 @@ namespace strtk
                                 )
                            return false;
                      }
-
-                     t1 = static_cast<T>(t * radix[1]);
-                     t = static_cast<T>(digit[0]) + t1;
+                     t = static_cast<T>(digit[0] + t * 10);
                   }
                   else
                      return false;
@@ -13519,9 +13553,8 @@ namespace strtk
                else
                   return false;
             }
-
          }
-
+         itr_external = itr;
          result = static_cast<T>((negative) ? -t : t);
          return true;
       }
