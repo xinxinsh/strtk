@@ -13584,8 +13584,8 @@ namespace strtk
          bool return_result = true;
          while (end != itr)
          {
-            const T digit = static_cast<T>(digit_table[static_cast<unsigned int>(*itr)]);
-            if (is_invalid_digit(digit))
+            const T digit = static_cast<T>(*itr - '0');
+            if (digit > 9)
             {
                return_result = false;
                break;
@@ -13666,9 +13666,10 @@ namespace strtk
       }
 
       template <typename Iterator, typename T>
-      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, T& t, real_type_tag)
+      inline bool string_to_type_converter_impl(Iterator& itr_external, const Iterator end, T& t, real_type_tag)
       {
-         if (end == itr) return false;
+         if (end == itr_external) return false;
+         Iterator itr = itr_external;
          double d = 0.0;
          bool negative = false;
          if ('+' == (*itr))
