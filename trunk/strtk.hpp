@@ -9876,7 +9876,7 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[0] - '0') <= 9 &&
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
                       all_digits_check_impl<Iterator,18>::process(itr + 1);
            }
          };
@@ -9886,7 +9886,7 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[0] - '0') <= 9 &&
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
                       all_digits_check_impl<Iterator,17>::process(itr + 1);
            }
          };
@@ -9896,7 +9896,7 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[0] - '0') <= 9 &&
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
                       all_digits_check_impl<Iterator,16>::process(itr + 1);
            }
          };
@@ -9906,23 +9906,22 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[12] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[13] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[14] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[15] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[10] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[11] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[12] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[13] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[14] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[15] - '0') < 10;
            }
          };
 
@@ -9931,22 +9930,21 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[12] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[13] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[14] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[10] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[11] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[12] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[13] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[14] - '0') < 10;
            }
          };
 
@@ -9955,21 +9953,20 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[12] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[13] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[10] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[11] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[12] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[13] - '0') < 10;
            }
          };
 
@@ -9978,20 +9975,19 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[11] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[12] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[10] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[11] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[12] - '0') < 10;
            }
          };
 
@@ -10000,19 +9996,18 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[10] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[11] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[10] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[11] - '0') < 10;
            }
          };
 
@@ -10021,18 +10016,17 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 9] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[10] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[10] - '0') < 10;
            }
          };
 
@@ -10041,17 +10035,16 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 9] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 9] - '0') < 10;
            }
          };
 
@@ -10060,16 +10053,15 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 8] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 8] - '0') < 10;
            }
          };
 
@@ -10078,15 +10070,14 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 7] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 7] - '0') < 10;
            }
          };
 
@@ -10095,14 +10086,13 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 6] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 6] - '0') < 10;
            }
          };
 
@@ -10111,13 +10101,12 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 5] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 5] - '0') < 10;
            }
          };
 
@@ -10126,12 +10115,11 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 4] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 4] - '0') < 10;
            }
          };
 
@@ -10140,11 +10128,10 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 3] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 3] - '0') < 10;
            }
          };
 
@@ -10154,9 +10141,9 @@ namespace strtk
             static inline bool process(Iterator itr)
             {
                return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 2] - '0') <= 9;
+                static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
+                static_cast<unsigned char>(itr[ 2] - '0') < 10;
            }
          };
 
@@ -10165,9 +10152,8 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9 &&
-                static_cast<unsigned char>(itr[ 1] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[ 1] - '0') < 10;
            }
          };
 
@@ -10176,8 +10162,7 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return
-                static_cast<unsigned char>(itr[ 0] - '0') <= 9;
+               return static_cast<unsigned char>(itr[ 0] - '0') < 10;
            }
          };
 
@@ -10238,7 +10223,7 @@ namespace strtk
                  x += static_cast<T>((itr[12] - '0') *             1000LL);
                  x += static_cast<T>((itr[13] - '0') *              100LL);
                  x += static_cast<T>((itr[14] - '0') *               10LL);
-                 x += static_cast<T>((itr[15] - '0') *                1LL);
+                 x += static_cast<T>((itr[15] - '0')                     );
                t = x;
             }
          };
@@ -10262,7 +10247,7 @@ namespace strtk
                  x += static_cast<T>((itr[11] - '0') *            1000LL);
                  x += static_cast<T>((itr[12] - '0') *             100LL);
                  x += static_cast<T>((itr[13] - '0') *              10LL);
-                 x += static_cast<T>((itr[14] - '0') *               1LL);
+                 x += static_cast<T>((itr[14] - '0')                    );
                t = x;
             }
          };
@@ -10285,7 +10270,7 @@ namespace strtk
                  x += static_cast<T>((itr[10] - '0') *           1000LL);
                  x += static_cast<T>((itr[11] - '0') *            100LL);
                  x += static_cast<T>((itr[12] - '0') *             10LL);
-                 x += static_cast<T>((itr[13] - '0') *              1LL);
+                 x += static_cast<T>((itr[13] - '0')                   );
                t = x;
             }
          };
@@ -10307,7 +10292,7 @@ namespace strtk
                  x += static_cast<T>((itr[ 9] - '0') *          1000LL);
                  x += static_cast<T>((itr[10] - '0') *           100LL);
                  x += static_cast<T>((itr[11] - '0') *            10LL);
-                 x += static_cast<T>((itr[12] - '0') *             1LL);
+                 x += static_cast<T>((itr[12] - '0')                  );
                t = x;
             }
          };
@@ -10328,7 +10313,7 @@ namespace strtk
                  x += static_cast<T>((itr[ 8] - '0') *         1000LL);
                  x += static_cast<T>((itr[ 9] - '0') *          100LL);
                  x += static_cast<T>((itr[10] - '0') *           10LL);
-                 x += static_cast<T>((itr[11] - '0') *            1LL);
+                 x += static_cast<T>((itr[11] - '0')                 );
                t = x;
             }
          };
@@ -10348,7 +10333,7 @@ namespace strtk
                  x += static_cast<T>((itr[ 7] - '0') *        1000LL);
                  x += static_cast<T>((itr[ 8] - '0') *         100LL);
                  x += static_cast<T>((itr[ 9] - '0') *          10LL);
-                 x += static_cast<T>((itr[10] - '0') *           1LL);
+                 x += static_cast<T>((itr[10] - '0')                );
                t = x;
             }
          };
@@ -10367,7 +10352,7 @@ namespace strtk
                  x += static_cast<T>((itr[6] - '0') *       1000);
                  x += static_cast<T>((itr[7] - '0') *        100);
                  x += static_cast<T>((itr[8] - '0') *         10);
-                 x += static_cast<T>((itr[9] - '0') *          1);
+                 x += static_cast<T>((itr[9] - '0')             );
                t = x;
             }
          };
@@ -10385,7 +10370,7 @@ namespace strtk
                  x += static_cast<T>((itr[5] - '0') *      1000);
                  x += static_cast<T>((itr[6] - '0') *       100);
                  x += static_cast<T>((itr[7] - '0') *        10);
-                 x += static_cast<T>((itr[8] - '0') *         1);
+                 x += static_cast<T>((itr[8] - '0')            );
                t = x;
             }
          };
@@ -10402,7 +10387,7 @@ namespace strtk
                  x += static_cast<T>((itr[4] - '0') *     1000);
                  x += static_cast<T>((itr[5] - '0') *      100);
                  x += static_cast<T>((itr[6] - '0') *       10);
-                 x += static_cast<T>((itr[7] - '0') *        1);
+                 x += static_cast<T>((itr[7] - '0')           );
                t = x;
             }
          };
@@ -10418,7 +10403,7 @@ namespace strtk
                  x += static_cast<T>((itr[3] - '0') *    1000);
                  x += static_cast<T>((itr[4] - '0') *     100);
                  x += static_cast<T>((itr[5] - '0') *      10);
-                 x += static_cast<T>((itr[6] - '0') *       1);
+                 x += static_cast<T>((itr[6] - '0')          );
                t = x;
             }
          };
@@ -10433,7 +10418,7 @@ namespace strtk
                  x += static_cast<T>((itr[2] - '0') *   1000);
                  x += static_cast<T>((itr[3] - '0') *    100);
                  x += static_cast<T>((itr[4] - '0') *     10);
-                 x += static_cast<T>((itr[5] - '0') *      1);
+                 x += static_cast<T>((itr[5] - '0')         );
                t = x;
             }
          };
@@ -10447,7 +10432,7 @@ namespace strtk
                  x += static_cast<T>((itr[1] - '0') *  1000);
                  x += static_cast<T>((itr[2] - '0') *   100);
                  x += static_cast<T>((itr[3] - '0') *    10);
-                 x += static_cast<T>((itr[4] - '0') *     1);
+                 x += static_cast<T>((itr[4] - '0')        );
                t = x;
             }
          };
@@ -10460,7 +10445,7 @@ namespace strtk
                T x  = static_cast<T>((itr[0] - '0') * 1000);
                  x += static_cast<T>((itr[1] - '0') *  100);
                  x += static_cast<T>((itr[2] - '0') *   10);
-                 x += static_cast<T>((itr[3] - '0') *    1);
+                 x += static_cast<T>((itr[3] - '0')       );
                t = x;
             }
          };
@@ -10472,7 +10457,7 @@ namespace strtk
             {
                T x  = static_cast<T>((itr[0] - '0') * 100);
                  x += static_cast<T>((itr[1] - '0') *  10);
-                 x += static_cast<T>((itr[2] - '0') *   1);
+                 x += static_cast<T>((itr[2] - '0')      );
                t = x;
             }
          };
@@ -10483,7 +10468,7 @@ namespace strtk
             static inline void process(Iterator itr, T& t)
             {
                T x  = static_cast<T>((itr[0] - '0') * 10);
-                 x += static_cast<T>((itr[1] - '0') *  1);
+                 x += static_cast<T>((itr[1] - '0')     );
                t = x;
             }
          };
@@ -10493,7 +10478,7 @@ namespace strtk
          {
             static inline void process(Iterator itr, T& t)
             {
-               t = static_cast<T>((itr[0] - '0') * 1);
+               t = static_cast<T>((itr[0] - '0'));
             }
          };
 
@@ -10746,7 +10731,8 @@ namespace strtk
 
          static inline bool is_big_endian()
          {
-            return !is_little_endian();
+            static const bool result = (!is_little_endian());
+            return result;
          }
 
          static inline unsigned short convert(const unsigned short& v)
@@ -13303,62 +13289,78 @@ namespace strtk
             T t3 = 0;
             T t4 = 0;
 
-            while (interim_length >= 8)
+            //Needed for incompetent and broken msvc compiler versions
+            #pragma warning(push)
+            #pragma warning(disable: 4127)
+
+            if (bound_length > 7)
             {
-               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                    ((digit[1] = (itr[1] - '0')) < 10) &&
-                    ((digit[2] = (itr[2] - '0')) < 10) &&
-                    ((digit[3] = (itr[3] - '0')) < 10) &&
-                    ((digit[4] = (itr[4] - '0')) < 10) &&
-                    ((digit[5] = (itr[5] - '0')) < 10) &&
-                    ((digit[6] = (itr[6] - '0')) < 10) &&
-                    ((digit[7] = (itr[7] - '0')) < 10) )
+               while (interim_length > 7)
                {
-                  t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
-                  t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
-                  t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
-                  t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
-                  t4 = static_cast<T>(t * 100000000);
-                  t  = t0 + t1 + t2 + t3 + t4;
-                  itr += 8;
-                  interim_length -= 8;
+                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                       ((digit[1] = (itr[1] - '0')) < 10) &&
+                       ((digit[2] = (itr[2] - '0')) < 10) &&
+                       ((digit[3] = (itr[3] - '0')) < 10) &&
+                       ((digit[4] = (itr[4] - '0')) < 10) &&
+                       ((digit[5] = (itr[5] - '0')) < 10) &&
+                       ((digit[6] = (itr[6] - '0')) < 10) &&
+                       ((digit[7] = (itr[7] - '0')) < 10) )
+                  {
+                     t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
+                     t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
+                     t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
+                     t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
+                     t4 = static_cast<T>(t * 100000000);
+                     t  = t0 + t1 + t2 + t3 + t4;
+                     itr += 8;
+                     interim_length -= 8;
+                  }
+                  else
+                     return false;
                }
-               else
-                  return false;
             }
 
-            while (interim_length >= 4)
+            if (bound_length > 3)
             {
-               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                    ((digit[1] = (itr[1] - '0')) < 10) &&
-                    ((digit[2] = (itr[2] - '0')) < 10) &&
-                    ((digit[3] = (itr[3] - '0')) < 10) )
+               while (interim_length > 3)
                {
-                  t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
-                  t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
-                  t3 = static_cast<T>(t * 10000                       );
-                  t  = t1 + t2 + t3;
-                  itr += 4;
-                  interim_length -= 4;
+                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                       ((digit[1] = (itr[1] - '0')) < 10) &&
+                       ((digit[2] = (itr[2] - '0')) < 10) &&
+                       ((digit[3] = (itr[3] - '0')) < 10) )
+                  {
+                     t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
+                     t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
+                     t3 = static_cast<T>(t * 10000                       );
+                     t  = t1 + t2 + t3;
+                     itr += 4;
+                     interim_length -= 4;
+                  }
+                  else
+                     return false;
                }
-               else
-                  return false;
             }
 
-            while (interim_length >= 2)
+            if (bound_length > 1)
             {
-               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                    ((digit[1] = (itr[1] - '0')) < 10) )
+               while (interim_length > 1)
                {
-                  t1 = static_cast<T>(digit[0] * 10 + digit[1]);
-                  t2 = static_cast<T>(t * 100                 );
-                  t  = t1 + t2;
-                  itr += 2;
-                  interim_length -= 2;
+                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                       ((digit[1] = (itr[1] - '0')) < 10) )
+                  {
+                     t1 = static_cast<T>(digit[0] * 10 + digit[1]);
+                     t2 = static_cast<T>(t * 100                 );
+                     t  = t1 + t2;
+                     itr += 2;
+                     interim_length -= 2;
+                  }
+                  else
+                     return false;
                }
-               else
-                  return false;
             }
+
+            //Needed for incompetent and broken msvc compiler versions.
+            #pragma warning(pop)
 
             if (interim_length)
             {
@@ -13441,62 +13443,78 @@ namespace strtk
             T t3 = 0;
             T t4 = 0;
 
-            while (interim_length >= 8)
+            //Needed for incompetent and broken msvc compiler versions
+            #pragma warning(push)
+            #pragma warning(disable: 4127)
+
+            if (bound_length > 7)
             {
-               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                    ((digit[1] = (itr[1] - '0')) < 10) &&
-                    ((digit[2] = (itr[2] - '0')) < 10) &&
-                    ((digit[3] = (itr[3] - '0')) < 10) &&
-                    ((digit[4] = (itr[4] - '0')) < 10) &&
-                    ((digit[5] = (itr[5] - '0')) < 10) &&
-                    ((digit[6] = (itr[6] - '0')) < 10) &&
-                    ((digit[7] = (itr[7] - '0')) < 10) )
+               while (interim_length > 7)
                {
-                  t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
-                  t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
-                  t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
-                  t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
-                  t4 = static_cast<T>(t * 100000000);
-                  t  = t0 + t1 + t2 + t3 + t4;
-                  itr += 8;
-                  interim_length -= 8;
+                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                       ((digit[1] = (itr[1] - '0')) < 10) &&
+                       ((digit[2] = (itr[2] - '0')) < 10) &&
+                       ((digit[3] = (itr[3] - '0')) < 10) &&
+                       ((digit[4] = (itr[4] - '0')) < 10) &&
+                       ((digit[5] = (itr[5] - '0')) < 10) &&
+                       ((digit[6] = (itr[6] - '0')) < 10) &&
+                       ((digit[7] = (itr[7] - '0')) < 10) )
+                  {
+                     t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
+                     t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
+                     t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
+                     t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
+                     t4 = static_cast<T>(t * 100000000);
+                     t  = t0 + t1 + t2 + t3 + t4;
+                     itr += 8;
+                     interim_length -= 8;
+                  }
+                  else
+                     return false;
                }
-               else
-                  return false;
             }
 
-            while (interim_length >= 4)
+            if (bound_length > 3)
             {
-               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                    ((digit[1] = (itr[1] - '0')) < 10) &&
-                    ((digit[2] = (itr[2] - '0')) < 10) &&
-                    ((digit[3] = (itr[3] - '0')) < 10) )
+               while (interim_length > 3)
                {
-                  t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
-                  t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
-                  t3 = static_cast<T>(t * 10000                       );
-                  t  = t1 + t2 + t3;
-                  itr += 4;
-                  interim_length -= 4;
+                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                       ((digit[1] = (itr[1] - '0')) < 10) &&
+                       ((digit[2] = (itr[2] - '0')) < 10) &&
+                       ((digit[3] = (itr[3] - '0')) < 10) )
+                  {
+                     t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
+                     t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
+                     t3 = static_cast<T>(t * 10000                       );
+                     t  = t1 + t2 + t3;
+                     itr += 4;
+                     interim_length -= 4;
+                  }
+                  else
+                     return false;
                }
-               else
-                  return false;
             }
 
-            while (interim_length >= 2)
+            if (bound_length > 1)
             {
-               if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                    ((digit[1] = (itr[1] - '0')) < 10) )
+               while (interim_length > 1)
                {
-                  t1 = static_cast<T>(digit[0] * 10 + digit[1]);
-                  t2 = static_cast<T>(t * 100                 );
-                  t  = t1 + t2;
-                  itr += 2;
-                  interim_length -= 2;
+                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
+                       ((digit[1] = (itr[1] - '0')) < 10) )
+                  {
+                     t1 = static_cast<T>(digit[0] * 10 + digit[1]);
+                     t2 = static_cast<T>(t * 100                 );
+                     t  = t1 + t2;
+                     itr += 2;
+                     interim_length -= 2;
+                  }
+                  else
+                     return false;
                }
-               else
-                  return false;
             }
+
+            //Needed for incompetent and broken msvc compiler versions.
+            #pragma warning(pop)
 
             if (interim_length)
             {
