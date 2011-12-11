@@ -13290,8 +13290,10 @@ namespace strtk
             T t4 = 0;
 
             //Needed for incompetent and broken msvc compiler versions
+            #ifdef _MSC_VER
             #pragma warning(push)
             #pragma warning(disable: 4127)
+            #endif
 
             if (bound_length > 7)
             {
@@ -13360,7 +13362,9 @@ namespace strtk
             }
 
             //Needed for incompetent and broken msvc compiler versions.
+            #ifdef _MSC_VER
             #pragma warning(pop)
+            #endif
 
             if (interim_length)
             {
@@ -13444,8 +13448,10 @@ namespace strtk
             T t4 = 0;
 
             //Needed for incompetent and broken msvc compiler versions
+            #ifdef _MSC_VER
             #pragma warning(push)
             #pragma warning(disable: 4127)
+            #endif
 
             if (bound_length > 7)
             {
@@ -13514,7 +13520,9 @@ namespace strtk
             }
 
             //Needed for incompetent and broken msvc compiler versions.
+            #ifdef _MSC_VER
             #pragma warning(pop)
+            #endif
 
             if (interim_length)
             {
