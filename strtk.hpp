@@ -4452,6 +4452,24 @@ namespace strtk
       typedef std::pair<std::size_t,std::size_t> row_range_type;
       typedef std::pair<std::size_t,std::size_t> col_range_type;
 
+      inline row_range_type range(std::size_t lower_bound,
+                                  std::size_t upper_bound = std::numeric_limits<std::size_t>::max()) const
+      {
+         if (upper_bound == std::numeric_limits<std::size_t>::max())
+         {
+            upper_bound = token_list_.size();
+         }
+         else if (upper_bound > token_list_.size())
+         {
+            return row_range_type(std::numeric_limits<std::size_t>::max(),std::numeric_limits<std::size_t>::max());
+         }
+         else if (lower_bound > upper_bound)
+         {
+            return row_range_type(std::numeric_limits<std::size_t>::max(),std::numeric_limits<std::size_t>::max());
+         }
+         return row_range_type(lower_bound,upper_bound);
+      }
+
       struct options
       {
          options()
@@ -4513,6 +4531,8 @@ namespace strtk
 
       public:
 
+         typedef itr_list_type::value_type range_type;
+
          row_type(const itr_list_type& token_list)
          : index_(std::numeric_limits<std::size_t>::max()),
            row_list_(0),
@@ -4561,6 +4581,11 @@ namespace strtk
          inline T get(const std::size_t& index) const
          {
             return row_type::operator[]<T>(index);
+         }
+
+         inline col_range_type all_columns() const
+         {
+            return col_range_type(0,(*token_list_).size());
          }
 
          inline range_type token(const std::size_t& index) const
@@ -5165,6 +5190,32 @@ namespace strtk
          inline void parse_checked(std::priority_queue<T,Container,Comparator>& priority_queue) const
          {
             parse_checked<T>(push_inserter(priority_queue));
+         }
+
+         template<typename Function>
+         inline std::size_t for_each_column(const col_range_type& range, Function f) const
+         {
+            if (!validate_column_range(range))
+               return false;
+
+            itr_list_type::const_iterator itr = token_list_->begin() + range.first;
+            itr_list_type::const_iterator end = token_list_->begin() + range.second;
+            std::size_t col_count = 0;
+
+            while (end != itr)
+            {
+               const itr_list_type::value_type& range = (*itr);
+               f(range);
+               ++itr;
+               ++col_count;
+            }
+            return col_count;
+         }
+
+         template<typename Function>
+         inline std::size_t for_each_column(Function f) const
+         {
+            return for_each_column(all_columns(),f);
          }
 
       private:
