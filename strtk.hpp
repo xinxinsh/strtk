@@ -17172,7 +17172,7 @@ namespace strtk
             template <typename Function, bool b>
             struct construct
             {
-               inline static function_holder_ptr type(Function, unsigned char*)
+               inline static function_holder_ptr type(Function&, unsigned char*)
                {
                   return reinterpret_cast<function_holder_ptr>(0);
                }
@@ -17181,7 +17181,7 @@ namespace strtk
             template <typename Function>
             struct construct<Function,true>
             {
-               inline static function_holder_ptr type(Function f, unsigned char* buffer)
+               inline static function_holder_ptr type(Function& f, unsigned char* buffer)
                {
                   return new(buffer)function_holder<Function>(f);
                }
