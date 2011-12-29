@@ -1687,7 +1687,7 @@ namespace strtk
       std::size_t match_count = 0;
       while (end != (itr = std::search(itr, end, pattern_begin, pattern_end)))
       {
-         *out = std::make_pair(itr,itr + pattern_length);
+         (*out) = std::make_pair(itr,itr + pattern_length);
          itr += pattern_length;
          ++out;
          ++match_count;
@@ -1721,7 +1721,7 @@ namespace strtk
 
       while (end != (itr = std::search(itr, end, pattern_begin, pattern_end, imatch_char)))
       {
-         *out = std::make_pair(itr,itr + pattern_length);
+         (*out) = std::make_pair(itr,itr + pattern_length);
          itr += pattern_length;
          ++out;
          ++match_count;
@@ -2715,14 +2715,14 @@ namespace strtk
                   ++range.second;
                else if (include_all_delimiters)
                   while ((end != range.second) && delimiter(*range.second)) ++range.second;
-               *out = range;
+               (*out) = range;
                ++out;
                if ((!include_all_delimiters) && compress_delimiters)
                   while ((end != range.second) && delimiter(*range.second)) ++range.second;
             }
             else
             {
-               *out = range;
+               (*out) = range;
                ++out;
                if (compress_delimiters)
                   while ((end != (++range.second)) && delimiter(*range.second)) ;
@@ -2738,7 +2738,7 @@ namespace strtk
 
       if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
-         *out = range;
+         (*out) = range;
          ++out;
          ++token_count;
       }
@@ -2925,7 +2925,7 @@ namespace strtk
             if (include_delimiters)
             {
                ++range.second;
-               *out = range;
+               (*out) = range;
                ++out;
                if (++match_count >= token_count)
                   return match_count;
@@ -2934,7 +2934,7 @@ namespace strtk
             }
             else
             {
-               *out = range;
+               (*out) = range;
                ++out;
                if (++match_count >= token_count)
                   return match_count;
@@ -2951,7 +2951,7 @@ namespace strtk
 
       if ((range.first != range.second) || delimiter(*(range.second - 1)))
       {
-         *out = range;
+         (*out) = range;
          ++out;
          ++match_count;
       }
@@ -3085,7 +3085,7 @@ namespace strtk
       {
          range.first = (*itr)[mode].first;
          range.second = (*itr)[mode].second;
-         *out = range;
+         (*out) = range;
          ++out;
          ++itr;
          ++match_count;
@@ -3147,7 +3147,7 @@ namespace strtk
       {
          range.first = (*itr)[mode].first;
          range.second = (*itr)[mode].second;
-         *out = range;
+         (*out) = range;
          ++out;
          ++itr;
          if (++match_count >= token_count)
@@ -3363,7 +3363,7 @@ namespace strtk
          range.first = range.second;
          range.second += increment_amount;
          length -= increment_amount;
-         *out = range;
+         (*out) = range;
          ++out;
          ++match_count;
       }
@@ -3979,7 +3979,7 @@ namespace strtk
             case 2 : {
                         unsigned int block  = base64_to_bin[*(itr++)] << 18;
                                      block |= base64_to_bin[*(itr++)] << 12;
-                        *out = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
+                        (*out) = static_cast<unsigned char>(( block >> 16 ) & 0xFF);
                      }
                      break;
 
@@ -6198,7 +6198,7 @@ namespace strtk
       inline void process_column(const itr_list_type::value_type& range, OutputIterator out) const
       {
          typedef typename std::iterator_traits<OutputIterator>::value_type output_type;
-         *out = string_to_type_converter<output_type>(range.first,range.second);
+         (*out) = string_to_type_converter<output_type>(range.first,range.second);
          ++out;
       }
 
@@ -6209,7 +6209,7 @@ namespace strtk
          output_type value;
          if (string_to_type_converter(range.first,range.second,value))
          {
-            *out = value;
+            (*out) = value;
             ++out;
          }
       }
@@ -8993,7 +8993,7 @@ namespace strtk
    {
       while (count)
       {
-         *out = value++;
+         (*out) = value++;
          ++out;
          --count;
       }
@@ -9279,7 +9279,7 @@ namespace strtk
       while (!index.empty())
       {
          std::size_t idx = static_cast<std::size_t>(index.size() * rng());
-         *out = *(begin + index[idx]);
+         (*out) = *(begin + index[idx]);
          index.erase(index.begin() + idx);
          ++out;
       }
@@ -9326,7 +9326,7 @@ namespace strtk
       while (set_size)
       {
          std::size_t idx = static_cast<std::size_t>(index.size() * rng());
-         *out = *(begin + index[idx]);
+         (*out) = *(begin + index[idx]);
          index.erase(index.begin() + idx);
          ++out;
          --set_size;
@@ -9776,7 +9776,7 @@ namespace strtk
          {
             if (0 == exist_table[i])
             {
-               *out = i;
+               (*out) = i;
                ++out;
             }
          }
@@ -9796,7 +9796,7 @@ namespace strtk
       nth_combination_sequence(n,length,k,std::back_inserter(index_list),complete_index);
       for (std::size_t i = 0; i < index_list.size(); ++i)
       {
-         *out = *(begin + index_list[i]);
+         (*out) = *(begin + index_list[i]);
          ++out;
       }
    }
@@ -12647,7 +12647,7 @@ namespace strtk
          }
          else
          {
-            *out = found_itr;
+            (*out) = found_itr;
             ++out;
             ++match_count;
             itr_range.first = found_itr.second;
@@ -12679,7 +12679,7 @@ namespace strtk
          }
          else
          {
-            *out = found_itr;
+            (*out) = found_itr;
             ++out;
             ++match_count;
             itr_range.first = found_itr.second;
@@ -12710,7 +12710,7 @@ namespace strtk
          }
          else
          {
-            *out = found_itr;
+            (*out) = found_itr;
             ++out;
             ++match_count;
             itr_range.first = found_itr.second;
@@ -12742,7 +12742,7 @@ namespace strtk
          }
          else
          {
-            *out = found_itr;
+            (*out) = found_itr;
             ++out;
             ++match_count;
             itr_range.first = found_itr.second;
@@ -16303,7 +16303,7 @@ namespace strtk
 
          inline void insert(const std::string& key)
          {
-            insert(reinterpret_cast<const unsigned char*>(key.c_str()),key.size());
+            insert(reinterpret_cast<const unsigned char*>(key.data()),key.size());
          }
 
          inline void insert(const char* data, const std::size_t& length)
@@ -16344,7 +16344,7 @@ namespace strtk
 
          inline bool contains(const std::string& key) const
          {
-            return contains(reinterpret_cast<const unsigned char*>(key.c_str()),key.size());
+            return contains(reinterpret_cast<const unsigned char*>(key.data()),key.size());
          }
 
          inline bool contains(const char* data, const std::size_t& length) const
