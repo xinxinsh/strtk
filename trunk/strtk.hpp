@@ -4057,6 +4057,11 @@ namespace strtk
          ++itr;
       }
    }
+   inline void convert_to_printable_chars(char* begin, char* end)
+   {
+      convert_to_printable_chars(reinterpret_cast<unsigned char*>(begin),
+                                 reinterpret_cast<unsigned char*>(end));
+   }
 
    inline void convert_to_printable_chars(std::string& str)
    {
