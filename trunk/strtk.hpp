@@ -4057,6 +4057,7 @@ namespace strtk
          ++itr;
       }
    }
+
    inline void convert_to_printable_chars(char* begin, char* end)
    {
       convert_to_printable_chars(reinterpret_cast<unsigned char*>(begin),
@@ -9365,6 +9366,71 @@ namespace strtk
                                   const std::size_t& pregen = 0)
    {
       random_combination(sequence.begin(),sequence.end(),set_size,out,seed,pregen);
+   }
+
+   template <typename Iterator,
+             typename OutputIterator,
+             typename RandomNumberGenerator>
+   inline std::size_t select_k_randomly(const Iterator begin, const Iterator end,
+                                        const std::size_t k,
+                                        OutputIterator out,
+                                        RandomNumberGenerator& rng)
+   {
+      typedef typename std::iterator_traits<Iterator>::value_type T;
+      std::size_t length = std::distance(begin,end);
+      std::vector<T> selection;
+      selection.resize(k);
+      Iterator itr = begin;
+      std::size_t index = 0;
+      while ((index < k) && (end != itr))
+      {
+         selection[index] = (*itr);
+         ++index;
+         ++itr;
+      }
+      if (0 == index)
+         return 0;
+      else if (index < k)
+      {
+         std::copy(selection.begin(),selection.begin() + index, out);
+         return index;
+      }
+      double n = k + 1;
+      while (end != itr)
+      {
+         if (rng() < (k / n))
+         {
+            selection[static_cast<std::size_t>(rng() * k)] = (*itr);
+         }
+         ++itr;
+         ++n;
+      }
+      std::copy(selection.begin(),selection.end(),out);
+      return k;
+   }
+
+   template <typename Iterator,
+             typename OutputIterator,
+             typename RandomNumberGenerator>
+   inline void select_1_randomly(const Iterator begin, const Iterator end,
+                                 OutputIterator out,
+                                 RandomNumberGenerator& rng)
+   {
+      typedef typename std::iterator_traits<Iterator>::value_type T;
+      std::size_t length = std::distance(begin,end);
+      T selection;
+      if (begin == end)
+         return;
+      Iterator itr = begin;
+      std::size_t n = 0;
+      while (end != itr)
+      {
+         if (rng() < (1.0 / ++n))
+         {
+            selection = (*itr);
+         }
+         ++itr;
+      }
    }
    #endif // strtk_enable_random
 
