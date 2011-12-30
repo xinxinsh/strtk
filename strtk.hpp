@@ -9377,7 +9377,6 @@ namespace strtk
                                         RandomNumberGenerator& rng)
    {
       typedef typename std::iterator_traits<Iterator>::value_type T;
-      std::size_t length = std::distance(begin,end);
       std::vector<T> selection;
       selection.resize(k);
       Iterator itr = begin;
@@ -9417,7 +9416,6 @@ namespace strtk
                                  RandomNumberGenerator& rng)
    {
       typedef typename std::iterator_traits<Iterator>::value_type T;
-      std::size_t length = std::distance(begin,end);
       T selection;
       if (begin == end)
          return;
@@ -9431,6 +9429,8 @@ namespace strtk
          }
          ++itr;
       }
+      (*out) = selection;
+      ++out;
    }
    #endif // strtk_enable_random
 
