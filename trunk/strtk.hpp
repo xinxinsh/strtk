@@ -1022,11 +1022,12 @@ namespace strtk
                                                   Iterator end)
    {
       if (0 == std::distance(begin,end)) return 0;
-      Iterator itr1 = begin; ++itr1;
-      Iterator itr2 = begin; ++itr2;
+      Iterator itr1 = begin;
+      Iterator itr2 = begin;
       typename std::iterator_traits<Iterator>::value_type prev = *begin;
       std::size_t removal_count = 0;
-
+      ++itr1;
+      ++itr2;
       while (end != itr1)
       {
          while ((end != itr1) && (!predicate(*itr1) || !predicate(prev)))
@@ -1035,7 +1036,6 @@ namespace strtk
             {
                (*itr2) = (*itr1);
             }
-
             prev = (*itr1);
             ++itr1;
             ++itr2;
@@ -1826,6 +1826,18 @@ namespace strtk
       }
       else
          return false;
+   }
+
+   inline std::size_t index_of(const std::string& pattern, const std::string& data)
+   {
+      if (pattern.empty())
+         return std::string::npos;
+      else if (data.empty())
+         return std::string::npos;
+      else if (pattern.size() > data.size())
+         return std::string::npos;
+      const char* itr = std::search(data.data(), data.data() + data.size(),pattern.data(),pattern.data() + pattern.size());
+      return ((data.data() + data.size()) == itr) ? std::string::npos : std::distance(data.data(),itr);
    }
 
    namespace tokenize_options
@@ -10189,16 +10201,16 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 9] - '0') < 10;
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[8] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[9] - '0') < 10;
            }
          };
 
@@ -10207,15 +10219,15 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 7] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 8] - '0') < 10;
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[7] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[8] - '0') < 10;
            }
          };
 
@@ -10224,14 +10236,14 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 6] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 7] - '0') < 10;
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[6] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[7] - '0') < 10;
            }
          };
 
@@ -10240,13 +10252,13 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 5] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 6] - '0') < 10;
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[5] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[6] - '0') < 10;
            }
          };
 
@@ -10255,12 +10267,12 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 4] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 5] - '0') < 10;
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[4] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[5] - '0') < 10;
            }
          };
 
@@ -10269,11 +10281,11 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 3] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 4] - '0') < 10;
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[3] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[4] - '0') < 10;
            }
          };
 
@@ -10282,10 +10294,10 @@ namespace strtk
          {
             static inline bool process(Iterator itr)
             {
-               return static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 2] - '0') < 10 &&
-                      static_cast<unsigned char>(itr[ 3] - '0') < 10;
+               return static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[2] - '0') < 10 &&
+                      static_cast<unsigned char>(itr[3] - '0') < 10;
            }
          };
 
@@ -10295,9 +10307,9 @@ namespace strtk
             static inline bool process(Iterator itr)
             {
                return
-                static_cast<unsigned char>(itr[ 0] - '0') < 10 &&
-                static_cast<unsigned char>(itr[ 1] - '0') < 10 &&
-                static_cast<unsigned char>(itr[ 2] - '0') < 10;
+                static_cast<unsigned char>(itr[0] - '0') < 10 &&
+                static_cast<unsigned char>(itr[1] - '0') < 10 &&
+                static_cast<unsigned char>(itr[2] - '0') < 10;
            }
          };
 
@@ -11868,7 +11880,7 @@ namespace strtk
          }
 
          std::copy(s.first + offset, s.first + size, buffer + buffer_offset);
-         *t_ = 0;
+         (*t_) = 0;
          valid_= convert_hex_to_bin(buffer,
                                     buffer + (size - offset) + buffer_offset,
                                     reinterpret_cast<char*>(t_));
@@ -11959,7 +11971,7 @@ namespace strtk
             return (*this);
          }
 
-         *t_ = T(0);
+         (*t_) = T(0);
          convert_base64_to_bin(s.data(),
                                s.data() + s.size(),
                                reinterpret_cast<char*>(t_));
@@ -11976,7 +11988,7 @@ namespace strtk
             return (*this);
          }
 
-         *t_ = T(0);
+         (*t_) = T(0);
          convert_base64_to_bin(s.first, s.second,reinterpret_cast<char*>(t_));
          reverse_bytes();
          return (*this);
@@ -17820,7 +17832,7 @@ namespace strtk
          static inline bool process(details::ptr c1, details::ptr c2)
          {
             static const std::size_t size = details::next_size<N>::size;
-            return  details::size_impl<size>::cmp(c1,c2) && memcmp_n_impl<N - size>::process(c1 + size, c2 + size);
+            return details::size_impl<size>::cmp(c1,c2) && memcmp_n_impl<N - size>::process(c1 + size, c2 + size);
          }
 
          static inline bool process(const char* c1, const char* c2)
