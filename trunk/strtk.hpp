@@ -11495,7 +11495,7 @@ namespace strtk
                    template <typename, typename> class Sequence>
          inline bool operator()(const Sequence<T,Allocator>& seq)
          {
-            const uint32_t size = seq.size();
+            const uint32_t size = static_cast<uint32_t>(seq.size());
             if (!operator()(size))
                return false;
 
@@ -11514,7 +11514,7 @@ namespace strtk
                    typename Allocator>
          inline bool operator()(const std::vector<T,Allocator>& vec)
          {
-            const uint32_t size = vec.size();
+            const uint32_t size = static_cast<uint32_t>(vec.size());
             const std::size_t raw_size = (size * sizeof(T));
             if (!buffer_capacity_ok(raw_size + sizeof(size)))
                return false;
@@ -11528,7 +11528,7 @@ namespace strtk
                    typename Comparator>
          inline bool operator()(const std::set<T,Allocator,Comparator>& set)
          {
-            const uint32_t size = set.size();
+            const uint32_t size = static_cast<uint32_t>(set.size());
             if (!operator()(size))
                return false;
 
@@ -13209,12 +13209,12 @@ namespace strtk
       template<> struct supported_conversion_from_type<T> { typedef byte_type_tag type; };
 
       #define strtk_register_hex_number_type_tag(T)\
-      template<> struct supported_conversion_to_type<T>{ typedef hex_number_type_tag type; };
+      template<> struct supported_conversion_to_type<T >{ typedef hex_number_type_tag type; };
 
       template<> struct supported_conversion_to_type<hex_to_string_sink>{ typedef hex_string_type_tag type; };
 
       #define strtk_register_base64_type_tag(T)\
-      template<> struct supported_conversion_to_type<T>{ typedef base64_type_tag type; };
+      template<> struct supported_conversion_to_type<T >{ typedef base64_type_tag type; };
 
       #define strtk_register_supported_iterator_type(T)\
       template<> struct supported_iterator_type<T> { enum { value = true }; };
@@ -13368,7 +13368,7 @@ namespace strtk
       {  static void set(std::iostream&) {}  };
 
       #define strtk_register_iostream_precision(T)\
-      template<> struct precision<T> { static void set(std::iostream& s, const std::size_t& p = 10) { s.precision(p);} };
+      template<> struct precision<T> { static void set(std::iostream& s, const std::streamsize& p = 10) { s.precision(p);} };
 
       strtk_register_iostream_precision(float)
       strtk_register_iostream_precision(double)
@@ -13916,7 +13916,7 @@ namespace strtk
             #undef parse_digit_1
             #undef parse_digit_2
             if (curr != itr) instate = true;
-            pre_decimal = std::distance(post_zero_cull_itr,itr);
+            pre_decimal = static_cast<int>(std::distance(post_zero_cull_itr,itr));
          }
 
          int exponent = 0;
