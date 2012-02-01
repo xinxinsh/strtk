@@ -11572,7 +11572,7 @@ namespace strtk
          }
 
          template <typename T>
-         inline bool native_to_le(T& input)
+         inline bool native_to_le(const T& input)
          {
             //From native to little-endian
             if (details::is_little_endian())
@@ -11745,7 +11745,7 @@ namespace strtk
          public:
 
             short_string_impl()
-            :s(0)
+            : s(0)
             {}
 
             short_string_impl(std::string& str)
