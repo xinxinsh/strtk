@@ -15254,9 +15254,9 @@ namespace strtk
                                  const std::size_t& buffer_size)
       {
          if (!stream) return false;
-         stream.seekg(offset,std::ios_base::beg);
+         stream.seekg(static_cast<std::ifstream::off_type>(offset),std::ios_base::beg);
          if (stream.fail()) return false;
-         stream.read(buffer,buffer_size);
+         stream.read(buffer,static_cast<std::streamsize>(buffer_size));
          if (stream.fail()) return false;
          stream.close();
          return true;
@@ -16550,7 +16550,7 @@ namespace strtk
             const std::size_t buffer_size = sizeof(                        salt_count_) +
                                             sizeof(                        table_size_) +
                                             sizeof(                    raw_table_size_) +
-                                            sizeof(  projected_element_count_) +
+                                            sizeof(           projected_element_count_) +
                                             sizeof(            inserted_element_count_) +
                                             sizeof(                       random_seed_) +
                                             sizeof(desired_false_positive_probability_) +
