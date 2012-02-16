@@ -2011,6 +2011,7 @@ namespace strtk
                include_1st_delimiter_  = itr.include_1st_delimiter_;
                include_all_delimiters_ = itr.include_all_delimiters_;
                include_delimiters_     = itr.include_delimiters_;
+               last_token_done_        = itr.last_token_done_;
             }
             return (*this);
          }
@@ -7128,9 +7129,326 @@ namespace strtk
                       split_option);
       else
          return split(multiple_char_delimiter_predicate(delimiters),
-               range.first,range.second,
+                      range.first,range.second,
                       range_to_type_push_inserter(priority_queue),
                       split_option);
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7, typename T8, typename T9,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8,
+                     Sequence<T9,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      if (token_list.size() < 9) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
+      T9 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7, typename T8,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,Sequence<T8,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      if (token_list.size() < 8) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
+      T8 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, Sequence<T7,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      if (token_list.size() < 7) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+      T7 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, Sequence<T6,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      if (token_list.size() < 6) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      T6 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename T4, typename T5,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, Sequence<T5,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      if (token_list.size() < 5) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      T5 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3, typename T4,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, Sequence<T4,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      if (token_list.size() < 4) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      T4 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, Sequence<T3,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
+      if (token_list.size() < 3) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      T3 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, Sequence<T2,Allocator>& sequence)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+         begin,end,
+         std::back_inserter(token_list),
+         split_options::compress_delimiters);
+      else
+         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+         begin,end,
+         std::back_inserter(token_list),
+         split_options::compress_delimiters);
+      if (token_list.size() < 2) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      T2 t;
+      for ( ; token_list.end() != itr; ++itr)
+      {
+         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
+         sequence.push_back(t);
+      }
+      return true;
    }
 
    template <typename InputIterator,
@@ -7609,6 +7927,120 @@ namespace strtk
                    delimiters,
                    priority_queue,
                    split_option);
+   }
+
+   template <typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7, typename T8, typename T9,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8,
+                     Sequence<T9,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7,t8,sequence);
+   }
+
+   template <typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7, typename T8,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,
+                     Sequence<T8,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,t7,sequence);
+   }
+
+   template <typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, Sequence<T7,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,t6,sequence);
+   }
+
+   template <typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, Sequence<T6,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,t5,sequence);
+   }
+
+   template <typename T1, typename T2, typename T3,
+             typename T4, typename T5,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, Sequence<T5,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,t2,t3,t4,sequence);
+   }
+
+   template <typename T1, typename T2, typename T3, typename T4,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, Sequence<T4,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,t2,t3,sequence);
+   }
+
+   template <typename T1, typename T2, typename T3,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, Sequence<T3,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,t2,sequence);
+   }
+
+   template <typename T1, typename T2, typename T3,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse(const std::string& data,
+                     const std::string& delimiters,
+                     T1& t1, Sequence<T2,Allocator>& sequence)
+   {
+      return parse(data.data(),
+                   data.data() + data.size(),
+                   delimiters,
+                   t1,sequence);
    }
 
    template <typename T,
@@ -18510,7 +18942,7 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.71828182845904523536028747135266249775724";
+      static const char* version = "2.71828182845904523536028747135266249775724709";
       static const char* date    = "20111111";
 
       static inline std::string data()
