@@ -7147,7 +7147,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
@@ -7191,7 +7191,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
@@ -7234,7 +7234,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
@@ -7275,7 +7275,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
@@ -7315,7 +7315,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
@@ -7353,7 +7353,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
@@ -7390,7 +7390,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
@@ -7426,7 +7426,7 @@ namespace strtk
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
-      typedef std::deque<iterator_type>::iterator iterator_type_ptr;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
