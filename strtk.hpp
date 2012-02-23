@@ -7225,7 +7225,7 @@ namespace strtk
 
          sequence_adder_impl operator=(const sequence_adder_impl&);
 
-         mutable sequence_t& sequence_;
+         sequence_t& sequence_;
       };
 
       template<typename T,
@@ -7249,7 +7249,7 @@ namespace strtk
 
       private:
 
-         mutable std::set<T,Allocator,Comparator>& set_;
+         std::set<T,Allocator,Comparator>& set_;
       };
 
       template<typename T,
@@ -7273,7 +7273,7 @@ namespace strtk
 
       private:
 
-         mutable std::priority_queue<T,Container,Comparator>& pq_;
+         std::priority_queue<T,Container,Comparator>& pq_;
       };
 
 
@@ -7298,7 +7298,7 @@ namespace strtk
 
       private:
 
-          mutable SContainer<T,Container>& container_;
+          SContainer<T,Container>& container_;
       };
 
 
@@ -7372,7 +7372,7 @@ namespace strtk
              typename T10, typename T11>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, T2& t2,  T3&  t3,  T4&  t4, T5& t5, T6& t6, T7& t7, 
+                     T1& t1, T2& t2,  T3&  t3,  T4&  t4, T5& t5, T6& t6, T7& t7,
                      T8& t8, T9& t9, T10& t10, T11& t11,
                      details::container_adder& ca)
    {
@@ -8047,7 +8047,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,
-                   details::ca_type<T12,details::is_stl_container<T12>::result_t>::type(t12));
+                   typename details::ca_type<T12, typename details::is_stl_container<T12>::result_t>::type(t12));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8063,7 +8063,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,
-                   details::ca_type<T11,details::is_stl_container<T11>::result_t>::type(t11));
+                   typename details::ca_type<T11, typename details::is_stl_container<T11>::result_t>::type(t11));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8079,7 +8079,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,t6,t7,t8,t9,
-                   details::ca_type<T10,details::is_stl_container<T10>::result_t>::type(t10));
+                   typename details::ca_type<T10, typename details::is_stl_container<T10>::result_t>::type(t10));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8095,7 +8095,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,t6,t7,t8,
-                   details::ca_type<T9,details::is_stl_container<T9>::result_t>::type(t9));
+                   typename details::ca_type<T9, typename details::is_stl_container<T9>::result_t>::type(t9));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8109,7 +8109,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,t6,t7,
-                   details::ca_type<T8,details::is_stl_container<T8>::result_t>::type(t8));
+                   typename details::ca_type<T8, typename details::is_stl_container<T8>::result_t>::type(t8));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8123,7 +8123,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,t6,
-                   details::ca_type<T7,details::is_stl_container<T7>::result_t>::type(t7));
+                   typename details::ca_type<T7, typename details::is_stl_container<T7>::result_t>::type(t7));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8137,7 +8137,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,
-                   details::ca_type<T6,details::is_stl_container<T6>::result_t>::type(t6));
+                   typename details::ca_type<T6, typename details::is_stl_container<T6>::result_t>::type(t6));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8151,7 +8151,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,
-                   details::ca_type<T5,details::is_stl_container<T5>::result_t>::type(t5));
+                   typename details::ca_type<T5, typename details::is_stl_container<T5>::result_t>::type(t5));
    }
 
    template <typename T1, typename T2, typename T3, typename T4>
@@ -8163,7 +8163,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,
-                   details::ca_type<T4,details::is_stl_container<T4>::result_t>::type(t4));
+                   typename details::ca_type<T4, typename details::is_stl_container<T4>::result_t>::type(t4));
    }
 
    template <typename T1, typename T2, typename T3>
@@ -8175,7 +8175,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,
-                   details::ca_type<T3,details::is_stl_container<T3>::result_t>::type(t3));
+                   typename details::ca_type<T3, typename details::is_stl_container<T3>::result_t>::type(t3));
    }
 
    template <typename T1, typename T2>
@@ -8187,7 +8187,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,
-                   details::ca_type<T2,details::is_stl_container<T2>::result_t>::type(t2));
+                   typename details::ca_type<T2, typename details::is_stl_container<T2>::result_t>::type(t2));
    }
 
    template <typename T>
@@ -8198,7 +8198,7 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   details::ca_type<T,details::is_stl_container<T>::result_t>::type(t));
+                   typename details::ca_type<T, typename details::is_stl_container<T>::result_t>::type(t));
    }
 
    template <typename T,
