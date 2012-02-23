@@ -287,6 +287,38 @@ namespace strtk
          enum { result = false };
       };
 
+      template<typename T>
+      struct is_stl_container
+      { typedef no_t result_t; };
+
+      template <typename T, typename Allocator>
+      struct is_stl_container<std::vector<T,Allocator> >
+      { typedef yes_t result_t; };
+
+      template <typename T, typename Allocator>
+      struct is_stl_container<std::deque<T,Allocator> >
+      { typedef yes_t result_t; };
+
+      template <typename T, typename Allocator>
+      struct is_stl_container<std::list<T,Allocator> >
+      { typedef yes_t result_t; };
+
+      template <typename T, typename Allocator, typename Comparator>
+      struct is_stl_container<std::set<T,Allocator,Comparator> >
+      { typedef yes_t result_t; };
+
+      template <typename T, typename Container, typename Comparator>
+      struct is_stl_container<std::priority_queue<T,Container,Comparator> >
+      { typedef yes_t result_t; };
+
+      template <typename T, typename Container>
+      struct is_stl_container<std::queue<T,Container> >
+      { typedef yes_t result_t; };
+
+      template <typename T, typename Container>
+      struct is_stl_container<std::stack<T,Container> >
+      { typedef yes_t result_t; };
+
    } // namespace details
 
    template <typename Iterator, typename T>
@@ -7134,16 +7166,345 @@ namespace strtk
                       split_option);
    }
 
+   namespace details
+   {
+      class container_adder
+      {
+      private:
+
+      class container_adder_base
+      {
+      public:
+
+         typedef const char* itr_type;
+
+         virtual ~container_adder_base(){}
+
+         template<typename InputIterator>
+         inline bool add(const InputIterator begin, const InputIterator end) const
+         {
+            return add_impl(begin,end);
+         }
+
+         template<typename InputIterator>
+         inline bool add(const std::pair<InputIterator,InputIterator>& range) const
+         {
+            return add(range.first,range.second);
+         }
+
+      protected:
+
+         virtual bool add_impl(const itr_type begin, const itr_type end) const = 0;
+
+      };
+
+      template<typename T,
+      typename Allocator,
+      template<typename, typename> class Sequence>
+      class sequence_adder_impl : public container_adder_base
+      {
+      public:
+
+         typedef Sequence<T,Allocator> sequence_t;
+
+         sequence_adder_impl(sequence_t& seq)
+         : sequence_(seq)
+         {}
+
+      protected:
+
+         bool add_impl(const itr_type begin, const itr_type end) const
+         {
+            T t;
+            if (!string_to_type_converter(begin,end,t)) return false;
+            sequence_.push_back(t);
+            return true;
+         }
+
+      private:
+
+         sequence_adder_impl operator=(const sequence_adder_impl&);
+
+         mutable sequence_t& sequence_;
+      };
+
+      template<typename T,
+               typename Allocator,
+               typename Comparator>
+      class set_adder_impl : public container_adder_base
+      {
+      public:
+
+         set_adder_impl(std::set<T,Allocator,Comparator>& set)
+         : set_(set)
+         {}
+
+         bool add_impl(const itr_type begin, const itr_type end) const
+         {
+            T t;
+            if (!string_to_type_converter(begin,end,t)) return false;
+            set_.insert(t);
+            return true;
+         }
+
+      private:
+
+         mutable std::set<T,Allocator,Comparator>& set_;
+      };
+
+      template<typename T,
+               typename Container,
+               typename Comparator>
+      class pq_adder_impl : public container_adder_base
+      {
+      public:
+
+         pq_adder_impl(std::priority_queue<T,Container,Comparator>& pq)
+         : pq_(pq)
+         {}
+
+         bool add_impl(const itr_type begin, const itr_type end) const
+         {
+            T t;
+            if (!string_to_type_converter(begin,end,t)) return false;
+            pq_.push(t);
+            return true;
+         }
+
+      private:
+
+         mutable std::priority_queue<T,Container,Comparator>& pq_;
+      };
+
+
+      template<typename T,
+               typename Container,
+               template<typename, typename> class SContainer>
+      class stack_queue_adder_impl : public container_adder_base
+      {
+      public:
+
+          stack_queue_adder_impl(SContainer<T,Container>& container)
+          : container_(container)
+          {}
+
+          bool add_impl(const itr_type begin, const itr_type end) const
+          {
+              T t;
+              if (!string_to_type_converter(begin,end,t)) return false;
+              container_.push(t);
+              return true;
+          }
+
+      private:
+
+          mutable SContainer<T,Container>& container_;
+      };
+
+
+      public:
+
+      template<typename T, typename Allocator>
+      container_adder(std::vector<T,Allocator>& vec)
+      : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::vector>(vec))
+      {}
+
+      template<typename T, typename Allocator>
+      container_adder(std::deque<T,Allocator>& deq)
+      : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::deque>(deq))
+      {}
+
+      template<typename T, typename Allocator>
+      container_adder(std::list<T,Allocator>& list)
+      : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::list>(list))
+      {}
+
+      template<typename T, typename Allocator, typename Comparator>
+      container_adder(std::set<T,Allocator,Comparator>& set)
+      : container_adder_base_(new(buffer)set_adder_impl<T,Allocator,Comparator>(set))
+      {}
+
+      template<typename T, typename Container, typename Comparator>
+      container_adder(std::priority_queue<T,Container,Comparator>& pq)
+      : container_adder_base_(new(buffer)pq_adder_impl<T,Container,Comparator>(pq))
+      {}
+
+      template<typename T, typename Container>
+      container_adder(std::queue<T,Container>& queue)
+      : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::queue>(queue))
+      {}
+
+      template<typename T, typename Container>
+      container_adder(std::stack<T,Container>& stack)
+      : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::stack>(stack))
+      {}
+
+      template<typename InputIterator>
+      inline bool add(InputIterator begin, InputIterator end) const
+      {
+         return container_adder_base_->add(begin,end);
+      }
+
+      template<typename InputIterator>
+      inline bool add(std::pair<InputIterator,InputIterator>& range) const
+      {
+         return add(range.first,range.second);
+      }
+
+      private:
+
+         mutable container_adder_base* container_adder_base_;
+         unsigned char buffer[256];
+      };
+
+      template<typename T,typename is_stl_container_result>
+      struct ca_type { typedef T& type; };
+
+      template<typename T>
+      struct ca_type<T,details::yes_t> { typedef  details::container_adder& type; };
+
+   }
+
+   template <typename InputIterator,
+             typename  T1, typename  T2, typename T3,
+             typename  T4, typename  T5, typename T6,
+             typename  T7, typename  T8, typename T9,
+             typename T10, typename T11>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2,  T3&  t3,  T4&  t4, T5& t5, T6& t6, T7& t7, 
+                     T8& t8, T9& t9, T10& t10, T11& t11,
+                     details::container_adder& ca)
+   {
+       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+       typedef std::pair<InputIterator,InputIterator> iterator_type;
+       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
+       std::deque<iterator_type> token_list;
+       std::size_t parsed_token_count = 0;
+       if (1 == delimiters.size())
+           parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                      begin,end,
+                                      std::back_inserter(token_list),
+                                      split_options::compress_delimiters);
+       else
+           parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                      begin,end,
+                                      std::back_inserter(token_list),
+                                      split_options::compress_delimiters);
+       if (token_list.size() < 12) return false;
+       iterator_type_ptr itr = token_list.begin();
+       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t11)) return false; ++itr;
+       for ( ; token_list.end() != itr; ++itr)
+       {
+           if (!ca.add(*itr)) return false;
+       }
+       return true;
+   }
+
    template <typename InputIterator,
              typename T1, typename T2, typename T3,
              typename T4, typename T5, typename T6,
              typename T7, typename T8, typename T9,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+             typename T10>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9, T10& t10,
+                     details::container_adder& ca)
+   {
+       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+       typedef std::pair<InputIterator,InputIterator> iterator_type;
+       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
+       std::deque<iterator_type> token_list;
+       std::size_t parsed_token_count = 0;
+       if (1 == delimiters.size())
+           parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                      begin,end,
+                                      std::back_inserter(token_list),
+                                      split_options::compress_delimiters);
+       else
+           parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                      begin,end,
+                                      std::back_inserter(token_list),
+                                      split_options::compress_delimiters);
+       if (token_list.size() < 11) return false;
+       iterator_type_ptr itr = token_list.begin();
+       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
+       for ( ; token_list.end() != itr; ++itr)
+       {
+           if (!ca.add(*itr)) return false;
+       }
+       return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7, typename T8, typename T9>
+   inline bool parse(const InputIterator begin, const InputIterator end,
+                     const std::string& delimiters,
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
+                     details::container_adder& ca)
+   {
+       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+       typedef std::pair<InputIterator,InputIterator> iterator_type;
+       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
+       std::deque<iterator_type> token_list;
+       std::size_t parsed_token_count = 0;
+       if (1 == delimiters.size())
+           parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                      begin,end,
+                                      std::back_inserter(token_list),
+                                      split_options::compress_delimiters);
+       else
+           parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                      begin,end,
+                                      std::back_inserter(token_list),
+                                      split_options::compress_delimiters);
+       if (token_list.size() < 10) return false;
+       iterator_type_ptr itr = token_list.begin();
+       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
+       if (!string_to_type_converter((*itr).first,(*itr).second,t9)) return false; ++itr;
+       for ( ; token_list.end() != itr; ++itr)
+       {
+           if (!ca.add(*itr)) return false;
+       }
+       return true;
+   }
+
+   template <typename InputIterator,
+             typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6,
+             typename T7, typename T8>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8,
-                     Sequence<T9,Allocator>& sequence)
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7170,24 +7531,20 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
-      T9 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
 
    template <typename InputIterator,
              typename T1, typename T2, typename T3,
-             typename T4, typename T5, typename T6,
-             typename T7, typename T8,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+             typename T4, typename T5, typename T6, typename T7>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,Sequence<T8,Allocator>& sequence)
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7213,24 +7570,20 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
-      T8 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
 
    template <typename InputIterator,
              typename T1, typename T2, typename T3,
-             typename T4, typename T5, typename T6,
-             typename T7,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+             typename T4, typename T5, typename T6>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, Sequence<T7,Allocator>& sequence)
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7255,23 +7608,20 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
-      T7 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
 
    template <typename InputIterator,
              typename T1, typename T2, typename T3,
-             typename T4, typename T5, typename T6,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+             typename T4, typename T5>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, Sequence<T6,Allocator>& sequence)
+                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7295,23 +7645,19 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
-      T6 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
 
    template <typename InputIterator,
-             typename T1, typename T2, typename T3,
-             typename T4, typename T5,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+             typename T1, typename T2, typename T3, typename T4>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, Sequence<T5,Allocator>& sequence)
+                     T1& t1, T2& t2, T3& t3, T4& t4,
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7334,22 +7680,19 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
-      T5 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
 
    template <typename InputIterator,
-             typename T1, typename T2, typename T3, typename T4,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+             typename T1, typename T2, typename T3>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, Sequence<T4,Allocator>& sequence)
+                     T1& t1, T2& t2, T3& t3,
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7371,22 +7714,19 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
-      T4 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
 
    template <typename InputIterator,
-             typename T1, typename T2, typename T3,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+             typename T1, typename T2>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, T2& t2, Sequence<T3,Allocator>& sequence)
+                     T1& t1, T2& t2,
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7407,22 +7747,18 @@ namespace strtk
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
-      T3 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
 
-   template <typename InputIterator,
-             typename T1, typename T2,
-             typename Allocator,
-             template <typename,typename> class Sequence>
+   template <typename InputIterator, typename T1>
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
-                     T1& t1, Sequence<T2,Allocator>& sequence)
+                     T1& t1,
+                     details::container_adder& ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7431,22 +7767,20 @@ namespace strtk
       std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
          parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-         begin,end,
-         std::back_inserter(token_list),
-         split_options::compress_delimiters);
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
       else
          parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-         begin,end,
-         std::back_inserter(token_list),
-         split_options::compress_delimiters);
+                                    begin,end,
+                                    std::back_inserter(token_list),
+                                    split_options::compress_delimiters);
       if (token_list.size() < 2) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
-      T2 t;
       for ( ; token_list.end() != itr; ++itr)
       {
-         if (!string_to_type_converter((*itr).first,(*itr).second,t)) return false;
-         sequence.push_back(t);
+          if (!ca.add(*itr)) return false;
       }
       return true;
    }
@@ -7712,7 +8046,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12);
+                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,
+                   details::ca_type<T12,details::is_stl_container<T12>::result_t>::type(t12));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -7727,7 +8062,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
+                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,
+                   details::ca_type<T11,details::is_stl_container<T11>::result_t>::type(t11));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -7742,7 +8078,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
+                   t1,t2,t3,t4,t5,t6,t7,t8,t9,
+                   details::ca_type<T10,details::is_stl_container<T10>::result_t>::type(t10));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -7757,7 +8094,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5,t6,t7,t8,t9);
+                   t1,t2,t3,t4,t5,t6,t7,t8,
+                   details::ca_type<T9,details::is_stl_container<T9>::result_t>::type(t9));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -7770,7 +8108,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5,t6,t7,t8);
+                   t1,t2,t3,t4,t5,t6,t7,
+                   details::ca_type<T8,details::is_stl_container<T8>::result_t>::type(t8));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -7783,7 +8122,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5,t6,t7);
+                   t1,t2,t3,t4,t5,t6,
+                   details::ca_type<T7,details::is_stl_container<T7>::result_t>::type(t7));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -7796,7 +8136,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5,t6);
+                   t1,t2,t3,t4,t5,
+                   details::ca_type<T6,details::is_stl_container<T6>::result_t>::type(t6));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -7809,7 +8150,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4,t5);
+                   t1,t2,t3,t4,
+                   details::ca_type<T5,details::is_stl_container<T5>::result_t>::type(t5));
    }
 
    template <typename T1, typename T2, typename T3, typename T4>
@@ -7820,7 +8162,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3,t4);
+                   t1,t2,t3,
+                   details::ca_type<T4,details::is_stl_container<T4>::result_t>::type(t4));
    }
 
    template <typename T1, typename T2, typename T3>
@@ -7831,7 +8174,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2,t3);
+                   t1,t2,
+                   details::ca_type<T3,details::is_stl_container<T3>::result_t>::type(t3));
    }
 
    template <typename T1, typename T2>
@@ -7842,7 +8186,8 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t1,t2);
+                   t1,
+                   details::ca_type<T2,details::is_stl_container<T2>::result_t>::type(t2));
    }
 
    template <typename T>
@@ -7853,7 +8198,7 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   t);
+                   details::ca_type<T,details::is_stl_container<T>::result_t>::type(t));
    }
 
    template <typename T,
@@ -7927,120 +8272,6 @@ namespace strtk
                    delimiters,
                    priority_queue,
                    split_option);
-   }
-
-   template <typename T1, typename T2, typename T3,
-             typename T4, typename T5, typename T6,
-             typename T7, typename T8, typename T9,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8,
-                     Sequence<T9,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,t2,t3,t4,t5,t6,t7,t8,sequence);
-   }
-
-   template <typename T1, typename T2, typename T3,
-             typename T4, typename T5, typename T6,
-             typename T7, typename T8,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,
-                     Sequence<T8,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,t2,t3,t4,t5,t6,t7,sequence);
-   }
-
-   template <typename T1, typename T2, typename T3,
-             typename T4, typename T5, typename T6,
-             typename T7,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, Sequence<T7,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,t2,t3,t4,t5,t6,sequence);
-   }
-
-   template <typename T1, typename T2, typename T3,
-             typename T4, typename T5, typename T6,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, Sequence<T6,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,t2,t3,t4,t5,sequence);
-   }
-
-   template <typename T1, typename T2, typename T3,
-             typename T4, typename T5,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, T4& t4, Sequence<T5,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,t2,t3,t4,sequence);
-   }
-
-   template <typename T1, typename T2, typename T3, typename T4,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, T3& t3, Sequence<T4,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,t2,t3,sequence);
-   }
-
-   template <typename T1, typename T2, typename T3,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, T2& t2, Sequence<T3,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,t2,sequence);
-   }
-
-   template <typename T1, typename T2, typename T3,
-             typename Allocator,
-             template <typename,typename> class Sequence>
-   inline bool parse(const std::string& data,
-                     const std::string& delimiters,
-                     T1& t1, Sequence<T2,Allocator>& sequence)
-   {
-      return parse(data.data(),
-                   data.data() + data.size(),
-                   delimiters,
-                   t1,sequence);
    }
 
    template <typename T,
@@ -8208,7 +8439,7 @@ namespace strtk
    #define strtk_parse_begin(Type)\
    namespace strtk {\
    bool parse(const std::string& data, const std::string& delimiters, Type& t)\
-   { return parse(data.data(),data.data() + data.size(),delimiters
+   { return parse(data,delimiters
 
    #define strtk_parse_type(T)\
    ,t.T
@@ -9064,7 +9295,10 @@ namespace strtk
    inline std::string join(const std::string& delimiter,
                            const Sequence<T,Allocator>& sequence)
    {
-      return join(delimiter,sequence.begin(),sequence.end());
+      if (sequence.empty())
+         return "";
+      else
+         return join(delimiter,sequence.begin(),sequence.end());
    }
 
    template <typename T,
@@ -9073,7 +9307,10 @@ namespace strtk
    inline std::string join(const std::string& delimiter,
                            const std::set<T,Comparator,Allocator>& set)
    {
-      return join(delimiter,set.begin(),set.end());
+      if (set.empty())
+         return "";
+      else
+         return join(delimiter,set.begin(),set.end());
    }
 
    inline std::string join(const std::string& delimiter, int argc, char* argv[])
