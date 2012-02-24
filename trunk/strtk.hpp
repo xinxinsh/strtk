@@ -7363,7 +7363,7 @@ namespace strtk
                      const std::string& delimiters,
                      T1& t1, T2& t2,  T3&  t3,  T4&  t4, T5& t5, T6& t6, T7& t7,
                      T8& t8, T9& t9, T10& t10, T11& t11,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
        typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
        typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7408,7 +7408,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9, T10& t10,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
        typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
        typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7451,7 +7451,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
        typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
        typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7493,7 +7493,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7533,7 +7533,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7572,7 +7572,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7610,7 +7610,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7646,7 +7646,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3, T4& t4,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7681,7 +7681,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2, T3& t3,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7715,7 +7715,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1, T2& t2,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
@@ -7747,7 +7747,7 @@ namespace strtk
    inline bool parse(const InputIterator begin, const InputIterator end,
                      const std::string& delimiters,
                      T1& t1,
-                     details::container_adder& ca)
+                     details::container_adder ca)
    {
       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
       typedef std::pair<InputIterator,InputIterator> iterator_type;
