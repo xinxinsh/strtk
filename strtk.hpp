@@ -291,33 +291,22 @@ namespace strtk
       struct is_stl_container
       { typedef no_t result_t; };
 
-      template <typename T, typename Allocator>
-      struct is_stl_container<std::vector<T,Allocator> >
-      { typedef yes_t result_t; };
+      #define register_stl_container1(C) \
+      template <typename T1, typename T2>struct is_stl_container<C<T1,T2> >{ typedef yes_t result_t; };
 
-      template <typename T, typename Allocator>
-      struct is_stl_container<std::deque<T,Allocator> >
-      { typedef yes_t result_t; };
+      #define register_stl_container2(C) \
+      template <typename T1, typename T2, typename T3>struct is_stl_container<C<T1,T2,T3> >{ typedef yes_t result_t; };
 
-      template <typename T, typename Allocator>
-      struct is_stl_container<std::list<T,Allocator> >
-      { typedef yes_t result_t; };
+      register_stl_container1(std::vector)
+      register_stl_container1(std::deque)
+      register_stl_container1(std::list)
+      register_stl_container1(std::queue)
+      register_stl_container1(std::stack)
+      register_stl_container2(std::set)
+      register_stl_container2(std::priority_queue)
 
-      template <typename T, typename Allocator, typename Comparator>
-      struct is_stl_container<std::set<T,Allocator,Comparator> >
-      { typedef yes_t result_t; };
-
-      template <typename T, typename Container, typename Comparator>
-      struct is_stl_container<std::priority_queue<T,Container,Comparator> >
-      { typedef yes_t result_t; };
-
-      template <typename T, typename Container>
-      struct is_stl_container<std::queue<T,Container> >
-      { typedef yes_t result_t; };
-
-      template <typename T, typename Container>
-      struct is_stl_container<std::stack<T,Container> >
-      { typedef yes_t result_t; };
+      #undef register_stl_container1
+      #undef register_stl_container2
 
    } // namespace details
 
@@ -7361,7 +7350,7 @@ namespace strtk
       struct ca_type { typedef T& type; };
 
       template<typename T>
-      struct ca_type<T,details::yes_t> { typedef  details::container_adder& type; };
+      struct ca_type<T,details::yes_t> { typedef  details::container_adder type; };
 
    }
 
@@ -8137,7 +8126,7 @@ namespace strtk
                    data.data() + data.size(),
                    delimiters,
                    t1,t2,t3,t4,t5,
-                   typename details::ca_type<T6, typename details::is_stl_container<T6>::result_t>::type(t6));
+                   typename details::ca_type<T6,typename details::is_stl_container<T6>::result_t>::type(t6));
    }
 
    template <typename T1, typename T2, typename T3, typename T4,
@@ -8198,7 +8187,7 @@ namespace strtk
       return parse(data.data(),
                    data.data() + data.size(),
                    delimiters,
-                   typename details::ca_type<T, typename details::is_stl_container<T>::result_t>::type(t));
+                   typename details::ca_type<T,typename details::is_stl_container<T>::result_t>::type(t));
    }
 
    template <typename T,
@@ -10353,7 +10342,9 @@ namespace strtk
    }
 
    template <typename Iterator, typename Function>
-   inline void for_each_combination(Iterator begin, Iterator end, const std::size_t& size, Function function)
+   inline void for_each_combination(Iterator begin, Iterator end,
+                                    const std::size_t& size,
+                                    Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
          return;
@@ -10367,7 +10358,9 @@ namespace strtk
    }
 
    template <typename Iterator, typename Function>
-   inline void for_each_combination_conditional(Iterator begin, Iterator end, const std::size_t& size, Function function)
+   inline void for_each_combination_conditional(Iterator begin, Iterator end,
+                                                const std::size_t& size,
+                                                Function function)
    {
       if (static_cast<typename std::iterator_traits<Iterator>::difference_type>(size) > std::distance(begin,end))
          return;
@@ -17295,7 +17288,7 @@ namespace strtk
 
          inline virtual void compute_indices(const bloom_type& hash, std::size_t& bit_index, std::size_t& bit) const
          {
-            bit_index = hash % table_size_;
+            bit_index = static_cast<std::size_t>(hash % table_size_);
             bit = bit_index % bits_per_char;
          }
 
