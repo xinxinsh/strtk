@@ -7238,6 +7238,8 @@ namespace strtk
 
       private:
 
+         set_adder_impl operator=(const set_adder_impl&);
+
          std::set<T,Allocator,Comparator>& set_;
       };
 
@@ -7261,6 +7263,8 @@ namespace strtk
          }
 
       private:
+
+         pq_adder_impl operator=(const pq_adder_impl&);
 
          std::priority_queue<T,Container,Comparator>& pq_;
       };
@@ -7286,6 +7290,8 @@ namespace strtk
           }
 
       private:
+
+         stack_queue_adder_impl operator=(const stack_queue_adder_impl&);
 
           SContainer<T,Container>& container_;
       };
@@ -7352,6 +7358,18 @@ namespace strtk
       template<typename T>
       struct ca_type<T,details::yes_t> { typedef  details::container_adder type; };
 
+      template<typename InputIterator>
+      bool add_to_container(const InputIterator begin, const InputIterator end, container_adder& ca)
+      {
+         InputIterator itr = begin;
+         while (end != itr)
+         {
+            if (!ca.add(*itr)) return false;
+            ++itr;
+         }
+         return true;
+      }
+
    }
 
    template <typename InputIterator,
@@ -7365,39 +7383,35 @@ namespace strtk
                      T8& t8, T9& t9, T10& t10, T11& t11,
                      details::container_adder ca)
    {
-       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
-       typedef std::pair<InputIterator,InputIterator> iterator_type;
-       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
-       std::deque<iterator_type> token_list;
-       std::size_t parsed_token_count = 0;
-       if (1 == delimiters.size())
-           parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                      begin,end,
-                                      std::back_inserter(token_list),
-                                      split_options::compress_delimiters);
-       else
-           parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                      begin,end,
-                                      std::back_inserter(token_list),
-                                      split_options::compress_delimiters);
-       if (token_list.size() < 12) return false;
-       iterator_type_ptr itr = token_list.begin();
-       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t11)) return false; ++itr;
-       for ( ; token_list.end() != itr; ++itr)
-       {
-           if (!ca.add(*itr)) return false;
-       }
-       return true;
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+          parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                     begin,end,
+                                     std::back_inserter(token_list),
+                                     split_options::compress_delimiters);
+      else
+          parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                     begin,end,
+                                     std::back_inserter(token_list),
+                                     split_options::compress_delimiters);
+      if (token_list.size() < 12) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t11)) return false; ++itr;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7410,38 +7424,34 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9, T10& t10,
                      details::container_adder ca)
    {
-       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
-       typedef std::pair<InputIterator,InputIterator> iterator_type;
-       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
-       std::deque<iterator_type> token_list;
-       std::size_t parsed_token_count = 0;
-       if (1 == delimiters.size())
-           parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                      begin,end,
-                                      std::back_inserter(token_list),
-                                      split_options::compress_delimiters);
-       else
-           parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                      begin,end,
-                                      std::back_inserter(token_list),
-                                      split_options::compress_delimiters);
-       if (token_list.size() < 11) return false;
-       iterator_type_ptr itr = token_list.begin();
-       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
-       for ( ; token_list.end() != itr; ++itr)
-       {
-           if (!ca.add(*itr)) return false;
-       }
-       return true;
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+          parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                     begin,end,
+                                     std::back_inserter(token_list),
+                                     split_options::compress_delimiters);
+      else
+          parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                     begin,end,
+                                     std::back_inserter(token_list),
+                                     split_options::compress_delimiters);
+      if (token_list.size() < 11) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7453,37 +7463,33 @@ namespace strtk
                      T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
                      details::container_adder ca)
    {
-       typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
-       typedef std::pair<InputIterator,InputIterator> iterator_type;
-       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
-       std::deque<iterator_type> token_list;
-       std::size_t parsed_token_count = 0;
-       if (1 == delimiters.size())
-           parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                      begin,end,
-                                      std::back_inserter(token_list),
-                                      split_options::compress_delimiters);
-       else
-           parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                      begin,end,
-                                      std::back_inserter(token_list),
-                                      split_options::compress_delimiters);
-       if (token_list.size() < 10) return false;
-       iterator_type_ptr itr = token_list.begin();
-       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
-       if (!string_to_type_converter((*itr).first,(*itr).second,t9)) return false; ++itr;
-       for ( ; token_list.end() != itr; ++itr)
-       {
-           if (!ca.add(*itr)) return false;
-       }
-       return true;
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      typedef std::pair<InputIterator,InputIterator> iterator_type;
+      typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
+      std::deque<iterator_type> token_list;
+      std::size_t parsed_token_count = 0;
+      if (1 == delimiters.size())
+          parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+                                     begin,end,
+                                     std::back_inserter(token_list),
+                                     split_options::compress_delimiters);
+      else
+          parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
+                                     begin,end,
+                                     std::back_inserter(token_list),
+                                     split_options::compress_delimiters);
+      if (token_list.size() < 10) return false;
+      iterator_type_ptr itr = token_list.begin();
+      if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
+      if (!string_to_type_converter((*itr).first,(*itr).second,t9)) return false; ++itr;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7520,11 +7526,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7559,11 +7561,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7597,11 +7595,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7634,11 +7628,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7669,11 +7659,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7703,11 +7689,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
@@ -7736,11 +7718,7 @@ namespace strtk
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator, typename T1>
@@ -7767,11 +7745,7 @@ namespace strtk
       if (token_list.size() < 2) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
-      for ( ; token_list.end() != itr; ++itr)
-      {
-          if (!ca.add(*itr)) return false;
-      }
-      return true;
+      return add_to_container(itr,token_list.end(),ca);
    }
 
    template <typename InputIterator,
