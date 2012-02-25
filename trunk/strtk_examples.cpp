@@ -794,7 +794,7 @@ void parse_example09()
       std::string data = "A String Value,01-01-2000,111.111,222.222,333.333,444.444,555.555";
       std::string token;
       std::string date;
-      std::deque<double> double_list;
+      std::vector<double> double_list;
       strtk::parse(data,",",token,date,double_list);
    }
    {
@@ -802,7 +802,7 @@ void parse_example09()
       std::string token;
       std::string date;
       int i;
-      std::deque<double> double_list;
+      std::set<double> double_list;
       strtk::parse(data,",",token,date,i,double_list);
    }
    {
@@ -811,7 +811,7 @@ void parse_example09()
       std::string date;
       int i;
       double d;
-      std::deque<double> double_list;
+      std::stack<double> double_list;
       strtk::parse(data,",",token,date,i,d,double_list);
    }
    {
@@ -821,7 +821,7 @@ void parse_example09()
       int i;
       double d1;
       double d2;
-      std::deque<double> double_list;
+      std::queue<double> double_list;
       strtk::parse(data,",",token,date,i,d1,d2,double_list);
    }
 }
