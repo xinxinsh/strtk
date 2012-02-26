@@ -7346,6 +7346,18 @@ namespace strtk
          return add(range.first,range.second);
       }
 
+      template<typename InputIterator>
+      bool operator()(const InputIterator begin, const InputIterator end)
+      {
+         InputIterator itr = begin;
+         while (end != itr)
+         {
+            if (!add(*itr)) return false;
+            ++itr;
+         }
+         return true;
+      }
+
       private:
 
          mutable container_adder_base* container_adder_base_;
@@ -7357,18 +7369,6 @@ namespace strtk
 
       template<typename T>
       struct ca_type<T,details::yes_t> { typedef  details::container_adder type; };
-
-      template<typename InputIterator>
-      bool add_to_container(const InputIterator begin, const InputIterator end, container_adder& ca)
-      {
-         InputIterator itr = begin;
-         while (end != itr)
-         {
-            if (!ca.add(*itr)) return false;
-            ++itr;
-         }
-         return true;
-      }
 
    }
 
@@ -7411,7 +7411,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t11)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
    }
 
    template <typename InputIterator,
@@ -7451,7 +7451,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second, t8)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second, t9)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t10)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
    }
 
    template <typename InputIterator,
@@ -7489,7 +7489,7 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t9)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
    }
 
    template <typename InputIterator,
@@ -7526,7 +7526,8 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator,
@@ -7561,7 +7562,8 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator,
@@ -7595,7 +7597,8 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator,
@@ -7628,7 +7631,8 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator,
@@ -7659,7 +7663,8 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator,
@@ -7689,7 +7694,8 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator,
@@ -7718,7 +7724,8 @@ namespace strtk
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator, typename T1>
@@ -7745,7 +7752,8 @@ namespace strtk
       if (token_list.size() < 2) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
-      return add_to_container(itr,token_list.end(),ca);
+      return ca(itr,token_list.end());
+
    }
 
    template <typename InputIterator,
