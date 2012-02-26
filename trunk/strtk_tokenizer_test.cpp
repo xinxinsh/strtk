@@ -440,6 +440,26 @@ bool test_tokenizer_options()
       }
    }
 
+   {
+      std::string data = "abc def";
+      strtk::single_delimiter_predicate<char> delimiter(' ');
+      typedef strtk::std_string::tokenizer<strtk::single_delimiter_predicate<char> >::type tokenizer_type;
+      tokenizer_type tokenizer(data,delimiter);
+      tokenizer_type::iterator itr = tokenizer.begin();
+      ++itr;
+      itr = tokenizer.begin();
+      unsigned int count = 0;
+      while (tokenizer.end() != itr)
+      {
+         if (++count > 2)
+         {
+            std::cout << "test_tokenizer_options() - Failed iterator test." << std::endl;
+            return false;
+         }
+         ++itr;
+      }
+   }
+
    return true;
 }
 
