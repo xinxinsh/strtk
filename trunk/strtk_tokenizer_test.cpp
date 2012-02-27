@@ -40,6 +40,16 @@
 #include "strtk.hpp"
 
 
+template <typename T>
+inline bool not_equal(const T& t1,
+                      const T& t2,
+                      const T& epsilon = 0.0000000001/*std::numeric_limits<T>::epsilon()*/)
+{
+   if (t1 != t1) return true;
+   if (t2 != t2) return true;
+   return std::abs(t1 - t2) > (std::max(T(1.0),std::max(std::abs(t1),std::abs(t2))) * epsilon);
+}
+
 template<typename Predicate>
 bool test_tokenizer_split(const Predicate& p,
                           const std::string& s,
@@ -1076,7 +1086,7 @@ bool test_double_convert()
             return false;
          }
 
-         if (std::abs(t - v) > 0.0000000001)
+         if (not_equal(t,v,0.0000000001))
          {
             std::cout << "test_double_convert() - Failed decimal r == t  r: " << t << std::endl;
             return false;
@@ -1109,7 +1119,7 @@ bool test_double_convert()
             return false;
          }
 
-         if (std::abs(d1 - tmp) > 0.000000001)
+         if (not_equal(d1,tmp,0.000000001))
          {
             std::cout << "test_double_convert() - (1) final test compare failure @ " << i << std::endl;
             return false;
@@ -1124,7 +1134,7 @@ bool test_double_convert()
             return false;
          }
 
-         if (std::abs(d2 - tmp) > 0.000000001)
+         if (not_equal(d2,tmp,0.000000001))
          {
             std::cout << "test_double_convert() - (2) final test compare failure @ " << i << std::endl;
             return false;
@@ -1977,7 +1987,7 @@ bool test_kv_parse()
             return false;
          }
 
-         if (std::abs(x - f) > 0.0000001f)
+         if (not_equal(x,f,0.0000001f))
          {
             std::cout << "test_kv_parse() - (float) failed value test at index: " << i << " x:" << x << std::endl;
             return false;
@@ -2003,7 +2013,7 @@ bool test_kv_parse()
             return false;
          }
 
-         if (std::abs(x - d) > 0.0000001)
+         if (not_equal(x,d,0.0000001))
          {
             std::cout << "test_kv_parse() - (double) failed value test at index: " << i << " x:" << x << std::endl;
             return false;
@@ -2194,13 +2204,13 @@ bool test_keyvalue_parser()
          return false;
       }
 
-      if (std::abs(d3 - 1234.5678) > 0.0000001)
+      if (not_equal(d3,1234.5678,0.0000001))
       {
          std::cout << "test_keyvalue_parser() - Error d3 parse failure. d3: " << d3 << std::endl;
          return false;
       }
 
-      if (std::abs(d4 - 90123.4567f) > 0.0000001f)
+      if (not_equal(d4,90123.4567f,0.0000001f))
       {
          std::cout << "test_keyvalue_parser() - Error d3 parse failure. d4: " << d4 << std::endl;
          return false;
@@ -2257,13 +2267,13 @@ bool test_keyvalue_parser()
          return false;
       }
 
-      if (std::abs(d3 - 1234.5678) > 0.0000001)
+      if (not_equal(d3,1234.5678,0.0000001))
       {
          std::cout << "test_keyvalue_parser() - Error d3 parse failure. d3: " << d3 << std::endl;
          return false;
       }
 
-      if (std::abs(d4 - 90123.4567f) > 0.0000001f)
+      if (not_equal(d4,90123.4567f,0.0000001f))
       {
          std::cout << "test_keyvalue_parser() - Error d3 parse failure. d4: " << d4 << std::endl;
          return false;
@@ -2408,16 +2418,13 @@ bool test_keyvalue_parser()
          return false;
       }
 
-      if ((std::abs(d3 - 1234.5678) > 0.0000001) &&
-          (std::abs(1234.5678 - d3) > 0.0000001))
-
+      if (not_equal<double>(d3,1234.5678,0.0000001))
       {
          std::cout << "test_keyvalue_parser() - Error d3 parse failure. d3: " << d3 << std::endl;
          return false;
       }
 
-      if ((std::abs(d4 - 90123.4567f) > 0.0000001f) &&
-          (std::abs(90123.4567f - d4) > 0.0000001f))
+      if (not_equal<double>(d4,90123.4567f,0.0000001f))
       {
          std::cout << "test_keyvalue_parser() - Error d3 parse failure. d4: " << d4 << std::endl;
          return false;
