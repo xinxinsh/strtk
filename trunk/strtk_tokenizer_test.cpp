@@ -1781,19 +1781,19 @@ bool test_parse4()
       {
          double expected_value = i +  (i / 10.0);
 
-         if (double_vec[i] != expected_value)
+         if (not_equal(double_vec[i],expected_value))
          {
             std::cout << "test_parse4() - failed double_vec[" << i <<"] == " << i << std::endl;
             return false;
          }
 
-         if (double_deq[i] != expected_value)
+         if (not_equal(double_deq[i],expected_value))
          {
             std::cout << "test_parse4() - failed double_deq[" << i <<"] == " << i << std::endl;
             return false;
          }
 
-         if (*(double_lst_itr) != -expected_value)
+         if (not_equal(*(double_lst_itr),-expected_value))
          {
             std::cout << "test_parse4() - failed double_lst[" << i <<"] == " << i << std::endl;
             return false;
