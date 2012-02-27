@@ -287,7 +287,7 @@ namespace strtk
          enum { result = false };
       };
 
-      template<typename T>
+      template <typename T>
       struct is_stl_container
       { typedef no_t result_t; };
 
@@ -876,7 +876,7 @@ namespace strtk
 
       multiple_delimiter_predicate(const T d[], const std::size_t& length)
       : length_(length),
-        delimiter_(new T[length_]),
+        delimiter_((length_ <= sbo_buffer_size) ? sbo_buffer : new T[length_]),
         delimiter_end_(delimiter_ + length_)
       {
          std::copy(d,d + length, delimiter_);
@@ -7169,13 +7169,13 @@ namespace strtk
 
          virtual ~container_adder_base(){}
 
-         template<typename InputIterator>
+         template <typename InputIterator>
          inline bool add(const InputIterator begin, const InputIterator end) const
          {
             return add_impl(begin,end);
          }
 
-         template<typename InputIterator>
+         template <typename InputIterator>
          inline bool add(const std::pair<InputIterator,InputIterator>& range) const
          {
             return add(range.first,range.second);
@@ -7187,9 +7187,9 @@ namespace strtk
 
       };
 
-      template<typename T,
-      typename Allocator,
-      template<typename, typename> class Sequence>
+      template <typename T,
+                typename Allocator,
+                template <typename, typename> class Sequence>
       class sequence_adder_impl : public container_adder_base
       {
       public:
@@ -7217,9 +7217,9 @@ namespace strtk
          sequence_t& sequence_;
       };
 
-      template<typename T,
-               typename Allocator,
-               typename Comparator>
+      template <typename T,
+                typename Allocator,
+                typename Comparator>
       class set_adder_impl : public container_adder_base
       {
       public:
@@ -7243,9 +7243,9 @@ namespace strtk
          std::set<T,Allocator,Comparator>& set_;
       };
 
-      template<typename T,
-               typename Container,
-               typename Comparator>
+      template <typename T,
+                typename Container,
+                typename Comparator>
       class pq_adder_impl : public container_adder_base
       {
       public:
@@ -7270,9 +7270,9 @@ namespace strtk
       };
 
 
-      template<typename T,
-               typename Container,
-               template<typename, typename> class SContainer>
+      template <typename T,
+                typename Container,
+                template <typename, typename> class SContainer>
       class stack_queue_adder_impl : public container_adder_base
       {
       public:
@@ -7299,54 +7299,54 @@ namespace strtk
 
       public:
 
-      template<typename T, typename Allocator>
+      template <typename T, typename Allocator>
       container_adder(std::vector<T,Allocator>& vec)
       : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::vector>(vec))
       {}
 
-      template<typename T, typename Allocator>
+      template <typename T, typename Allocator>
       container_adder(std::deque<T,Allocator>& deq)
       : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::deque>(deq))
       {}
 
-      template<typename T, typename Allocator>
+      template <typename T, typename Allocator>
       container_adder(std::list<T,Allocator>& list)
       : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::list>(list))
       {}
 
-      template<typename T, typename Allocator, typename Comparator>
+      template <typename T, typename Allocator, typename Comparator>
       container_adder(std::set<T,Allocator,Comparator>& set)
       : container_adder_base_(new(buffer)set_adder_impl<T,Allocator,Comparator>(set))
       {}
 
-      template<typename T, typename Container, typename Comparator>
+      template <typename T, typename Container, typename Comparator>
       container_adder(std::priority_queue<T,Container,Comparator>& pq)
       : container_adder_base_(new(buffer)pq_adder_impl<T,Container,Comparator>(pq))
       {}
 
-      template<typename T, typename Container>
+      template <typename T, typename Container>
       container_adder(std::queue<T,Container>& queue)
       : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::queue>(queue))
       {}
 
-      template<typename T, typename Container>
+      template <typename T, typename Container>
       container_adder(std::stack<T,Container>& stack)
       : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::stack>(stack))
       {}
 
-      template<typename InputIterator>
+      template <typename InputIterator>
       inline bool add(InputIterator begin, InputIterator end) const
       {
          return container_adder_base_->add(begin,end);
       }
 
-      template<typename InputIterator>
+      template <typename InputIterator>
       inline bool add(std::pair<InputIterator,InputIterator>& range) const
       {
          return add(range.first,range.second);
       }
 
-      template<typename InputIterator>
+      template <typename InputIterator>
       bool operator()(const InputIterator begin, const InputIterator end)
       {
          InputIterator itr = begin;
@@ -7364,11 +7364,11 @@ namespace strtk
          unsigned char buffer[256];
       };
 
-      template<typename T,typename is_stl_container_result>
+      template <typename T,typename is_stl_container_result>
       struct ca_type { typedef T& type; };
 
-      template<typename T>
-      struct ca_type<T,details::yes_t> { typedef  details::container_adder type; };
+      template <typename T>
+      struct ca_type <T,details::yes_t> { typedef  details::container_adder type; };
 
    }
 
