@@ -10122,7 +10122,7 @@ namespace strtk
    template <typename T,
              typename Comparator,
              typename Allocator>
-   inline void iota(std::multiset<T,Comparator,Allocator>& set, const T& value)
+   inline void iota(std::multiset<T,Comparator,Allocator>& multiset, const T& value)
    {
       strtk::iota(multiset.begin(),multiset.end(),value);
    }
@@ -12681,7 +12681,7 @@ namespace strtk
                    typename Comparator>
          inline bool operator()(const std::multiset<T,Allocator,Comparator>& multiset)
          {
-            const uint32_t size = static_cast<uint32_t>(set.size());
+            const uint32_t size = static_cast<uint32_t>(multiset.size());
             if (!operator()(size))
                return false;
 
@@ -12689,8 +12689,8 @@ namespace strtk
             if (!buffer_capacity_ok(raw_size))
                return false;
 
-            typename std::multiset<T,Allocator,Comparator>::const_iterator itr = set.begin();
-            typename std::multiset<T,Allocator,Comparator>::const_iterator end = set.end();
+            typename std::multiset<T,Allocator,Comparator>::const_iterator itr = multiset.begin();
+            typename std::multiset<T,Allocator,Comparator>::const_iterator end = multiset.end();
             while (end != itr)
             {
                if (!operator()(*itr))
