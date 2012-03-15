@@ -4687,10 +4687,18 @@ namespace strtk
 
          typedef itr_list_type::value_type range_type;
 
+         row_type()
+         : index_(std::numeric_limits<std::size_t>::max()),
+           row_list_(0),
+           token_list_(0),
+           next_row_(false,static_cast<row_type*>(0)),
+           prev_row_(false,static_cast<row_type*>(0))
+         {}
+
          row_type(const itr_list_type& token_list)
          : index_(std::numeric_limits<std::size_t>::max()),
            row_list_(0),
-           token_list_(&token_list),
+           token_list_(const_cast<itr_list_type*>(&token_list)),
            next_row_(false,static_cast<row_type*>(0)),
            prev_row_(false,static_cast<row_type*>(0))
          {}
@@ -4698,7 +4706,7 @@ namespace strtk
          row_type(const std::size_t& index,
                   const itr_list_list_type& row_list)
          : index_(index),
-           row_list_(&row_list),
+           row_list_(const_cast<itr_list_list_type*>(&row_list)),
            token_list_(&(*row_list_)[index_]),
            next_row_(index < (row_list.size() - 1),static_cast<row_type*>(0)),
            prev_row_(index > 0,static_cast<row_type*>(0))
@@ -5423,14 +5431,23 @@ namespace strtk
 
       private:
 
-         row_type& operator=(const row_type&);
 
-         const std::size_t index_;
-         const itr_list_list_type* row_list_;
-         const itr_list_type* token_list_;
+         std::size_t index_;
+         itr_list_list_type* row_list_;
+         itr_list_type* token_list_;
          mutable row_pair_type next_row_;
          mutable row_pair_type prev_row_;
       };
+
+      token_grid()
+      : file_name_(""),
+        buffer_(0),
+        buffer_size_(0),
+        min_column_count_(0),
+        max_column_count_(0),
+        load_from_file_(false),
+        state_(false)
+      {}
 
       token_grid(const std::string& file_name,
                  const token_grid::options& options)
@@ -6282,6 +6299,23 @@ namespace strtk
       inline std::size_t for_each_row(Function f) const
       {
          return for_each_row(all_rows(),f);
+      }
+
+      bool load(const std::string& file_name,
+                const token_grid::options& options)
+      {
+         file_name_ = file_name;
+         if ((load_from_file_) && (0 != buffer_))
+         {
+            delete [] buffer_;
+            buffer_ = 0;
+         }
+         buffer_size_ = 0;
+         min_column_count_ = 0;
+         max_column_count_ = 0;
+         options_ = options;
+         load_from_file_ = true;
+         return (state_ = load());
       }
 
    private:
@@ -9838,6 +9872,11 @@ namespace strtk
       }
 
       inline operator std::string () const
+      {
+         return data_;
+      }
+
+      inline std::string as_string() const
       {
          return data_;
       }
