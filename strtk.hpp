@@ -1429,6 +1429,12 @@ namespace strtk
       }
    }
 
+   inline void remove_leading_trailing(const std::string& rem_chars, std::string& s)
+   {
+      remove_leading(rem_chars,s);
+      remove_trailing(rem_chars,s);
+   }
+
    template <typename Predicate>
    inline void remove_leading(Predicate predicate, std::string& s)
    {
@@ -1440,6 +1446,14 @@ namespace strtk
       {
          s.resize(s.size() - removal_count);
       }
+   }
+
+   template<typename Allocator,
+           template <typename,typename> class Sequence>
+   void remove_empty_strings(Sequence<std::string,Allocator>& seq)
+   {
+      struct is_empty { static inline bool check(const std::string& s) { return s.empty(); } };
+      seq.erase(remove_if(seq.begin(),seq.end(),is_empty::check),seq.end());
    }
 
    template <typename Iterator>
@@ -1813,6 +1827,19 @@ namespace strtk
                                Sequence<Range,Allocator>& seq)
    {
       return find_all(pattern_begin,pattern_end,begin,end,std::back_inserter(seq));
+   }
+
+   inline std::size_t ifind(const std::string& pattern, const std::string& data)
+   {
+      if (pattern.size() > data.size())
+         return std::string::npos;
+      const char* result_itr = std::search(data.data(),data.data() + data.size(),
+                                           pattern.data(), pattern.data() + pattern.size(),
+                                           imatch_char);
+      if ((data.data() + data.size()) == result_itr)
+         return std::string::npos;
+      else
+         return std::distance(data.data(),result_itr);
    }
 
    template <typename Iterator, typename OutputIterator>
@@ -6361,6 +6388,7 @@ namespace strtk
          if (load_from_file_ && !load_buffer_from_file())
             return false;
 
+         token_list_.clear();
          itr_list_type row_list;
          multiple_char_delimiter_predicate text_newline_predicate(options_.row_delimiters);
          split(text_newline_predicate,
