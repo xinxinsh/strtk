@@ -6342,7 +6342,19 @@ namespace strtk
          max_column_count_ = 0;
          options_ = options;
          load_from_file_ = true;
-         return (state_ = load());
+         state_ = load();
+         if (state_)
+            return true;
+         else
+         {
+            file_name_ = "";
+            if ((load_from_file_) && (0 != buffer_))
+            {
+               delete [] buffer_;
+               buffer_ = 0;
+            }
+            return false;
+         }
       }
 
    private:
