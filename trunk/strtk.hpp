@@ -1456,6 +1456,41 @@ namespace strtk
       seq.erase(remove_if(seq.begin(),seq.end(),is_empty::check),seq.end());
    }
 
+   template<typename Allocator>
+   void remove_empty_strings(std::list<std::string,Allocator>& l)
+   {
+      struct is_empty { static inline bool check(const std::string& s) { return s.empty(); } };
+      l.remove_if(is_empty::check);
+   }
+
+   template<typename Comparator, typename Allocator>
+   void remove_empty_strings(std::set<std::string,Comparator,Allocator>& set)
+   {
+      struct is_empty { static inline bool check(const std::string& s) { return s.empty(); } };
+      std::set<std::string,Comparator,Allocator>::iterator itr = set.begin();
+      while (set.end() != itr)
+      {
+         if ((*itr).empty())
+            set.erase(itr++);
+         else
+            ++itr;
+      }
+   }
+
+   template<typename Comparator, typename Allocator>
+   void remove_empty_strings(std::multiset<std::string,Comparator,Allocator>& set)
+   {
+      struct is_empty { static inline bool check(const std::string& s) { return s.empty(); } };
+      std::multiset<std::string,Comparator,Allocator>::iterator itr = set.begin();
+      while (set.end() != itr)
+      {
+         if ((*itr).empty())
+            set.erase(itr++);
+         else
+            ++itr;
+      }
+   }
+
    template <typename Iterator>
    inline void replace(const typename std::iterator_traits<Iterator>::value_type& c1,
                        const typename std::iterator_traits<Iterator>::value_type& c2,
@@ -19204,6 +19239,202 @@ namespace strtk
          sequence.push_back(v1);
       }
 
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8,
+                            const T& v9, const T& v10)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);  set.insert(v8);
+         set.insert(v9); set.insert(v10);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8,
+                            const T& v9)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);  set.insert(v8);
+         set.insert(v9);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);  set.insert(v8);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2)
+      {
+         set.insert(v1);  set.insert(v2);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::set<T,Comparator,Allocator>& set,
+                            const T& v1)
+      {
+         set.insert(v1);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8,
+                            const T& v9, const T& v10)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);  set.insert(v8);
+         set.insert(v9); set.insert(v10);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8,
+                            const T& v9)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);  set.insert(v8);
+         set.insert(v9);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7, const T& v8)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);  set.insert(v8);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6, const T& v7)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+         set.insert(v7);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5, const T& v6)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);  set.insert(v6);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4,
+                            const T& v5)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+         set.insert(v5);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3, const T& v4)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);  set.insert(v4);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2, const T& v3)
+      {
+         set.insert(v1);  set.insert(v2);
+         set.insert(v3);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1, const T& v2)
+      {
+         set.insert(v1);  set.insert(v2);
+      }
+
+      template <typename T, typename Allocator, typename Comparator>
+      inline void push_back(std::multiset<T,Comparator,Allocator>& set,
+                            const T& v1)
+      {
+         set.insert(v1);
+      }
+
       template <typename T,
                 typename Allocator,
                 template <typename,typename> class Sequence>
@@ -19340,16 +19571,16 @@ namespace strtk
    inline std::pair<Iterator1,Iterator2> make_pair(const std::string& s)
    {
       return std::make_pair<Iterator1,Iterator2>(
-            reinterpret_cast<Iterator1>(const_cast<char*>(s.data())),
-            reinterpret_cast<Iterator2>(const_cast<char*>(s.data() + s.size())));
+             reinterpret_cast<Iterator1>(const_cast<char*>(s.data())),
+             reinterpret_cast<Iterator2>(const_cast<char*>(s.data() + s.size())));
    }
 
    template <typename Iterator1, typename Iterator2>
    inline std::pair<Iterator1,Iterator2> make_pair(const std::pair<const char*, const char*> p)
    {
       return std::make_pair<Iterator1,Iterator2>(
-            reinterpret_cast<Iterator1>(const_cast<char*>(p.first)),
-            reinterpret_cast<Iterator2>(const_cast<char*>(p.second)));
+             reinterpret_cast<Iterator1>(const_cast<char*>(p.first)),
+             reinterpret_cast<Iterator2>(const_cast<char*>(p.second)));
    }
 
    template <typename Iterator>
@@ -19362,6 +19593,14 @@ namespace strtk
    inline std::pair<Iterator,Iterator> make_pair(const std::pair<const char*, const char*> p)
    {
       return make_pair<Iterator,Iterator>(p);
+   }
+
+   template <typename Iterator1, typename Iterator2>
+   inline std::pair<Iterator1,Iterator2> make_pair(const strtk::range::string& range)
+   {
+      return std::make_pair<Iterator1,Iterator2>(
+             reinterpret_cast<Iterator1>(const_cast<char*>(range.begin())),
+             reinterpret_cast<Iterator2>(const_cast<char*>(range.end())));
    }
 
    template <std::size_t N>
