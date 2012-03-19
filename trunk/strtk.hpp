@@ -1467,7 +1467,7 @@ namespace strtk
    void remove_empty_strings(std::set<std::string,Comparator,Allocator>& set)
    {
       struct is_empty { static inline bool check(const std::string& s) { return s.empty(); } };
-      std::set<std::string,Comparator,Allocator>::iterator itr = set.begin();
+      typename std::set<std::string,Comparator,Allocator>::iterator itr = set.begin();
       while (set.end() != itr)
       {
          if ((*itr).empty())
@@ -1481,7 +1481,7 @@ namespace strtk
    void remove_empty_strings(std::multiset<std::string,Comparator,Allocator>& set)
    {
       struct is_empty { static inline bool check(const std::string& s) { return s.empty(); } };
-      std::multiset<std::string,Comparator,Allocator>::iterator itr = set.begin();
+      typename std::multiset<std::string,Comparator,Allocator>::iterator itr = set.begin();
       while (set.end() != itr)
       {
          if ((*itr).empty())
