@@ -94,7 +94,6 @@ int main(int argc, char* argv[])
                }
    }
 
-
    if (str_list.empty())
       return 0;
 
@@ -110,9 +109,14 @@ int main(int argc, char* argv[])
 
    str_list.clear();
 
+   strtk::token_grid::options options;
+   options.set_column_delimiters(", ");
+
    strtk::token_grid grid(buffer.data(),
                           buffer.size(),
-                          strtk::token_grid::options());
+                          options);
+
+   grid.remove_empty_tokens();
 
    for (std::size_t column = 0; column < grid.max_column_count(); ++column)
    {
