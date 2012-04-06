@@ -1240,15 +1240,15 @@ namespace strtk
    namespace details
    {
       #if defined(__MINGW32_VERSION) || (defined(__APPLE__) && (__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ < 1070))
-         inline std::size_t strnlen(const char* s, const std::size_t& n)
+         inline std::size_t strnlength(const char* s, const std::size_t& n)
          {
             const char *last = memchr(text, '\0', maxlen);
             return last ? (size_t) (last - text) : maxlen;
          }
       #else
-         inline std::size_t strnlen(const char* s, const std::size_t& n)
+         inline std::size_t strnlength(const char* s, const std::size_t& n)
          {
-            return ::strnlen(s,n);
+            return strnlen(s,n);
          }
       #endif
    }
@@ -1258,7 +1258,7 @@ namespace strtk
       if (s.empty()) return;
       const std::size_t removal_count = remove_consecutives_inplace(multiple_char_delimiter_predicate(
                                                                     rem_chars,
-                                                                    rem_chars + details::strnlen(rem_chars,256)),
+                                                                    rem_chars + details::strnlength(rem_chars,256)),
                                                                     const_cast<char*>(s.data()),
                                                                     const_cast<char*>(s.data() + s.size()));
       if (removal_count > 0)
@@ -1393,7 +1393,7 @@ namespace strtk
    {
       const std::size_t removal_count = remove_trailing(multiple_char_delimiter_predicate(
                                                         rem_chars,
-                                                        rem_chars + details::strnlen(rem_chars,256)),
+                                                        rem_chars + details::strnlength(rem_chars,256)),
                                                         const_cast<char*>(s.data()),
                                                         const_cast<char*>(s.data() + s.size()));
       if (removal_count > 0)
@@ -1471,7 +1471,7 @@ namespace strtk
       if (s.empty()) return;
       const std::size_t removal_count = remove_leading(multiple_char_delimiter_predicate(
                                                        rem_chars,
-                                                       rem_chars + details::strnlen(rem_chars,256)),
+                                                       rem_chars + details::strnlength(rem_chars,256)),
                                                        const_cast<char*>(s.data()),
                                                        const_cast<char*>(s.data() + s.size()));
       if (removal_count > 0)
@@ -3001,7 +3001,7 @@ namespace strtk
                             OutputIterator out,
                             const split_options::type split_option = split_options::default_mode)
    {
-      if (1 == details::strnlen(delimiters,256))
+      if (1 == details::strnlength(delimiters,256))
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
                       range.first,range.second,
                       out,
@@ -3039,7 +3039,7 @@ namespace strtk
                             OutputIterator out,
                             const split_options::type& split_option = split_options::default_mode)
    {
-      if (1 == details::strnlen(delimiters,256))
+      if (1 == details::strnlength(delimiters,256))
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
                       str.data(), str.data() + str.size(),
                       out,
@@ -3088,7 +3088,7 @@ namespace strtk
                             Sequence<std::pair<const char*, const char*>,Allocator>& sequence,
                             const split_options::type& split_option = split_options::default_mode)
    {
-      if (1 == details::strnlen(delimiters,256))
+      if (1 == details::strnlength(delimiters,256))
          return split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
                       str.data(), str.data() + str.size(),
                       std::back_inserter(sequence),
@@ -4764,8 +4764,8 @@ namespace strtk
             for (std::size_t i = row; i < row_index.size(); ++i)
             {
                row_index_range_t& r = row_index[i];
-               r.first -= number_of_tokens;
-               r.second -= number_of_tokens;
+               r.first  -= static_cast<unsigned int>(number_of_tokens);
+               r.second -= static_cast<unsigned int>(number_of_tokens);
             }
             return true;
          }
@@ -4802,8 +4802,8 @@ namespace strtk
             for (std::size_t i = r0; i < row_index.size(); ++i)
             {
                row_index_range_t& r = row_index[i];
-               r.first -= number_of_tokens;
-               r.second -= number_of_tokens;
+               r.first  -= static_cast<unsigned int>(number_of_tokens);
+               r.second -= static_cast<unsigned int>(number_of_tokens);
             }
             return true;
          }
@@ -4869,7 +4869,7 @@ namespace strtk
                {
                   row_index_range_t& r = idx.row_index[i];
                   std::size_t token_count = (r.second - r.first + 1);
-                  r.first -= remove_count;
+                  r.first -= static_cast<unsigned int>(remove_count);
                   if (token_count > column)
                   {
                      ++remove_count;
@@ -11645,7 +11645,7 @@ namespace strtk
             {
                return static_cast<unsigned char>(itr[0] - '0') < 10 &&
                       all_digits_check_impl<Iterator,18>::process(itr + 1);
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11655,7 +11655,7 @@ namespace strtk
             {
                return static_cast<unsigned char>(itr[0] - '0') < 10 &&
                       all_digits_check_impl<Iterator,17>::process(itr + 1);
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11665,7 +11665,7 @@ namespace strtk
             {
                return static_cast<unsigned char>(itr[0] - '0') < 10 &&
                       all_digits_check_impl<Iterator,16>::process(itr + 1);
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11689,7 +11689,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[13] - '0') < 10 &&
                       static_cast<unsigned char>(itr[14] - '0') < 10 &&
                       static_cast<unsigned char>(itr[15] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11712,7 +11712,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[12] - '0') < 10 &&
                       static_cast<unsigned char>(itr[13] - '0') < 10 &&
                       static_cast<unsigned char>(itr[14] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11734,7 +11734,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[11] - '0') < 10 &&
                       static_cast<unsigned char>(itr[12] - '0') < 10 &&
                       static_cast<unsigned char>(itr[13] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11755,7 +11755,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[10] - '0') < 10 &&
                       static_cast<unsigned char>(itr[11] - '0') < 10 &&
                       static_cast<unsigned char>(itr[12] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11775,7 +11775,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
                       static_cast<unsigned char>(itr[10] - '0') < 10 &&
                       static_cast<unsigned char>(itr[11] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11794,7 +11794,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[ 8] - '0') < 10 &&
                       static_cast<unsigned char>(itr[ 9] - '0') < 10 &&
                       static_cast<unsigned char>(itr[10] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11812,7 +11812,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[7] - '0') < 10 &&
                       static_cast<unsigned char>(itr[8] - '0') < 10 &&
                       static_cast<unsigned char>(itr[9] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11829,7 +11829,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[6] - '0') < 10 &&
                       static_cast<unsigned char>(itr[7] - '0') < 10 &&
                       static_cast<unsigned char>(itr[8] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11845,7 +11845,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[5] - '0') < 10 &&
                       static_cast<unsigned char>(itr[6] - '0') < 10 &&
                       static_cast<unsigned char>(itr[7] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11860,7 +11860,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[4] - '0') < 10 &&
                       static_cast<unsigned char>(itr[5] - '0') < 10 &&
                       static_cast<unsigned char>(itr[6] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11874,7 +11874,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[3] - '0') < 10 &&
                       static_cast<unsigned char>(itr[4] - '0') < 10 &&
                       static_cast<unsigned char>(itr[5] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11887,7 +11887,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[2] - '0') < 10 &&
                       static_cast<unsigned char>(itr[3] - '0') < 10 &&
                       static_cast<unsigned char>(itr[4] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11899,7 +11899,7 @@ namespace strtk
                       static_cast<unsigned char>(itr[1] - '0') < 10 &&
                       static_cast<unsigned char>(itr[2] - '0') < 10 &&
                       static_cast<unsigned char>(itr[3] - '0') < 10;
-           }
+            }
          };
 
          template <typename Iterator>
@@ -11930,7 +11930,16 @@ namespace strtk
             static inline bool process(Iterator itr)
             {
                return static_cast<unsigned char>(itr[ 0] - '0') < 10;
-           }
+            }
+         };
+
+         template <typename Iterator>
+         struct all_digits_check_impl<Iterator,0>
+         {
+            static inline bool process(Iterator)
+            {
+               return false;
+            }
          };
 
          template <typename T, typename Iterator, int N>
