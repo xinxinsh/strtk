@@ -6375,12 +6375,11 @@ namespace strtk
                            const std::string& delimiter,
                            std::string& result)
       {
-
          if (row >= dsv_index_.row_index.size())
             return false;
          const row_index_range_t& r = dsv_index_.row_index[row];
          token_list_t::const_iterator itr = dsv_index_.token_list.begin() + r.first;
-         token_list_t::const_iterator end = dsv_index_.token_list.begin() + r.second + 1;
+         token_list_t::const_iterator end = dsv_index_.token_list.begin() + r.second + (row < (dsv_index_.row_index.size() - 1) ? 1 : 0);
          result.reserve(delimiter.size() * dsv_index_.token_count(r) + std::distance(itr->first,end->second));
          bool appended = false;
          while (end != itr)
@@ -6408,7 +6407,7 @@ namespace strtk
             return false;
          const row_index_range_t& r = dsv_index_.row_index[row];
          token_list_t::const_iterator itr = (dsv_index_.token_list.begin() + r.first);
-         token_list_t::const_iterator end = (dsv_index_.token_list.begin() + r.second + 1);
+         token_list_t::const_iterator end = dsv_index_.token_list.begin() + r.second + (row < (dsv_index_.row_index.size() - 1) ? 1 : 0);
          result.reserve(delimiter.size() * dsv_index_.token_count(r) + std::distance(itr->first,end->second));
          bool appended = false;
          while (end != itr)

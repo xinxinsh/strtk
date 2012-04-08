@@ -403,6 +403,19 @@ void token_grid_test08()
    }
 }
 
+struct is_even
+{
+   inline bool operator()(const strtk::token_grid::row_type& row)
+   {
+      return 0 == (static_cast<unsigned int>(strtk::string_to_type_converter<double>(row.token(0))) % 2);
+   }
+
+   inline bool operator()(const strtk::token_grid::range_t& range)
+   {
+      return 0 == (static_cast<unsigned int>(strtk::string_to_type_converter<double>(range)) % 2);
+   }
+};
+
 void token_grid_test09()
 {
    std::string data;
@@ -438,19 +451,6 @@ void token_grid_test09()
 
    {
       strtk::token_grid grid(data,data.size(),",");
-
-      struct is_even
-      {
-         inline bool operator()(const strtk::token_grid::row_type& row)
-         {
-            return 0 == (static_cast<unsigned int>(strtk::string_to_type_converter<double>(row.token(0))) % 2);
-         }
-
-         inline bool operator()(const strtk::token_grid::range_t& range)
-         {
-            return 0 == (static_cast<unsigned int>(strtk::string_to_type_converter<double>(range)) % 2);
-         }
-      };
 
       for (std::size_t r = 0; r < grid.row_count(); ++r)
       {
