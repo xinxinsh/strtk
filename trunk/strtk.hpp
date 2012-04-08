@@ -6127,7 +6127,6 @@ namespace strtk
          std::size_t removed_token_count = 0;
          std::deque<std::size_t> remove_token_list;
          std::deque<std::size_t> remove_row_list;
-         token_list_t::iterator token_itr = dsv_index_.token_list.begin();
          for (std::size_t i = row_range.first; i < row_range.second; ++i)
          {
             row_index_range_t& r = dsv_index_.row_index[i];
@@ -8116,17 +8115,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-          parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                     begin,end,
-                                     std::back_inserter(token_list),
-                                     split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-          parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                     begin,end,
-                                     std::back_inserter(token_list),
-                                     split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 12) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -8157,17 +8155,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-          parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                     begin,end,
-                                     std::back_inserter(token_list),
-                                     split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-          parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                     begin,end,
-                                     std::back_inserter(token_list),
-                                     split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 11) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -8196,17 +8193,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-          parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                     begin,end,
-                                     std::back_inserter(token_list),
-                                     split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-          parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                     begin,end,
-                                     std::back_inserter(token_list),
-                                     split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 10) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -8234,17 +8230,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 9) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -8256,7 +8251,6 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t8)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator,
@@ -8271,17 +8265,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 8) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -8292,7 +8285,6 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t7)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator,
@@ -8307,17 +8299,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 7) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -8327,7 +8318,6 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t6)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator,
@@ -8342,17 +8332,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 6) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -8361,7 +8350,6 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t5)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator,
@@ -8375,17 +8363,16 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+        split(multiple_char_delimiter_predicate(delimiters),
+              begin,end,
+              std::back_inserter(token_list),
+              split_options::compress_delimiters);
       if (token_list.size() < 5) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -8393,7 +8380,6 @@ namespace strtk
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t4)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator,
@@ -8407,24 +8393,22 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 4) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t3)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator,
@@ -8438,23 +8422,21 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 3) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       if (!string_to_type_converter((*itr).first,(*itr).second,t2)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator, typename T1>
@@ -8467,22 +8449,20 @@ namespace strtk
       typedef std::pair<InputIterator,InputIterator> iterator_type;
       typedef typename std::deque<iterator_type>::iterator iterator_type_ptr;
       std::deque<iterator_type> token_list;
-      std::size_t parsed_token_count = 0;
       if (1 == delimiters.size())
-         parsed_token_count = split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(single_delimiter_predicate<std::string::value_type>(delimiters[0]),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       else
-         parsed_token_count = split(multiple_char_delimiter_predicate(delimiters),
-                                    begin,end,
-                                    std::back_inserter(token_list),
-                                    split_options::compress_delimiters);
+         split(multiple_char_delimiter_predicate(delimiters),
+               begin,end,
+               std::back_inserter(token_list),
+               split_options::compress_delimiters);
       if (token_list.size() < 2) return false;
       iterator_type_ptr itr = token_list.begin();
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
       return ca(itr,token_list.end());
-
    }
 
    template <typename InputIterator,
