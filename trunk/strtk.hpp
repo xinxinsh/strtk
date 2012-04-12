@@ -2776,7 +2776,7 @@ namespace strtk
    {
    public:
 
-      typedef typename T value_type;
+      typedef T value_type;
 
       explicit inline range_to_ptr_type_iterator(T* pointer, std::size_t& insert_count)
       : pointer_(pointer),
