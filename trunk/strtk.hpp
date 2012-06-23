@@ -22,6 +22,7 @@
 #include <cctype>
 #include <cstring>
 #include <cerrno>
+#include <exception>
 #include <cmath>
 #include <iterator>
 #include <limits>
@@ -243,6 +244,10 @@ namespace strtk
       struct stl_seq_type_tag         {};
       struct attribute_type_tag       {};
       struct semantic_action_type_tag {};
+      struct expect_type_tag          {};
+      struct like_type_tag            {};
+      struct inrange_type_tag         {};
+      struct fillchararray_type_tag   {};
 
       template <typename T>
       struct supported_conversion_to_type
@@ -336,7 +341,8 @@ namespace strtk
       if (string_to_type_converter_impl(itr,end,t,type))
          return t;
       else
-         throw;
+         throw std::invalid_argument("string_to_type_converter() - Failed to convert: " +
+                                     std::string(begin,end));
    }
 
    template <typename T, typename Iterator>
@@ -2021,6 +2027,34 @@ namespace strtk
    }
 
    template <typename InputIterator>
+   inline bool ibegins_with(const InputIterator pattern_begin,
+                            const InputIterator pattern_end,
+                            const InputIterator begin,
+                            const InputIterator end)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      if (std::distance(pattern_begin,pattern_end) <= std::distance(begin,end))
+      {
+         return std::equal(pattern_begin,pattern_end,begin,imatch_char);
+      }
+      else
+         return false;
+   }
+
+   inline bool ibegins_with(const std::string& pattern, const std::string& data)
+   {
+      if (pattern.size() <= data.size())
+      {
+         return ibegins_with(pattern.data(),
+                             pattern.data() + pattern.size(),
+                             data.data(),
+                             data.data() + data.size());
+      }
+      else
+         return false;
+   }
+
+   template <typename InputIterator>
    inline bool ends_with(const InputIterator pattern_begin,
                          const InputIterator pattern_end,
                          const InputIterator begin,
@@ -2031,7 +2065,9 @@ namespace strtk
       const std::size_t data_length = std::distance(begin,end);
       if (pattern_length <= data_length)
       {
-         return std::equal(pattern_begin,pattern_end, begin + (data_length - pattern_length));
+         return std::equal(pattern_begin,
+                           pattern_end,
+                           begin + (data_length - pattern_length));
       }
       else
          return false;
@@ -2050,6 +2086,39 @@ namespace strtk
          return false;
    }
 
+   template <typename InputIterator>
+   inline bool iends_with(const InputIterator pattern_begin,
+                          const InputIterator pattern_end,
+                          const InputIterator begin,
+                          const InputIterator end)
+   {
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;
+      const std::size_t pattern_length = std::distance(pattern_begin,pattern_end);
+      const std::size_t data_length = std::distance(begin,end);
+      if (pattern_length <= data_length)
+      {
+         return std::equal(pattern_begin,
+                           pattern_end,
+                           begin + (data_length - pattern_length),
+                           imatch_char);
+      }
+      else
+         return false;
+   }
+
+   inline bool iends_with(const std::string& pattern, const std::string& data)
+   {
+      if (pattern.size() <= data.size())
+      {
+         return iends_with(pattern.data(),
+                           pattern.data() + pattern.size(),
+                           data.data(),
+                           data.data() + data.size());
+      }
+      else
+         return false;
+   }
+
    inline std::size_t index_of(const std::string& pattern, const std::string& data)
    {
       if (pattern.empty())
@@ -2058,7 +2127,10 @@ namespace strtk
          return std::string::npos;
       else if (pattern.size() > data.size())
          return std::string::npos;
-      const char* itr = std::search(data.data(), data.data() + data.size(),pattern.data(),pattern.data() + pattern.size());
+      const char* itr = std::search(data.data(),
+                                    data.data() + data.size(),
+                                    pattern.data(),
+                                    pattern.data() + pattern.size());
       return ((data.data() + data.size()) == itr) ? std::string::npos : std::distance(data.data(),itr);
    }
 
@@ -14865,6 +14937,249 @@ namespace strtk
 
    namespace details
    {
+
+      class expect_impl
+      {
+      public:
+
+         expect_impl(const std::string& s)
+         : s_(s)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            if (static_cast<std::size_t>(std::distance(begin,end)) != s_.size())
+               return false;
+            else
+               return std::equal(s_.data(),s_.data() + s_.size(),begin);
+         }
+
+         inline expect_impl& ref()
+         {
+            return (*this);
+         }
+
+      private:
+
+         std::string s_;
+      };
+
+      class iexpect_impl
+      {
+      public:
+
+         iexpect_impl(const std::string& s)
+         : s_(s)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            if (static_cast<std::size_t>(std::distance(begin,end)) != s_.size())
+               return false;
+            else
+               return std::equal(s_.data(),s_.data() + s_.size(),begin,imatch_char);
+         }
+
+         inline iexpect_impl& ref()
+         {
+            return (*this);
+         }
+
+      private:
+
+         std::string s_;
+      };
+
+      class like_impl
+      {
+      public:
+
+         like_impl(const std::string& s)
+         : s_(s)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            if (static_cast<std::size_t>(std::distance(begin,end)) != s_.size())
+               return false;
+            else
+            {
+               typedef typename std::iterator_traits<InputIterator>::value_type value_type;
+               static const value_type zero_or_more = value_type('*');
+               static const value_type zero_or_one  = value_type('?');
+               return strtk::match(s_.data(),s_.data() + s_.size(),begin,end,zero_or_more,zero_or_one);
+            }
+         }
+
+         inline like_impl& ref()
+         {
+            return (*this);
+         }
+
+      private:
+
+         std::string s_;
+      };
+
+      template <typename T>
+      class inrange_impl
+      {
+      public:
+
+         inrange_impl(T& t, const T& low, const T& hi)
+         : t_(&t),
+           low_(low),
+           hi_(hi)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            T temp;
+            if (!strtk::string_to_type_converter(begin,end,temp))
+               return false;
+            else if (temp < low_)
+               return false;
+            else if (temp > hi_)
+               return false;
+            (*t_) = temp;
+            return true;
+         }
+
+         inline inrange_impl<T>& ref()
+         {
+            return (*this);
+         }
+
+      private:
+
+         T* t_;
+         T low_;
+         T hi_;
+      };
+
+      class fill_array_impl
+      {
+      public:
+
+         fill_array_impl(unsigned char* data, const std::size_t& size)
+         : data_(data),
+           size_(size)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            const std::size_t range_size = static_cast<std::size_t>(std::distance(begin,end));
+            if (range_size != size_)
+               return false;
+            std::memcpy(data_,begin,range_size);
+            return true;
+         }
+
+         inline fill_array_impl& ref()
+         {
+            return (*this);
+         }
+
+         inline fill_array_impl& set(unsigned char* data, const std::size_t& size)
+         {
+            data_ = data;
+            size_ = size;
+            return (*this);
+         }
+
+         inline fill_array_impl& set(char* data, const std::size_t& size)
+         {
+            data_ = reinterpret_cast<unsigned char*>(data);
+            size_ = size;
+            return (*this);
+         }
+
+         inline fill_array_impl& set_data(unsigned char* data)
+         {
+            data_ = data;
+            return (*this);
+         }
+
+         inline fill_array_impl& set_data(char* data)
+         {
+            data_ = reinterpret_cast<unsigned char*>(data);
+            return (*this);
+         }
+
+         inline fill_array_impl& set_size(const std::size_t& size)
+         {
+            size_ = size;
+            return (*this);
+         }
+
+      private:
+
+         unsigned char* data_;
+         std::size_t size_;
+      };
+
+   }
+
+   inline details::expect_impl expect(const std::string& s)
+   {
+      return details::expect_impl(s);
+   }
+
+   inline details::iexpect_impl iexpect(const std::string& s)
+   {
+      return details::iexpect_impl(s);
+   }
+
+   inline details::like_impl like(const std::string& s)
+   {
+      return details::like_impl(s);
+   }
+
+   template <typename T>
+   inline details::inrange_impl<T> inrange(T& t, const T& low, const T& hi)
+   {
+      return details::inrange_impl<T>(t,low,hi);
+   }
+
+   inline details::fill_array_impl fill_array(unsigned char* data, const std::size_t& size)
+   {
+      return details::fill_array_impl(data,size);
+   }
+
+   inline details::fill_array_impl fill_array(char* data, const std::size_t& size)
+   {
+      return details::fill_array_impl(reinterpret_cast<unsigned char*>(data),size);
+   }
+
+   template <std::size_t N>
+   inline details::fill_array_impl fill_array(unsigned char (&data)[N])
+   {
+      return details::fill_array_impl(data,N);
+   }
+
+   template <std::size_t N>
+   inline details::fill_array_impl fill_array(char (&data)[N])
+   {
+      return details::fill_array_impl(reinterpret_cast<unsigned char*>(data),N);
+   }
+
+   inline details::fill_array_impl fill_array(std::string& data, const std::size_t& size)
+   {
+      return fill_array(const_cast<char*>(data.data()),size);
+   }
+
+   inline details::fill_array_impl fill_array(std::string& data)
+   {
+      return fill_array(const_cast<char*>(data.data()),data.size());
+   }
+
+   namespace details
+   {
       static const unsigned char digit_table[] =
                                  {
                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 0xFF - 0x07
@@ -15054,6 +15369,22 @@ namespace strtk
       template<> struct supported_conversion_from_type<strtk::util::value> { typedef value_type_tag type; };
       template<> struct supported_iterator_type<strtk::util::value> { enum { value = true }; };
 
+      template<> struct supported_conversion_to_type<strtk::details::expect_impl> { typedef expect_type_tag type; };
+      template<> struct supported_iterator_type<strtk::details::expect_impl>      { enum { value = true };        };
+
+      template<> struct supported_conversion_to_type<strtk::details::iexpect_impl> { typedef expect_type_tag type; };
+      template<> struct supported_iterator_type<strtk::details::iexpect_impl>      { enum { value = true }; };
+
+      template<> struct supported_conversion_to_type<strtk::details::like_impl> { typedef like_type_tag type; };
+      template<> struct supported_iterator_type<strtk::details::like_impl>      { enum { value = true }; };
+
+      template<> struct supported_conversion_to_type<strtk::details::fill_array_impl> { typedef fillchararray_type_tag type; };
+      template<> struct supported_iterator_type<strtk::details::fill_array_impl>      { enum { value = true }; };
+
+      #define strtk_register_inrange_type_tag(T)\
+      template<> struct supported_conversion_to_type<strtk::details::inrange_impl<T> >   { typedef inrange_type_tag type; };\
+      template<> struct supported_iterator_type<strtk::details::inrange_impl<T> >        { enum { value = true }; };\
+
       #define strtk_register_stdstring_range_type_tag(T)\
       template<> struct supported_conversion_to_type< std::pair<T,T> >{ typedef stdstring_range_type_tag type; };
 
@@ -15177,6 +15508,21 @@ namespace strtk
       strtk_register_stl_container_to_string_conv_type_tag(unsigned long long int)
       strtk_register_stl_container_to_string_conv_type_tag(std::string)
 
+      strtk_register_inrange_type_tag(float)
+      strtk_register_inrange_type_tag(double)
+      strtk_register_inrange_type_tag(long double)
+      strtk_register_inrange_type_tag(signed char)
+      strtk_register_inrange_type_tag(char)
+      strtk_register_inrange_type_tag(short)
+      strtk_register_inrange_type_tag(int)
+      strtk_register_inrange_type_tag(long)
+      strtk_register_inrange_type_tag(unsigned char)
+      strtk_register_inrange_type_tag(unsigned short)
+      strtk_register_inrange_type_tag(unsigned int)
+      strtk_register_inrange_type_tag(unsigned long)
+      strtk_register_inrange_type_tag(unsigned long long int)
+      strtk_register_inrange_type_tag(std::string)
+
       #define strtk_register_userdef_type_sink(T)\
       namespace strtk { namespace details { strtk_register_sink_type_tag(T) }}
 
@@ -15190,6 +15536,7 @@ namespace strtk
       #undef strtk_register_stdstring_range_type_tag
       #undef strtk_register_sequence_iterator_type
       #undef strtk_register_stl_container_to_string_conv_type_tag
+      #undef strtk_register_inrange_type_tag
 
       template <typename T>
       struct precision
@@ -15244,6 +15591,42 @@ namespace strtk
       {
          t.assign(begin,end);
          begin = end;
+         return true;
+      }
+
+      template <typename Iterator, typename Expect>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, Expect& t, expect_type_tag)
+      {
+         if (!t(itr,end))
+            return false;
+         itr = end;
+         return true;
+      }
+
+      template <typename Iterator, typename Like>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, Like& t, like_type_tag)
+      {
+         if (!t(itr,end))
+            return false;
+         itr = end;
+         return true;
+      }
+
+      template <typename Iterator, typename InRange>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, InRange& t, inrange_type_tag)
+      {
+         if (!t(itr,end))
+            return false;
+         itr = end;
+         return true;
+      }
+
+      template <typename Iterator, typename Array>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, Array& t, fillchararray_type_tag)
+      {
+         if (!t(itr,end))
+            return false;
+         itr = end;
          return true;
       }
 
