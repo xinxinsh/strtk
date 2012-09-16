@@ -12750,31 +12750,37 @@ namespace strtk
          static inline unsigned short convert_to_be(const unsigned short& v)
          {
             if (is_little_endian()) convert(v);
+            return v;
          }
 
          static inline unsigned int convert_to_be(const unsigned int& v)
          {
             if (is_little_endian()) convert(v);
+            return v;
          }
 
          static inline unsigned long long int convert_to_be(const unsigned long long int& v)
          {
             if (is_little_endian()) convert(v);
+            return v;
          }
 
          static inline short convert_to_be(const short& v)
          {
             if (is_little_endian()) convert(v);
+            return v;
          }
 
          static inline int convert_to_be(const int& v)
          {
             if (is_little_endian()) convert(v);
+            return v;
          }
 
          static inline unsigned long long int convert_to_be(const long long int& v)
          {
             if (is_little_endian()) convert(v);
+            return v;
          }
 
          class marker
@@ -15723,7 +15729,6 @@ namespace strtk
             T t1 = 0;
             T t2 = 0;
             T t3 = 0;
-            T t4 = 0;
 
             //Needed for incompetent and broken msvc compiler versions
             #ifdef _MSC_VER
@@ -15748,8 +15753,7 @@ namespace strtk
                   t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
                   t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
                   t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
-                  t4 = static_cast<T>(t * 100000000);
-                  t  = t0 + t1 + t2 + t3 + t4;
+                  t  = t0 + t1 + t2 + t3 + static_cast<T>(t * 100000000);
                   itr += 8;
                   interim_length -= 8;
                }
@@ -15872,7 +15876,6 @@ namespace strtk
             T t1 = 0;
             T t2 = 0;
             T t3 = 0;
-            T t4 = 0;
 
             //Needed for incompetent and broken msvc compiler versions
             #ifdef _MSC_VER
