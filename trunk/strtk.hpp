@@ -377,7 +377,7 @@ namespace strtk
       if (type_to_string<T>(t,s))
          return s;
       else
-         throw;
+         throw std::invalid_argument("type_to_string() - Failed to convert type to string");
    }
 
    #define strtk_begin_register_string_to_type \
@@ -1347,6 +1347,29 @@ namespace strtk
       }
    }
 
+   inline std::string remove_duplicates(const std::string& str)
+   {
+      std::string::value_type table[0xFF];
+      std::fill_n(table,0xFF,static_cast<char>(0));
+      std::string result;
+      result.reserve(str.size());
+      for (std::size_t i = 0; i < str.size(); ++i)
+      {
+         const char c = str[i];
+         if (0 == table[static_cast<std::size_t>(c)])
+         {
+            table[static_cast<std::size_t>(c)] = 0x01;
+            result += c;
+         }
+      }
+      return result;
+   }
+
+   inline std::string remove_duplicates_inplace(std::string& str)
+   {
+      return remove_duplicates(str);
+   }
+
    template <typename Iterator, typename Predicate>
    inline std::size_t remove_trailing(Predicate predicate,
                                       Iterator begin,
@@ -1738,6 +1761,11 @@ namespace strtk
    {
       static const std::string r("");
       replace_pattern(s,p,r,n);
+   }
+
+   inline void sort(std::string& s)
+   {
+      std::sort(s.begin(),s.end());
    }
 
    template <typename Iterator>
@@ -10859,7 +10887,7 @@ namespace strtk
       {
          if (itable.size() != otable.size())
          {
-            throw;
+            throw std::runtime_error("translation_table() - Input/Output table size mismatch.");
          }
          strtk::iota(table_, table_ + 256, static_cast<unsigned char>(0));
          for (std::size_t i = 0; i < itable.size(); ++i)
@@ -11378,7 +11406,7 @@ namespace strtk
             Iterator i2 = first2;
             for (D d22 = d2; i2 != last2; ++i2, --d22)
             {
-               if (!combine_discontinuous_conditional(f1p, last1, d1-1, i2, last2, d22, f, d+1))
+               if (!combine_discontinuous_conditional(f1p, last1, d1-1, i2, last2, d22, f, d + 1))
                   return false;
                swap(*first1, *i2);
             }
@@ -11389,7 +11417,7 @@ namespace strtk
          {
             Iterator f2p = first2;
             std::advance(f2p,1);
-            rotate_discontinuous(first1, last1, d1, f2p, last2, d2-1);
+            rotate_discontinuous(first1, last1, d1, f2p, last2, d2 - 1);
          }
          else
             rotate_discontinuous(first1, last1, d1, first2, last2, d2);
@@ -11801,7 +11829,7 @@ namespace strtk
          {
             static inline bool process(Iterator)
             {
-               throw "all_digits_check_impl - unsupported value for N.";
+               throw std::runtime_error("all_digits_check_impl - unsupported value for N.");
             }
          };
 
@@ -12113,7 +12141,7 @@ namespace strtk
          struct numeric_convert_impl
          {
             static inline void process(Iterator, T&)
-            { throw "numeric_convert_impl - unsupported value for N."; }
+            { throw std::runtime_error("numeric_convert_impl::process( - unsupported value for N."); }
          };
 
          template <typename T, typename Iterator>
@@ -12664,18 +12692,22 @@ namespace strtk
 
       namespace details
       {
+         namespace details_endian
+         {
+            static const unsigned int __n = 1;
+            static const bool __le_result = (static_cast<char>(1) == *(reinterpret_cast<const char*>(&__n)));
+            static const bool __be_result = (!__le_result);
+         }
+
          static inline bool is_little_endian()
          {
             //Is the current architecture/platform little-endian?
-            static const unsigned int n = 1;
-            static const bool result = (static_cast<char>(1) == *(reinterpret_cast<const char*>(&n)));
-            return result;
+            return details_endian::__le_result;
          }
 
          static inline bool is_big_endian()
          {
-            static const bool result = (!is_little_endian());
-            return result;
+            return details_endian::__be_result;
          }
 
          static inline unsigned short convert(const unsigned short& v)
@@ -12713,6 +12745,36 @@ namespace strtk
          static inline unsigned long long int convert(const long long int& v)
          {
             return static_cast<long long>(convert(static_cast<unsigned long long int>(v)));
+         }
+
+         static inline unsigned short convert_to_be(const unsigned short& v)
+         {
+            if (is_little_endian()) convert(v);
+         }
+
+         static inline unsigned int convert_to_be(const unsigned int& v)
+         {
+            if (is_little_endian()) convert(v);
+         }
+
+         static inline unsigned long long int convert_to_be(const unsigned long long int& v)
+         {
+            if (is_little_endian()) convert(v);
+         }
+
+         static inline short convert_to_be(const short& v)
+         {
+            if (is_little_endian()) convert(v);
+         }
+
+         static inline int convert_to_be(const int& v)
+         {
+            if (is_little_endian()) convert(v);
+         }
+
+         static inline unsigned long long int convert_to_be(const long long int& v)
+         {
+            if (is_little_endian()) convert(v);
          }
 
          class marker
@@ -15669,69 +15731,60 @@ namespace strtk
             #pragma warning(disable: 4127)
             #endif
 
-            if (bound_length > 7)
+            while (interim_length > 7)
             {
-               while (interim_length > 7)
+               if (((digit[0] = (itr[0] - '0')) > 9) ||
+                   ((digit[1] = (itr[1] - '0')) > 9) ||
+                   ((digit[2] = (itr[2] - '0')) > 9) ||
+                   ((digit[3] = (itr[3] - '0')) > 9) ||
+                   ((digit[4] = (itr[4] - '0')) > 9) ||
+                   ((digit[5] = (itr[5] - '0')) > 9) ||
+                   ((digit[6] = (itr[6] - '0')) > 9) ||
+                   ((digit[7] = (itr[7] - '0')) > 9))
+                  return false;
+               else
                {
-                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                       ((digit[1] = (itr[1] - '0')) < 10) &&
-                       ((digit[2] = (itr[2] - '0')) < 10) &&
-                       ((digit[3] = (itr[3] - '0')) < 10) &&
-                       ((digit[4] = (itr[4] - '0')) < 10) &&
-                       ((digit[5] = (itr[5] - '0')) < 10) &&
-                       ((digit[6] = (itr[6] - '0')) < 10) &&
-                       ((digit[7] = (itr[7] - '0')) < 10) )
-                  {
-                     t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
-                     t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
-                     t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
-                     t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
-                     t4 = static_cast<T>(t * 100000000);
-                     t  = t0 + t1 + t2 + t3 + t4;
-                     itr += 8;
-                     interim_length -= 8;
-                  }
-                  else
-                     return false;
+                  t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
+                  t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
+                  t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
+                  t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
+                  t4 = static_cast<T>(t * 100000000);
+                  t  = t0 + t1 + t2 + t3 + t4;
+                  itr += 8;
+                  interim_length -= 8;
                }
             }
 
-            if (bound_length > 3)
+            while (interim_length > 3)
             {
-               while (interim_length > 3)
+               if (((digit[0] = (itr[0] - '0')) > 9) ||
+                   ((digit[1] = (itr[1] - '0')) > 9) ||
+                   ((digit[2] = (itr[2] - '0')) > 9) ||
+                   ((digit[3] = (itr[3] - '0')) > 9))
+                  return false;
+               else
                {
-                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                       ((digit[1] = (itr[1] - '0')) < 10) &&
-                       ((digit[2] = (itr[2] - '0')) < 10) &&
-                       ((digit[3] = (itr[3] - '0')) < 10) )
-                  {
-                     t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
-                     t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
-                     t3 = static_cast<T>(t * 10000                       );
-                     t  = t1 + t2 + t3;
-                     itr += 4;
-                     interim_length -= 4;
-                  }
-                  else
-                     return false;
+                  t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
+                  t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
+                  t3 = static_cast<T>(t * 10000                       );
+                  t  = t1 + t2 + t3;
+                  itr += 4;
+                  interim_length -= 4;
                }
             }
 
-            if (bound_length > 1)
+            while (interim_length > 1)
             {
-               while (interim_length > 1)
+               if (((digit[0] = (itr[0] - '0')) > 9) ||
+                   ((digit[1] = (itr[1] - '0')) > 9))
+                  return false;
+               else
                {
-                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                       ((digit[1] = (itr[1] - '0')) < 10) )
-                  {
-                     t1 = static_cast<T>(digit[0] * 10 + digit[1]);
-                     t2 = static_cast<T>(t * 100                 );
-                     t  = t1 + t2;
-                     itr += 2;
-                     interim_length -= 2;
-                  }
-                  else
-                     return false;
+                  t1 = static_cast<T>(digit[0] * 10 + digit[1]);
+                  t2 = static_cast<T>(t * 100                 );
+                  t  = t1 + t2;
+                  itr += 2;
+                  interim_length -= 2;
                }
             }
 
@@ -15827,69 +15880,73 @@ namespace strtk
             #pragma warning(disable: 4127)
             #endif
 
-            if (bound_length > 7)
+            while (interim_length > 7)
             {
-               while (interim_length > 7)
+               if (((digit[0] = (itr[0] - '0')) > 9) ||
+                   ((digit[1] = (itr[1] - '0')) > 9) ||
+                   ((digit[2] = (itr[2] - '0')) > 9) ||
+                   ((digit[3] = (itr[3] - '0')) > 9) ||
+                   ((digit[4] = (itr[4] - '0')) > 9) ||
+                   ((digit[5] = (itr[5] - '0')) > 9) ||
+                   ((digit[6] = (itr[6] - '0')) > 9) ||
+                   ((digit[7] = (itr[7] - '0')) > 9) )
+                  return false;
+               else
                {
-                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                       ((digit[1] = (itr[1] - '0')) < 10) &&
-                       ((digit[2] = (itr[2] - '0')) < 10) &&
-                       ((digit[3] = (itr[3] - '0')) < 10) &&
-                       ((digit[4] = (itr[4] - '0')) < 10) &&
-                       ((digit[5] = (itr[5] - '0')) < 10) &&
-                       ((digit[6] = (itr[6] - '0')) < 10) &&
-                       ((digit[7] = (itr[7] - '0')) < 10) )
-                  {
-                     t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
-                     t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
-                     t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
-                     t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
-                     t4 = static_cast<T>(t * 100000000);
-                     t  = t0 + t1 + t2 + t3 + t4;
-                     itr += 8;
-                     interim_length -= 8;
-                  }
-                  else
-                     return false;
+                  t0 = static_cast<T>(digit[0] * 10000000 + digit[1] * 1000000);
+                  t1 = static_cast<T>(digit[2] * 100000   + digit[3] *   10000);
+                  t2 = static_cast<T>(digit[4] * 1000     + digit[5] *     100);
+                  t3 = static_cast<T>(digit[6] * 10       + digit[7]          );
+                  t  = t0 + t1 + t2 + t3 + static_cast<T>(t * 100000000);
+                  itr += 8;
+                  interim_length -= 8;
                }
             }
 
-            if (bound_length > 3)
+            while (interim_length > 3)
             {
-               while (interim_length > 3)
+               if (((digit[0] = (itr[0] - '0')) > 9) ||
+                   ((digit[1] = (itr[1] - '0')) > 9) ||
+                   ((digit[2] = (itr[2] - '0')) > 9) ||
+                   ((digit[3] = (itr[3] - '0')) > 9) )
+                  return false;
+               else
                {
-                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                       ((digit[1] = (itr[1] - '0')) < 10) &&
-                       ((digit[2] = (itr[2] - '0')) < 10) &&
-                       ((digit[3] = (itr[3] - '0')) < 10) )
-                  {
-                     t1 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
-                     t2 = static_cast<T>(digit[2] * 10   + digit[3]      );
-                     t3 = static_cast<T>(t * 10000                       );
-                     t  = t1 + t2 + t3;
-                     itr += 4;
-                     interim_length -= 4;
-                  }
-                  else
-                     return false;
+                  t0 = static_cast<T>(digit[0] * 1000 + digit[1] * 100);
+                  t1 = static_cast<T>(digit[2] * 10   + digit[3]      );
+                  t  = t0 + t1 + static_cast<T>(t * 10000);
+                  itr += 4;
+                  interim_length -= 4;
                }
             }
 
-            if (bound_length > 1)
+            while (interim_length > 2)
             {
-               while (interim_length > 1)
+               if (((digit[0] = (itr[0] - '0')) > 9) ||
+                   ((digit[1] = (itr[1] - '0')) > 9) ||
+                   ((digit[2] = (itr[2] - '0')) > 9))
+                  return false;
+               else
                {
-                  if ( ((digit[0] = (itr[0] - '0')) < 10) &&
-                       ((digit[1] = (itr[1] - '0')) < 10) )
-                  {
-                     t1 = static_cast<T>(digit[0] * 10 + digit[1]);
-                     t2 = static_cast<T>(t * 100                 );
-                     t  = t1 + t2;
-                     itr += 2;
-                     interim_length -= 2;
-                  }
-                  else
-                     return false;
+                  t0 = static_cast<T>(digit[0] * 100 + digit[1] * 10);
+                  t1 = static_cast<T>(t * 1000 + digit[2]           );
+                  t  = t0 + t1;
+                  itr += 3;
+                  interim_length -= 3;
+               }
+            }
+
+            while (interim_length > 1)
+            {
+               if (((digit[0] = (itr[0] - '0')) > 9) ||
+                   ((digit[1] = (itr[1] - '0')) > 9))
+                  return false;
+               else
+               {
+                  t0 = static_cast<T>(digit[0] * 10 + digit[1]);
+                  t  = t0 + static_cast<T>(t * 100);
+                  itr += 2;
+                  interim_length -= 2;
                }
             }
 
@@ -16387,20 +16444,24 @@ namespace strtk
 
          if (0 != value)
          {
+            T temp_v = 0;
             while (value >= static_cast<T>(radix_sqr))
             {
-               remainder  = value % radix_cube;
-               value     /= radix_cube;
+               temp_v     = value / radix_cube;
+               remainder  = value - (temp_v * radix_cube);
+               value      = temp_v;
                index = static_cast<std::size_t>(remainder * 3);
-               *(itr--) = details::rev_3digit_lut[index + 0];
-               *(itr--) = details::rev_3digit_lut[index + 1];
-               *(itr--) = details::rev_3digit_lut[index + 2];
+               *(itr    ) = details::rev_3digit_lut[index    ];
+               *(itr - 1) = details::rev_3digit_lut[index + 1];
+               *(itr - 2) = details::rev_3digit_lut[index + 2];
+               itr -= 3;
             }
 
             while (value >= static_cast<T>(radix))
             {
-               remainder  = value % radix_sqr;
-               value     /= radix_sqr;
+               temp_v     = value / radix_sqr;
+               remainder  = value - (temp_v * radix_sqr);
+               value      = temp_v;
                index = static_cast<std::size_t>(remainder << 1);
                *(itr--) = details::rev_2digit_lut[index + 0];
                *(itr--) = details::rev_2digit_lut[index + 1];
@@ -16408,9 +16469,7 @@ namespace strtk
 
             if (0 != value)
             {
-               remainder = value % radix;
-               value    /= radix;
-               *(itr--)  = strtk::details::digitr[remainder];
+               *(itr--)  = strtk::details::digitr[value];
             }
          }
          else
@@ -16438,36 +16497,40 @@ namespace strtk
 
          if (0 != value)
          {
+            T temp_v = 0;
             while (value >= static_cast<T>(radix_sqr))
             {
-               remainder  = value % radix_cube;
-               value     /= radix_cube;
+               temp_v     = value / radix_cube;
+               remainder  = value - (temp_v * radix_cube);
+               value      = temp_v;
                index    = static_cast<std::size_t>(remainder * 3);
-               *(itr--) = details::rev_3digit_lut[index    ];
-               *(itr--) = details::rev_3digit_lut[index + 1];
-               *(itr--) = details::rev_3digit_lut[index + 2];
+               *(itr    ) = details::rev_3digit_lut[index    ];
+               *(itr - 1) = details::rev_3digit_lut[index + 1];
+               *(itr - 2) = details::rev_3digit_lut[index + 2];
+               itr -= 3;
             }
 
             while (value >= static_cast<T>(radix))
             {
-               remainder  = value % radix_sqr;
-               value     /= radix_sqr;
-               index    = static_cast<std::size_t>(remainder) << 1;
-               *(itr--) = details::rev_2digit_lut[index    ];
-               *(itr--) = details::rev_2digit_lut[index + 1];
+               temp_v     = value / radix_sqr;
+               remainder  = value - (temp_v * radix_sqr);
+               value      = temp_v;
+               index      = static_cast<std::size_t>(remainder) << 1;
+               *(itr    ) = details::rev_2digit_lut[index    ];
+               *(itr - 1) = details::rev_2digit_lut[index + 1];
+               itr -= 2;
             }
 
             if (0 != value)
             {
-               remainder = value % radix;
-               value    /= radix;
-               *(itr--)  = strtk::details::digitr[remainder];
+               *(itr--)  = strtk::details::digitr[value];
             }
          }
          else
             *(itr--) = '0';
 
          if (negative) *(itr--) = '-';
+
          itr++;
          result.assign(reinterpret_cast<char*>(itr), (buffer + numeric<T>::size) - itr);
          return true;
@@ -18086,7 +18149,7 @@ namespace strtk
         s_end(reinterpret_cast<const unsigned char*>(s.data() + str.size())),
         condition_method_(0)
       {
-         switch(cond_type)
+         switch (cond_type)
          {
             case equal       : condition_method_ = &string_condition::condition_equal;
                                break;
@@ -19012,9 +19075,9 @@ namespace strtk
                itr += sizeof(unsigned short);
             }
             if (remaining_length)
-            {
-               hash += ((*itr) ^ (hash * 0xA5A5A5A5)) + loop;
-            }
+               hash += ((*itr) ^ (hash * 0x5A5A5A5A));
+            else if (loop < 2)
+               hash += ((hash + 1) * 0x5A5A5A5A);
             return hash;
          }
 
