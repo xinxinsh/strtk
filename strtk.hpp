@@ -20495,7 +20495,7 @@ namespace strtk
       public:
 
          typedef column_selector_base<Cli,N> csb_t;
-         typedef typename column_list_impl<N> column_list_t;
+         typedef column_list_impl<N> column_list_t;
 
          column_selector_base(const column_list_t& column_list)
          : column_list_(column_list),
@@ -20572,7 +20572,7 @@ namespace strtk
                return;
             else if (current_index_ == target_index_)
             {
-               colsel_value_list::value_t& v = cvl_.value_list[col_list_index_];
+               typename colsel_value_list::value_t& v = cvl_.value_list[col_list_index_];
                if (true != (v.second = v.first(r.first,r.second)))
                {
                   ++error_count_;
@@ -20584,6 +20584,11 @@ namespace strtk
                   target_index_ = std::numeric_limits<std::size_t>::max();
             }
             ++current_index_;
+         }
+
+         inline colsel_value_list& cvl()
+         {
+            return cvl_;
          }
 
          const column_list_t& column_list_;
@@ -20606,21 +20611,21 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>,12> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>,12> csb_t;
+         typedef column_list_impl<12> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
-                              T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                              T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
                               T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
                               T10& t10, T11& t11)
          : csb_t(column_list)
          {
-            cvl_.register_value( t0); cvl_.register_value( t1);
-            cvl_.register_value( t2); cvl_.register_value( t3);
-            cvl_.register_value( t4); cvl_.register_value( t5);
-            cvl_.register_value( t6); cvl_.register_value( t7);
-            cvl_.register_value( t8); cvl_.register_value( t9);
-            cvl_.register_value(t10); cvl_.register_value(t11);
+            csb_t::cvl().register_value( t0); csb_t::cvl().register_value( t1);
+            csb_t::cvl().register_value( t2); csb_t::cvl().register_value( t3);
+            csb_t::cvl().register_value( t4); csb_t::cvl().register_value( t5);
+            csb_t::cvl().register_value( t6); csb_t::cvl().register_value( t7);
+            csb_t::cvl().register_value( t8); csb_t::cvl().register_value( t9);
+            csb_t::cvl().register_value(t10); csb_t::cvl().register_value(t11);
          }
       };
 
@@ -20632,21 +20637,21 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>,11> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>,11> csb_t;
+         typedef column_list_impl<11> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
-                              T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                              T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
                               T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
                               T10& t10)
          : csb_t(column_list)
          {
-            cvl_.register_value( t0); cvl_.register_value( t1);
-            cvl_.register_value( t2); cvl_.register_value( t3);
-            cvl_.register_value( t4); cvl_.register_value( t5);
-            cvl_.register_value( t6); cvl_.register_value( t7);
-            cvl_.register_value( t8); cvl_.register_value( t9);
-            cvl_.register_value(t10);
+            csb_t::cvl().register_value( t0); csb_t::cvl().register_value( t1);
+            csb_t::cvl().register_value( t2); csb_t::cvl().register_value( t3);
+            csb_t::cvl().register_value( t4); csb_t::cvl().register_value( t5);
+            csb_t::cvl().register_value( t6); csb_t::cvl().register_value( t7);
+            csb_t::cvl().register_value( t8); csb_t::cvl().register_value( t9);
+            csb_t::cvl().register_value(t10);
          }
       };
 
@@ -20657,19 +20662,19 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>,10> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>,10> csb_t;
+         typedef column_list_impl<10> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
                               T5& t5, T6& t6, T7& t7, T8& t8, T9& t9)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2); cvl_.register_value(t3);
-            cvl_.register_value(t4); cvl_.register_value(t5);
-            cvl_.register_value(t6); cvl_.register_value(t7);
-            cvl_.register_value(t8); cvl_.register_value(t9);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2); csb_t::cvl().register_value(t3);
+            csb_t::cvl().register_value(t4); csb_t::cvl().register_value(t5);
+            csb_t::cvl().register_value(t6); csb_t::cvl().register_value(t7);
+            csb_t::cvl().register_value(t8); csb_t::cvl().register_value(t9);
          }
       };
 
@@ -20680,19 +20685,19 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8>,9> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8>,9> csb_t;
+         typedef column_list_impl<9> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
                               T5& t5, T6& t6, T7& t7, T8& t8)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2); cvl_.register_value(t3);
-            cvl_.register_value(t4); cvl_.register_value(t5);
-            cvl_.register_value(t6); cvl_.register_value(t7);
-            cvl_.register_value(t8);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2); csb_t::cvl().register_value(t3);
+            csb_t::cvl().register_value(t4); csb_t::cvl().register_value(t5);
+            csb_t::cvl().register_value(t6); csb_t::cvl().register_value(t7);
+            csb_t::cvl().register_value(t8);
          }
       };
 
@@ -20703,18 +20708,18 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7>,8> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7>,8> csb_t;
+         typedef column_list_impl<8> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2, T3& t3,
                               T4& t4, T5& t5, T6& t6, T7& t7)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2); cvl_.register_value(t3);
-            cvl_.register_value(t4); cvl_.register_value(t5);
-            cvl_.register_value(t6); cvl_.register_value(t7);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2); csb_t::cvl().register_value(t3);
+            csb_t::cvl().register_value(t4); csb_t::cvl().register_value(t5);
+            csb_t::cvl().register_value(t6); csb_t::cvl().register_value(t7);
          }
       };
 
@@ -20725,18 +20730,18 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6>,7> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6>,7> csb_t;
+         typedef column_list_impl<7> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2, T3& t3,
                               T4& t4, T5& t5, T6& t6)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2); cvl_.register_value(t3);
-            cvl_.register_value(t4); cvl_.register_value(t5);
-            cvl_.register_value(t6);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2); csb_t::cvl().register_value(t3);
+            csb_t::cvl().register_value(t4); csb_t::cvl().register_value(t5);
+            csb_t::cvl().register_value(t6);
          }
       };
 
@@ -20747,17 +20752,17 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5>,6> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5>,6> csb_t;
+         typedef column_list_impl<6> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2,
                               T3& t3, T4& t4, T5& t5)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2); cvl_.register_value(t3);
-            cvl_.register_value(t4); cvl_.register_value(t5);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2); csb_t::cvl().register_value(t3);
+            csb_t::cvl().register_value(t4); csb_t::cvl().register_value(t5);
          }
       };
 
@@ -20768,17 +20773,17 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4>,5> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3,T4>,5> csb_t;
+         typedef column_list_impl<5> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2,
                               T3& t3, T4& t4)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2); cvl_.register_value(t3);
-            cvl_.register_value(t4);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2); csb_t::cvl().register_value(t3);
+            csb_t::cvl().register_value(t4);
          }
       };
 
@@ -20788,15 +20793,15 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3>,4> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2,T3>,4> csb_t;
+         typedef column_list_impl<4> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2, T3& t3)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2); cvl_.register_value(t3);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2); csb_t::cvl().register_value(t3);
          }
       };
 
@@ -20806,15 +20811,15 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1,T2>,3> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1,T2>,3> csb_t;
+         typedef column_list_impl<3> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1, T2& t2)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
-            cvl_.register_value(t2);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
+            csb_t::cvl().register_value(t2);
          }
       };
 
@@ -20824,14 +20829,14 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0,T1>,2> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0,T1>,2> csb_t;
+         typedef column_list_impl<2> column_list_t;
 
          column_selector_impl(const column_list_t& column_list,
                               T1& t0, T1& t1)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0); cvl_.register_value(t1);
+            csb_t::cvl().register_value(t0); csb_t::cvl().register_value(t1);
          }
       };
 
@@ -20841,13 +20846,13 @@ namespace strtk
       {
       public:
 
-         typedef typename column_selector_base<column_selector_impl<T0>,1> csb_t;
-         using csb_t::column_list_t;
+         typedef column_selector_base<column_selector_impl<T0>,1> csb_t;
+         typedef column_list_impl<1> column_list_t;
 
          column_selector_impl(const column_list_t& column_list, T0& t0)
          : csb_t(column_list)
          {
-            cvl_.register_value(t0);
+            csb_t::cvl().register_value(t0);
          }
       };
 
@@ -21156,7 +21161,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,1>
       {
-         typedef typename column_selector_impl<T> type;
+         typedef column_selector_impl<T> type;
          typedef column_list_impl<1> column_list_t;
 
          template <typename Allocator,
@@ -21169,7 +21174,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b));
          }
       };
@@ -21177,7 +21182,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,2>
       {
-         typedef typename column_selector_impl<T,T> type;
+         typedef column_selector_impl<T,T> type;
          typedef column_list_impl<2> column_list_t;
 
          template <typename Allocator,
@@ -21190,7 +21195,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1));
          }
       };
@@ -21198,7 +21203,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,3>
       {
-         typedef typename column_selector_impl<T,T,T> type;
+         typedef column_selector_impl<T,T,T> type;
          typedef column_list_impl<3> column_list_t;
 
          template <typename Allocator,
@@ -21211,7 +21216,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2));
          }
       };
@@ -21219,7 +21224,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,4>
       {
-         typedef typename column_selector_impl<T,T,T,T> type;
+         typedef column_selector_impl<T,T,T,T> type;
          typedef column_list_impl<4> column_list_t;
 
          template <typename Allocator,
@@ -21232,7 +21237,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3));
          }
       };
@@ -21240,7 +21245,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,5>
       {
-         typedef typename column_selector_impl<T,T,T,T,T> type;
+         typedef column_selector_impl<T,T,T,T,T> type;
          typedef column_list_impl<5> column_list_t;
 
          template <typename Allocator,
@@ -21253,7 +21258,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4));
          }
       };
@@ -21261,7 +21266,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,6>
       {
-         typedef typename column_selector_impl<T,T,T,T,T,T> type;
+         typedef column_selector_impl<T,T,T,T,T,T> type;
          typedef column_list_impl<6> column_list_t;
 
          template <typename Allocator,
@@ -21274,7 +21279,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5));
          }
       };
@@ -21282,7 +21287,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,7>
       {
-         typedef typename column_selector_impl<T,T,T,T,T,T,T> type;
+         typedef column_selector_impl<T,T,T,T,T,T,T> type;
          typedef column_list_impl<7> column_list_t;
 
          template <typename Allocator,
@@ -21295,7 +21300,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6));
          }
       };
@@ -21303,7 +21308,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,8>
       {
-         typedef typename column_selector_impl<T,T,T,T,T,T,T,T> type;
+         typedef column_selector_impl<T,T,T,T,T,T,T,T> type;
          typedef column_list_impl<8> column_list_t;
 
          template <typename Allocator,
@@ -21316,7 +21321,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6),*inc(b,7));
          }
       };
@@ -21324,7 +21329,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,9>
       {
-         typedef typename column_selector_impl<T,T,T,T,T,T,T,T,T> type;
+         typedef column_selector_impl<T,T,T,T,T,T,T,T,T> type;
          typedef column_list_impl<9> column_list_t;
 
          template <typename Allocator,
@@ -21337,7 +21342,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6),*inc(b,7),*inc(b,8));
          }
       };
@@ -21345,7 +21350,7 @@ namespace strtk
       template <typename T>
       struct compose_st_selector_impl <T,10>
       {
-         typedef typename column_selector_impl<T,T,T,T,T,T,T,T,T,T> type;
+         typedef column_selector_impl<T,T,T,T,T,T,T,T,T,T> type;
          typedef column_list_impl<10> column_list_t;
 
          template <typename Allocator,
@@ -21358,7 +21363,7 @@ namespace strtk
          template <typename Allocator>
          static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
          {
-            std::list<T,Allocator>::iterator b = list.begin();
+            typename std::list<T,Allocator>::iterator b = list.begin();
             return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6),*inc(b,7),*inc(b,8),*inc(b,9));
          }
       };
