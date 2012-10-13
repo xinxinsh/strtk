@@ -20482,6 +20482,907 @@ namespace strtk
 
    namespace details
    {
+      template <std::size_t N>
+      struct column_list_impl
+      {
+         enum { size = N };
+         std::size_t index_list[N];
+      };
+
+      template <typename Cli, std::size_t N>
+      class column_selector_base
+      {
+      public:
+
+         typedef column_selector_base<Cli,N> csb_t;
+         typedef typename column_list_impl<N> column_list_t;
+
+         column_selector_base(const column_list_t& column_list)
+         : column_list_(column_list),
+           current_index_(0),
+           target_index_(column_list_.index_list[0]),
+           col_list_index_(0),
+           error_count_(0)
+         {}
+
+         inline csb_t& operator*()
+         {
+            return (*this);
+         }
+
+         inline csb_t& operator++()
+         {
+            return (*this);
+         }
+
+         inline csb_t operator++(int)
+         {
+            return (*this);
+         }
+
+         template <typename Iterator>
+         inline csb_t& operator=(const std::pair<Iterator,Iterator>& r)
+         {
+            process(r);
+            return (*this);
+         }
+
+         void reset()
+         {
+           current_index_  = 0;
+           col_list_index_ = 0;
+           target_index_   = column_list_.index_list[0];
+           error_count_    = 0;
+         }
+
+      protected:
+
+         class colsel_value_list
+         {
+         public:
+
+            typedef std::pair<strtk::util::value,bool> value_t;
+
+            colsel_value_list()
+            : current_index(0)
+            {
+               static const value_t null_value(strtk::util::value(),false);
+               std::fill_n(value_list,N,null_value);
+            }
+
+            template <typename T>
+            inline void register_value(T& t)
+            {
+               if (current_index < N)
+               {
+                  value_list[current_index].first.assign(t);
+                  value_list[current_index].second = false;
+                  ++current_index;
+               }
+            }
+
+            std::size_t current_index;
+            value_t value_list[N];
+         };
+
+         template <typename Iterator>
+         inline void process(const std::pair<Iterator,Iterator>& r)
+         {
+            if (current_index_ >  target_index_)
+               return;
+            else if (current_index_ == target_index_)
+            {
+               colsel_value_list::value_t& v = cvl_.value_list[col_list_index_];
+               if (true != (v.second = v.first(r.first,r.second)))
+               {
+                  ++error_count_;
+               }
+               ++col_list_index_;
+               if (col_list_index_ < column_list_t::size)
+                  target_index_ = column_list_.index_list[col_list_index_];
+               else
+                  target_index_ = std::numeric_limits<std::size_t>::max();
+            }
+            ++current_index_;
+         }
+
+         const column_list_t& column_list_;
+         std::size_t current_index_;
+         std::size_t target_index_;
+         std::size_t col_list_index_;
+         std::size_t error_count_;
+         colsel_value_list cvl_;
+
+      private:
+
+         csb_t& operator=(const csb_t& csb);
+      };
+
+      template <typename T0  = void, typename T1  = void, typename T2 = void, typename T3 = void, typename T4 = void,
+                typename T5  = void, typename T6  = void, typename T7 = void, typename T8 = void, typename T9 = void,
+                typename T10 = void, typename T11 = void>
+      class column_selector_impl
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>,12>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>,12> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                              T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
+                              T10& t10, T11& t11)
+         : csb_t(column_list)
+         {
+            cvl_.register_value( t0); cvl_.register_value( t1);
+            cvl_.register_value( t2); cvl_.register_value( t3);
+            cvl_.register_value( t4); cvl_.register_value( t5);
+            cvl_.register_value( t6); cvl_.register_value( t7);
+            cvl_.register_value( t8); cvl_.register_value( t9);
+            cvl_.register_value(t10); cvl_.register_value(t11);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8, typename T9,
+                typename T10>
+      class column_selector_impl <T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>,11>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>,11> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                              T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
+                              T10& t10)
+         : csb_t(column_list)
+         {
+            cvl_.register_value( t0); cvl_.register_value( t1);
+            cvl_.register_value( t2); cvl_.register_value( t3);
+            cvl_.register_value( t4); cvl_.register_value( t5);
+            cvl_.register_value( t6); cvl_.register_value( t7);
+            cvl_.register_value( t8); cvl_.register_value( t9);
+            cvl_.register_value(t10);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8, typename T9>
+      class column_selector_impl <T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>,10>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>,10> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                              T5& t5, T6& t6, T7& t7, T8& t8, T9& t9)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2); cvl_.register_value(t3);
+            cvl_.register_value(t4); cvl_.register_value(t5);
+            cvl_.register_value(t6); cvl_.register_value(t7);
+            cvl_.register_value(t8); cvl_.register_value(t9);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2, typename T3, typename T4,
+                typename T5, typename T6, typename T7, typename T8>
+      class column_selector_impl <T0,T1,T2,T3,T4,T5,T6,T7,T8>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8>,9>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8>,9> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                              T5& t5, T6& t6, T7& t7, T8& t8)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2); cvl_.register_value(t3);
+            cvl_.register_value(t4); cvl_.register_value(t5);
+            cvl_.register_value(t6); cvl_.register_value(t7);
+            cvl_.register_value(t8);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2, typename T3,
+                typename T4, typename T5, typename T6, typename T7>
+      class column_selector_impl <T0,T1,T2,T3,T4,T5,T6,T7>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7>,8>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7>,8> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2, T3& t3,
+                              T4& t4, T5& t5, T6& t6, T7& t7)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2); cvl_.register_value(t3);
+            cvl_.register_value(t4); cvl_.register_value(t5);
+            cvl_.register_value(t6); cvl_.register_value(t7);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2, typename T3,
+                typename T4, typename T5, typename T6>
+      class column_selector_impl <T0,T1,T2,T3,T4,T5,T6>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6>,7>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5,T6>,7> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2, T3& t3,
+                              T4& t4, T5& t5, T6& t6)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2); cvl_.register_value(t3);
+            cvl_.register_value(t4); cvl_.register_value(t5);
+            cvl_.register_value(t6);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2,
+                typename T3, typename T4, typename T5>
+      class column_selector_impl <T0,T1,T2,T3,T4,T5>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5>,6>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4,T5>,6> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2,
+                              T3& t3, T4& t4, T5& t5)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2); cvl_.register_value(t3);
+            cvl_.register_value(t4); cvl_.register_value(t5);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2,
+                typename T3, typename T4>
+      class column_selector_impl <T0,T1,T2,T3,T4>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3,T4>,5>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3,T4>,5> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2,
+                              T3& t3, T4& t4)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2); cvl_.register_value(t3);
+            cvl_.register_value(t4);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2, typename T3>
+      class column_selector_impl <T0,T1,T2,T3>
+            : public column_selector_base<column_selector_impl<T0,T1,T2,T3>,4>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2,T3>,4> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2, T3& t3)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2); cvl_.register_value(t3);
+         }
+      };
+
+      template <typename T0, typename T1, typename T2>
+      class column_selector_impl <T0,T1,T2>
+            : public column_selector_base<column_selector_impl<T0,T1,T2>,3>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1,T2>,3> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1, T2& t2)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+            cvl_.register_value(t2);
+         }
+      };
+
+      template <typename T0, typename T1>
+      class column_selector_impl <T0,T1>
+            : public column_selector_base<column_selector_impl<T0,T1>,2>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0,T1>,2> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list,
+                              T1& t0, T1& t1)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0); cvl_.register_value(t1);
+         }
+      };
+
+      template <typename T0>
+      class column_selector_impl <T0>
+            : public column_selector_base<column_selector_impl<T0>,1>
+      {
+      public:
+
+         typedef typename column_selector_base<column_selector_impl<T0>,1> csb_t;
+         using csb_t::column_list_t;
+
+         column_selector_impl(const column_list_t& column_list, T0& t0)
+         : csb_t(column_list)
+         {
+            cvl_.register_value(t0);
+         }
+      };
+
+   }
+
+   inline details::column_list_impl<11>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3,
+                  const std::size_t& idx4, const std::size_t& idx5,
+                  const std::size_t& idx6, const std::size_t& idx7,
+                  const std::size_t& idx8, const std::size_t& idx9,
+                  const std::size_t& idx10)
+   {
+      details::column_list_impl<11> cli;
+      cli.index_list[ 0] =  idx0; cli.index_list[1] = idx1;
+      cli.index_list[ 2] =  idx2; cli.index_list[3] = idx3;
+      cli.index_list[ 4] =  idx4; cli.index_list[5] = idx5;
+      cli.index_list[ 6] =  idx6; cli.index_list[7] = idx7;
+      cli.index_list[ 8] =  idx8; cli.index_list[9] = idx9;
+      cli.index_list[10] = idx10;
+      return cli;
+   }
+
+   inline details::column_list_impl<10>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3,
+                  const std::size_t& idx4, const std::size_t& idx5,
+                  const std::size_t& idx6, const std::size_t& idx7,
+                  const std::size_t& idx8, const std::size_t& idx9)
+   {
+      details::column_list_impl<10> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2; cli.index_list[3] = idx3;
+      cli.index_list[4] = idx4; cli.index_list[5] = idx5;
+      cli.index_list[6] = idx6; cli.index_list[7] = idx7;
+      cli.index_list[8] = idx8; cli.index_list[9] = idx9;
+      return cli;
+   }
+
+   inline details::column_list_impl<9>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3,
+                  const std::size_t& idx4, const std::size_t& idx5,
+                  const std::size_t& idx6, const std::size_t& idx7,
+                  const std::size_t& idx8)
+   {
+      details::column_list_impl<9> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2; cli.index_list[3] = idx3;
+      cli.index_list[4] = idx4; cli.index_list[5] = idx5;
+      cli.index_list[6] = idx6; cli.index_list[7] = idx7;
+      cli.index_list[8] = idx8;
+      return cli;
+   }
+
+   inline details::column_list_impl<8>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3,
+                  const std::size_t& idx4, const std::size_t& idx5,
+                  const std::size_t& idx6, const std::size_t& idx7)
+   {
+      details::column_list_impl<8> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2; cli.index_list[3] = idx3;
+      cli.index_list[4] = idx4; cli.index_list[5] = idx5;
+      cli.index_list[6] = idx6; cli.index_list[7] = idx7;
+      return cli;
+   }
+
+   inline details::column_list_impl<7>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3,
+                  const std::size_t& idx4, const std::size_t& idx5,
+                  const std::size_t& idx6)
+   {
+      details::column_list_impl<7> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2; cli.index_list[3] = idx3;
+      cli.index_list[4] = idx4; cli.index_list[5] = idx5;
+      cli.index_list[6] = idx6;
+      return cli;
+   }
+
+   inline details::column_list_impl<6>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3,
+                  const std::size_t& idx4, const std::size_t& idx5)
+   {
+      details::column_list_impl<6> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2; cli.index_list[3] = idx3;
+      cli.index_list[4] = idx4; cli.index_list[5] = idx5;
+      return cli;
+   }
+
+   inline details::column_list_impl<5>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3,
+                  const std::size_t& idx4)
+   {
+      details::column_list_impl<5> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2; cli.index_list[3] = idx3;
+      cli.index_list[4] = idx4;
+      return cli;
+   }
+
+   inline details::column_list_impl<4>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2, const std::size_t& idx3)
+   {
+      details::column_list_impl<4> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2; cli.index_list[3] = idx3;
+      return cli;
+   }
+
+   inline details::column_list_impl<3>
+      column_list(const std::size_t& idx0, const std::size_t& idx1,
+                  const std::size_t& idx2)
+   {
+      details::column_list_impl<3> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      cli.index_list[2] = idx2;
+      return cli;
+   }
+
+   inline details::column_list_impl<2>
+      column_list(const std::size_t& idx0, const std::size_t& idx1)
+   {
+      details::column_list_impl<2> cli;
+      cli.index_list[0] = idx0; cli.index_list[1] = idx1;
+      return cli;
+   }
+
+   inline details::column_list_impl<1>
+      column_list(const std::size_t& idx0)
+   {
+      details::column_list_impl<1> cli;
+      cli.index_list[0] = idx0;
+      return cli;
+   }
+
+   template <typename T0, typename T1, typename  T2, typename T3,
+             typename T4, typename T5, typename  T6, typename T7,
+             typename T8, typename T9, typename T10, typename T11>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>
+      column_selector(const details::column_list_impl<11>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3,  T4&  t4,  T5& t5,
+                      T6& t6, T7& t7, T8& t8, T9& t9, T10& t10, T11& t11)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>
+               (col_list,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6, typename T7,
+             typename T8, typename T9, typename T10>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>
+      column_selector(const details::column_list_impl<11>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                      T6& t6, T7& t7, T8& t8, T9& t9, T10& t10)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>
+               (col_list,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6, typename T7,
+             typename T8, typename T9>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>
+      column_selector(const details::column_list_impl<10>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                      T6& t6, T7& t7, T8& t8, T9& t9)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>
+               (col_list,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9);
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6, typename T7,
+             typename T8>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7,T8>
+      column_selector(const details::column_list_impl<9>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                      T6& t6, T7& t7, T8& t8)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4,T5,T6,T7,T8>
+               (col_list,t0,t1,t2,t3,t4,t5,t6,t7,t8);
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6, typename T7>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4,T5,T6,T7>
+      column_selector(const details::column_list_impl<8>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                      T6& t6, T7& t7)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4,T5,T6,T7>
+               (col_list,t0,t1,t2,t3,t4,t5,t6,t7);
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3,
+             typename T4, typename T5, typename T6>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4,T5,T6>
+      column_selector(const details::column_list_impl<7>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4,T5,T6>
+               (col_list,t0,t1,t2,t3,t4,t5,t6);
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3,
+             typename T4, typename T5>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4,T5>
+      column_selector(const details::column_list_impl<6>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4,T5>
+               (col_list,t0,t1,t2,t3,t4,t5);
+   }
+
+   template <typename T0, typename T1, typename T2,
+             typename T3, typename T4>
+   inline typename details::column_selector_impl<T0,T1,T2,T3,T4>
+      column_selector(const details::column_list_impl<5>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3, T4& t4)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3,T4>
+               (col_list,t0,t1,t2,t3,t4);
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3>
+   inline typename details::column_selector_impl<T0,T1,T2,T3>
+      column_selector(const details::column_list_impl<4>& col_list,
+                      T0& t0, T1& t1, T2& t2, T3& t3)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2,T3>
+               (col_list,t0,t1,t2,t3);
+   }
+
+   template <typename T0, typename T1, typename T2>
+   inline typename details::column_selector_impl<T0,T1,T2>
+      column_selector(const details::column_list_impl<3>& col_list,
+                      T0& t0, T1& t1, T2& t2)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1,T2>
+               (col_list,t0,t1,t2);
+   }
+
+   template <typename T0, typename T1>
+   inline typename details::column_selector_impl<T0,T1>
+      column_selector(const details::column_list_impl<2>& col_list,
+                      T0& t0, T1& t1)
+   {
+      return
+         details::column_selector_impl
+            <T0,T1>
+               (col_list,t0,t1);
+   }
+
+   template <typename T0>
+   inline typename details::column_selector_impl<T0>
+      column_selector(const details::column_list_impl<1>& col_list, T0& t0)
+   {
+      return
+         details::column_selector_impl
+            <T0>
+               (col_list,t0);
+   }
+
+   namespace details
+   {
+      template <typename Iterator>
+      inline Iterator inc(Iterator itr, const std::size_t& n)
+      {
+         std::advance(itr,n);
+         return itr;
+      }
+
+      //Single type column selectors
+      template <typename T, std::size_t N>
+      struct compose_st_selector_impl
+      {};
+
+      template <typename T>
+      struct compose_st_selector_impl <T,1>
+      {
+         typedef typename column_selector_impl<T> type;
+         typedef column_list_impl<1> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,2>
+      {
+         typedef typename column_selector_impl<T,T> type;
+         typedef column_list_impl<2> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,3>
+      {
+         typedef typename column_selector_impl<T,T,T> type;
+         typedef column_list_impl<3> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,4>
+      {
+         typedef typename column_selector_impl<T,T,T,T> type;
+         typedef column_list_impl<4> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2],seq[3]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,5>
+      {
+         typedef typename column_selector_impl<T,T,T,T,T> type;
+         typedef column_list_impl<5> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2],seq[3],seq[4]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,6>
+      {
+         typedef typename column_selector_impl<T,T,T,T,T,T> type;
+         typedef column_list_impl<6> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2],seq[3],seq[4],seq[5]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,7>
+      {
+         typedef typename column_selector_impl<T,T,T,T,T,T,T> type;
+         typedef column_list_impl<7> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2],seq[3],seq[4],seq[5],seq[6]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,8>
+      {
+         typedef typename column_selector_impl<T,T,T,T,T,T,T,T> type;
+         typedef column_list_impl<8> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2],seq[3],seq[4],seq[5],seq[6],seq[7]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6),*inc(b,7));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,9>
+      {
+         typedef typename column_selector_impl<T,T,T,T,T,T,T,T,T> type;
+         typedef column_list_impl<9> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2],seq[3],seq[4],seq[5],seq[6],seq[7],seq[8]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6),*inc(b,7),*inc(b,8));
+         }
+      };
+
+      template <typename T>
+      struct compose_st_selector_impl <T,10>
+      {
+         typedef typename column_selector_impl<T,T,T,T,T,T,T,T,T,T> type;
+         typedef column_list_impl<10> column_list_t;
+
+         template <typename Allocator,
+                   template <typename,typename> class Sequence>
+         static inline type create(const column_list_t& col_list, Sequence<T,Allocator>& seq)
+         {
+            return type(col_list,seq[0],seq[1],seq[2],seq[3],seq[4],seq[5],seq[6],seq[7],seq[8],seq[9]);
+         }
+
+         template <typename Allocator>
+         static inline type create(const column_list_t& col_list, std::list<T,Allocator>& list)
+         {
+            std::list<T,Allocator>::iterator b = list.begin();
+            return type(col_list,*(b),*inc(b,1),*inc(b,2),*inc(b,3),*inc(b,4),*inc(b,5),*inc(b,6),*inc(b,7),*inc(b,8),*inc(b,9));
+         }
+      };
+
+   }
+
+   template <std::size_t N,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline typename details::compose_st_selector_impl<T,N>::type
+      column_selector(const details::column_list_impl<N>& col_list, Sequence<T,Allocator>& seq)
+   {
+      if (seq.size() >= N)
+      {
+         typedef typename details::compose_st_selector_impl<T,N> composer_t;
+         return composer_t::create(col_list,seq);
+      }
+      else
+         throw std::invalid_argument("column_selector(sequence/list) - size < N!");
+   }
+
+   namespace details
+   {
       typedef const unsigned char* ptr;
 
       template <typename T>
