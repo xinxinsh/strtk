@@ -1588,6 +1588,13 @@ namespace strtk
       }
    }
 
+   inline void replace(const std::string::value_type& c0,
+                       const std::string::value_type& c1,
+                       std::string& s)
+   {
+      replace(c0,c1,const_cast<char*>(s.data()),const_cast<char*>(s.data() + s.size()));
+   }
+
    template <typename T>
    inline void replace(const T& c1, const T& c2, const range::adapter<T>& r)
    {
@@ -12694,9 +12701,16 @@ namespace strtk
       {
          namespace details_endian
          {
-            static const unsigned int __n = 1;
-            static const bool __le_result = (static_cast<char>(1) == *(reinterpret_cast<const char*>(&__n)));
-            static const bool __be_result = (!__le_result);
+            #if (defined(__LITTLE_ENDIAN__)) ||\
+                (defined(WIN32)) ||\
+                (defined(__MINGW32_VERSION)) ||\
+                (defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
+               static const bool __le_result = true;
+               static const bool __be_result = false;
+            #else
+               static const bool __le_result = false;
+               static const bool __be_result = true;
+            #endif
          }
 
          static inline bool is_little_endian()
@@ -12710,20 +12724,20 @@ namespace strtk
             return details_endian::__be_result;
          }
 
-         static inline unsigned short convert(const unsigned short& v)
+         static inline unsigned short convert(const unsigned short v)
          {
             //static_assert(2 == sizeof(v),"");
             return ((v >> 8) & 0x00FF) | ((v << 8) & 0xFFFF);
          }
 
-         static inline unsigned int convert(const unsigned int& v)
+         static inline unsigned int convert(const unsigned int v)
          {
             //static_assert(4 == sizeof(v),"");
             return ((v >> 24) & 0x000000FF) | ((v << 24) & 0x0000FF00) |
                    ((v <<  8) & 0x00FF0000) | ((v >>  8) & 0xFF000000);
          }
 
-         static inline unsigned long long int convert(const unsigned long long int& v)
+         static inline unsigned long long int convert(const unsigned long long int v)
          {
             //static_assert(8 == sizeof(v),"");
             return ((v >> 56) & 0x00000000000000FFLL) | ((v << 56) & 0xFF00000000000000LL) |
@@ -12732,54 +12746,90 @@ namespace strtk
                    ((v >>  8) & 0x00000000FF000000LL) | ((v <<  8) & 0x000000FF00000000LL) ;
          }
 
-         static inline short convert(const short& v)
+         static inline short convert(const short v)
          {
             return static_cast<short>(convert(static_cast<unsigned short>(v)));
          }
 
-         static inline int convert(const int& v)
+         static inline int convert(const int v)
          {
             return static_cast<int>(convert(static_cast<unsigned int>(v)));
          }
 
-         static inline unsigned long long int convert(const long long int& v)
+         static inline unsigned long long int convert(const long long int v)
          {
             return static_cast<long long>(convert(static_cast<unsigned long long int>(v)));
          }
 
-         static inline unsigned short convert_to_be(const unsigned short& v)
+         static inline unsigned short convert_to_be(const unsigned short v)
          {
             if (is_little_endian()) convert(v);
             return v;
          }
 
-         static inline unsigned int convert_to_be(const unsigned int& v)
+         static inline unsigned int convert_to_be(const unsigned int v)
          {
             if (is_little_endian()) convert(v);
             return v;
          }
 
-         static inline unsigned long long int convert_to_be(const unsigned long long int& v)
+         static inline unsigned long long int convert_to_be(const unsigned long long int v)
          {
             if (is_little_endian()) convert(v);
             return v;
          }
 
-         static inline short convert_to_be(const short& v)
+         static inline short convert_to_be(const short v)
          {
             if (is_little_endian()) convert(v);
             return v;
          }
 
-         static inline int convert_to_be(const int& v)
+         static inline int convert_to_be(const int v)
          {
             if (is_little_endian()) convert(v);
             return v;
          }
 
-         static inline unsigned long long int convert_to_be(const long long int& v)
+         static inline unsigned long long int convert_to_be(const long long int v)
          {
             if (is_little_endian()) convert(v);
+            return v;
+         }
+
+         static inline unsigned short convert_to_le(const unsigned short v)
+         {
+            if (is_big_endian()) convert(v);
+            return v;
+         }
+
+         static inline unsigned int convert_to_le(const unsigned int v)
+         {
+            if (is_big_endian()) convert(v);
+            return v;
+         }
+
+         static inline unsigned long long int convert_to_le(const unsigned long long int v)
+         {
+            if (is_big_endian()) convert(v);
+            return v;
+         }
+
+         static inline short convert_to_le(const short v)
+         {
+            if (is_big_endian()) convert(v);
+            return v;
+         }
+
+         static inline int convert_to_le(const int v)
+         {
+            if (is_big_endian()) convert(v);
+            return v;
+         }
+
+         static inline unsigned long long int convert_to_le(const long long int v)
+         {
+            if (is_big_endian()) convert(v);
             return v;
          }
 
@@ -14684,11 +14734,12 @@ namespace strtk
       std::size_t match_count = 0;
       while (end != itr_range.first)
       {
-         range_type found_itr = details::find_exactly_n_consecutive_values<iterator_type,
-                                                                           Predicate>(n,
-                                                                                      p,
-                                                                                      itr_range,
-                                                                                      stateful_predicate);
+         range_type found_itr =
+            details::find_exactly_n_consecutive_values<iterator_type,Predicate>(n,
+                                                                                p,
+                                                                                itr_range,
+                                                                                stateful_predicate);
+
          if ((end == found_itr.first) && (found_itr.first == found_itr.second))
          {
             break;
@@ -21385,6 +21436,800 @@ namespace strtk
       else
          throw std::invalid_argument("column_selector(sequence/list) - size < N!");
    }
+
+   namespace details
+   {
+
+      template <typename InputIterator, std::size_t N>
+      class column_selector_iterator_impl
+      {
+      public:
+
+         typedef column_selector_iterator_impl<InputIterator,N> csii_t;
+         typedef details::column_list_impl<N> column_list_t;
+         typedef std::pair<InputIterator,InputIterator> iterator_type;
+         typedef iterator_type* iterator_type_ptr;
+
+         column_selector_iterator_impl(const details::column_list_impl<N>& column_list,iterator_type (&token_list)[N])
+         : column_list_(column_list),
+           token_list_(token_list),
+           current_index_(0),
+           target_index_(column_list_.index_list[0]),
+           col_list_index_(0)
+         {}
+
+         inline csii_t& operator*()
+         {
+            return (*this);
+         }
+
+         inline csii_t& operator++()
+         {
+            return (*this);
+         }
+
+         inline csii_t operator++(int)
+         {
+            return (*this);
+         }
+
+         template <typename Iterator>
+         inline csii_t& operator=(const std::pair<Iterator,Iterator>& r)
+         {
+            if (current_index_ == target_index_)
+            {
+               token_list_[col_list_index_] = r;
+               ++col_list_index_;
+               if (col_list_index_ < column_list_t::size)
+                  target_index_ = column_list_.index_list[col_list_index_];
+               else
+                  target_index_ = std::numeric_limits<std::size_t>::max();
+            }
+            ++current_index_;
+            return (*this);
+         }
+
+      private:
+
+         csii_t& operator=(const csii_t& csb);
+
+         const column_list_t& column_list_;
+         iterator_type_ptr token_list_;
+         std::size_t current_index_;
+         std::size_t target_index_;
+         std::size_t col_list_index_;
+      };
+
+   }
+
+   #define strtk_parse_col_token(Index)\
+      if (!string_to_type_converter(token_list[Index].first,token_list[Index].second,t##Index)) return false;
+
+   #define strtk_parse_col_token_seq(Index)\
+      if (!string_to_type_converter(token_list[Index].first,token_list[Index].second,seq[Index])) return false;
+
+   #define strtk_parse_columns_impl(NN)\
+      static const std::size_t N = NN;\
+      typedef typename details::is_valid_iterator<InputIterator>::type itr_type;\
+      typedef std::pair<InputIterator,InputIterator> iterator_type;\
+      typedef details::column_selector_iterator_impl<InputIterator,N> csii_t;\
+      const std::size_t token_count = (column_list.index_list[N - 1] + 1);\
+      iterator_type token_list[N];\
+      csii_t csii(column_list,token_list);\
+      const std::size_t parsed_token_count = split_n<InputIterator,csii_t&>\
+      (delimiters,begin,end,token_count,csii,split_options::compress_delimiters);\
+      if (token_count != parsed_token_count) return false;\
+
+   #define strk_parse_col_seq\
+      return parse_columns(data.data(),data.data() + data.size(),delimiters,column_list,seq);
+
+   template <typename InputIterator,
+             typename  T0, typename T1, typename T2, typename T3, typename T4,
+             typename  T5, typename T6, typename T7, typename T8, typename T9,
+             typename T10, typename T11>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<12>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                             T6& t6, T7& t7, T8& t8, T9& t9, T10& t10, T11& t11)
+   {
+      strtk_parse_columns_impl(12)
+      strtk_parse_col_token( 0) strtk_parse_col_token( 1)
+      strtk_parse_col_token( 2) strtk_parse_col_token( 3)
+      strtk_parse_col_token( 4) strtk_parse_col_token( 5)
+      strtk_parse_col_token( 6) strtk_parse_col_token( 7)
+      strtk_parse_col_token( 8) strtk_parse_col_token( 9)
+      strtk_parse_col_token(10) strtk_parse_col_token(11)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7, typename T8, typename T9,
+             typename T10>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<11>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                             T6& t6, T7& t7, T8& t8, T9& t9, T10& t10)
+   {
+      strtk_parse_columns_impl(11)
+      strtk_parse_col_token( 0) strtk_parse_col_token(1)
+      strtk_parse_col_token( 2) strtk_parse_col_token(3)
+      strtk_parse_col_token( 4) strtk_parse_col_token(5)
+      strtk_parse_col_token( 6) strtk_parse_col_token(7)
+      strtk_parse_col_token( 8) strtk_parse_col_token(9)
+      strtk_parse_col_token(10)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7, typename T8, typename T9>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<10>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5,
+                             T6& t6, T7& t7, T8& t8, T9& t9)
+   {
+      strtk_parse_columns_impl(10)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2) strtk_parse_col_token(3)
+      strtk_parse_col_token(4) strtk_parse_col_token(5)
+      strtk_parse_col_token(6) strtk_parse_col_token(7)
+      strtk_parse_col_token(8) strtk_parse_col_token(9)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7, typename T8>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<9>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6,
+                             T7& t7, T8& t8)
+   {
+      strtk_parse_columns_impl(9)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2) strtk_parse_col_token(3)
+      strtk_parse_col_token(4) strtk_parse_col_token(5)
+      strtk_parse_col_token(6) strtk_parse_col_token(7)
+      strtk_parse_col_token(8)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<8>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6, T7& t7)
+   {
+      strtk_parse_columns_impl(8)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2) strtk_parse_col_token(3)
+      strtk_parse_col_token(4) strtk_parse_col_token(5)
+      strtk_parse_col_token(6) strtk_parse_col_token(7)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<7>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5, T6& t6)
+   {
+      strtk_parse_columns_impl(7)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2) strtk_parse_col_token(3)
+      strtk_parse_col_token(4) strtk_parse_col_token(5)
+      strtk_parse_col_token(6)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<6>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4, T5& t5)
+   {
+      strtk_parse_columns_impl(6)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2) strtk_parse_col_token(3)
+      strtk_parse_col_token(4) strtk_parse_col_token(5)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3, typename T4>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<5>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4)
+   {
+      strtk_parse_columns_impl(5)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2) strtk_parse_col_token(3)
+      strtk_parse_col_token(4)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2, typename T3>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<4>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3)
+   {
+      strtk_parse_columns_impl(4)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2) strtk_parse_col_token(3)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1, typename T2>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<3>& column_list,
+                             T0& t0, T1& t1, T2& t2)
+   {
+      strtk_parse_columns_impl(3)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      strtk_parse_col_token(2)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0, typename T1>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<2>& column_list,
+                             T0& t0, T1& t1)
+   {
+      strtk_parse_columns_impl(2)
+      strtk_parse_col_token(0) strtk_parse_col_token(1)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T0>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<1>& column_list,
+                             T0& t0)
+   {
+      strtk_parse_columns_impl(1)
+      strtk_parse_col_token(0)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<12>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(11)
+      strtk_parse_col_token_seq( 0) strtk_parse_col_token_seq( 1)
+      strtk_parse_col_token_seq( 2) strtk_parse_col_token_seq( 3)
+      strtk_parse_col_token_seq( 4) strtk_parse_col_token_seq( 5)
+      strtk_parse_col_token_seq( 6) strtk_parse_col_token_seq( 7)
+      strtk_parse_col_token_seq( 8) strtk_parse_col_token_seq( 9)
+      strtk_parse_col_token_seq(10) strtk_parse_col_token_seq(11)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<11>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(11)
+      strtk_parse_col_token_seq( 0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq( 2) strtk_parse_col_token_seq(3)
+      strtk_parse_col_token_seq( 4) strtk_parse_col_token_seq(5)
+      strtk_parse_col_token_seq( 6) strtk_parse_col_token_seq(7)
+      strtk_parse_col_token_seq( 8) strtk_parse_col_token_seq(9)
+      strtk_parse_col_token_seq(10)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<10>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(10)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2) strtk_parse_col_token_seq(3)
+      strtk_parse_col_token_seq(4) strtk_parse_col_token_seq(5)
+      strtk_parse_col_token_seq(6) strtk_parse_col_token_seq(7)
+      strtk_parse_col_token_seq(8) strtk_parse_col_token_seq(9)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<9>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(9)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2) strtk_parse_col_token_seq(3)
+      strtk_parse_col_token_seq(4) strtk_parse_col_token_seq(5)
+      strtk_parse_col_token_seq(6) strtk_parse_col_token_seq(7)
+      strtk_parse_col_token_seq(8)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<8>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(8)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2) strtk_parse_col_token_seq(3)
+      strtk_parse_col_token_seq(4) strtk_parse_col_token_seq(5)
+      strtk_parse_col_token_seq(6) strtk_parse_col_token_seq(7)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<7>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(7)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2) strtk_parse_col_token_seq(3)
+      strtk_parse_col_token_seq(4) strtk_parse_col_token_seq(5)
+      strtk_parse_col_token_seq(6)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<6>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(6)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2) strtk_parse_col_token_seq(3)
+      strtk_parse_col_token_seq(4) strtk_parse_col_token_seq(5)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<5>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(5)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2) strtk_parse_col_token_seq(3)
+      strtk_parse_col_token_seq(4)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<4>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(4)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2) strtk_parse_col_token_seq(3)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<3>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(3)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      strtk_parse_col_token_seq(2)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<2>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(2)
+      strtk_parse_col_token_seq(0) strtk_parse_col_token_seq(1)
+      return true;
+   }
+
+   template <typename InputIterator,
+             typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const InputIterator begin,
+                             const InputIterator end,
+                             const std::string& delimiters,
+                             const details::column_list_impl<1>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strtk_parse_columns_impl(1)
+      strtk_parse_col_token_seq(0)
+      return true;
+   }
+
+   #undef strtk_parse_col_token
+   #undef strtk_parse_col_token_seq
+   #undef strtk_parse_columns_impl
+
+   #define strtk_parse_col_begin()\
+      return parse_columns(data.data(),\
+                           data.data() + data.size(),delimiters,\
+                           column_list,
+
+   #define strtk_parse_col_end() );
+
+   template <typename  T0, typename  T1, typename T2, typename T3, typename T4,
+             typename  T5, typename  T6, typename T7, typename T8, typename T9,
+             typename T10, typename T11>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<12>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
+                             T10& t10, T11& t11)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11
+      strtk_parse_col_end()
+   }
+
+   template <typename  T0, typename T1, typename T2, typename T3, typename T4,
+             typename  T5, typename T6, typename T7, typename T8, typename T9,
+             typename T10>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<11>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8, T9& t9,
+                             T10& t10)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7, typename T8, typename T9>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<10>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8,
+                             T9& t9)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4,t5,t6,t7,t8,t9
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7, typename T8>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<9>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7, T8& t8)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4,t5,t6,t7,t8
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<8>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6, T7& t7)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4,t5,t6,t7
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<7>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5, T6& t6)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4,t5,t6
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3, typename T4,
+             typename T5>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<6>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4,
+                             T5& t5)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4,t5
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3, typename T4>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<5>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3, T4& t4)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3,t4
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1, typename T2, typename T3>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<4>& column_list,
+                             T0& t0, T1& t1, T2& t2, T3& t3)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2,t3
+      strtk_parse_col_end();
+   }
+
+   template <typename T0, typename T1, typename T2>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<3>& column_list,
+                             T0& t0, T1& t1, T2& t2)
+   {
+      strtk_parse_col_begin()
+         t0,t1,t2
+      strtk_parse_col_end()
+   }
+
+   template <typename T0, typename T1>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<2>& column_list,
+                             T0& t0, T1& t1)
+   {
+      strtk_parse_col_begin()
+         t0,t1
+      strtk_parse_col_end()
+   }
+
+   template <typename T>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<1>& column_list,
+                             T& t)
+   {
+      strtk_parse_col_begin()
+         t
+      strtk_parse_col_end()
+   }
+
+   #undef strtk_parse_col_begin
+   #undef strtk_parse_col_end
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<12>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<11>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<10>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<9>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<8>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<7>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<6>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<5>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<4>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<3>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<2>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   template <typename T,
+             typename Allocator,
+             template <typename,typename> class Sequence>
+   inline bool parse_columns(const std::string& data,
+                             const std::string& delimiters,
+                             const details::column_list_impl<1>& column_list,
+                             Sequence<T,Allocator>& seq)
+   {
+      strk_parse_col_seq
+   }
+
+   #undef strk_parse_col_seq
 
    namespace details
    {
