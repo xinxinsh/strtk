@@ -20909,6 +20909,24 @@ namespace strtk
 
    }
 
+   inline details::column_list_impl<12>
+      column_list(const std::size_t&  idx0, const std::size_t&  idx1,
+                  const std::size_t&  idx2, const std::size_t&  idx3,
+                  const std::size_t&  idx4, const std::size_t&  idx5,
+                  const std::size_t&  idx6, const std::size_t&  idx7,
+                  const std::size_t&  idx8, const std::size_t&  idx9,
+                  const std::size_t& idx10, const std::size_t& idx11)
+   {
+      details::column_list_impl<12> cli;
+      cli.index_list[ 0] =  idx0; cli.index_list[ 1] = idx1;
+      cli.index_list[ 2] =  idx2; cli.index_list[ 3] = idx3;
+      cli.index_list[ 4] =  idx4; cli.index_list[ 5] = idx5;
+      cli.index_list[ 6] =  idx6; cli.index_list[ 7] = idx7;
+      cli.index_list[ 8] =  idx8; cli.index_list[ 9] = idx9;
+      cli.index_list[10] = idx10; cli.index_list[11] = idx11;
+      return cli;
+   }
+
    inline details::column_list_impl<11>
       column_list(const std::size_t& idx0, const std::size_t& idx1,
                   const std::size_t& idx2, const std::size_t& idx3,
@@ -21045,6 +21063,71 @@ namespace strtk
       details::column_list_impl<1> cli;
       cli.index_list[0] = idx0;
       return cli;
+   }
+
+   inline details::column_list_impl<12> column_list(const std::size_t (&idx)[12])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4],idx[5],
+                         idx[6],idx[7],idx[8],idx[9],idx[10],idx[11]);
+   }
+
+   inline details::column_list_impl<11> column_list(const std::size_t (&idx)[11])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4],idx[5],
+                         idx[6],idx[7],idx[8],idx[9],idx[10]);
+   }
+
+   inline details::column_list_impl<10> column_list(const std::size_t (&idx)[10])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4],idx[5],
+                         idx[6],idx[7],idx[8],idx[9]);
+   }
+
+   inline details::column_list_impl<9> column_list(const std::size_t (&idx)[9])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4],idx[5],
+                         idx[6],idx[7],idx[8]);
+   }
+
+   inline details::column_list_impl<8> column_list(const std::size_t (&idx)[8])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4],idx[5],
+                         idx[6],idx[7]);
+   }
+
+   inline details::column_list_impl<7> column_list(const std::size_t (&idx)[7])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4],idx[5],idx[6]);
+   }
+
+   inline details::column_list_impl<6> column_list(const std::size_t (&idx)[6])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4],idx[5]);
+   }
+
+   inline details::column_list_impl<5> column_list(const std::size_t (&idx)[5])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3],idx[4]);
+   }
+
+   inline details::column_list_impl<4> column_list(const std::size_t (&idx)[4])
+   {
+      return column_list(idx[0],idx[1],idx[2],idx[3]);
+   }
+
+   inline details::column_list_impl<3> column_list(const std::size_t (&idx)[3])
+   {
+      return column_list(idx[0],idx[1],idx[2]);
+   }
+
+   inline details::column_list_impl<2> column_list(const std::size_t (&idx)[2])
+   {
+      return column_list(idx[0],idx[1]);
+   }
+
+   inline details::column_list_impl<1> column_list(const std::size_t (&idx)[1])
+   {
+      return column_list(idx[0]);
    }
 
    template <typename T0, typename T1, typename  T2, typename T3,
