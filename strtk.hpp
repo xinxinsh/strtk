@@ -40,6 +40,7 @@
 #include <stack>
 #include <queue>
 
+
 #ifndef strtk_no_tr1_or_boost
    #define strtk_enable_lexical_cast
    #define strtk_enable_random
@@ -247,6 +248,9 @@ namespace strtk
       struct expect_type_tag          {};
       struct like_type_tag            {};
       struct inrange_type_tag         {};
+      struct trim_type_tag            {};
+      struct lcase_type_tag           {};
+      struct ucase_type_tag           {};
       struct fillchararray_type_tag   {};
 
       template <typename T>
@@ -7494,7 +7498,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -7533,7 +7537,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -7571,7 +7575,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second, t1)) return false; ++itr;
@@ -7608,7 +7612,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7642,7 +7646,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7675,7 +7679,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7707,7 +7711,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7738,7 +7742,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7766,7 +7770,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7793,7 +7797,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7818,7 +7822,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       if (!string_to_type_converter((*itr).first,(*itr).second,t1)) return false; ++itr;
@@ -7842,7 +7846,7 @@ namespace strtk
                                                      token_count,
                                                      token_list,
                                                      split_options::compress_delimiters);
-      if (token_count != parsed_token_count)
+      if (token_count > parsed_token_count)
          return false;
       iterator_type_ptr itr = token_list;
       return string_to_type_converter((*itr).first,(*itr).second,t);
@@ -15079,6 +15083,11 @@ namespace strtk
             return (*this);
          }
 
+         inline void set_value(const std::string& s)
+         {
+            s_ = s;
+         }
+
       private:
 
          std::string s_;
@@ -15106,6 +15115,11 @@ namespace strtk
             return (*this);
          }
 
+         inline void set_value(const std::string& s)
+         {
+            s_ = s;
+         }
+
       private:
 
          std::string s_;
@@ -15122,20 +15136,20 @@ namespace strtk
          template <typename InputIterator>
          inline bool operator()(InputIterator begin, InputIterator end)
          {
-            if (static_cast<std::size_t>(std::distance(begin,end)) != s_.size())
-               return false;
-            else
-            {
-               typedef typename std::iterator_traits<InputIterator>::value_type value_type;
-               static const value_type zero_or_more = value_type('*');
-               static const value_type zero_or_one  = value_type('?');
-               return strtk::match(s_.data(),s_.data() + s_.size(),begin,end,zero_or_more,zero_or_one);
-            }
+            typedef typename std::iterator_traits<InputIterator>::value_type value_type;
+            static const value_type zero_or_more = value_type('*');
+            static const value_type zero_or_one  = value_type('?');
+            return strtk::match(s_.data(),s_.data() + s_.size(),begin,end,zero_or_more,zero_or_one);
          }
 
          inline like_impl& ref()
          {
             return (*this);
+         }
+
+         inline void set_pattern(const std::string& s)
+         {
+            s_ = s;
          }
 
       private:
@@ -15173,11 +15187,150 @@ namespace strtk
             return (*this);
          }
 
+         inline void set_low_hi(const T& low, const T& hi)
+         {
+            low_ = low;
+            hi_  = hi;
+         }
+
       private:
 
          T* t_;
          T low_;
          T hi_;
+      };
+
+      namespace trim_details
+      {
+         template <typename Type>
+         struct convert_impl
+         {
+            template <typename InputIterator>
+            static bool execute(InputIterator begin, InputIterator end,
+                                const std::string& rem_chars,
+                                std::size_t mode,
+                                Type& t)
+            {
+               std::string s;
+               if (!strtk::string_to_type_converter(begin,end,s))
+                  return false;
+               switch (mode)
+               {
+                  case 0  : remove_leading_trailing(rem_chars,s); break;
+                  case 1  : remove_leading         (rem_chars,s); break;
+                  case 2  : remove_trailing        (rem_chars,s); break;
+                  default : return false;
+               }
+               return strtk::string_to_type_converter(s,t);
+            }
+         };
+
+         template <>
+         struct convert_impl <std::string>
+         {
+            template <typename InputIterator>
+            static bool execute(InputIterator begin, InputIterator end,
+                                const std::string& rem_chars,
+                                std::size_t mode,
+                                std::string& t)
+            {
+               if (!strtk::string_to_type_converter(begin,end,t))
+                  return false;
+               switch (mode)
+               {
+                  case 0  : remove_leading_trailing(rem_chars,t); break;
+                  case 1  : remove_leading         (rem_chars,t); break;
+                  case 2  : remove_trailing        (rem_chars,t); break;
+                  default : return false;
+               }
+               return true;
+            }
+         };
+      }
+
+      template <typename T>
+      class trim_impl
+      {
+      public:
+
+         trim_impl(const std::size_t mode,
+                   T& t,
+                   const std::string& rem_chars = " ")
+         : mode_(mode),
+           t_(&t),
+           rem_chars_(rem_chars)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            return trim_details::convert_impl<T>::execute(begin,end,rem_chars_,mode_,(*t_));
+         }
+
+         inline trim_impl<T>& ref()
+         {
+            return (*this);
+         }
+
+      private:
+
+         std::size_t  mode_;
+         T* t_;
+         std::string  rem_chars_;
+      };
+
+      class conv_to_lcase_impl
+      {
+      public:
+
+         conv_to_lcase_impl(std::string& s)
+         : s_(&s)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            std::string& s = (*s_);
+            s.assign(begin,end);
+            convert_to_lowercase(s);
+            return true;
+         }
+
+         inline conv_to_lcase_impl& ref()
+         {
+            return (*this);
+         }
+
+      private:
+
+         std::string* s_;
+      };
+
+      class conv_to_ucase_impl
+      {
+      public:
+
+         conv_to_ucase_impl(std::string& s)
+         : s_(&s)
+         {}
+
+         template <typename InputIterator>
+         inline bool operator()(InputIterator begin, InputIterator end)
+         {
+            std::string& s = (*s_);
+            s.assign(begin,end);
+            convert_to_uppercase(s);
+            return true;
+         }
+
+         inline conv_to_ucase_impl& ref()
+         {
+            return (*this);
+         }
+
+      private:
+
+         std::string* s_;
       };
 
       class fill_array_impl
@@ -15259,10 +15412,38 @@ namespace strtk
       return details::like_impl(s);
    }
 
-   template <typename T>
-   inline details::inrange_impl<T> inrange(T& t, const T& low, const T& hi)
+   template <typename T, typename T0, typename T1>
+   inline details::inrange_impl<T> inrange(T& t, const T0& low, const T1& hi)
    {
-      return details::inrange_impl<T>(t,low,hi);
+      return details::inrange_impl<T>(t,T(low),T(hi));
+   }
+
+   template <typename T>
+   inline details::trim_impl<T> trim(const std::string& rem_chars, T& t)
+   {
+      return details::trim_impl<T>(0,t,rem_chars);
+   }
+
+   template <typename T>
+   inline details::trim_impl<T> trim_leading(const std::string& rem_chars, T& t)
+   {
+      return details::trim_impl<T>(1,t,rem_chars);
+   }
+
+   template <typename T>
+   inline details::trim_impl<T> trim_trailing(const std::string& rem_chars, T& t)
+   {
+      return details::trim_impl<T>(2,t,rem_chars);
+   }
+
+   inline details::conv_to_lcase_impl as_lcase(std::string& s)
+   {
+      return details::conv_to_lcase_impl(s);
+   }
+
+   inline details::conv_to_ucase_impl as_ucase(std::string& s)
+   {
+      return details::conv_to_ucase_impl(s);
    }
 
    inline details::fill_array_impl fill_array(unsigned char* data, const std::size_t& size)
@@ -15500,9 +15681,19 @@ namespace strtk
       template<> struct supported_conversion_to_type<strtk::details::fill_array_impl> { typedef fillchararray_type_tag type; };
       template<> struct supported_iterator_type<strtk::details::fill_array_impl>      { enum { value = true }; };
 
+      template<> struct supported_conversion_to_type<strtk::details::conv_to_lcase_impl> { typedef lcase_type_tag type; };
+      template<> struct supported_iterator_type<strtk::details::conv_to_lcase_impl>      { enum { value = true }; };
+
+      template<> struct supported_conversion_to_type<strtk::details::conv_to_ucase_impl> { typedef ucase_type_tag type; };
+      template<> struct supported_iterator_type<strtk::details::conv_to_ucase_impl>      { enum { value = true }; };
+
       #define strtk_register_inrange_type_tag(T)\
       template<> struct supported_conversion_to_type<strtk::details::inrange_impl<T> >   { typedef inrange_type_tag type; };\
       template<> struct supported_iterator_type<strtk::details::inrange_impl<T> >        { enum { value = true }; };\
+
+      #define strtk_register_trim_type_tag(T)\
+      template<> struct supported_conversion_to_type<strtk::details::trim_impl<T> >   { typedef trim_type_tag type; };\
+      template<> struct supported_iterator_type<strtk::details::trim_impl<T> >        { enum { value = true }; };
 
       #define strtk_register_stdstring_range_type_tag(T)\
       template<> struct supported_conversion_to_type< std::pair<T,T> >{ typedef stdstring_range_type_tag type; };
@@ -15642,6 +15833,21 @@ namespace strtk
       strtk_register_inrange_type_tag(unsigned long long int)
       strtk_register_inrange_type_tag(std::string)
 
+      strtk_register_trim_type_tag(float)
+      strtk_register_trim_type_tag(double)
+      strtk_register_trim_type_tag(long double)
+      strtk_register_trim_type_tag(signed char)
+      strtk_register_trim_type_tag(char)
+      strtk_register_trim_type_tag(short)
+      strtk_register_trim_type_tag(int)
+      strtk_register_trim_type_tag(long)
+      strtk_register_trim_type_tag(unsigned char)
+      strtk_register_trim_type_tag(unsigned short)
+      strtk_register_trim_type_tag(unsigned int)
+      strtk_register_trim_type_tag(unsigned long)
+      strtk_register_trim_type_tag(unsigned long long int)
+      strtk_register_trim_type_tag(std::string)
+
       #define strtk_register_userdef_type_sink(T)\
       namespace strtk { namespace details { strtk_register_sink_type_tag(T) }}
 
@@ -15656,6 +15862,7 @@ namespace strtk
       #undef strtk_register_sequence_iterator_type
       #undef strtk_register_stl_container_to_string_conv_type_tag
       #undef strtk_register_inrange_type_tag
+      #undef strtk_register_trim_type_tag
 
       template <typename T>
       struct precision
@@ -15733,6 +15940,33 @@ namespace strtk
 
       template <typename Iterator, typename InRange>
       inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, InRange& t, inrange_type_tag)
+      {
+         if (!t(itr,end))
+            return false;
+         itr = end;
+         return true;
+      }
+
+      template <typename Iterator, typename TrimToken>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, TrimToken& t, trim_type_tag)
+      {
+         if (!t(itr,end))
+            return false;
+         itr = end;
+         return true;
+      }
+
+      template <typename Iterator, typename CaseToken>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, CaseToken& t, lcase_type_tag)
+      {
+         if (!t(itr,end))
+            return false;
+         itr = end;
+         return true;
+      }
+
+      template <typename Iterator, typename CaseToken>
+      inline bool string_to_type_converter_impl(Iterator& itr, const Iterator end, CaseToken& t, ucase_type_tag)
       {
          if (!t(itr,end))
             return false;
@@ -21601,7 +21835,7 @@ namespace strtk
       csii_t csii(column_list,token_list);\
       const std::size_t parsed_token_count = split_n<InputIterator,csii_t&>\
       (delimiters,begin,end,token_count,csii,split_options::compress_delimiters);\
-      if (token_count != parsed_token_count) return false;\
+      if (token_count > parsed_token_count) return false;\
 
    #define strk_parse_col_seq\
       return parse_columns(data.data(),data.data() + data.size(),delimiters,column_list,seq);
