@@ -2,7 +2,7 @@
  *****************************************************************
  *                     String Toolkit Library                    *
  *                                                               *
- * Author: Arash Partow (2002-2012)                              *
+ * Author: Arash Partow (2002-2013)                              *
  * URL: http://www.partow.net/programming/strtk/index.html       *
  *                                                               *
  * Copyright notice:                                             *
@@ -1889,7 +1889,7 @@ namespace strtk
       return imatch(r1.begin(),r1.end(),r2.begin(),r2.end());
    }
 
-   inline bool imatch(const std::string& s1, const std::string s2)
+   inline bool imatch(const std::string& s1, const std::string& s2)
    {
       return imatch(s1.data(),
                     s1.data() + s1.size(),
@@ -4966,6 +4966,10 @@ namespace strtk
 
       struct store
       {
+         store()
+         : max_column(0)
+         {}
+
          token_list_t token_list;
          row_index_t   row_index;
          std::size_t  max_column;
@@ -5260,7 +5264,8 @@ namespace strtk
       public:
 
          row_type()
-         : index_(std::numeric_limits<std::size_t>::max())
+         : index_(std::numeric_limits<std::size_t>::max()),
+           size_(0)
          {}
 
          row_type(const std::size_t& index,
@@ -5280,7 +5285,7 @@ namespace strtk
          template <typename T>
          inline T get(const std::size_t& index) const
          {
-            return row_type::operator[]<T>(index);
+            return operator[]<T>(index);
          }
 
          inline col_range_t all_columns() const
@@ -6454,7 +6459,7 @@ namespace strtk
          {
             remove_inplace(index_remover(remove_token_list),dsv_index_.token_list);
          }
-         if (remove_token_list.size() > 0)
+         if (!remove_token_list.empty())
          {
             update_minmax_columns();
          }
@@ -6804,7 +6809,7 @@ namespace strtk
 
       static inline token_grid::options default_options()
       {
-         return token_grid::options();
+         return options();
       }
 
       template <typename Function>
@@ -7072,7 +7077,7 @@ namespace strtk
    };
 
    template <typename T>
-   inline bool convert_string_range(const std::pair<std::string::const_iterator,std::string::const_iterator> range, T& t)
+   inline bool convert_string_range(const std::pair<std::string::const_iterator,std::string::const_iterator>& range, T& t)
    {
       if (range.first == range.second) return false;
       t = string_to_type_converter<T>(std::string(range.first,range.second));
@@ -8261,69 +8266,69 @@ namespace strtk
 
       public:
 
-      template <typename T, typename Allocator>
-      container_adder(std::vector<T,Allocator>& vec)
-      : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::vector>(vec))
-      {}
+         template <typename T, typename Allocator>
+         container_adder(std::vector<T,Allocator>& vec)
+         : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::vector>(vec))
+         {}
 
-      template <typename T, typename Allocator>
-      container_adder(std::deque<T,Allocator>& deq)
-      : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::deque>(deq))
-      {}
+         template <typename T, typename Allocator>
+         container_adder(std::deque<T,Allocator>& deq)
+         : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::deque>(deq))
+         {}
 
-      template <typename T, typename Allocator>
-      container_adder(std::list<T,Allocator>& list)
-      : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::list>(list))
-      {}
+         template <typename T, typename Allocator>
+         container_adder(std::list<T,Allocator>& list)
+         : container_adder_base_(new(buffer)sequence_adder_impl<T,Allocator,std::list>(list))
+         {}
 
-      template <typename T, typename Comparator, typename Allocator>
-      container_adder(std::set<T,Comparator,Allocator>& set)
-      : container_adder_base_(new(buffer)set_adder_impl<T,Comparator,Allocator,std::set>(set))
-      {}
+         template <typename T, typename Comparator, typename Allocator>
+         container_adder(std::set<T,Comparator,Allocator>& set)
+         : container_adder_base_(new(buffer)set_adder_impl<T,Comparator,Allocator,std::set>(set))
+         {}
 
-      template <typename T, typename Comparator, typename Allocator>
-      container_adder(std::multiset<T,Comparator,Allocator>& multiset)
-      : container_adder_base_(new(buffer)set_adder_impl<T,Comparator,Allocator,std::multiset>(multiset))
-      {}
+         template <typename T, typename Comparator, typename Allocator>
+         container_adder(std::multiset<T,Comparator,Allocator>& multiset)
+         : container_adder_base_(new(buffer)set_adder_impl<T,Comparator,Allocator,std::multiset>(multiset))
+         {}
 
-      template <typename T, typename Container, typename Comparator>
-      container_adder(std::priority_queue<T,Container,Comparator>& pq)
-      : container_adder_base_(new(buffer)pq_adder_impl<T,Container,Comparator>(pq))
-      {}
+         template <typename T, typename Container, typename Comparator>
+         container_adder(std::priority_queue<T,Container,Comparator>& pq)
+         : container_adder_base_(new(buffer)pq_adder_impl<T,Container,Comparator>(pq))
+         {}
 
-      template <typename T, typename Container>
-      container_adder(std::queue<T,Container>& queue)
-      : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::queue>(queue))
-      {}
+         template <typename T, typename Container>
+         container_adder(std::queue<T,Container>& queue)
+         : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::queue>(queue))
+         {}
 
-      template <typename T, typename Container>
-      container_adder(std::stack<T,Container>& stack)
-      : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::stack>(stack))
-      {}
+         template <typename T, typename Container>
+         container_adder(std::stack<T,Container>& stack)
+         : container_adder_base_(new(buffer)stack_queue_adder_impl<T,Container,std::stack>(stack))
+         {}
 
-      template <typename InputIterator>
-      inline bool add(InputIterator begin, InputIterator end) const
-      {
-         return container_adder_base_->add(begin,end);
-      }
-
-      template <typename InputIterator>
-      inline bool add(std::pair<InputIterator,InputIterator>& range) const
-      {
-         return add(range.first,range.second);
-      }
-
-      template <typename InputIterator>
-      inline bool operator()(const InputIterator begin, const InputIterator end)
-      {
-         InputIterator itr = begin;
-         while (end != itr)
+         template <typename InputIterator>
+         inline bool add(InputIterator begin, InputIterator end) const
          {
-            if (!add(*itr)) return false;
-            ++itr;
+            return container_adder_base_->add(begin,end);
          }
-         return true;
-      }
+
+         template <typename InputIterator>
+         inline bool add(std::pair<InputIterator,InputIterator>& range) const
+         {
+            return add(range.first,range.second);
+         }
+
+         template <typename InputIterator>
+         inline bool operator()(const InputIterator begin, const InputIterator end)
+         {
+            InputIterator itr = begin;
+            while (end != itr)
+            {
+               if (!add(*itr)) return false;
+               ++itr;
+            }
+            return true;
+         }
 
       private:
 
@@ -11712,7 +11717,7 @@ namespace strtk
 
       for (std::size_t i = k - 1; i > 0; --i)
       {
-         for (int j = i - 1; j >= 0; --j)
+         for (int j = static_cast<int>(i - 1); j >= 0; --j)
          {
             if (permutate[j] <= permutate[i])
             {
@@ -16792,10 +16797,10 @@ namespace strtk
          unsigned char buffer[numeric<T>::size];
          unsigned char* itr = buffer + (numeric<T>::size - 1);
          T remainder = 0;
-         std::size_t index = 0;
 
          if (0 != value)
          {
+            std::size_t index = 0;
             T temp_v = 0;
             while (value >= static_cast<T>(radix_sqr))
             {
@@ -16843,12 +16848,11 @@ namespace strtk
          bool negative = (value < 0);
          if (negative)
             value = static_cast<T>(-1 * value);
-
          T remainder = 0;
-         std::size_t index = 0;
 
          if (0 != value)
          {
+            std::size_t index = 0;
             T temp_v = 0;
             while (value >= static_cast<T>(radix_sqr))
             {
@@ -16910,7 +16914,7 @@ namespace strtk
       }
 
       template <typename Iterator>
-      inline bool type_to_string_converter_impl(const std::pair<Iterator,Iterator> range, std::string& result, stdstring_range_type_tag)
+      inline bool type_to_string_converter_impl(const std::pair<Iterator,Iterator>& range, std::string& result, stdstring_range_type_tag)
       {
          result.assign(range.first,range.second);
          return true;
@@ -18569,8 +18573,7 @@ namespace strtk
               value_holder_(false)
             {}
 
-            node(const key_value_t& key_value,
-                 const value_t& v)
+            node(const key_value_t& key_value, const value_t& v)
             : key_value_(key_value),
               value_holder_(true),
               value_(v)
@@ -18665,11 +18668,10 @@ namespace strtk
                return;
 
             key_iterator_t itr = begin;
-            key_value_t key = (*itr);
-            node_ptr parent = 0;
-            node_ptr n = head_;
+            key_value_t key    = (*itr);
+            node_ptr parent    = 0;
             node_ptr next_node = 0;
-            n = head_ = ((0 == head_) ? new node_t(*itr) : head_);
+            node_ptr n = head_ = ((0 == head_) ? new node_t(*itr) : head_);
 
             while (end != itr)
             {
@@ -18912,10 +18914,10 @@ namespace strtk
             if (!(*this))
                return false;
 
-            double min_m = std::numeric_limits<double>::infinity();
-            double min_k = 0.0;
+            double min_m  = std::numeric_limits<double>::infinity();
+            double min_k  = 0.0;
             double curr_m = 0.0;
-            double k = 1.0;
+            double k      = 1.0;
 
             while (k < 1000.0)
             {
@@ -19019,17 +19021,17 @@ namespace strtk
          {
             if (this != &f)
             {
-               salt_count_ = f.salt_count_;
-               table_size_ = f.table_size_;
-               raw_table_size_ = f.raw_table_size_;
+               salt_count_              = f.salt_count_;
+               table_size_              = f.table_size_;
+               raw_table_size_          = f.raw_table_size_;
                projected_element_count_ = f.projected_element_count_;
-               inserted_element_count_ = f.inserted_element_count_;
-               random_seed_ = f.random_seed_;
+               inserted_element_count_  = f.inserted_element_count_;
+               random_seed_             = f.random_seed_;
                desired_false_positive_probability_ = f.desired_false_positive_probability_;
                delete[] bit_table_;
-               bit_table_ = new cell_type[static_cast<std::size_t>(raw_table_size_)];
+               bit_table_               = new cell_type[static_cast<std::size_t>(raw_table_size_)];
                std::copy(f.bit_table_,f.bit_table_ + raw_table_size_,bit_table_);
-               salt_ = f.salt_;
+               salt_                    = f.salt_;
             }
             return *this;
          }
@@ -19862,11 +19864,14 @@ namespace strtk
 
          semantic_action_impl()
          : function_holder_(0)
-         {}
+         {
+            std::fill_n(function_holder_buffer_,sizeof(function_holder_buffer_),0x00);
+         }
 
          template <typename Function>
          inline explicit semantic_action_impl(const Function& f)
          {
+            std::fill_n(function_holder_buffer_,sizeof(function_holder_buffer_),0x00);
             assign(f);
          }
 
@@ -20079,11 +20084,14 @@ namespace strtk
 
          value()
          : type_holder_(0)
-         {}
+         {
+            std::fill_n(type_holder_buffer_,sizeof(type_holder_buffer_),0x00);
+         }
 
          template <typename T>
          inline explicit value(T& t)
          {
+            std::fill_n(type_holder_buffer_,sizeof(type_holder_buffer_),0x00);
             assign(t);
          }
 
@@ -22113,7 +22121,7 @@ namespace strtk
                              const details::column_list_impl<12>& column_list,
                              Sequence<T,Allocator>& seq)
    {
-      strtk_parse_columns_impl(11)
+      strtk_parse_columns_impl(12)
       strtk_parse_col_token_seq( 0) strtk_parse_col_token_seq( 1)
       strtk_parse_col_token_seq( 2) strtk_parse_col_token_seq( 3)
       strtk_parse_col_token_seq( 4) strtk_parse_col_token_seq( 5)
@@ -22481,7 +22489,7 @@ namespace strtk
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
-   inline bool parse_columns(const std::string data,
+   inline bool parse_columns(const std::string& data,
                              const std::string& delimiters,
                              const details::column_list_impl<12>& column_list,
                              Sequence<T,Allocator>& seq)
@@ -22492,7 +22500,7 @@ namespace strtk
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
-   inline bool parse_columns(const std::string data,
+   inline bool parse_columns(const std::string& data,
                              const std::string& delimiters,
                              const details::column_list_impl<11>& column_list,
                              Sequence<T,Allocator>& seq)
@@ -22503,7 +22511,7 @@ namespace strtk
    template <typename T,
              typename Allocator,
              template <typename,typename> class Sequence>
-   inline bool parse_columns(const std::string data,
+   inline bool parse_columns(const std::string& data,
                              const std::string& delimiters,
                              const details::column_list_impl<10>& column_list,
                              Sequence<T,Allocator>& seq)
@@ -22716,7 +22724,7 @@ namespace strtk
    }
 
    template <typename Iterator>
-   inline std::pair<Iterator,Iterator> make_pair(const std::pair<const char*, const char*> p)
+   inline std::pair<Iterator,Iterator> make_pair(const std::pair<const char*, const char*>& p)
    {
       return make_pair<Iterator,Iterator>(p);
    }
@@ -23341,8 +23349,8 @@ namespace strtk
    namespace information
    {
       static const char* library = "String Toolkit";
-      static const char* version = "2.71828182845904523536028747135266249775724709";
-      static const char* date    = "20111111";
+      static const char* version = "2.71828182845904523536028747135266249775724709369";
+      static const char* date    = "20130126";
 
       static inline std::string data()
       {

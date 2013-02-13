@@ -3,7 +3,7 @@
  *                     String Toolkit Library                    *
  *                                                               *
  * String Toolkit Library Examples                               *
- * Author: Arash Partow (2002-2012)                              *
+ * Author: Arash Partow (2002-2013)                              *
  * URL: http://www.partow.net/programming/strtk/index.html       *
  *                                                               *
  * Copyright notice:                                             *
@@ -883,7 +883,7 @@ void parse_example10()
       double d;
       std::string s;
 
-      strtk::parse_columns(data,",| ;",strtk::column_list(0,2,4),i,d,s);
+      strtk::parse_columns(tuple_data,",| ;",strtk::column_list(0,2,4),i,d,s);
 
       std::cout << "parse_example10() - i = " << i << std::endl;
       std::cout << "parse_example10() - d = " << d << std::endl;
