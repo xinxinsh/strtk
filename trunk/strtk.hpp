@@ -6778,7 +6778,7 @@ namespace strtk
          if (row_range_invalid(row_range))
             return false;
          row_range_t r(row_range.first,row_range.first);
-         for (std::size_t i = row_range.first; i < row_range.second; ++i)
+         for (row_range_t::first_type i = row_range.first; i < row_range.second; ++i)
          {
             if (p(row_type(i,dsv_index_)))
             {
