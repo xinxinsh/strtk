@@ -1257,8 +1257,9 @@ namespace strtk
 
    namespace details
    {
-      #if (defined(__MINGW32_VERSION)) ||\
-          (defined(__APPLE__) && (__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ < 1070)) ||\
+      #if (defined(__MINGW32_VERSION)) ||                                                   \
+          (defined(__CYGWIN__) || defined(__CYGWIN32__)) ||                                 \
+          (defined(__APPLE__) && (__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ < 1070)) || \
           (defined(_WIN32) && (_MSC_VER < 1400))
          inline std::size_t strnlength(const char* s, const std::size_t& n)
          {
@@ -16986,25 +16987,34 @@ namespace strtk
       }
 
       template <typename T>
-      inline bool type_to_string_converter_impl(T value, std::string& result, signed_type_tag)
+      struct tsci_type {};
+
+      #define define_tsci_type(Type,ReType) \
+      template <>                                      \
+      struct tsci_type<Type>                           \
+      {                                                \
+         typedef ReType  type;                         \
+      };                                               \
+
+      define_tsci_type(short    ,unsigned short    )
+      define_tsci_type(int      ,unsigned int      )
+      define_tsci_type(long     ,unsigned long     )
+      define_tsci_type(long long,unsigned long long)
+
+      #undef define_tsci_type
+
+      template <typename T>
+      inline bool type_to_string_converter_impl(T valuex, std::string& result, signed_type_tag)
       {
          static const std::size_t radix = 10;
-         static const std::size_t radix_sqr = radix * radix;
-         static const std::size_t radix_cube = radix * radix * radix;
+         static const std::size_t radix_sqr   = radix * radix;
+         static const std::size_t radix_cube  = radix * radix * radix;
          static const std::size_t buffer_size = ((strtk::details::numeric<T>::size < 16) ? 16 : 32);
          unsigned char buffer[buffer_size];
          unsigned char* itr = buffer + buffer_size;
-         unsigned int negative_state = (value < 0);
-
-         if (negative_state)
-         {
-            if (value == std::numeric_limits<T>::min())
-            {
-               negative_state++;
-               value += 1;
-            }
-            value = static_cast<T>(-value);
-         }
+         bool negative = (valuex < 0);
+         typedef typename tsci_type<T>::type TT;
+         TT value = (negative) ? -valuex : valuex;
 
          if (value)
          {
@@ -17029,19 +17039,15 @@ namespace strtk
                *(--itr) = static_cast<unsigned char>('0' + value);
             }
 
-            if (negative_state)
+            if (negative)
             {
                *(--itr) = '-';
-               if (negative_state == 2)
-               {
-                  buffer[buffer_size - 1] += 1;
-               }
             }
          }
          else
             *(--itr) = '0';
 
-         result.assign(reinterpret_cast<char*>(itr),(buffer + buffer_size) - itr);
+         result.assign(reinterpret_cast<char*>(itr), (buffer + buffer_size) - itr);
          return true;
       }
 
